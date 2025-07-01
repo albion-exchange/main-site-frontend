@@ -31,6 +31,7 @@
   "dependencies": {
     "@wagmi/connectors": "^5.0.0",
     "@wagmi/core": "^2.0.0",
+    "lucide-svelte": "^0.525.0",
     "viem": "^2.0.0",
     "wagmi": "^2.0.0"
   }
