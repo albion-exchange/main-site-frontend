@@ -1,8 +1,21 @@
 <script lang="ts">
 	import '../app.css';
 	import { page } from '$app/stores';
+	import { walletStore, walletActions, formatAddress } from '$lib/stores/wallet';
 	
 	$: currentPath = $page.url.pathname;
+	
+	// Mock wallet connection
+	async function connectWallet() {
+		if ($walletStore.isConnected) {
+			// Disconnect wallet
+			walletActions.disconnect();
+			return;
+		}
+		
+		// Connect wallet
+		await walletActions.connect();
+	}
 </script>
 
 <div class="app">
@@ -21,7 +34,24 @@
 				</div>
 				
 				<div class="nav-actions">
-					<a href="/buy-token" class="btn-primary">Buy Tokens</a>
+					<button 
+						class="wallet-btn"
+						class:connected={$walletStore.isConnected}
+						class:connecting={$walletStore.isConnecting}
+						on:click={connectWallet}
+						disabled={$walletStore.isConnecting}
+					>
+						{#if $walletStore.isConnecting}
+							Connecting...
+						{:else if $walletStore.isConnected}
+							<span class="wallet-icon">🔗</span>
+							{formatAddress($walletStore.address)}
+						{:else}
+							<span class="wallet-icon">🔌</span>
+							Connect Wallet
+						{/if}
+					</button>
+					<a href="/buy-tokens" class="btn-primary">Buy Tokens</a>
 				</div>
 			</div>
 		</nav>
@@ -43,7 +73,7 @@
 					<ul>
 						<li><a href="/assets">Browse Assets</a></li>
 						<li><a href="/portfolio">Portfolio</a></li>
-						<li><a href="/claims">Claims</a></li>
+						<li><a href="/claims">Claim Payouts</a></li>
 					</ul>
 				</div>
 				<div class="footer-section">
@@ -130,6 +160,7 @@
 	.nav-actions {
 		display: flex;
 		align-items: center;
+		gap: 1rem;
 	}
 
 	.btn-primary {
@@ -146,6 +177,48 @@
 
 	.btn-primary:hover {
 		background: var(--color-secondary);
+	}
+
+	.wallet-btn {
+		background: var(--color-white);
+		border: 1px solid var(--color-light-gray);
+		color: var(--color-black);
+		padding: 0.5rem 1rem;
+		font-family: var(--font-family);
+		font-weight: var(--font-weight-semibold);
+		font-size: 0.9rem;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.wallet-btn:hover:not(:disabled) {
+		background: var(--color-light-gray);
+		border-color: var(--color-black);
+	}
+
+	.wallet-btn.connected {
+		background: var(--color-light-gray);
+		border-color: var(--color-primary);
+		color: var(--color-primary);
+	}
+
+	.wallet-btn.connecting {
+		opacity: 0.7;
+		cursor: not-allowed;
+	}
+
+	.wallet-btn:disabled {
+		opacity: 0.7;
+		cursor: not-allowed;
+	}
+
+	.wallet-icon {
+		font-size: 1rem;
 	}
 
 	.main-content {
@@ -235,6 +308,16 @@
 			margin-top: 1rem;
 			padding-top: 1rem;
 			border-top: 1px solid var(--color-light-gray);
+		}
+
+		.nav-actions {
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+
+		.wallet-btn {
+			font-size: 0.8rem;
+			padding: 0.4rem 0.8rem;
 		}
 
 		.footer-content {

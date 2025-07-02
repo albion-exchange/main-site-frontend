@@ -32,7 +32,7 @@ export const texasGulfAlpha: Asset = {
       revenue: 87500,
       expenses: 23000,
       netIncome: 64500,
-      distributionPerToken: 0.32
+      payoutPerToken: 0.32
     },
     {
       month: '2024-02',
@@ -40,7 +40,7 @@ export const texasGulfAlpha: Asset = {
       revenue: 82600,
       expenses: 21500,
       netIncome: 61100,
-      distributionPerToken: 0.31
+      payoutPerToken: 0.31
     },
     {
       month: '2024-03',
@@ -48,7 +48,7 @@ export const texasGulfAlpha: Asset = {
       revenue: 92400,
       expenses: 24800,
       netIncome: 67600,
-      distributionPerToken: 0.34
+      payoutPerToken: 0.34
     },
     {
       month: '2024-04',
@@ -56,7 +56,7 @@ export const texasGulfAlpha: Asset = {
       revenue: 89250,
       expenses: 23200,
       netIncome: 66050,
-      distributionPerToken: 0.33
+      payoutPerToken: 0.33
     },
     {
       month: '2024-05',
@@ -64,7 +64,7 @@ export const texasGulfAlpha: Asset = {
       revenue: 97650,
       expenses: 25100,
       netIncome: 72550,
-      distributionPerToken: 0.36
+      payoutPerToken: 0.36
     }
   ],
   tokenContracts: [

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import AssetCard from '../assets/AssetCard.svelte';
-	import { AssetService } from '$lib/services';
-	import type { Asset } from '$lib/types';
+	import dataStoreService from '$lib/services/DataStoreService';
+	import type { Asset } from '$lib/types/dataStore';
 
 	export let searchQuery = '';
 	export let filterType = '';
@@ -17,8 +17,8 @@
 
 	function loadAssets() {
 		loading = true;
-		// Load assets from AssetService
-		assets = AssetService.getAssets();
+		// Load assets from DataStoreService
+		assets = dataStoreService.getAllAssets();
 		filterAssets();
 		loading = false;
 	}
@@ -28,12 +28,16 @@
 
 		// Apply search filter
 		if (searchQuery.trim()) {
-			result = AssetService.searchAssets(searchQuery);
+			result = assets.filter(asset => 
+				asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				asset.location.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				asset.operator.name.toLowerCase().includes(searchQuery.toLowerCase())
+			);
 		}
 
-		// Apply type filter
+		// Apply type filter (using production status as filter)
 		if (filterType) {
-			result = result.filter(asset => asset.fieldType === filterType);
+			result = result.filter(asset => asset.production.status === filterType);
 		}
 
 		filteredAssets = result;
@@ -46,8 +50,8 @@
 		filterAssets();
 	}
 
-	// Get unique field types for filtering
-	$: fieldTypes = [...new Set(assets.map(asset => asset.fieldType))];
+	// Get unique production statuses for filtering
+	$: fieldTypes = [...new Set(assets.map(asset => asset.production.status))];
 
 	function handleAssetClick(asset: Asset) {
 		// Navigate to asset detail page
@@ -74,9 +78,9 @@
 
 			<div class="filter-box">
 				<select bind:value={filterType} class="filter-select">
-					<option value="">All Field Types</option>
+					<option value="">All Statuses</option>
 					{#each fieldTypes as fieldType}
-						<option value={fieldType}>{fieldType}</option>
+						<option value={fieldType}>{fieldType.charAt(0).toUpperCase() + fieldType.slice(1)}</option>
 					{/each}
 				</select>
 			</div>

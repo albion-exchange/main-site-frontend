@@ -7,7 +7,7 @@ Frontend application for the Albion royalty token platform built with SvelteKit.
 - 🔗 **Wallet Integration** - Connect Ethereum/L2 wallets
 - 🎯 **Token Minting** - Mint royalty and payment tokens
 - 💰 **Balance Tracking** - View token balances from connected wallets
-- 📈 **Distribution Claims** - Claim distributions sent to your addresses
+- 📈 **Payout Payouts** - Claim payouts sent to your addresses
 - 📚 **Educational Content** - Learn about the Albion platform
 
 ## Quick Start

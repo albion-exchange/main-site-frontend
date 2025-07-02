@@ -13,7 +13,7 @@ export interface TokenBalance {
   formattedBalance: string;
 }
 
-export interface Distribution {
+export interface Payout {
   blockNumber: number;
   transactionHash: string;
   timestamp: number;
@@ -25,5 +25,5 @@ export interface Distribution {
 export interface UserTokenData {
   address: string;
   balances: TokenBalance[];
-  distributionHistory: Distribution[];
+  payoutHistory: Payout[];
 }

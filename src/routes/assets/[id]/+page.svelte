@@ -1,99 +1,19 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import dataStoreService from '$lib/services/DataStoreService';
+	import type { Asset, Token } from '$lib/types/dataStore';
 
 	let loading = true;
 	let error: string | null = null;
 	let activeTab = 'overview';
 	let investmentAmount = 5000;
 	let selectedTranche = 'A';
-	let unclaimedYield = 1247.82;
+	let unclaimedPayout = 1247.82;
+	let assetData: Asset | null = null;
+	let assetTokens: Token[] = [];
+	let tranches: any[] = [];
 
-	// Mock asset data - in real app this would be fetched based on the ID
-	const assetData = {
-		name: 'Europa Wressle Release 1',
-		location: 'North Sea Sector 7B',
-		country: 'United Kingdom',
-		operator: 'Europa Oil & Gas Holdings PLC',
-		operatorLogo: 'EO&G',
-		currentYield: 14.8,
-		baseYield: 12.5,
-		totalValue: 2400000,
-		minInvestment: 1000,
-		riskLevel: 'AA-',
-		daysToFunding: 15,
-		productionCapacity: '2,400 bbl/day',
-		reserves: '45.2M bbl',
-		operatingCosts: 18.50,
-		breakeven: 32.10,
-		status: 'funding',
-		tokensAvailable: 150000,
-		tokensSold: 118750,
-		investorCount: 247,
-		coordinates: '53.7°N, 0.8°W',
-		depth: '1,200m',
-		fieldType: 'Conventional Oil',
-		license: 'PEDL 183',
-		estimatedLife: '15+ years',
-		waterDepth: '45m',
-		firstOil: '2019-Q3',
-		peakProduction: '3,200 bbl/day',
-		currentProduction: '2,400 bbl/day',
-		totalInvestment: '$45M',
-		infrastructure: 'Existing pipeline connection',
-		environmental: 'Full environmental compliance'
-	};
-
-	const tranches = [
-		{
-			id: 'A',
-			name: 'Tranche A - Priority',
-			yield: 14.8,
-			minInvestment: 1000,
-			available: 50000,
-			sold: 43750,
-			terms: 'First priority on distributions, premium yield',
-			riskLevel: 'AA-'
-		},
-		{
-			id: 'B',
-			name: 'Tranche B - Standard',
-			yield: 12.5,
-			minInvestment: 2500,
-			available: 75000,
-			sold: 56250,
-			terms: 'Standard distribution priority, base yield',
-			riskLevel: 'A+'
-		},
-		{
-			id: 'C',
-			name: 'Tranche C - Volume',
-			yield: 11.2,
-			minInvestment: 5000,
-			available: 25000,
-			sold: 18750,
-			terms: 'Volume discount, lower minimum yield',
-			riskLevel: 'A'
-		}
-	];
-
-	const productionHistory = [
-		{ month: 'Dec 2024', production: 2400, revenue: 187200, price: 78.00 },
-		{ month: 'Nov 2024', production: 2350, revenue: 182650, price: 77.75 },
-		{ month: 'Oct 2024', production: 2420, revenue: 193600, price: 80.00 },
-		{ month: 'Sep 2024', production: 2380, revenue: 190400, price: 80.00 },
-		{ month: 'Aug 2024', production: 2340, revenue: 179220, price: 76.50 },
-		{ month: 'Jul 2024', production: 2450, revenue: 196000, price: 80.00 }
-	];
-
-	const riskMetrics = [
-		{ label: 'Credit Rating', value: 'AA-', status: 'excellent', description: 'Operator financial strength' },
-		{ label: 'Liquidity Score', value: '8.7/10', status: 'good', description: 'Asset liquidity and market depth' },
-		{ label: 'Volatility Index', value: '2.3%', status: 'low', description: 'Production and price volatility' },
-		{ label: 'Default Risk', value: '0.12%', status: 'minimal', description: 'Probability of payment default' },
-		{ label: 'Geological Risk', value: 'Low', status: 'good', description: 'Reservoir and drilling risk assessment' },
-		{ label: 'Regulatory Risk', value: 'Minimal', status: 'excellent', description: 'Political and regulatory stability' }
-	];
 
 	function formatCurrency(amount: number): string {
 		return new Intl.NumberFormat('en-US', {
@@ -108,23 +28,63 @@
 	$: selectedTrancheData = tranches.find(t => t.id === selectedTranche);
 	$: projectedReturns = {
 		tokens: Math.floor(investmentAmount / 10), // $10 per token example
-		monthlyReturn: (investmentAmount * (selectedTrancheData?.yield || 0)) / 100 / 12,
-		annualReturn: (investmentAmount * (selectedTrancheData?.yield || 0)) / 100,
-		yield: selectedTrancheData?.yield || 0
+		monthlyReturn: (investmentAmount * (selectedTrancheData?.payout || 0)) / 100 / 12,
+		annualIRR: (investmentAmount * (selectedTrancheData?.payout || 0)) / 100,
+		payout: selectedTrancheData?.payout || 0
 	};
 
 	onMount(() => {
 		const assetId = $page.params.id;
-		// Mock loading - in real app would fetch asset by ID
-		setTimeout(() => {
+		
+		try {
+			// Load asset data from store
+			const asset = dataStoreService.getAssetById(assetId);
+			
+			if (!asset) {
+				error = 'Asset not found';
+				loading = false;
+				return;
+			}
+			
+			assetData = asset;
+			
+			// Load associated tokens
+			const tokens = dataStoreService.getTokensByAssetId(assetId);
+			assetTokens = tokens;
+			
+			// Convert token data to tranches format for the UI
+			tranches = tokens
+				.filter(token => token.tokenType === 'royalty' && token.isActive)
+				.map(token => {
+					const supply = dataStoreService.getTokenSupply(token.contractAddress);
+					return {
+						id: token.symbol,
+						name: token.name,
+						payout: 13.5, // Mock payout rate
+						minInvestment: 1000, // Mock minimum investment
+						available: supply?.availableSupply || 0,
+						sold: supply?.mintedSupply || 0,
+						terms: `13.5% estimated annual IRR`
+					};
+				});
+			
+			// Set default tranche if available
+			if (tranches.length > 0) {
+				selectedTranche = tranches[0].id;
+			}
+			
 			loading = false;
-		}, 500);
+		} catch (err) {
+			console.error('Error loading asset:', err);
+			error = 'Error loading asset data';
+			loading = false;
+		}
 	});
 </script>
 
 <svelte:head>
-	<title>{assetData.name} - Albion</title>
-	<meta name="description" content="Detailed information about {assetData.name}" />
+	<title>{assetData?.name || 'Asset Details'} - Albion</title>
+	<meta name="description" content="Detailed information about {assetData?.name || 'asset'}" />
 </svelte:head>
 
 <main class="asset-details">
@@ -143,7 +103,7 @@
 		<nav class="breadcrumb">
 			<a href="/assets" class="breadcrumb-link">← Back to Assets</a>
 			<span class="breadcrumb-separator">/</span>
-			<span class="breadcrumb-current">Wressle Release 1</span>
+			<span class="breadcrumb-current">{assetData?.name || 'Asset Details'}</span>
 		</nav>
 
 		<!-- Asset Header -->
@@ -154,15 +114,14 @@
 						<span class="icon-placeholder">🌊</span>
 					</div>
 					<div class="title-info">
-						<h1>{assetData.name}</h1>
+						<h1>{assetData?.name}</h1>
 						<div class="asset-meta">
-							<span class="location">📍 {assetData.location}</span>
-							<span class="risk-badge">{assetData.riskLevel}</span>
+							<span class="location">📍 {assetData?.location.state}, {assetData?.location.country}</span>
 						</div>
 						<div class="operator-info">
-							<span>Operated by {assetData.operator}</span>
+							<span>Operated by {assetData?.operator.name}</span>
 							<span>•</span>
-							<span>License {assetData.license}</span>
+							<span>License {assetData?.technical.license}</span>
 						</div>
 					</div>
 				</div>
@@ -174,23 +133,23 @@
 
 			<div class="asset-metrics">
 				<div class="metric">
-					<div class="metric-value">${(assetData.totalValue / 1000000).toFixed(1)}M</div>
+					<div class="metric-value">${((assetData?.financial.totalValue || 0) / 1000000).toFixed(1)}M</div>
 					<div class="metric-label">Total Value</div>
 				</div>
 				<div class="metric">
-					<div class="metric-value">{assetData.currentYield}%</div>
-					<div class="metric-label">Current Yield</div>
+					<div class="metric-value">{assetData?.financial.currentPayout}%</div>
+					<div class="metric-label">Current Payout</div>
 				</div>
 				<div class="metric">
-					<div class="metric-value">{assetData.currentProduction}</div>
+					<div class="metric-value">{assetData?.production.current}</div>
 					<div class="metric-label">Current Production</div>
 				</div>
 				<div class="metric">
-					<div class="metric-value">{assetData.investorCount}</div>
+					<div class="metric-value">{assetData?.investment.investorCount}</div>
 					<div class="metric-label">Investors</div>
 				</div>
 				<div class="metric">
-					<div class="metric-value">{assetData.daysToFunding}</div>
+					<div class="metric-value">{assetData?.investment.daysToFunding}</div>
 					<div class="metric-label">Days to Close</div>
 				</div>
 			</div>
@@ -202,7 +161,7 @@
 			
 			<!-- Tranche Selection -->
 			<div class="tranche-selection">
-				<label class="section-label">Select Tranche</label>
+				<div class="section-label">Select Tranche</div>
 				<div class="tranches">
 					{#each tranches as tranche}
 						<label class="tranche-option">
@@ -214,7 +173,7 @@
 							/>
 							<div class="tranche-info">
 								<div class="tranche-name">{tranche.name}</div>
-								<div class="tranche-details">{tranche.yield}% yield • Min {formatCurrency(tranche.minInvestment)}</div>
+								<div class="tranche-details">{tranche.payout}% payout • Min {formatCurrency(tranche.minInvestment)}</div>
 							</div>
 						</label>
 					{/each}
@@ -242,8 +201,8 @@
 						<div class="return-label">Tokens</div>
 					</div>
 					<div class="return-metric">
-						<div class="return-value">{projectedReturns.yield}%</div>
-						<div class="return-label">APY</div>
+						<div class="return-value">{projectedReturns.payout}%</div>
+						<div class="return-label">IRR</div>
 					</div>
 				</div>
 				<div class="return-breakdown">
@@ -252,16 +211,16 @@
 						<span>{formatCurrency(projectedReturns.monthlyReturn)}</span>
 					</div>
 					<div class="breakdown-row">
-						<span>Annual Est.</span>
-						<span>{formatCurrency(projectedReturns.annualReturn)}</span>
+						<span>Annual IRR Est.</span>
+						<span>{formatCurrency(projectedReturns.annualIRR)}</span>
 					</div>
 				</div>
 			</div>
 
 			<!-- Invest Button -->
-			<button class="invest-btn">
-				Invest {formatCurrency(investmentAmount)}
-			</button>
+			<a href="/buy-tokens?asset={assetData?.id}" class="invest-btn">
+				Buy Tokens for {assetData?.name}
+			</a>
 		</div>
 
 		<!-- Tabs Navigation -->
@@ -283,13 +242,6 @@
 				</button>
 				<button 
 					class="tab-btn"
-					class:active={activeTab === 'risk'}
-					on:click={() => activeTab = 'risk'}
-				>
-					Risk Analysis
-				</button>
-				<button 
-					class="tab-btn"
 					class:active={activeTab === 'documents'}
 					on:click={() => activeTab = 'documents'}
 				>
@@ -307,27 +259,27 @@
 								<div class="detail-rows">
 									<div class="detail-row">
 										<span>Field Type</span>
-										<span>{assetData.fieldType}</span>
+										<span>{assetData?.technical.fieldType}</span>
 									</div>
 									<div class="detail-row">
 										<span>Water Depth</span>
-										<span>{assetData.waterDepth}</span>
+										<span>{assetData?.location.waterDepth || 'N/A'}</span>
 									</div>
 									<div class="detail-row">
 										<span>Well Depth</span>
-										<span>{assetData.depth}</span>
+										<span>{assetData?.technical.depth}</span>
 									</div>
 									<div class="detail-row">
 										<span>First Oil</span>
-										<span>{assetData.firstOil}</span>
+										<span>{assetData?.technical.firstOil}</span>
 									</div>
 									<div class="detail-row">
 										<span>Estimated Life</span>
-										<span>{assetData.estimatedLife}</span>
+										<span>{assetData?.technical.estimatedLife}</span>
 									</div>
 									<div class="detail-row">
 										<span>Coordinates</span>
-										<span>{assetData.coordinates}</span>
+										<span>{assetData?.location.coordinates.lat}°, {assetData?.location.coordinates.lng}°</span>
 									</div>
 								</div>
 							</div>
@@ -337,27 +289,27 @@
 								<div class="detail-rows">
 									<div class="detail-row">
 										<span>Current Production</span>
-										<span>{assetData.currentProduction}</span>
+										<span>{assetData?.production.current}</span>
 									</div>
 									<div class="detail-row">
 										<span>Peak Production</span>
-										<span>{assetData.peakProduction}</span>
+										<span>{assetData?.production.peak}</span>
 									</div>
 									<div class="detail-row">
 										<span>Proven Reserves</span>
-										<span>{assetData.reserves}</span>
+										<span>{assetData?.production.reserves}</span>
 									</div>
 									<div class="detail-row">
 										<span>Operating Costs</span>
-										<span>${assetData.operatingCosts}/bbl</span>
+										<span>${assetData?.financial.operatingCosts}/bbl</span>
 									</div>
 									<div class="detail-row">
 										<span>Breakeven Price</span>
-										<span>${assetData.breakeven}/bbl</span>
+										<span>${assetData?.financial.breakeven}/bbl</span>
 									</div>
 									<div class="detail-row">
 										<span>Infrastructure</span>
-										<span>{assetData.infrastructure}</span>
+										<span>{assetData?.technical.infrastructure}</span>
 									</div>
 								</div>
 							</div>
@@ -373,13 +325,13 @@
 								</div>
 								<div class="highlight">
 									<div class="highlight-icon">🛡️</div>
-									<h5>Low Risk Profile</h5>
-									<p>AA- credit rating with minimal geological and operational risk</p>
+									<h5>Stable Operations</h5>
+									<p>Professional operators with proven track record and minimal downtime</p>
 								</div>
 								<div class="highlight">
 									<div class="highlight-icon">📈</div>
-									<h5>Premium Yields</h5>
-									<p>14.8% current yield with potential upside from oil price recovery</p>
+									<h5>Premium Payouts</h5>
+									<p>14.8% current payout with potential upside from oil price recovery</p>
 								</div>
 							</div>
 						</div>
@@ -390,15 +342,15 @@
 							<div class="production-history">
 								<h4>Recent Production History</h4>
 								<div class="history-list">
-									{#each productionHistory as month}
+									{#each (assetData?.monthlyReports || []).slice(0, 6) as report}
 										<div class="history-item">
 											<div class="month-info">
-												<div class="month">{month.month}</div>
-												<div class="production">{month.production} bbl/day avg</div>
+												<div class="month">{report.month}</div>
+												<div class="production">{(report.production / 30).toFixed(0)} bbl/day avg</div>
 											</div>
 											<div class="revenue-info">
-												<div class="revenue">{formatCurrency(month.revenue)}</div>
-												<div class="price">${month.price}/bbl</div>
+												<div class="revenue">{formatCurrency(report.revenue)}</div>
+												<div class="price">${(report.revenue / report.production).toFixed(2)}/bbl</div>
 											</div>
 										</div>
 									{/each}
@@ -448,23 +400,6 @@
 								<div class="chart-label">Production Trend Chart</div>
 								<div class="chart-note">Monthly production and revenue data (Interactive)</div>
 							</div>
-						</div>
-					</div>
-				{:else if activeTab === 'risk'}
-					<div class="risk-content">
-						<div class="risk-metrics-grid">
-							{#each riskMetrics as metric}
-								<div class="risk-metric">
-									<div class="risk-header">
-										<span class="risk-label">{metric.label}</span>
-										<div class="risk-value-container">
-											<span class="risk-value">{metric.value}</span>
-											<span class="risk-status" class:excellent={metric.status === 'excellent'} class:good={metric.status === 'good'} class:low={metric.status === 'low'} class:minimal={metric.status === 'minimal'}></span>
-										</div>
-									</div>
-									<p class="risk-description">{metric.description}</p>
-								</div>
-							{/each}
 						</div>
 					</div>
 				{:else if activeTab === 'documents'}
@@ -869,6 +804,7 @@
 	}
 
 	.invest-btn {
+		display: block;
 		width: 100%;
 		background: var(--color-black);
 		color: var(--color-white);
@@ -879,6 +815,8 @@
 		font-size: 1.1rem;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+		text-decoration: none;
+		text-align: center;
 		cursor: pointer;
 		transition: background-color 0.2s ease;
 	}

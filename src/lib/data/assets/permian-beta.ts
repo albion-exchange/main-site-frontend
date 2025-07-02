@@ -3,7 +3,7 @@ import type { Asset } from '$lib/types';
 export const permianBeta: Asset = {
   id: 'permian-beta',
   name: 'Permian Basin Beta',
-  description: 'High-yield shale oil operation in the prolific Permian Basin. Utilizing advanced hydraulic fracturing techniques to maximize production from proven shale formations.',
+  description: 'High-payout shale oil operation in the prolific Permian Basin. Utilizing advanced hydraulic fracturing techniques to maximize production from proven shale formations.',
   images: [
     '/images/assets/permian-beta-1.jpg',
     '/images/assets/permian-beta-drilling.jpg',
@@ -32,7 +32,7 @@ export const permianBeta: Asset = {
       revenue: 199500,
       expenses: 78000,
       netIncome: 121500,
-      distributionPerToken: 0.81
+      payoutPerToken: 0.81
     },
     {
       month: '2024-02',
@@ -40,7 +40,7 @@ export const permianBeta: Asset = {
       revenue: 190400,
       expenses: 75200,
       netIncome: 115200,
-      distributionPerToken: 0.77
+      payoutPerToken: 0.77
     },
     {
       month: '2024-03',
@@ -48,7 +48,7 @@ export const permianBeta: Asset = {
       revenue: 206500,
       expenses: 82000,
       netIncome: 124500,
-      distributionPerToken: 0.83
+      payoutPerToken: 0.83
     },
     {
       month: '2024-04',
@@ -56,7 +56,7 @@ export const permianBeta: Asset = {
       revenue: 202300,
       expenses: 80500,
       netIncome: 121800,
-      distributionPerToken: 0.81
+      payoutPerToken: 0.81
     },
     {
       month: '2024-05',
@@ -64,7 +64,7 @@ export const permianBeta: Asset = {
       revenue: 218400,
       expenses: 86800,
       netIncome: 131600,
-      distributionPerToken: 0.88
+      payoutPerToken: 0.88
     }
   ],
   tokenContracts: [

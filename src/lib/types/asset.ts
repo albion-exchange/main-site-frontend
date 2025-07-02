@@ -4,7 +4,7 @@ export interface MonthlyReport {
   revenue: number; // USD
   expenses: number; // USD
   netIncome: number; // USD
-  distributionPerToken?: number; // USD per token
+  payoutPerToken?: number; // USD per token
 }
 
 export interface AssetLocation {

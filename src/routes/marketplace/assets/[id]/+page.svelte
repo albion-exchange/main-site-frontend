@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { AssetService } from '$lib/services';
+	import dataStoreService from '$lib/services/DataStoreService';
 	import TokenCard from '$lib/components/tokens/TokenCard.svelte';
-	import type { Asset } from '$lib/types';
+	import type { Asset } from '$lib/types/dataStore';
 
 	let asset: Asset | null = null;
 	let loading = true;
@@ -19,7 +19,7 @@
 		loading = true;
 		error = null;
 		
-		asset = AssetService.getAssetById(assetId);
+		asset = dataStoreService.getAssetById(assetId);
 		
 		if (!asset) {
 			error = 'Asset not found';
@@ -148,8 +148,8 @@
 							</div>
 							{#if performanceMetrics.latestReport}
 								<div class="metric">
-									<span class="metric-value">${performanceMetrics.latestReport.distributionPerToken?.toFixed(2) || '0.00'}</span>
-									<span class="metric-label">Latest Distribution/Token</span>
+									<span class="metric-value">${performanceMetrics.latestReport.payoutPerToken?.toFixed(2) || '0.00'}</span>
+									<span class="metric-label">Latest Payout/Token</span>
 								</div>
 							{/if}
 						</div>
@@ -172,7 +172,7 @@
 								<div>{formatNumber(report.production)} bbls</div>
 								<div>{formatCurrency(report.revenue)}</div>
 								<div>{formatCurrency(report.netIncome)}</div>
-								<div>${report.distributionPerToken?.toFixed(2) || '0.00'}</div>
+								<div>${report.payoutPerToken?.toFixed(2) || '0.00'}</div>
 							</div>
 						{/each}
 					</div>

@@ -1,135 +1,79 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { 
-		Globe, Menu, X, ChevronRight, Shield, ArrowUpRight, TrendingUp, 
-		Calendar, MapPin, BarChart3, Activity, DollarSign, Zap, Clock, 
-		AlertCircle, Download, RefreshCw, Search, Filter, Home, 
-		Briefcase, User, BookOpen, Layers, Bell, Settings, LogOut,
-		Plus, Minus, Eye, EyeOff, ChevronDown, Star, Award, Target,
-		Users, Building, Percent, SlidersHorizontal, Grid3X3, List,
-		Fuel, Droplets, Mountain, Waves, FileText, Camera, Play,
-		ChevronLeft, Info, Thermometer, Gauge, Factory, Truck,
-		CheckCircle, ExternalLink, History, Wallet, ArrowDown
-	} from 'lucide-svelte';
+	import dataStoreService from '$lib/services/DataStoreService';
+	import type { Asset } from '$lib/types/dataStore';
+	import { walletStore, walletActions } from '$lib/stores/wallet';
+	import WalletModal from '$lib/components/WalletModal.svelte';
 
-	interface Asset {
-		id: number;
-		name: string;
-		location: string;
-		unclaimedAmount: number;
-		totalEarned: number;
-		lastPayout: string;
-		nextPayout: string;
-		tokensOwned: number;
-		currentYield: number;
-		status: string;
-		icon: any;
-	}
-
-	interface ClaimHistory {
-		date: string;
-		amount: number;
-		asset: string;
-		txHash: string;
-		status: string;
-	}
-
-	let isSidebarOpen = true;
-	let unclaimedYield = 1247.82;
 	let totalEarned = 8472.15;
 	let totalClaimed = 7224.33;
-	let isAccruing = true;
-	let selectedAssets: number[] = [];
-	let claimMethod = 'wallet';
+	let unclaimedPayout = 1247.82;
 	let loading = true;
-	let isConnected = true; // Auto-connected for demo
 	let claiming = false;
 	let claimSuccess = false;
-	let claimError: string | null = null;
+	let selectedAssets: string[] = [];
+	let claimMethod = 'wallet';
+	let isAccruing = true;
+	let showWalletModal = false;
 
-	let assets: Asset[] = [];
-	let claimHistory: ClaimHistory[] = [];
+	// Mock portfolio data based on real assets
+	const mockPortfolioBalances = [
+		{ assetId: 'europa-wressle-release-1', unclaimedAmount: 487.32, totalEarned: 2847.15, lastPayout: '2024-12-15' },
+		{ assetId: 'bakken-horizon-field', unclaimedAmount: 342.18, totalEarned: 2156.47, lastPayout: '2024-12-10' },
+		{ assetId: 'permian-basin-venture', unclaimedAmount: 286.74, totalEarned: 1847.21, lastPayout: '2024-12-20' },
+		{ assetId: 'gulf-mexico-deep-water', unclaimedAmount: 131.58, totalEarned: 1621.32, lastPayout: '2024-12-05' }
+	];
 
-	// Simulate yield accrual
-	onMount(() => {
-		// Initialize mock data
-		assets = [
-			{
-				id: 1,
-				name: 'Europa Wressle Release 1',
-				location: 'North Sea Sector 7B',
-				unclaimedAmount: 487.32,
-				totalEarned: 2847.15,
-				lastPayout: '2024-12-15',
-				nextPayout: '2025-01-15',
-				tokensOwned: 18750,
-				currentYield: 14.8,
-				status: 'producing',
-				icon: Waves
-			},
-			{
-				id: 2,
-				name: 'Bakken Horizon Field',
-				location: 'North Dakota, USA',
-				unclaimedAmount: 342.18,
-				totalEarned: 2156.47,
-				lastPayout: '2024-12-10',
-				nextPayout: '2025-01-10',
-				tokensOwned: 12500,
-				currentYield: 12.4,
-				status: 'producing',
-				icon: Mountain
-			},
-			{
-				id: 3,
-				name: 'Permian Basin Venture',
-				location: 'Texas, USA',
-				unclaimedAmount: 286.74,
-				totalEarned: 1847.21,
-				lastPayout: '2024-12-20',
-				nextPayout: '2025-01-20',
-				tokensOwned: 8750,
-				currentYield: 13.9,
-				status: 'producing',
-				icon: Fuel
-			},
-			{
-				id: 4,
-				name: 'Gulf of Mexico Deep Water',
-				location: 'Gulf of Mexico',
-				unclaimedAmount: 131.58,
-				totalEarned: 1621.32,
-				lastPayout: '2024-12-05',
-				nextPayout: '2025-01-05',
-				tokensOwned: 6250,
-				currentYield: 15.2,
-				status: 'producing',
-				icon: Droplets
-			}
-		];
+	let holdings: any[] = [];
 
-		claimHistory = [
-			{ date: '2024-12-15', amount: 487.32, asset: 'Europa Wressle Release 1', txHash: '0x7d8f...a2b1', status: 'completed' },
-			{ date: '2024-12-10', amount: 342.18, asset: 'Bakken Horizon Field', txHash: '0x9c3e...f5d2', status: 'completed' },
-			{ date: '2024-11-15', amount: 456.89, asset: 'Europa Wressle Release 1', txHash: '0x2f1a...c7e3', status: 'completed' },
-			{ date: '2024-11-10', amount: 298.45, asset: 'Bakken Horizon Field', txHash: '0x8b4d...x9f4', status: 'completed' },
-			{ date: '2024-10-20', amount: 312.67, asset: 'Permian Basin Venture', txHash: '0x5e2c...b8a5', status: 'completed' }
-		];
+	const claimHistory = [
+		{ date: '2024-12-15', amount: 487.32, asset: 'Europa Wressle Release 1', txHash: '0x7d8f...a2b1', status: 'completed' },
+		{ date: '2024-12-10', amount: 342.18, asset: 'Bakken Horizon Field', txHash: '0x9c3e...f5d2', status: 'completed' },
+		{ date: '2024-11-15', amount: 456.89, asset: 'Europa Wressle Release 1', txHash: '0x2f1a...c7e3', status: 'completed' },
+		{ date: '2024-11-10', amount: 298.45, asset: 'Bakken Horizon Field', txHash: '0x8b4d...x9f4', status: 'completed' },
+		{ date: '2024-10-20', amount: 312.67, asset: 'Permian Basin Venture', txHash: '0x5e2c...b8a5', status: 'completed' }
+	];
 
-		loading = false;
-
-		// Start yield accrual simulation
-		let interval: ReturnType<typeof setInterval>;
-		if (isAccruing) {
-			interval = setInterval(() => {
-				unclaimedYield += (Math.random() * 0.05 + 0.02);
-				totalEarned += (Math.random() * 0.05 + 0.02);
-			}, 2000);
+	onMount(async () => {
+		// Check if wallet is connected
+		if (!$walletStore.isConnected) {
+			showWalletModal = true;
+			return;
 		}
-
-		return () => {
-			if (interval) clearInterval(interval);
-		};
+		
+		try {
+			// Load real assets and create portfolio holdings
+			const allAssets = dataStoreService.getAllAssets();
+			
+			holdings = mockPortfolioBalances.map(balance => {
+				const asset = allAssets.find(a => a.id === balance.assetId);
+				if (!asset) return null;
+				
+				return {
+					id: asset.id,
+					name: asset.name,
+					location: `${asset.location.state}, ${asset.location.country}`,
+					unclaimedAmount: balance.unclaimedAmount,
+					totalEarned: balance.totalEarned,
+					lastPayout: balance.lastPayout,
+					currentPayout: asset.financial.currentPayout,
+					status: asset.production.status
+				};
+			}).filter(Boolean);
+			
+			loading = false;
+			
+			// Simulate real-time accrual
+			if (isAccruing) {
+				setInterval(() => {
+					unclaimedPayout += (Math.random() * 0.05 + 0.02);
+					totalEarned += (Math.random() * 0.05 + 0.02);
+				}, 3000);
+			}
+		} catch (error) {
+			console.error('Error loading claims data:', error);
+			loading = false;
+		}
 	});
 
 	function formatCurrency(amount: number): string {
@@ -141,25 +85,15 @@
 		}).format(amount);
 	}
 
-	const navItems = [
-		{ label: 'Home' },
-		{ label: 'Assets' },
-		{ label: 'Claim', active: true },
-		{ label: 'Portfolio' },
-		{ label: 'New Order' },
-		{ label: 'Orders' },
-		{ label: 'Vaults' }
-	];
-
 	function formatDate(dateString: string): string {
 		return new Date(dateString).toLocaleDateString('en-US', {
 			year: 'numeric',
-			month: 'long',
+			month: 'short',
 			day: 'numeric'
 		});
 	}
 
-	function handleAssetSelect(assetId: number) {
+	function handleAssetSelect(assetId: string) {
 		if (selectedAssets.includes(assetId)) {
 			selectedAssets = selectedAssets.filter(id => id !== assetId);
 		} else {
@@ -168,548 +102,1109 @@
 	}
 
 	function handleSelectAll() {
-		if (selectedAssets.length === assets.length) {
+		if (selectedAssets.length === holdings.length) {
 			selectedAssets = [];
 		} else {
-			selectedAssets = assets.map(asset => asset.id);
+			selectedAssets = holdings.map(holding => holding.id);
 		}
 	}
 
 	function getSelectedAmount(): number {
-		return assets
-			.filter(asset => selectedAssets.includes(asset.id))
-			.reduce((sum, asset) => sum + asset.unclaimedAmount, 0);
+		return holdings
+			.filter(holding => selectedAssets.includes(holding.id))
+			.reduce((sum, holding) => sum + holding.unclaimedAmount, 0);
 	}
 
 	async function handleClaim() {
-		// Simulate claim transaction
 		claiming = true;
-		claimError = null;
 		claimSuccess = false;
-
+		
 		try {
-			await new Promise(resolve => setTimeout(resolve, 3000));
+			// Simulate claim transaction
+			await new Promise(resolve => setTimeout(resolve, 2000));
 			
-			// Simulate successful claim
-			const claimedAmount = getSelectedAmount() || unclaimedYield;
+			const claimedAmount = getSelectedAmount() || unclaimedPayout;
 			totalClaimed += claimedAmount;
-			unclaimedYield = Math.max(0, unclaimedYield - claimedAmount);
+			unclaimedPayout = Math.max(0, unclaimedPayout - claimedAmount);
 			
-			// Reset selected assets
 			selectedAssets = [];
 			claimSuccess = true;
 			
+			// Reset success message after 3 seconds
+			setTimeout(() => {
+				claimSuccess = false;
+			}, 3000);
+			
 		} catch (error) {
-			claimError = 'Failed to claim rewards. Please try again.';
 			console.error('Claim error:', error);
 		} finally {
 			claiming = false;
 		}
 	}
 
-	function connectWallet() {
-		isConnected = true;
+	async function handleWalletConnect() {
+		await walletActions.connect();
+		showWalletModal = false;
+		
+		// Reload the page content now that wallet is connected
+		if ($walletStore.isConnected) {
+			loading = true;
+			try {
+				const allAssets = dataStoreService.getAllAssets();
+				
+				holdings = mockPortfolioBalances.map(balance => {
+					const asset = allAssets.find(a => a.id === balance.assetId);
+					if (!asset) return null;
+					
+					return {
+						id: asset.id,
+						name: asset.name,
+						location: `${asset.location.state}, ${asset.location.country}`,
+						unclaimedAmount: balance.unclaimedAmount,
+						totalEarned: balance.totalEarned,
+						lastPayout: balance.lastPayout,
+						currentPayout: asset.financial.currentPayout,
+						status: asset.production.status
+					};
+				}).filter(Boolean);
+				
+				loading = false;
+				
+				// Simulate real-time accrual
+				if (isAccruing) {
+					setInterval(() => {
+						unclaimedPayout += (Math.random() * 0.05 + 0.02);
+						totalEarned += (Math.random() * 0.05 + 0.02);
+					}, 3000);
+				}
+			} catch (error) {
+				console.error('Error loading claims data:', error);
+				loading = false;
+			}
+		}
+	}
+
+	function handleWalletModalClose() {
+		showWalletModal = false;
+		// Redirect to home if wallet not connected
+		if (!$walletStore.isConnected) {
+			window.location.href = '/';
+		}
 	}
 </script>
 
 <svelte:head>
-	<title>Claim Yield - Albion</title>
-	<meta name="description" content="Claim your asset income distributions" />
+	<title>Claim Payouts - Albion</title>
+	<meta name="description" content="Claim your oil & gas investment payouts and track earnings history" />
 </svelte:head>
 
-<div class="min-h-screen bg-white text-black font-sans overflow-x-hidden">
-	<!-- Sidebar -->
-	<div class={`fixed left-0 top-0 h-full bg-black border-r border-gray-800 transition-all duration-300 z-50 ${
-		isSidebarOpen ? 'w-64' : 'w-64 -translate-x-full lg:translate-x-0 lg:w-16'
-	}`}>
-		<div class="p-4 border-b border-gray-800">
-			<div class="flex items-center space-x-3">
-				<div class="w-8 h-8 bg-white rounded flex items-center justify-center flex-shrink-0">
-					<div class="w-6 h-6 bg-black rounded-sm"></div>
-				</div>
-				<div class="min-w-0">
-					<h1 class="text-lg font-black text-white truncate">ALBION EXCHANGE</h1>
-					<p class="text-xs text-gray-400">Energy DeFi Platform</p>
-				</div>
+{#if !$walletStore.isConnected && !showWalletModal}
+	<main class="claims-page">
+		<div class="wallet-required">
+			<div class="wallet-required-content">
+				<h1>Wallet Connection Required</h1>
+				<p>Please connect your wallet to view and claim your payouts.</p>
+				<button class="connect-btn" on:click={() => showWalletModal = true}>
+					Connect Wallet
+				</button>
 			</div>
 		</div>
-		
-		<nav class="mt-6 px-2">
-			{#each navItems as item, index}
-				<div class={`flex items-center px-3 py-3 mb-1 rounded-lg cursor-pointer transition-all text-sm ${
-					item.active ? 'bg-blue-900 text-white font-semibold' : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-				}`}>
-					<span class="truncate">{item.label}</span>
-				</div>
-			{/each}
-		</nav>
-	</div>
+	</main>
+{:else if $walletStore.isConnected}
+<main class="claims-page">
+	<!-- Hero Section -->
+	<section class="hero">
+		<div class="hero-content">
+			<h1>Claim Payouts</h1>
+			<p>Claim your earnings from oil & gas investments and track your payout history.</p>
+			<div class="live-indicator">
+				<div class="pulse-dot"></div>
+				<span>Live Tracking: {isAccruing ? 'Active' : 'Paused'}</span>
+			</div>
+		</div>
+	</section>
 
-	<!-- Main Content -->
-	<div class="ml-64 transition-all duration-300 min-h-screen">
-		<!-- Header -->
-		<header class="bg-white border-b border-black px-4 py-4 sticky top-0 z-30">
-			<div class="flex items-center justify-between max-w-full">
-				<div class="flex items-center space-x-4 min-w-0">
-					<button 
-						on:click={() => isSidebarOpen = !isSidebarOpen} 
-						class="p-2 hover:bg-gray-100 rounded-lg flex-shrink-0 border border-black"
-					>
-						<Menu class="w-5 h-5" />
-					</button>
-					<div class="flex items-center space-x-2">
-						<h2 class="text-xl font-black text-black">CLAIM YIELD</h2>
+	{#if loading}
+		<div class="loading-state">
+			<p>Loading payout information...</p>
+		</div>
+	{:else}
+		<!-- Success Message -->
+		{#if claimSuccess}
+			<div class="success-message">
+				<h3>✅ Claim Successful!</h3>
+				<p>Your payouts have been successfully transferred to your wallet.</p>
+			</div>
+		{/if}
+
+		<!-- Payout Overview -->
+		<section class="payout-overview">
+			<div class="overview-grid">
+				<div class="overview-card total">
+					<div class="card-content">
+						<div class="metric-value">{formatCurrency(totalEarned)}</div>
+						<div class="metric-label">Total Earned</div>
+						<div class="metric-note">All time from investments</div>
 					</div>
 				</div>
-				<div class="flex items-center space-x-4 flex-shrink-0">
-					<button 
-						on:click={() => isAccruing = !isAccruing}
-						class={`px-4 py-2 rounded-lg text-sm font-black border-2 transition-all ${
-							isAccruing 
-								? 'bg-green-500 text-white border-green-500' 
-								: 'bg-gray-500 text-white border-gray-500'
-						}`}
-					>
-						{isAccruing ? 'ACCRUING' : 'PAUSED'}
-					</button>
-					<button class="px-4 py-2 border-2 border-black text-black rounded-lg font-black text-sm hover:bg-black hover:text-white transition-all">
-						BUY TOKENS
-					</button>
-					<div class="bg-black text-white px-4 py-2 rounded-lg text-sm font-black border-2 border-black">
-						CONNECTED: 0x7d8f...a2b1
+				
+				<div class="overview-card claimed">
+					<div class="card-content">
+						<div class="metric-value">{formatCurrency(totalClaimed)}</div>
+						<div class="metric-label">Total Claimed</div>
+						<div class="metric-note">Successfully withdrawn</div>
+					</div>
+				</div>
+				
+				<div class="overview-card unclaimed">
+					<div class="card-content">
+						<div class="metric-value available">{formatCurrency(unclaimedPayout)}</div>
+						<div class="metric-label">Available to Claim</div>
+						<div class="metric-note">Ready for withdrawal</div>
 					</div>
 				</div>
 			</div>
-		</header>
+		</section>
 
-		{#if loading}
-			<div class="text-center p-6">
-				<p>Loading your claims...</p>
-			</div>
-		{:else}
-			<div class="max-w-full p-6">
-				<!-- Status Messages -->
-				{#if claimSuccess}
-					<div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-center">
-						<h3 class="font-black text-green-800">Claims Successful!</h3>
-						<p class="text-green-600">Your income has been successfully transferred to your wallet.</p>
+		<!-- Quick Claim Section -->
+		<section class="quick-claim">
+			<div class="claim-grid">
+				<div class="claim-info">
+					<h2>Quick Claim All</h2>
+					<div class="claim-amount">
+						<div class="amount-display">{formatCurrency(unclaimedPayout)}</div>
+						<div class="amount-label">Total Available</div>
 					</div>
-				{/if}
-
-				{#if claimError}
-					<div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-center">
-						<h3 class="font-black text-red-800">Claim Failed</h3>
-						<p class="text-red-600">{claimError}</p>
-					</div>
-				{/if}
-
-				<!-- Yield Overview -->
-				<div class="bg-gradient-to-br from-green-900/5 via-white to-white border-2 border-gray-300 rounded-lg p-8 mb-6">
-					<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-						<div class="lg:col-span-2">
-							<h1 class="text-4xl font-black text-black mb-6">YIELD DASHBOARD</h1>
-							
-							<div class="grid grid-cols-3 gap-6 mb-6">
-								<div class="text-center border-r border-gray-300 pr-6">
-									<div class="text-3xl font-black text-green-600">{formatCurrency(totalEarned)}</div>
-									<div class="text-sm font-black text-gray-600">TOTAL EARNED</div>
-									<div class="text-xs text-green-600 mt-1">All time</div>
-								</div>
-								<div class="text-center border-r border-gray-300 pr-6">
-									<div class="text-3xl font-black text-black">{formatCurrency(totalClaimed)}</div>
-									<div class="text-sm font-black text-gray-600">TOTAL CLAIMED</div>
-									<div class="text-xs text-blue-600 mt-1">Withdrawn</div>
-								</div>
-								<div class="text-center">
-									<div class="text-3xl font-black text-orange-600">{formatCurrency(unclaimedYield)}</div>
-									<div class="text-sm font-black text-gray-600">UNCLAIMED</div>
-									<div class="text-xs text-orange-600 mt-1">Available now</div>
-								</div>
-							</div>
-
-							<div class="flex items-center space-x-4">
-								<div class="flex items-center space-x-2">
-									<Activity class={`w-4 h-4 ${isAccruing ? 'text-green-500' : 'text-gray-400'}`} />
-									<span class="font-black text-sm">{isAccruing ? 'ACCRUING LIVE' : 'PAUSED'}</span>
-								</div>
-								<div class="text-sm text-gray-600 font-semibold">
-									Last updated: {new Date().toLocaleTimeString()}
-								</div>
-							</div>
+					<div class="gas-info">
+						<div class="gas-row">
+							<span>Estimated Gas:</span>
+							<span>~$12.50</span>
 						</div>
-
-						<!-- Quick Claim Panel -->
-						<div class="bg-white border-2 border-gray-300 rounded-lg p-6">
-							<h3 class="text-xl font-black mb-4 text-black">QUICK CLAIM</h3>
-							
-							<div class="text-center mb-6">
-								<div class="text-3xl font-black text-orange-600">{formatCurrency(unclaimedYield)}</div>
-								<div class="text-sm font-black text-gray-600">TOTAL AVAILABLE</div>
-							</div>
-
-							<div class="space-y-3 mb-6">
-								<button 
-									on:click={handleClaim}
-									class="w-full bg-green-800 text-white py-4 rounded-lg font-black text-sm hover:bg-green-900 transition-all border-2 border-green-800"
-									disabled={claiming}
-								>
-									{#if claiming}
-										CLAIMING...
-									{:else}
-										CLAIM ALL {formatCurrency(unclaimedYield)}
-									{/if}
-								</button>
-								<button class="w-full bg-gray-600 text-white py-3 rounded-lg font-black text-sm hover:bg-gray-700 transition-all border-2 border-gray-600">
-									CLAIM & REINVEST
-								</button>
-								<button class="w-full bg-black text-white py-3 rounded-lg font-black text-sm hover:bg-gray-900 transition-all border-2 border-black">
-									CLAIM & BUY $ALBION
-								</button>
-							</div>
-
-							<div class="bg-gray-50 border border-gray-300 rounded-lg p-4">
-								<div class="flex items-center justify-between mb-2">
-									<span class="text-sm font-black text-gray-600">Gas Estimate</span>
-									<span class="font-black text-black">~$12.50</span>
-								</div>
-								<div class="flex items-center justify-between">
-									<span class="text-sm font-black text-gray-600">Net Amount</span>
-									<span class="font-black text-green-600">{formatCurrency(unclaimedYield - 12.50)}</span>
-								</div>
-							</div>
+						<div class="gas-row">
+							<span>Net Amount:</span>
+							<span class="net-amount">{formatCurrency(unclaimedPayout - 12.50)}</span>
 						</div>
 					</div>
 				</div>
+				
+				<div class="claim-actions">
+					<button 
+						class="claim-btn primary"
+						on:click={handleClaim}
+						disabled={claiming || unclaimedPayout <= 0}
+					>
+						{#if claiming}
+							Claiming...
+						{:else}
+							Claim All {formatCurrency(unclaimedPayout)}
+						{/if}
+					</button>
+					<button class="claim-btn secondary">
+						Claim & Reinvest
+					</button>
+				</div>
+			</div>
+		</section>
 
-				<!-- Asset-by-Asset Claiming -->
-				<div class="bg-white border-2 border-gray-300 rounded-lg p-6 mb-6">
-					<div class="flex items-center justify-between mb-6">
-						<h2 class="text-2xl font-black text-black">CLAIM BY ASSET</h2>
-						<div class="flex items-center space-x-4">
-							<button 
-								on:click={handleSelectAll}
-								class="px-4 py-2 border-2 border-black text-black rounded-lg font-black text-sm hover:bg-black hover:text-white transition-all"
-							>
-								{selectedAssets.length === assets.length ? 'DESELECT ALL' : 'SELECT ALL'}
-							</button>
-							{#if selectedAssets.length > 0}
-								<button 
-									on:click={handleClaim}
-									class="bg-green-800 text-white px-6 py-2 rounded-lg font-black text-sm hover:bg-green-900 transition-all"
-									disabled={claiming}
-								>
-									{#if claiming}
-										CLAIMING...
-									{:else}
-										CLAIM SELECTED {formatCurrency(getSelectedAmount())}
-									{/if}
-								</button>
+		<!-- Asset-by-Asset Claiming -->
+		<section class="asset-claims">
+			<div class="section-header">
+				<h2>Claim by Asset</h2>
+				<div class="controls">
+					<button 
+						class="control-btn"
+						on:click={handleSelectAll}
+					>
+						{selectedAssets.length === holdings.length ? 'Deselect All' : 'Select All'}
+					</button>
+					{#if selectedAssets.length > 0}
+						<button 
+							class="control-btn primary"
+							on:click={handleClaim}
+							disabled={claiming}
+						>
+							{#if claiming}
+								Claiming...
+							{:else}
+								Claim Selected {formatCurrency(getSelectedAmount())}
 							{/if}
-						</div>
-					</div>
+						</button>
+					{/if}
+				</div>
+			</div>
 
-					<div class="space-y-4">
-						{#each assets as asset}
-							<div class="border border-gray-300 rounded-lg p-6 hover:shadow-md transition-all">
-								<div class="grid grid-cols-12 gap-4 items-center">
-									<div class="col-span-1">
-										<input 
-											type="checkbox" 
-											class="w-5 h-5"
-											checked={selectedAssets.includes(asset.id)}
-											on:change={() => handleAssetSelect(asset.id)}
-										/>
-									</div>
-									
-									<div class="col-span-4 flex items-center space-x-3">
-										<div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-											<svelte:component this={asset.icon} class="w-6 h-6 text-blue-600" />
-										</div>
-										<div>
-											<h4 class="font-black text-black">{asset.name}</h4>
-											<div class="text-sm text-gray-600">{asset.location}</div>
-										</div>
-									</div>
-
-									<div class="col-span-2 text-center">
-										<div class="text-xl font-black text-orange-600">{formatCurrency(asset.unclaimedAmount)}</div>
-										<div class="text-xs text-gray-600">Unclaimed</div>
-									</div>
-
-									<div class="col-span-2 text-center">
-										<div class="text-lg font-black text-green-600">{formatCurrency(asset.totalEarned)}</div>
-										<div class="text-xs text-gray-600">Total Earned</div>
-									</div>
-
-									<div class="col-span-1 text-center">
-										<div class="text-lg font-black text-black">{asset.tokensOwned.toLocaleString()}</div>
-										<div class="text-xs text-gray-600">Tokens</div>
-									</div>
-
-									<div class="col-span-1 text-center">
-										<div class="text-lg font-black text-green-600">{asset.currentYield}%</div>
-										<div class="text-xs text-gray-600">Yield</div>
-									</div>
-
-									<div class="col-span-1">
-										<button 
-											on:click={() => handleAssetSelect(asset.id)}
-											class="bg-black text-white px-3 py-2 rounded font-black text-xs hover:bg-gray-900 transition-all w-full"
-										>
-											CLAIM
-										</button>
-									</div>
+			<div class="assets-list">
+				{#each holdings as holding}
+					<div class="asset-card" class:selected={selectedAssets.includes(holding.id)}>
+						<div class="asset-main">
+							<div class="asset-select">
+								<input 
+									type="checkbox" 
+									checked={selectedAssets.includes(holding.id)}
+									on:change={() => handleAssetSelect(holding.id)}
+								/>
+							</div>
+							
+							<div class="asset-info">
+								<h3>{holding.name}</h3>
+								<p class="asset-location">{holding.location}</p>
+								<span class="status-badge" class:producing={holding.status === 'producing'}>
+									{holding.status.toUpperCase()}
+								</span>
+							</div>
+							
+							<div class="asset-metrics">
+								<div class="metric">
+									<div class="metric-value unclaimed">{formatCurrency(holding.unclaimedAmount)}</div>
+									<div class="metric-label">Unclaimed</div>
 								</div>
-
-								<div class="mt-4 pt-4 border-t border-gray-200">
-									<div class="grid grid-cols-2 gap-4 text-sm">
-										<div class="flex justify-between">
-											<span class="text-gray-600 font-semibold">Last Payout:</span>
-											<span class="font-black text-black">{asset.lastPayout}</span>
-										</div>
-										<div class="flex justify-between">
-											<span class="text-gray-600 font-semibold">Next Payout:</span>
-											<span class="font-black text-black">{asset.nextPayout}</span>
-										</div>
-									</div>
+								<div class="metric">
+									<div class="metric-value">{formatCurrency(holding.totalEarned)}</div>
+									<div class="metric-label">Total Earned</div>
+								</div>
+								<div class="metric">
+									<div class="metric-value">{holding.currentPayout}%</div>
+									<div class="metric-label">Current Payout</div>
 								</div>
 							</div>
-						{/each}
+							
+							<div class="asset-actions">
+								<button 
+									class="asset-claim-btn"
+									on:click={() => handleAssetSelect(holding.id)}
+								>
+									Claim
+								</button>
+							</div>
+						</div>
+						
+						<div class="asset-footer">
+							<div class="footer-info">
+								<span>Last Payout: {formatDate(holding.lastPayout)}</span>
+							</div>
+						</div>
 					</div>
-				</div>
+				{/each}
+			</div>
+		</section>
 
+		<!-- Claim Settings & History -->
+		<section class="bottom-section">
+			<div class="bottom-grid">
 				<!-- Claim Settings -->
-				<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-					<div class="bg-white border-2 border-gray-300 rounded-lg p-6">
-						<h3 class="text-xl font-black mb-4 text-black">CLAIM SETTINGS</h3>
-						
-						<div class="space-y-4">
-							<div>
-								<label class="block text-sm font-black text-gray-600 mb-2">CLAIM METHOD</label>
-								<div class="space-y-2">
-									<label class="flex items-center space-x-3 cursor-pointer">
-										<input 
-											type="radio" 
-											name="claimMethod" 
-											value="wallet"
-											bind:group={claimMethod}
-											class="w-4 h-4"
-										/>
-										<div>
-											<div class="font-black text-black text-sm">Direct to Wallet</div>
-											<div class="text-xs text-gray-600">Instant transfer to connected wallet</div>
-										</div>
-									</label>
-									<label class="flex items-center space-x-3 cursor-pointer">
-										<input 
-											type="radio" 
-											name="claimMethod" 
-											value="reinvest"
-											bind:group={claimMethod}
-											class="w-4 h-4"
-										/>
-										<div>
-											<div class="font-black text-black text-sm">Auto-Reinvest</div>
-											<div class="text-xs text-gray-600">Automatically purchase more tokens</div>
-										</div>
-									</label>
-									<label class="flex items-center space-x-3 cursor-pointer">
-										<input 
-											type="radio" 
-											name="claimMethod" 
-											value="albion"
-											bind:group={claimMethod}
-											class="w-4 h-4"
-										/>
-										<div>
-											<div class="font-black text-black text-sm">Buy $ALBION Token</div>
-											<div class="text-xs text-gray-600">Convert to platform governance token</div>
-										</div>
-									</label>
+				<div class="settings-card">
+					<h3>Claim Settings</h3>
+					
+					<div class="setting-group">
+						<div class="setting-label">Claim Method</div>
+						<div class="radio-group">
+							<label class="radio-option">
+								<input 
+									type="radio" 
+									name="claimMethod" 
+									value="wallet"
+									bind:group={claimMethod}
+								/>
+								<div class="radio-content">
+									<div class="radio-title">Direct to Wallet</div>
+									<div class="radio-desc">Instant transfer to connected wallet</div>
 								</div>
-							</div>
-
-							<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-								<div class="flex items-start space-x-2">
-									<AlertCircle class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-									<div>
-										<div class="font-black text-black text-sm">Gas Optimization</div>
-										<div class="text-xs text-gray-600 mt-1">
-											Batch multiple claims to save on gas fees. Current network fee: ~$12.50 per transaction.
-										</div>
-									</div>
+							</label>
+							<label class="radio-option">
+								<input 
+									type="radio" 
+									name="claimMethod" 
+									value="reinvest"
+									bind:group={claimMethod}
+								/>
+								<div class="radio-content">
+									<div class="radio-title">Auto-Reinvest</div>
+									<div class="radio-desc">Automatically purchase more tokens</div>
 								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="bg-white border-2 border-gray-300 rounded-lg p-6">
-						<h3 class="text-xl font-black mb-4 text-black">YIELD STATISTICS</h3>
-						
-						<div class="space-y-4">
-							<div class="grid grid-cols-2 gap-4">
-								<div class="text-center border border-gray-300 rounded-lg p-4">
-									<div class="text-2xl font-black text-green-600">13.2%</div>
-									<div class="text-xs font-black text-gray-600">AVG PORTFOLIO YIELD</div>
-								</div>
-								<div class="text-center border border-gray-300 rounded-lg p-4">
-									<div class="text-2xl font-black text-black">{formatCurrency(totalEarned / 12)}</div>
-									<div class="text-xs font-black text-gray-600">AVG MONTHLY INCOME</div>
-								</div>
-							</div>
-
-							<div class="space-y-3">
-								<div class="flex justify-between">
-									<span class="text-sm font-black text-gray-600">Total Claims This Year</span>
-									<span class="font-black text-black">24</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-sm font-black text-gray-600">Average Claim Amount</span>
-									<span class="font-black text-black">{formatCurrency(totalClaimed / 24)}</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-sm font-black text-gray-600">Days Since Last Claim</span>
-									<span class="font-black text-black">3</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-sm font-black text-gray-600">Next Scheduled Payout</span>
-									<span class="font-black text-black">Jan 5, 2025</span>
-								</div>
-							</div>
+							</label>
 						</div>
 					</div>
 				</div>
 
-				<!-- Claim History -->
-				<div class="bg-white border-2 border-gray-300 rounded-lg p-6">
-					<div class="flex items-center justify-between mb-6">
-						<h2 class="text-2xl font-black text-black">CLAIM HISTORY</h2>
-						<div class="flex space-x-2">
-							<button class="px-4 py-2 bg-black text-white rounded-lg font-black text-sm">RECENT</button>
-							<button class="px-4 py-2 border-2 border-black text-black rounded-lg font-black text-sm hover:bg-black hover:text-white transition-all">ALL TIME</button>
-							<button class="flex items-center space-x-2 border-2 border-gray-300 px-3 py-2 rounded-lg font-black hover:bg-gray-100 transition-all">
-								<Download class="w-4 h-4" />
-								<span>EXPORT</span>
-							</button>
+				<!-- Statistics -->
+				<div class="stats-card">
+					<h3>Payout Statistics</h3>
+					
+					<div class="stats-grid">
+						<div class="stat-item">
+							<div class="stat-value">13.2%</div>
+							<div class="stat-label">Avg Portfolio IRR</div>
+						</div>
+						<div class="stat-item">
+							<div class="stat-value">{formatCurrency(totalEarned / 12)}</div>
+							<div class="stat-label">Avg Monthly Income</div>
 						</div>
 					</div>
 					
-					<div class="overflow-x-auto">
-						<table class="w-full">
-							<thead>
-								<tr class="border-b-2 border-gray-300">
-									<th class="text-left py-4 px-4 font-black text-black">DATE</th>
-									<th class="text-left py-4 px-4 font-black text-black">ASSET</th>
-									<th class="text-right py-4 px-4 font-black text-black">AMOUNT</th>
-									<th class="text-left py-4 px-4 font-black text-black">TRANSACTION</th>
-									<th class="text-center py-4 px-4 font-black text-black">STATUS</th>
-								</tr>
-							</thead>
-							<tbody>
-								{#each claimHistory as claim}
-									<tr class="border-b border-gray-200 hover:bg-gray-50">
-										<td class="py-4 px-4 font-semibold text-black">{claim.date}</td>
-										<td class="py-4 px-4">
-											<div class="font-black text-black text-sm">{claim.asset}</div>
-										</td>
-										<td class="py-4 px-4 text-right font-black text-green-600">
-											{formatCurrency(claim.amount)}
-										</td>
-										<td class="py-4 px-4">
-											<div class="flex items-center space-x-2">
-												<span class="font-mono text-sm text-gray-600">{claim.txHash}</span>
-												<ExternalLink class="w-4 h-4 text-gray-400 hover:text-black cursor-pointer" />
-											</div>
-										</td>
-										<td class="py-4 px-4 text-center">
-											<div class="flex items-center justify-center space-x-2">
-												<CheckCircle class="w-4 h-4 text-green-500" />
-												<span class="text-green-600 font-black text-sm">COMPLETED</span>
-											</div>
-										</td>
-									</tr>
-								{/each}
-							</tbody>
-						</table>
+					<div class="stats-list">
+						<div class="stats-row">
+							<span>Total Payouts This Year:</span>
+							<span>24</span>
+						</div>
+						<div class="stats-row">
+							<span>Days Since Last Claim:</span>
+							<span>3</span>
+						</div>
 					</div>
 				</div>
 			</div>
-		{/if}
-	</div>
+		</section>
 
-	<!-- Footer -->
-	<footer class="bg-gray-900 text-white py-8 border-t border-gray-800">
-		<div class="max-w-7xl mx-auto px-6">
-			<div class="grid grid-cols-4 gap-8 mb-6">
-				<div>
-					<h4 class="font-black text-white mb-3">PLATFORM</h4>
-					<ul class="space-y-2">
-						<li><a href="#" class="text-gray-300 hover:text-white text-sm transition-colors">Assets</a></li>
-						<li><a href="#" class="text-gray-300 hover:text-white text-sm transition-colors">Portfolio</a></li>
-						<li><a href="#" class="text-gray-300 hover:text-white text-sm transition-colors">Claim Yield</a></li>
-						<li><a href="#" class="text-gray-300 hover:text-white text-sm transition-colors">Orders</a></li>
-					</ul>
+		<!-- Claim History -->
+		<section class="claim-history">
+			<div class="history-header">
+				<h2>Claim History</h2>
+				<div class="history-controls">
+					<button class="control-btn active">Recent</button>
+					<button class="control-btn">All Time</button>
+					<button class="control-btn">Export</button>
 				</div>
-				<div>
-					<h4 class="font-black text-white mb-3">RESOURCES</h4>
-					<ul class="space-y-2">
-						<li><a href="#" class="text-gray-300 hover:text-white text-sm transition-colors">Documentation</a></li>
-						<li><a href="#" class="text-gray-300 hover:text-white text-sm transition-colors">API Reference</a></li>
-						<li><a href="#" class="text-gray-300 hover:text-white text-sm transition-colors">Risk Disclosures</a></li>
-						<li><a href="#" class="text-gray-300 hover:text-white text-sm transition-colors">Audit Reports</a></li>
-					</ul>
+			</div>
+			
+			<div class="history-table">
+				<div class="table-header">
+					<div class="header-cell">Date</div>
+					<div class="header-cell">Asset</div>
+					<div class="header-cell">Amount</div>
+					<div class="header-cell">Transaction</div>
+					<div class="header-cell">Status</div>
 				</div>
-				<div>
-					<h4 class="font-black text-white mb-3">LEGAL</h4>
-					<ul class="space-y-2">
-						<li><a href="#" class="text-gray-300 hover:text-white text-sm transition-colors">Terms of Service</a></li>
-						<li><a href="#" class="text-gray-300 hover:text-white text-sm transition-colors">Privacy Policy</a></li>
-						<li><a href="#" class="text-gray-300 hover:text-white text-sm transition-colors">Compliance</a></li>
-						<li><a href="#" class="text-gray-300 hover:text-white text-sm transition-colors">Contact</a></li>
-					</ul>
-				</div>
-				<div>
-					<h4 class="font-black text-white mb-3">ALBION EXCHANGE</h4>
-					<p class="text-gray-300 text-sm mb-3">
-						Institutional-grade oil & gas investments through blockchain technology.
-					</p>
-					<div class="flex items-center space-x-2">
-						<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-						<span class="text-green-400 text-sm font-black">OPERATIONAL</span>
+				
+				{#each claimHistory as claim}
+					<div class="table-row">
+						<div class="table-cell">{formatDate(claim.date)}</div>
+						<div class="table-cell">
+							<div class="asset-name">{claim.asset}</div>
+						</div>
+						<div class="table-cell amount">{formatCurrency(claim.amount)}</div>
+						<div class="table-cell">
+							<div class="tx-hash">{claim.txHash}</div>
+						</div>
+						<div class="table-cell">
+							<span class="status-completed">✓ Completed</span>
+						</div>
 					</div>
-				</div>
+				{/each}
 			</div>
-			<div class="border-t border-gray-800 pt-6 text-center">
-				<p class="text-gray-400 text-sm">
-					© 2025 Albion Exchange. All rights reserved. | Licensed & Regulated Investment Platform
-				</p>
-			</div>
-		</div>
-	</footer>
-</div>
+		</section>
+	{/if}
+</main>
+{/if}
+
+<!-- Wallet Modal -->
+<WalletModal
+	bind:isOpen={showWalletModal}
+	isConnecting={$walletStore.isConnecting}
+	on:connect={handleWalletConnect}
+	on:close={handleWalletModalClose}
+/>
 
 <style>
-	/* Custom styles for FigTree font and Albion design system */
-	:global(body) {
-		font-family: 'FigTree', sans-serif;
+	.claims-page {
+		padding: 0;
+		max-width: 1200px;
+		margin: 0 auto;
 	}
-	
-	/* Utility classes matching Albion design system */
-	.font-black {
-		font-weight: 900;
+
+	/* Wallet Required Screen */
+	.wallet-required {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 60vh;
+		text-align: center;
+		padding: 2rem;
 	}
-	
-	/* Animation for accruing indicator */
+
+	.wallet-required-content h1 {
+		font-size: 2rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin-bottom: 1rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.wallet-required-content p {
+		font-size: 1.1rem;
+		color: var(--color-black);
+		margin-bottom: 2rem;
+		opacity: 0.8;
+	}
+
+	.wallet-required .connect-btn {
+		background: var(--color-primary);
+		color: var(--color-white);
+		border: none;
+		padding: 1rem 2rem;
+		font-family: var(--font-family);
+		font-weight: var(--font-weight-extrabold);
+		font-size: 0.9rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+	}
+
+	.wallet-required .connect-btn:hover {
+		background: var(--color-secondary);
+	}
+
+	/* Hero Section */
+	.hero {
+		padding: 4rem 2rem;
+		text-align: center;
+		background: var(--color-white);
+		border-bottom: 1px solid var(--color-light-gray);
+	}
+
+	.hero-content {
+		max-width: 800px;
+		margin: 0 auto;
+	}
+
+	.hero h1 {
+		font-size: 2.5rem;
+		font-weight: var(--font-weight-extrabold);
+		margin-bottom: 1rem;
+		color: var(--color-black);
+		text-transform: uppercase;
+		letter-spacing: 0.02em;
+	}
+
+	.hero p {
+		font-size: 1.1rem;
+		color: var(--color-black);
+		margin-bottom: 2rem;
+	}
+
+	.live-indicator {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.9rem;
+		font-weight: var(--font-weight-semibold);
+		color: var(--color-black);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.pulse-dot {
+		width: 8px;
+		height: 8px;
+		background: var(--color-primary);
+		border-radius: 50%;
+		animation: pulse 2s infinite;
+	}
+
 	@keyframes pulse {
-		0%, 100% {
-			opacity: 1;
-		}
-		50% {
-			opacity: 0.5;
-		}
+		0%, 100% { opacity: 1; }
+		50% { opacity: 0.5; }
 	}
-	
-	.animate-pulse {
-		animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+	.loading-state {
+		text-align: center;
+		padding: 4rem 2rem;
+		color: var(--color-black);
+	}
+
+	.success-message {
+		background: var(--color-light-gray);
+		border: 1px solid var(--color-primary);
+		color: var(--color-primary);
+		padding: 1.5rem;
+		margin: 2rem;
+		text-align: center;
+	}
+
+	.success-message h3 {
+		font-weight: var(--font-weight-extrabold);
+		margin-bottom: 0.5rem;
+	}
+
+	/* Payout Overview */
+	.payout-overview {
+		padding: 3rem 2rem;
+	}
+
+	.overview-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 2rem;
+	}
+
+	.overview-card {
+		background: var(--color-white);
+		border: 1px solid var(--color-light-gray);
+		padding: 2rem;
+		text-align: center;
+	}
+
+	.metric-value {
+		font-size: 2rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin-bottom: 0.5rem;
+	}
+
+	.metric-value.available {
+		color: var(--color-primary);
+	}
+
+	.metric-label {
+		font-size: 0.8rem;
+		font-weight: var(--font-weight-bold);
+		color: var(--color-black);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin-bottom: 0.25rem;
+	}
+
+	.metric-note {
+		font-size: 0.75rem;
+		color: var(--color-secondary);
+		font-weight: var(--font-weight-medium);
+	}
+
+	/* Quick Claim */
+	.quick-claim {
+		padding: 0 2rem 3rem;
+	}
+
+	.claim-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 3rem;
+		background: var(--color-light-gray);
+		border: 1px solid var(--color-light-gray);
+		padding: 3rem;
+	}
+
+	.claim-info h2 {
+		font-size: 1.5rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin-bottom: 2rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.amount-display {
+		font-size: 2.5rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-primary);
+		margin-bottom: 0.5rem;
+	}
+
+	.amount-label {
+		font-size: 0.9rem;
+		color: var(--color-black);
+		font-weight: var(--font-weight-semibold);
+		margin-bottom: 2rem;
+	}
+
+	.gas-info {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		font-size: 0.9rem;
+	}
+
+	.gas-row {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.gas-row span:first-child {
+		color: var(--color-black);
+		font-weight: var(--font-weight-semibold);
+	}
+
+	.gas-row span:last-child {
+		color: var(--color-black);
+		font-weight: var(--font-weight-extrabold);
+	}
+
+	.net-amount {
+		color: var(--color-primary) !important;
+	}
+
+	.claim-actions {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		justify-content: center;
+	}
+
+	.claim-btn {
+		padding: 1rem 2rem;
+		border: none;
+		font-family: var(--font-family);
+		font-weight: var(--font-weight-extrabold);
+		font-size: 0.9rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.claim-btn.primary {
+		background: var(--color-black);
+		color: var(--color-white);
+	}
+
+	.claim-btn.primary:hover:not(:disabled) {
+		background: var(--color-secondary);
+	}
+
+	.claim-btn.secondary {
+		background: var(--color-white);
+		color: var(--color-black);
+		border: 1px solid var(--color-black);
+	}
+
+	.claim-btn.secondary:hover {
+		background: var(--color-black);
+		color: var(--color-white);
+	}
+
+	.claim-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	/* Asset Claims */
+	.asset-claims {
+		padding: 3rem 2rem;
+		background: var(--color-white);
+	}
+
+	.section-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 2rem;
+	}
+
+	.section-header h2 {
+		font-size: 1.75rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.controls {
+		display: flex;
+		gap: 1rem;
+	}
+
+	.control-btn {
+		padding: 0.75rem 1.5rem;
+		background: var(--color-white);
+		border: 1px solid var(--color-black);
+		color: var(--color-black);
+		font-family: var(--font-family);
+		font-weight: var(--font-weight-semibold);
+		font-size: 0.8rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.control-btn:hover,
+	.control-btn.active {
+		background: var(--color-black);
+		color: var(--color-white);
+	}
+
+	.control-btn.primary {
+		background: var(--color-primary);
+		border-color: var(--color-primary);
+		color: var(--color-white);
+	}
+
+	.control-btn.primary:hover {
+		opacity: 0.9;
+	}
+
+	.assets-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.asset-card {
+		background: var(--color-white);
+		border: 1px solid var(--color-light-gray);
+		padding: 2rem;
+		transition: all 0.2s ease;
+	}
+
+	.asset-card.selected {
+		border-color: var(--color-primary);
+		background: var(--color-light-gray);
+	}
+
+	.asset-main {
+		display: grid;
+		grid-template-columns: auto 2fr 3fr auto;
+		gap: 2rem;
+		align-items: center;
+		margin-bottom: 1rem;
+	}
+
+	.asset-select input {
+		width: 1.25rem;
+		height: 1.25rem;
+	}
+
+	.asset-info h3 {
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin-bottom: 0.5rem;
+		font-size: 1rem;
+	}
+
+	.asset-location {
+		color: var(--color-black);
+		opacity: 0.7;
+		font-size: 0.85rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.status-badge {
+		background: var(--color-light-gray);
+		color: var(--color-secondary);
+		padding: 0.25rem 0.5rem;
+		font-size: 0.7rem;
+		font-weight: var(--font-weight-bold);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.status-badge.producing {
+		color: var(--color-primary);
+	}
+
+	.asset-metrics {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1rem;
+		text-align: center;
+	}
+
+	.metric .metric-value {
+		font-size: 1.1rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin-bottom: 0.25rem;
+	}
+
+	.metric .metric-value.unclaimed {
+		color: var(--color-primary);
+	}
+
+	.metric .metric-label {
+		font-size: 0.7rem;
+		font-weight: var(--font-weight-bold);
+		color: var(--color-black);
+		opacity: 0.7;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.asset-claim-btn {
+		background: var(--color-black);
+		color: var(--color-white);
+		border: none;
+		padding: 0.75rem 1.5rem;
+		font-family: var(--font-family);
+		font-weight: var(--font-weight-semibold);
+		font-size: 0.8rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+	}
+
+	.asset-claim-btn:hover {
+		background: var(--color-secondary);
+	}
+
+	.asset-footer {
+		border-top: 1px solid var(--color-light-gray);
+		padding-top: 1rem;
+	}
+
+	.footer-info {
+		font-size: 0.85rem;
+		color: var(--color-black);
+		opacity: 0.7;
+	}
+
+	/* Bottom Section */
+	.bottom-section {
+		padding: 3rem 2rem;
+		background: var(--color-light-gray);
+	}
+
+	.bottom-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 3rem;
+	}
+
+	.settings-card,
+	.stats-card {
+		background: var(--color-white);
+		border: 1px solid var(--color-light-gray);
+		padding: 2rem;
+	}
+
+	.settings-card h3,
+	.stats-card h3 {
+		font-size: 1.25rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin-bottom: 1.5rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.setting-group {
+		margin-bottom: 2rem;
+	}
+
+	.setting-label {
+		font-size: 0.8rem;
+		font-weight: var(--font-weight-bold);
+		color: var(--color-black);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin-bottom: 1rem;
+	}
+
+	.radio-group {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.radio-option {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		cursor: pointer;
+	}
+
+	.radio-content {
+		flex: 1;
+	}
+
+	.radio-title {
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		font-size: 0.9rem;
+		margin-bottom: 0.25rem;
+	}
+
+	.radio-desc {
+		font-size: 0.8rem;
+		color: var(--color-black);
+		opacity: 0.7;
+	}
+
+	.stats-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.stat-item {
+		text-align: center;
+		padding: 1rem;
+		background: var(--color-light-gray);
+		border: 1px solid var(--color-light-gray);
+	}
+
+	.stat-value {
+		font-size: 1.25rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-primary);
+		margin-bottom: 0.25rem;
+	}
+
+	.stat-label {
+		font-size: 0.7rem;
+		font-weight: var(--font-weight-bold);
+		color: var(--color-black);
+		opacity: 0.7;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.stats-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.stats-row {
+		display: flex;
+		justify-content: space-between;
+		font-size: 0.85rem;
+	}
+
+	.stats-row span:first-child {
+		color: var(--color-black);
+		opacity: 0.7;
+	}
+
+	.stats-row span:last-child {
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+	}
+
+	/* Claim History */
+	.claim-history {
+		padding: 3rem 2rem;
+		background: var(--color-white);
+	}
+
+	.history-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 2rem;
+	}
+
+	.history-header h2 {
+		font-size: 1.75rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.history-controls {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.history-table {
+		border: 1px solid var(--color-light-gray);
+	}
+
+	.table-header {
+		display: grid;
+		grid-template-columns: 1fr 2fr 1fr 1.5fr 1fr;
+		gap: 1rem;
+		padding: 1rem;
+		background: var(--color-light-gray);
+		border-bottom: 1px solid var(--color-light-gray);
+	}
+
+	.header-cell {
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		font-size: 0.8rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.table-row {
+		display: grid;
+		grid-template-columns: 1fr 2fr 1fr 1.5fr 1fr;
+		gap: 1rem;
+		padding: 1rem;
+		border-bottom: 1px solid var(--color-light-gray);
+		align-items: center;
+	}
+
+	.table-row:hover {
+		background: var(--color-light-gray);
+	}
+
+	.table-cell {
+		font-size: 0.85rem;
+		color: var(--color-black);
+	}
+
+	.asset-name {
+		font-weight: var(--font-weight-extrabold);
+	}
+
+	.table-cell.amount {
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-primary);
+	}
+
+	.tx-hash {
+		font-family: monospace;
+		font-size: 0.8rem;
+		color: var(--color-black);
+		opacity: 0.7;
+	}
+
+	.status-completed {
+		color: var(--color-primary);
+		font-weight: var(--font-weight-semibold);
+		font-size: 0.8rem;
+	}
+
+	@media (max-width: 768px) {
+		.hero h1 {
+			font-size: 2rem;
+		}
+
+		.overview-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.claim-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.asset-main {
+			grid-template-columns: 1fr;
+			gap: 1rem;
+			text-align: center;
+		}
+
+		.asset-metrics {
+			grid-template-columns: 1fr;
+		}
+
+		.controls {
+			flex-direction: column;
+		}
+
+		.bottom-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.stats-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.table-header,
+		.table-row {
+			grid-template-columns: 1fr;
+			gap: 0.5rem;
+			text-align: center;
+		}
+
+		.header-cell,
+		.table-cell {
+			padding: 0.5rem 0;
+		}
 	}
 </style>

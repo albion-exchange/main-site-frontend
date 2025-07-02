@@ -1,66 +1,54 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import dataStoreService from '$lib/services/DataStoreService';
+	import type { Token } from '$lib/types/dataStore';
+import TokenCard from '$lib/components/tokens/TokenCard.svelte';
 
-	let paymentTokenBalance = 15420.75;
-	let unclaimedYield = 1247.82;
 	let platformStats = {
-		totalAssets: 47,
+		totalAssets: 4,
 		totalInvested: 127.4,
-		averageYield: 11.3,
+		averagePayout: 11.3,
 		activeInvestors: 8924
 	};
+	let featuredTokens: Token[] = [];
+	let loading = true;
 
-	onMount(() => {
-		// Animate platform stats on load
-		const interval = setInterval(() => {
+	onMount(async () => {
+		try {
+			// Load tokens from data store
+			const allTokens = dataStoreService.getAllTokens();
+			
+			// Get first 3 royalty tokens as featured
+			featuredTokens = allTokens.filter(token => token.tokenType === 'royalty').slice(0, 3);
+			
+			// Get platform statistics from new token data structure
+			const stats = dataStoreService.getPlatformStatistics();
+			
 			platformStats = {
-				...platformStats,
-				totalInvested: platformStats.totalInvested + (Math.random() * 0.1),
-				activeInvestors: platformStats.activeInvestors + Math.floor(Math.random() * 2)
+				totalAssets: stats.totalAssets,
+				totalInvested: stats.totalValueLocked / 1000000, // Convert to millions
+				averagePayout: Number(stats.averageYield.toFixed(1)),
+				activeInvestors: stats.totalInvestors
 			};
-		}, 5000);
-		return () => clearInterval(interval);
-	});
-
-	const featuredAssets = [
-		{
-			id: 1,
-			name: 'Europa Wressle Release 1',
-			location: 'North Sea Sector 7B',
-			currentYield: 14.8,
-			totalValue: 2400000,
-			minInvestment: 1000,
-			riskLevel: 'AA-',
-			daysToFunding: 15,
-			productionCapacity: '2,400 bbl/day',
-			status: 'funding'
-		},
-		{
-			id: 2,
-			name: 'Bakken Horizon Field',
-			location: 'North Dakota, USA',
-			currentYield: 12.4,
-			totalValue: 5200000,
-			minInvestment: 2500,
-			riskLevel: 'A+',
-			daysToFunding: 23,
-			productionCapacity: '4,100 bbl/day',
-			status: 'producing'
-		},
-		{
-			id: 3,
-			name: 'Permian Basin Venture',
-			location: 'Texas, USA',
-			currentYield: 13.9,
-			totalValue: 3800000,
-			minInvestment: 5000,
-			riskLevel: 'A',
-			daysToFunding: 8,
-			productionCapacity: '3,200 bbl/day',
-			status: 'funding'
+			
+			loading = false;
+			
+			// Animate platform stats on load
+			const interval = setInterval(() => {
+				platformStats = {
+					...platformStats,
+					totalInvested: platformStats.totalInvested + (Math.random() * 0.1),
+					activeInvestors: platformStats.activeInvestors + Math.floor(Math.random() * 2)
+				};
+			}, 5000);
+			
+			return () => clearInterval(interval);
+		} catch (error) {
+			console.error('Error loading homepage data:', error);
+			loading = false;
 		}
-	];
+	});
 
 	function formatCurrency(amount: number): string {
 		return new Intl.NumberFormat('en-US', {
@@ -74,7 +62,7 @@
 
 <svelte:head>
 	<title>Albion - Institutional Grade Oil & Gas DeFi</title>
-	<meta name="description" content="Real-world energy assets. Tokenized yield. Transparent returns. Access institutional-quality oil & gas investments through blockchain technology." />
+	<meta name="description" content="Real-world energy assets. Tokenized payouts. Transparent returns. Access institutional-quality oil & gas investments through blockchain technology." />
 </svelte:head>
 
 <main class="homepage">
@@ -82,7 +70,7 @@
 	<section class="hero">
 		<div class="hero-content">
 			<h1>Institutional Grade Oil & Gas DeFi</h1>
-			<p>Real-world energy assets. Tokenized yield. Transparent returns.<br>
+			<p>Real-world energy assets. Tokenized payouts. Transparent returns.<br>
 			Access institutional-quality oil & gas investments through blockchain technology.</p>
 		</div>
 		
@@ -99,9 +87,9 @@
 				<div class="stat-note">+8.2% this month</div>
 			</div>
 			<div class="stat">
-				<div class="stat-value">{platformStats.averageYield}%</div>
-				<div class="stat-label">Average Yield</div>
-				<div class="stat-note">Annual APY</div>
+				<div class="stat-value">{platformStats.averagePayout}%</div>
+				<div class="stat-label">Average Return</div>
+				<div class="stat-note">Annual IRR</div>
 			</div>
 			<div class="stat">
 				<div class="stat-value">{platformStats.activeInvestors.toLocaleString()}</div>
@@ -118,56 +106,19 @@
 	</section>
 
 	<!-- Featured Assets -->
-	<section class="featured-assets">
+	<section class="featured-tokens">
 		<div class="section-header">
-			<h2>Top Performing Assets</h2>
-			<div class="live-indicator">
-				<div class="pulse-dot"></div>
-				<span>Live Yields</span>
-			</div>
+			<h2>Featured Tokens</h2>
 		</div>
 		
-		<div class="assets-grid">
-			{#each featuredAssets as asset}
-				<article class="asset-card">
-					<div class="asset-header">
-						<div class="asset-info">
-							<h3>{asset.name}</h3>
-							<p class="location">{asset.location}</p>
-						</div>
-						<div class="asset-badges">
-							<span class="risk-badge">{asset.riskLevel}</span>
-							<span class="status-badge" class:producing={asset.status === 'producing'} class:funding={asset.status === 'funding'}>
-								{asset.status.toUpperCase()}
-							</span>
-						</div>
-					</div>
-					
-					<div class="asset-metrics">
-						<div class="metric">
-							<div class="metric-value">{asset.currentYield}%</div>
-							<div class="metric-label">Current Yield</div>
-						</div>
-						<div class="metric">
-							<div class="metric-value">${(asset.totalValue / 1000000).toFixed(1)}M</div>
-							<div class="metric-label">Total Value</div>
-						</div>
-					</div>
-
-					<div class="asset-details">
-						<div class="detail-row">
-							<span>Production</span>
-							<span>{asset.productionCapacity}</span>
-						</div>
-						<div class="detail-row">
-							<span>Min Investment</span>
-							<span>{formatCurrency(asset.minInvestment)}</span>
-						</div>
-					</div>
-					
-					<a href="/assets/{asset.id}" class="btn-primary">Invest Now</a>
-				</article>
-			{/each}
+		<div class="tokens-grid">
+			{#if loading}
+				<div class="loading-message">Loading featured tokens...</div>
+			{:else}
+				{#each featuredTokens as token}
+					<TokenCard contractAddress={token.contractAddress} />
+				{/each}
+			{/if}
 		</div>
 	</section>
 
@@ -179,7 +130,7 @@
 			<div class="step">
 				<div class="step-number">1</div>
 				<h3>Browse Assets</h3>
-				<p>Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive risk metrics from institutional operators.</p>
+				<p>Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
 			</div>
 			
 			<div class="step">
@@ -190,8 +141,8 @@
 			
 			<div class="step">
 				<div class="step-number">3</div>
-				<h3>Earn Yield</h3>
-				<p>Receive proportional revenue from real oil & gas production directly to your wallet. Monthly distributions, transparent accounting.</p>
+				<h3>Earn Payout</h3>
+				<p>Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
 			</div>
 		</div>
 	</section>
@@ -227,7 +178,6 @@
 		<div class="insights-content">
 			<div class="insights-text">
 				<h3>Market Insights</h3>
-				<p>Oil prices trending upward with global demand recovery. New drilling technologies increasing production efficiency.</p>
 				<div class="market-data">
 					<div class="data-row">
 						<span>WTI Crude Oil</span>
@@ -336,7 +286,7 @@
 		justify-content: center;
 	}
 
-	.featured-assets {
+	.featured-tokens {
 		padding: 4rem 2rem;
 		max-width: 1200px;
 		margin: 0 auto;
@@ -379,122 +329,17 @@
 		50% { opacity: 0.5; }
 	}
 
-	.assets-grid {
+	.tokens-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
 		gap: 2rem;
 	}
 
-	.asset-card {
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-		transition: border-color 0.2s ease;
-	}
-
-	.asset-card:hover {
-		border-color: var(--color-primary);
-	}
-
-	.asset-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-start;
-		margin-bottom: 2rem;
-	}
-
-	.asset-info h3 {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.location {
-		font-size: 0.8rem;
-		color: var(--color-secondary);
-		font-weight: var(--font-weight-medium);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.asset-badges {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-		align-items: flex-end;
-	}
-
-	.risk-badge {
-		background: var(--color-black);
-		color: var(--color-white);
-		padding: 0.25rem 0.5rem;
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-	}
-
-	.status-badge {
-		padding: 0.25rem 0.5rem;
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-	}
-
-	.status-badge.producing {
-		background: var(--color-light-gray);
-		color: var(--color-primary);
-	}
-
-	.status-badge.funding {
-		background: var(--color-light-gray);
-		color: var(--color-secondary);
-	}
-
-	.asset-metrics {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 2rem;
-		margin-bottom: 2rem;
-	}
-
-	.metric {
+	.loading-message {
 		text-align: center;
-	}
-
-	.metric-value {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-primary);
-		margin-bottom: 0.25rem;
-	}
-
-	.metric-label {
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-semibold);
+		padding: 3rem;
 		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.asset-details {
-		margin-bottom: 2rem;
-		padding-top: 2rem;
-		border-top: 1px solid var(--color-light-gray);
-	}
-
-	.detail-row {
-		display: flex;
-		justify-content: space-between;
-		margin-bottom: 1rem;
-		font-size: 0.9rem;
-	}
-
-	.detail-row span:first-child {
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-	}
-
-	.detail-row span:last-child {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
+		font-weight: var(--font-weight-medium);
 	}
 
 	.how-it-works {
@@ -603,12 +448,6 @@
 		margin-bottom: 1.5rem;
 	}
 
-	.insights-text p {
-		font-size: 1.1rem;
-		line-height: 1.6;
-		margin-bottom: 2rem;
-		opacity: 0.9;
-	}
 
 	.market-data {
 		display: flex;
@@ -713,7 +552,7 @@
 			align-items: center;
 		}
 
-		.assets-grid {
+		.tokens-grid {
 			grid-template-columns: 1fr;
 		}
 

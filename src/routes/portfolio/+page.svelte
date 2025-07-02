@@ -1,20 +1,97 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import dataStoreService from '$lib/services/DataStoreService';
+	import type { Asset, Token } from '$lib/types/dataStore';
+	import { walletStore, walletActions } from '$lib/stores/wallet';
+	import WalletModal from '$lib/components/WalletModal.svelte';
 
 	let totalPortfolioValue = 47250.00;
 	let totalInvested = 42000.00;
 	let unrealizedGains = 5250.00;
-	let unclaimedYield = 1247.82;
+	let unclaimedPayout = 1247.82;
 	let activeTab = 'overview';
 	let timeframe = '1M';
 	let portfolioInterval: number;
+	let holdings: any[] = [];
+	let loading = true;
+	let showWalletModal = false;
 
-	// Simulate portfolio value updates
-	onMount(() => {
-		portfolioInterval = setInterval(() => {
-			totalPortfolioValue = totalPortfolioValue + (Math.random() * 10 - 5);
-			unrealizedGains = unrealizedGains + (Math.random() * 2 - 1);
-		}, 5000);
+	// Mock portfolio data based on real assets
+	const mockPortfolioBalances = [
+		{ assetId: 'europa-wressle-release-1', tokensOwned: 18750, investmentAmount: 18750, totalEarned: 2847.15, lastPayout: '2024-12-15' },
+		{ assetId: 'bakken-horizon-field', tokensOwned: 12500, investmentAmount: 12500, totalEarned: 2156.47, lastPayout: '2024-12-10' },
+		{ assetId: 'permian-basin-venture', tokensOwned: 8750, investmentAmount: 8750, totalEarned: 1847.21, lastPayout: '2024-12-20' },
+		{ assetId: 'gulf-mexico-deep-water', tokensOwned: 2000, investmentAmount: 2000, totalEarned: 621.32, lastPayout: '2024-12-05' }
+	];
+
+	const performanceData = [
+		{ month: 'Jul 2024', value: 42000, payout: 0 },
+		{ month: 'Aug 2024', value: 42450, payout: 450 },
+		{ month: 'Sep 2024', value: 43120, payout: 890 },
+		{ month: 'Oct 2024', value: 44200, payout: 1340 },
+		{ month: 'Nov 2024', value: 45800, payout: 1820 },
+		{ month: 'Dec 2024', value: 47250, payout: 2280 }
+	];
+
+	// Map asset icons
+	const assetIcons: Record<string, string> = {
+		'europa-wressle-release-1': '🌊',
+		'bakken-horizon-field': '⛰️',
+		'permian-basin-venture': '⛽',
+		'gulf-mexico-deep-water': '💧'
+	};
+
+	onMount(async () => {
+		// Check if wallet is connected
+		if (!$walletStore.isConnected) {
+			showWalletModal = true;
+			return;
+		}
+		
+		try {
+			// Load real assets and create portfolio holdings
+			const allAssets = dataStoreService.getAllAssets();
+			
+			holdings = mockPortfolioBalances.map(balance => {
+				const asset = allAssets.find(a => a.id === balance.assetId);
+				if (!asset) return null;
+				
+				// Calculate current value with some mock variation
+				const pricePerToken = 1.25; // Mock price per token
+				const currentValue = balance.tokensOwned * pricePerToken;
+				const unrealizedGain = currentValue - balance.investmentAmount;
+				const unrealizedGainPercent = (unrealizedGain / balance.investmentAmount) * 100;
+				const allocation = (currentValue / totalPortfolioValue) * 100;
+				
+				return {
+					id: asset.id,
+					name: asset.name,
+					location: `${asset.location.state}, ${asset.location.country}`,
+					tokensOwned: balance.tokensOwned,
+					investmentAmount: balance.investmentAmount,
+					currentValue: currentValue,
+					unrealizedGain: unrealizedGain,
+					unrealizedGainPercent: unrealizedGainPercent,
+					currentPayout: asset.financial.currentPayout,
+					totalEarned: balance.totalEarned,
+					lastPayout: balance.lastPayout,
+					status: asset.production.status,
+					allocation: allocation,
+					icon: assetIcons[asset.id] || '🏭'
+				};
+			}).filter(Boolean);
+			
+			loading = false;
+			
+			// Simulate portfolio value updates
+			portfolioInterval = setInterval(() => {
+				totalPortfolioValue = totalPortfolioValue + (Math.random() * 10 - 5);
+				unrealizedGains = totalPortfolioValue - totalInvested;
+			}, 5000);
+		} catch (error) {
+			console.error('Error loading portfolio data:', error);
+			loading = false;
+		}
 	});
 
 	onDestroy(() => {
@@ -23,91 +100,11 @@
 		}
 	});
 
-	const holdings = [
-		{
-			id: 1,
-			name: 'Europa Wressle Release 1',
-			location: 'North Sea Sector 7B',
-			tokensOwned: 18750,
-			investmentAmount: 18750,
-			currentValue: 23437.50,
-			unrealizedGain: 4687.50,
-			unrealizedGainPercent: 25.0,
-			currentYield: 14.8,
-			totalEarned: 2847.15,
-			lastPayout: '2024-12-15',
-			status: 'producing',
-			riskLevel: 'AA-',
-			allocation: 49.6,
-			icon: '🌊'
-		},
-		{
-			id: 2,
-			name: 'Bakken Horizon Field',
-			location: 'North Dakota, USA',
-			tokensOwned: 12500,
-			investmentAmount: 12500,
-			currentValue: 13750.00,
-			unrealizedGain: 1250.00,
-			unrealizedGainPercent: 10.0,
-			currentYield: 12.4,
-			totalEarned: 2156.47,
-			lastPayout: '2024-12-10',
-			status: 'producing',
-			riskLevel: 'A+',
-			allocation: 29.1,
-			icon: '⛰️'
-		},
-		{
-			id: 3,
-			name: 'Permian Basin Venture',
-			location: 'Texas, USA',
-			tokensOwned: 8750,
-			investmentAmount: 8750,
-			currentValue: 7875.00,
-			unrealizedGain: -875.00,
-			unrealizedGainPercent: -10.0,
-			currentYield: 13.9,
-			totalEarned: 1847.21,
-			lastPayout: '2024-12-20',
-			status: 'producing',
-			riskLevel: 'A',
-			allocation: 16.7,
-			icon: '⛽'
-		},
-		{
-			id: 4,
-			name: 'Gulf of Mexico Deep Water',
-			location: 'Gulf of Mexico',
-			tokensOwned: 2000,
-			investmentAmount: 2000,
-			currentValue: 2187.50,
-			unrealizedGain: 187.50,
-			unrealizedGainPercent: 9.4,
-			currentYield: 15.2,
-			totalEarned: 621.32,
-			lastPayout: '2024-12-05',
-			status: 'producing',
-			riskLevel: 'A-',
-			allocation: 4.6,
-			icon: '💧'
-		}
-	];
-
-	const performanceData = [
-		{ month: 'Jul 2024', value: 42000, yield: 0 },
-		{ month: 'Aug 2024', value: 42450, yield: 450 },
-		{ month: 'Sep 2024', value: 43120, yield: 890 },
-		{ month: 'Oct 2024', value: 44200, yield: 1340 },
-		{ month: 'Nov 2024', value: 45800, yield: 1820 },
-		{ month: 'Dec 2024', value: 47250, yield: 2280 }
-	];
-
 	// Calculated portfolio metrics
-	$: portfolioMetrics = {
+	$: portfolioMetrics = holdings.length > 0 ? {
 		totalReturn: ((totalPortfolioValue - totalInvested) / totalInvested) * 100,
-		yieldReturn: (6851.15 / totalInvested) * 100,
-		averageYield: holdings.reduce((acc, h) => acc + h.currentYield, 0) / holdings.length,
+		payoutReturn: (holdings.reduce((sum, h) => sum + h.totalEarned, 0) / totalInvested) * 100,
+		averagePayout: holdings.reduce((acc, h) => acc + h.currentPayout, 0) / holdings.length,
 		bestPerformer: holdings.reduce((best, current) => 
 			current.unrealizedGainPercent > best.unrealizedGainPercent ? current : best
 		),
@@ -115,7 +112,15 @@
 			current.unrealizedGainPercent < worst.unrealizedGainPercent ? current : worst
 		),
 		totalTokens: holdings.reduce((sum, h) => sum + h.tokensOwned, 0),
-		totalYieldEarned: holdings.reduce((sum, h) => sum + h.totalEarned, 0)
+		totalPayoutEarned: holdings.reduce((sum, h) => sum + h.totalEarned, 0)
+	} : {
+		totalReturn: 0,
+		payoutReturn: 0,
+		averagePayout: 0,
+		bestPerformer: null,
+		worstPerformer: null,
+		totalTokens: 0,
+		totalPayoutEarned: 0
 	};
 
 	function formatCurrency(amount: number): string {
@@ -135,6 +140,66 @@
 	function getCurrentTime(): string {
 		return new Date().toLocaleTimeString();
 	}
+	
+	async function handleWalletConnect() {
+		await walletActions.connect();
+		showWalletModal = false;
+		
+		// Reload the page content now that wallet is connected
+		if ($walletStore.isConnected) {
+			loading = true;
+			try {
+				const allAssets = dataStoreService.getAllAssets();
+				
+				holdings = mockPortfolioBalances.map(balance => {
+					const asset = allAssets.find(a => a.id === balance.assetId);
+					if (!asset) return null;
+					
+					const pricePerToken = 1.25;
+					const currentValue = balance.tokensOwned * pricePerToken;
+					const unrealizedGain = currentValue - balance.investmentAmount;
+					const unrealizedGainPercent = (unrealizedGain / balance.investmentAmount) * 100;
+					const allocation = (currentValue / totalPortfolioValue) * 100;
+					
+					return {
+						id: asset.id,
+						name: asset.name,
+						location: `${asset.location.state}, ${asset.location.country}`,
+						tokensOwned: balance.tokensOwned,
+						investmentAmount: balance.investmentAmount,
+						currentValue: currentValue,
+						unrealizedGain: unrealizedGain,
+						unrealizedGainPercent: unrealizedGainPercent,
+						currentPayout: asset.financial.currentPayout,
+						totalEarned: balance.totalEarned,
+						lastPayout: balance.lastPayout,
+						status: asset.production.status,
+						allocation: allocation,
+						icon: assetIcons[asset.id] || '🏭'
+					};
+				}).filter(Boolean);
+				
+				loading = false;
+				
+				// Start portfolio updates
+				portfolioInterval = setInterval(() => {
+					totalPortfolioValue = totalPortfolioValue + (Math.random() * 10 - 5);
+					unrealizedGains = totalPortfolioValue - totalInvested;
+				}, 5000);
+			} catch (error) {
+				console.error('Error loading portfolio data:', error);
+				loading = false;
+			}
+		}
+	}
+	
+	function handleWalletModalClose() {
+		showWalletModal = false;
+		// Redirect to home if wallet not connected
+		if (!$walletStore.isConnected) {
+			window.location.href = '/';
+		}
+	}
 </script>
 
 <svelte:head>
@@ -142,6 +207,19 @@
 	<meta name="description" content="Track your oil & gas investment portfolio performance" />
 </svelte:head>
 
+{#if !$walletStore.isConnected && !showWalletModal}
+	<main class="portfolio-page">
+		<div class="wallet-required">
+			<div class="wallet-required-content">
+				<h1>Wallet Connection Required</h1>
+				<p>Please connect your wallet to view your portfolio.</p>
+				<button class="connect-btn" on:click={() => showWalletModal = true}>
+					Connect Wallet
+				</button>
+			</div>
+		</div>
+	</main>
+{:else if $walletStore.isConnected}
 <main class="portfolio-page">
 	<!-- Portfolio Overview Header -->
 	<div class="portfolio-overview">
@@ -170,9 +248,9 @@
 						</div>
 					</div>
 					<div class="metric">
-						<div class="metric-value yield">{formatCurrency(portfolioMetrics.totalYieldEarned)}</div>
-						<div class="metric-label">Yield Earned</div>
-						<div class="metric-note positive">{formatPercent(portfolioMetrics.yieldReturn)}</div>
+						<div class="metric-value payout">{formatCurrency(portfolioMetrics.totalPayoutEarned)}</div>
+						<div class="metric-label">Payout Earned</div>
+						<div class="metric-note positive">{formatPercent(portfolioMetrics.payoutReturn)}</div>
 					</div>
 				</div>
 
@@ -196,8 +274,8 @@
 				
 				<div class="stats-list">
 					<div class="stat-row">
-						<span>Average Yield</span>
-						<span class="yield">{portfolioMetrics.averageYield.toFixed(1)}%</span>
+						<span>Average Payout</span>
+						<span class="payout">{portfolioMetrics.averagePayout.toFixed(1)}%</span>
 					</div>
 					<div class="stat-row">
 						<span>Total Tokens</span>
@@ -209,25 +287,27 @@
 					</div>
 					<div class="stat-row">
 						<span>Monthly Income</span>
-						<span class="yield">{formatCurrency(portfolioMetrics.totalYieldEarned / 6)}</span>
+						<span class="payout">{formatCurrency(portfolioMetrics.totalPayoutEarned / 6)}</span>
 					</div>
 				</div>
 
 				<div class="performance-summary">
-					<div class="performer">
-						<div class="performer-header">
-							<span>Best Performer</span>
-							<span class="positive">{formatPercent(portfolioMetrics.bestPerformer.unrealizedGainPercent)}</span>
+					{#if portfolioMetrics.bestPerformer && portfolioMetrics.worstPerformer}
+						<div class="performer">
+							<div class="performer-header">
+								<span>Best Performer</span>
+								<span class="positive">{formatPercent(portfolioMetrics.bestPerformer.unrealizedGainPercent)}</span>
+							</div>
+							<div class="performer-name">{portfolioMetrics.bestPerformer.name}</div>
 						</div>
-						<div class="performer-name">{portfolioMetrics.bestPerformer.name}</div>
-					</div>
-					<div class="performer">
-						<div class="performer-header">
-							<span>Worst Performer</span>
-							<span class="negative">{formatPercent(portfolioMetrics.worstPerformer.unrealizedGainPercent)}</span>
+						<div class="performer">
+							<div class="performer-header">
+								<span>Worst Performer</span>
+								<span class="negative">{formatPercent(portfolioMetrics.worstPerformer.unrealizedGainPercent)}</span>
+							</div>
+							<div class="performer-name">{portfolioMetrics.worstPerformer.name}</div>
 						</div>
-						<div class="performer-name">{portfolioMetrics.worstPerformer.name}</div>
-					</div>
+					{/if}
 				</div>
 			</div>
 		</div>
@@ -273,14 +353,17 @@
 						<h3>My Holdings</h3>
 						<div class="view-controls">
 							<button class="view-btn active">Value</button>
-							<button class="view-btn">Yield</button>
+							<button class="view-btn">Payout</button>
 							<button class="view-btn">Performance</button>
 						</div>
 					</div>
 
 					<div class="holdings-list">
-						{#each holdings as holding}
-							<div class="holding-card">
+						{#if loading}
+							<div class="loading-message">Loading portfolio holdings...</div>
+						{:else}
+							{#each holdings as holding}
+								<div class="holding-card">
 								<div class="holding-main">
 									<div class="holding-info">
 										<div class="holding-icon">{holding.icon}</div>
@@ -288,8 +371,7 @@
 											<h4>{holding.name}</h4>
 											<div class="holding-location">{holding.location}</div>
 											<div class="holding-badges">
-												<span class="risk-badge">{holding.riskLevel}</span>
-												<span class="status-badge">Producing</span>
+												<span class="status-badge" class:producing={holding.status === 'producing'}>{holding.status.toUpperCase()}</span>
 											</div>
 										</div>
 									</div>
@@ -316,9 +398,9 @@
 										</div>
 									</div>
 
-									<div class="holding-yield">
-										<div class="yield-value">{holding.currentYield}%</div>
-										<div class="yield-label">Yield</div>
+									<div class="holding-payout">
+										<div class="payout-value">{holding.currentPayout}%</div>
+										<div class="payout-label">Payout</div>
 									</div>
 
 									<div class="holding-actions">
@@ -329,7 +411,7 @@
 								<div class="holding-footer">
 									<div class="footer-item">
 										<span>Total Earned:</span>
-										<span class="yield">{formatCurrency(holding.totalEarned)}</span>
+										<span class="payout">{formatCurrency(holding.totalEarned)}</span>
 									</div>
 									<div class="footer-item">
 										<span>Last Payout:</span>
@@ -340,8 +422,9 @@
 										<span class="positive">Active</span>
 									</div>
 								</div>
-							</div>
-						{/each}
+								</div>
+							{/each}
+						{/if}
 					</div>
 				</div>
 			{:else if activeTab === 'performance'}
@@ -367,7 +450,7 @@
 								<div class="chart-content">
 									<div class="chart-icon">📈</div>
 									<div class="chart-label">Portfolio Value Chart</div>
-									<div class="chart-note">Total value vs yield earnings over time</div>
+									<div class="chart-note">Total value vs payout earnings over time</div>
 								</div>
 							</div>
 						</div>
@@ -379,13 +462,13 @@
 								<div class="perf-note">Since inception</div>
 							</div>
 							<div class="perf-stat">
-								<div class="perf-value positive">{formatPercent(portfolioMetrics.yieldReturn)}</div>
-								<div class="perf-label">Yield Return</div>
+								<div class="perf-value positive">{formatPercent(portfolioMetrics.payoutReturn)}</div>
+								<div class="perf-label">Payout Return</div>
 								<div class="perf-note">Income only</div>
 							</div>
 							<div class="perf-stat">
 								<div class="perf-value">16.3%</div>
-								<div class="perf-label">Annualized</div>
+								<div class="perf-label">Annualized IRR</div>
 								<div class="perf-note">12-month projection</div>
 							</div>
 						</div>
@@ -398,7 +481,7 @@
 								<div class="monthly-item">
 									<div class="month-label">{month.month.split(' ')[0]}</div>
 									<div class="month-value">{formatCurrency(month.value)}</div>
-									<div class="month-yield">{formatCurrency(month.yield)} yield</div>
+									<div class="month-payout">{formatCurrency(month.payout)} payout</div>
 								</div>
 							{/each}
 						</div>
@@ -443,7 +526,7 @@
 								<div class="tip-content">
 									<div class="tip-title">Diversification Tip</div>
 									<div class="tip-text">
-										Consider rebalancing: 49.6% allocation to single asset (Europa Wressle) may increase concentration risk.
+										Consider diversifying: 49.6% allocation to single asset (Europa Wressle) may impact portfolio balance.
 									</div>
 								</div>
 							</div>
@@ -453,8 +536,8 @@
 			{:else if activeTab === 'analytics'}
 				<div class="analytics-content">
 					<div class="analytics-grid">
-						<div class="risk-metrics">
-							<h4>Risk Metrics</h4>
+						<div class="performance-metrics">
+							<h4>Performance Metrics</h4>
 							<div class="metrics-list">
 								<div class="metric-row">
 									<span>Portfolio Beta</span>
@@ -479,19 +562,19 @@
 							</div>
 						</div>
 
-						<div class="yield-analytics">
-							<h4>Yield Analytics</h4>
+						<div class="payout-analytics">
+							<h4>Payout Analytics</h4>
 							<div class="metrics-list">
 								<div class="metric-row">
-									<span>Weighted Avg Yield</span>
-									<span class="positive">{portfolioMetrics.averageYield.toFixed(1)}%</span>
+									<span>Weighted Avg Payout</span>
+									<span class="positive">{portfolioMetrics.averagePayout.toFixed(1)}%</span>
 								</div>
 								<div class="metric-row">
 									<span>Monthly Income</span>
-									<span class="positive">{formatCurrency(portfolioMetrics.totalYieldEarned / 6)}</span>
+									<span class="positive">{formatCurrency(portfolioMetrics.totalPayoutEarned / 6)}</span>
 								</div>
 								<div class="metric-row">
-									<span>Yield Consistency</span>
+									<span>Payout Consistency</span>
 									<span class="positive">94.2%</span>
 								</div>
 								<div class="metric-row">
@@ -512,7 +595,7 @@
 							<div class="table-header">
 								<div class="table-cell">Oil Price Scenario</div>
 								<div class="table-cell">Portfolio Value</div>
-								<div class="table-cell">Annual Yield</div>
+								<div class="table-cell">Annual Payout</div>
 								<div class="table-cell">Total Return</div>
 							</div>
 							<div class="table-row">
@@ -524,7 +607,7 @@
 							<div class="table-row current">
 								<div class="table-cell">Current ($78/bbl)</div>
 								<div class="table-cell">{formatCurrency(totalPortfolioValue)}</div>
-								<div class="table-cell positive">{portfolioMetrics.averageYield.toFixed(1)}%</div>
+								<div class="table-cell positive">{portfolioMetrics.averagePayout.toFixed(1)}%</div>
 								<div class="table-cell positive">{formatPercent(portfolioMetrics.totalReturn)}</div>
 							</div>
 							<div class="table-row">
@@ -551,17 +634,11 @@
 
 		<div class="action-card">
 			<div class="action-icon">💰</div>
-			<h4>Claim Yield</h4>
-			<p>{formatCurrency(unclaimedYield)} available</p>
+			<h4>Claim Payouts</h4>
+			<p>{formatCurrency(unclaimedPayout)} available</p>
 			<a href="/claims" class="action-btn claim">Claim Now</a>
 		</div>
 
-		<div class="action-card">
-			<div class="action-icon">🧮</div>
-			<h4>Rebalance</h4>
-			<p>Optimize allocation</p>
-			<button class="action-btn secondary">Analyze</button>
-		</div>
 
 		<div class="action-card">
 			<div class="action-icon">📥</div>
@@ -571,12 +648,64 @@
 		</div>
 	</div>
 </main>
+{/if}
+
+<!-- Wallet Modal -->
+<WalletModal
+	bind:isOpen={showWalletModal}
+	isConnecting={$walletStore.isConnecting}
+	on:connect={handleWalletConnect}
+	on:close={handleWalletModalClose}
+/>
 
 <style>
 	.portfolio-page {
 		padding: 2rem;
 		max-width: 1200px;
 		margin: 0 auto;
+	}
+
+	/* Wallet Required Screen */
+	.wallet-required {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 60vh;
+		text-align: center;
+	}
+
+	.wallet-required-content h1 {
+		font-size: 2rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin-bottom: 1rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.wallet-required-content p {
+		font-size: 1.1rem;
+		color: var(--color-black);
+		margin-bottom: 2rem;
+		opacity: 0.8;
+	}
+
+	.wallet-required .connect-btn {
+		background: var(--color-primary);
+		color: var(--color-white);
+		border: none;
+		padding: 1rem 2rem;
+		font-family: var(--font-family);
+		font-weight: var(--font-weight-extrabold);
+		font-size: 0.9rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+	}
+
+	.wallet-required .connect-btn:hover {
+		background: var(--color-secondary);
 	}
 
 	/* Portfolio Overview */
@@ -635,7 +764,7 @@
 		color: #dc2626;
 	}
 
-	.metric-value.yield {
+	.metric-value.payout {
 		color: var(--color-primary);
 	}
 
@@ -739,7 +868,7 @@
 		color: var(--color-black);
 	}
 
-	.stat-row .yield {
+	.stat-row .payout {
 		color: var(--color-primary);
 	}
 
@@ -923,33 +1052,33 @@
 		gap: 0.5rem;
 	}
 
-	.risk-badge {
-		background: var(--color-black);
-		color: var(--color-white);
-		padding: 0.125rem 0.5rem;
-		font-size: 0.65rem;
-		font-weight: var(--font-weight-bold);
-	}
-
 	.status-badge {
 		background: var(--color-light-gray);
-		color: var(--color-primary);
+		color: var(--color-secondary);
 		padding: 0.125rem 0.5rem;
 		font-size: 0.65rem;
 		font-weight: var(--font-weight-bold);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		border-radius: 0.25rem;
+	}
+
+	.status-badge.producing {
+		background: var(--color-light-gray);
+		color: var(--color-primary);
 	}
 
 	.holding-tokens,
 	.holding-value,
 	.holding-pnl,
-	.holding-yield {
+	.holding-payout {
 		text-align: center;
 	}
 
 	.tokens-value,
 	.value-amount,
 	.pnl-amount,
-	.yield-value {
+	.payout-value {
 		font-size: 1.1rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-black);
@@ -964,14 +1093,14 @@
 		color: #dc2626;
 	}
 
-	.yield-value {
+	.payout-value {
 		color: var(--color-primary);
 	}
 
 	.tokens-label,
 	.value-label,
 	.pnl-label,
-	.yield-label {
+	.payout-label {
 		font-size: 0.65rem;
 		font-weight: var(--font-weight-bold);
 		color: var(--color-black);
@@ -1041,7 +1170,7 @@
 		color: var(--color-black);
 	}
 
-	.footer-item .yield {
+	.footer-item .payout {
 		color: var(--color-primary);
 	}
 
@@ -1207,7 +1336,7 @@
 		margin-bottom: 0.25rem;
 	}
 
-	.month-yield {
+	.month-payout {
 		font-size: 0.75rem;
 		color: var(--color-primary);
 		font-weight: var(--font-weight-medium);
@@ -1331,15 +1460,15 @@
 		margin-bottom: 2rem;
 	}
 
-	.risk-metrics,
-	.yield-analytics {
+	.performance-metrics,
+	.payout-analytics {
 		background: var(--color-light-gray);
 		border: 1px solid var(--color-light-gray);
 		padding: 2rem;
 	}
 
-	.risk-metrics h4,
-	.yield-analytics h4 {
+	.performance-metrics h4,
+	.payout-analytics h4 {
 		font-size: 1.1rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-black);
@@ -1449,7 +1578,7 @@
 	/* Quick Actions */
 	.quick-actions {
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
+		grid-template-columns: repeat(3, 1fr);
 		gap: 2rem;
 	}
 

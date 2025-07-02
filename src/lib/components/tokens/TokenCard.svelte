@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { TokenInfo, TokenBalance } from '$lib/types';
-	import { TokenService } from '$lib/services';
+	import dataStoreService from '$lib/services/DataStoreService';
+	import type { Token } from '$lib/types/dataStore';
 
 	export let contractAddress: string;
 	export let userAddress: string | null = null;
 
-	let tokenInfo: TokenInfo | null = null;
-	let userBalance: TokenBalance | null = null;
+	let tokenInfo: Token | null = null;
+	let userBalance = 0;
 	let loading = true;
 	let error: string | null = null;
 
@@ -20,18 +20,17 @@
 			loading = true;
 			error = null;
 
-			// Initialize TokenService if not already done
-			TokenService.initialize();
+			// Load token info from data store
+			tokenInfo = dataStoreService.getTokenByAddress(contractAddress);
+			
+			if (!tokenInfo) {
+				error = 'Token not found';
+				return;
+			}
 
-			// Load token info
-			tokenInfo = await TokenService.getTokenInfo(contractAddress as `0x${string}`);
-
-			// Load user balance if user address is provided
+			// Mock user balance for demo
 			if (userAddress && tokenInfo) {
-				userBalance = await TokenService.getTokenBalance(
-					contractAddress as `0x${string}`,
-					userAddress as `0x${string}`
-				);
+				userBalance = Math.floor(Math.random() * 10000); // Mock balance
 			}
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load token data';
@@ -41,8 +40,8 @@
 		}
 	}
 
-	function formatSupply(supply: bigint, decimals: number): string {
-		const formatted = Number(supply) / Math.pow(10, decimals);
+	function formatSupply(supply: number, decimals: number): string {
+		const formatted = supply / Math.pow(10, decimals);
 		return new Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 0
@@ -91,15 +90,15 @@
 			<div class="detail-item">
 				<span class="detail-label">Total Supply</span>
 				<span class="detail-value">
-					{formatSupply(tokenInfo.totalSupply, tokenInfo.decimals)} {tokenInfo.symbol}
+					{parseInt(tokenInfo.supply.maxSupply).toLocaleString()} {tokenInfo.symbol}
 				</span>
 			</div>
 
-			{#if userBalance}
+			{#if userBalance > 0}
 				<div class="detail-item user-balance">
 					<span class="detail-label">Your Balance</span>
 					<span class="detail-value">
-						{parseFloat(userBalance.formattedBalance).toLocaleString()} {tokenInfo.symbol}
+						{userBalance.toLocaleString()} {tokenInfo.symbol}
 					</span>
 				</div>
 			{/if}
@@ -109,7 +108,7 @@
 			{#if tokenInfo.tokenType === 'royalty'}
 				<button class="action-button primary">Mint Tokens</button>
 			{:else}
-				<button class="action-button secondary">View Distributions</button>
+				<button class="action-button secondary">View Payouts</button>
 			{/if}
 		</div>
 	{:else}

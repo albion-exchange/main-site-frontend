@@ -1,147 +1,26 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import dataStoreService from '$lib/services/DataStoreService';
+	import type { Asset } from '$lib/types/dataStore';
 
 	let viewMode = 'grid'; // grid or list
-	let sortBy = 'yield';
+	let sortBy = 'payout';
 	let filterLocation = 'all';
-	let filterYield = 'all';
+	let filterPayout = 'all';
 	let filterStatus = 'all';
 	let searchTerm = '';
 	let loading = true;
+	let allAssets: Asset[] = [];
 
-	const allAssets = [
-		{
-			id: 1,
-			name: 'Europa Wressle Release 1',
-			location: 'North Sea Sector 7B',
-			country: 'United Kingdom',
-			operator: 'Europa Oil & Gas',
-			currentYield: 14.8,
-			baseYield: 12.5,
-			totalValue: 2400000,
-			minInvestment: 1000,
-			riskLevel: 'AA-',
-			daysToFunding: 15,
-			productionCapacity: '2,400 bbl/day',
-			reserves: '45.2M bbl',
-			operatingCosts: 18.50,
-			breakeven: 32.10,
-			status: 'funding',
-			tokensAvailable: 150000,
-			tokensSold: 118750,
-			investorCount: 247
-		},
-		{
-			id: 2,
-			name: 'Bakken Horizon Field',
-			location: 'North Dakota, USA',
-			country: 'United States',
-			operator: 'Continental Resources',
-			currentYield: 12.4,
-			baseYield: 10.8,
-			totalValue: 5200000,
-			minInvestment: 2500,
-			riskLevel: 'A+',
-			daysToFunding: 23,
-			productionCapacity: '4,100 bbl/day',
-			reserves: '78.5M bbl',
-			operatingCosts: 22.30,
-			breakeven: 38.75,
-			status: 'producing',
-			tokensAvailable: 260000,
-			tokensSold: 234200,
-			investorCount: 412
-		},
-		{
-			id: 3,
-			name: 'Permian Basin Venture',
-			location: 'Texas, USA',
-			country: 'United States',
-			operator: 'Pioneer Natural Resources',
-			currentYield: 13.9,
-			baseYield: 11.2,
-			totalValue: 3800000,
-			minInvestment: 5000,
-			riskLevel: 'A',
-			daysToFunding: 8,
-			productionCapacity: '3,200 bbl/day',
-			reserves: '62.3M bbl',
-			operatingCosts: 19.80,
-			breakeven: 35.60,
-			status: 'funding',
-			tokensAvailable: 190000,
-			tokensSold: 143250,
-			investorCount: 328
-		},
-		{
-			id: 4,
-			name: 'Gulf of Mexico Deep Water',
-			location: 'Gulf of Mexico',
-			country: 'United States',
-			operator: 'Shell Exploration',
-			currentYield: 15.2,
-			baseYield: 13.8,
-			totalValue: 8900000,
-			minInvestment: 10000,
-			riskLevel: 'A-',
-			daysToFunding: 31,
-			productionCapacity: '6,800 bbl/day',
-			reserves: '125.7M bbl',
-			operatingCosts: 28.90,
-			breakeven: 45.20,
-			status: 'producing',
-			tokensAvailable: 445000,
-			tokensSold: 401500,
-			investorCount: 678
-		},
-		{
-			id: 5,
-			name: 'Norwegian Sea Platform',
-			location: 'Norwegian Sea',
-			country: 'Norway',
-			operator: 'Equinor ASA',
-			currentYield: 11.7,
-			baseYield: 10.5,
-			totalValue: 6700000,
-			minInvestment: 7500,
-			riskLevel: 'AA',
-			daysToFunding: 19,
-			productionCapacity: '5,100 bbl/day',
-			reserves: '89.4M bbl',
-			operatingCosts: 24.60,
-			breakeven: 40.30,
-			status: 'producing',
-			tokensAvailable: 335000,
-			tokensSold: 301500,
-			investorCount: 523
-		},
-		{
-			id: 6,
-			name: 'Alberta Oil Sands Project',
-			location: 'Alberta, Canada',
-			country: 'Canada',
-			operator: 'Suncor Energy',
-			currentYield: 10.3,
-			baseYield: 9.1,
-			totalValue: 4300000,
-			minInvestment: 3000,
-			riskLevel: 'A+',
-			daysToFunding: 12,
-			productionCapacity: '3,900 bbl/day',
-			reserves: '156.8M bbl',
-			operatingCosts: 31.20,
-			breakeven: 48.50,
-			status: 'funding',
-			tokensAvailable: 215000,
-			tokensSold: 129000,
-			investorCount: 289
-		}
-	];
-
-	onMount(() => {
-		setTimeout(() => {
+	onMount(async () => {
+		try {
+			// Load assets from data store
+			allAssets = dataStoreService.getAllAssets();
 			loading = false;
-		}, 500);
+		} catch (error) {
+			console.error('Error loading assets:', error);
+			loading = false;
+		}
 	});
 
 	function formatCurrency(amount: number): string {
@@ -153,25 +32,24 @@
 		}).format(amount);
 	}
 
+	// Get unique countries for filter
+	$: countries = [...new Set(allAssets.map(asset => asset.location.country))];
+
 	// Filter and sort assets
 	$: filteredAssets = allAssets.filter(asset => {
 		const matchesSearch = asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-							 asset.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-							 asset.operator.toLowerCase().includes(searchTerm.toLowerCase());
-		const matchesLocation = filterLocation === 'all' || asset.country === filterLocation;
-		const matchesYield = filterYield === 'all' || 
-							(filterYield === '10-12' && asset.currentYield >= 10 && asset.currentYield < 12) ||
-							(filterYield === '12-15' && asset.currentYield >= 12 && asset.currentYield < 15) ||
-							(filterYield === '15+' && asset.currentYield >= 15);
-		const matchesStatus = filterStatus === 'all' || asset.status === filterStatus;
+							 asset.location.state.toLowerCase().includes(searchTerm.toLowerCase()) ||
+							 asset.operator.name.toLowerCase().includes(searchTerm.toLowerCase());
+		const matchesLocation = filterLocation === 'all' || asset.location.country === filterLocation;
+		const matchesPayout = filterPayout === 'all'; // Simplified - no payout filtering without financial data
+		const matchesStatus = filterStatus === 'all' || asset.production.status === filterStatus;
 		
-		return matchesSearch && matchesLocation && matchesYield && matchesStatus;
+		return matchesSearch && matchesLocation && matchesPayout && matchesStatus;
 	}).sort((a, b) => {
 		switch(sortBy) {
-			case 'yield': return b.currentYield - a.currentYield;
-			case 'value': return b.totalValue - a.totalValue;
 			case 'name': return a.name.localeCompare(b.name);
-			case 'funding': return a.daysToFunding - b.daysToFunding;
+			case 'reserves': return parseFloat(a.production.reserves.replace(/[^\d.]/g, '')) - parseFloat(b.production.reserves.replace(/[^\d.]/g, ''));
+			case 'status': return a.production.status.localeCompare(b.production.status);
 			default: return 0;
 		}
 	});
@@ -179,7 +57,7 @@
 	function clearAllFilters() {
 		searchTerm = '';
 		filterLocation = 'all';
-		filterYield = 'all';
+		filterPayout = 'all';
 		filterStatus = 'all';
 	}
 </script>
@@ -213,13 +91,12 @@
 			<div class="filters">
 				<select bind:value={filterLocation} class="filter-select">
 					<option value="all">All Locations</option>
-					<option value="United States">United States</option>
-					<option value="United Kingdom">United Kingdom</option>
-					<option value="Norway">Norway</option>
-					<option value="Canada">Canada</option>
+					{#each countries as country}
+						<option value={country}>{country}</option>
+					{/each}
 				</select>
-				<select bind:value={filterYield} class="filter-select">
-					<option value="all">All Yields</option>
+				<select bind:value={filterPayout} class="filter-select">
+					<option value="all">All Payouts</option>
 					<option value="10-12">10-12%</option>
 					<option value="12-15">12-15%</option>
 					<option value="15+">15%+</option>
@@ -237,7 +114,7 @@
 			<div class="sort-controls">
 				<span class="control-label">Sort By:</span>
 				<select bind:value={sortBy} class="sort-select">
-					<option value="yield">Highest Yield</option>
+					<option value="payout">Highest Payout</option>
 					<option value="value">Highest Value</option>
 					<option value="name">Name A-Z</option>
 					<option value="funding">Funding Soon</option>
@@ -281,67 +158,60 @@
 						<div class="asset-header">
 							<div class="asset-info">
 								<h3>{asset.name}</h3>
-								<p class="asset-location">{asset.location}</p>
-								<p class="asset-operator">{asset.operator}</p>
+								<p class="asset-location">{asset.location.state}, {asset.location.country}</p>
+								<p class="asset-operator">{asset.operator.name}</p>
 							</div>
 							<div class="asset-badges">
-								<span class="risk-badge">{asset.riskLevel}</span>
-								<span class="status-badge" class:producing={asset.status === 'producing'} class:funding={asset.status === 'funding'}>
-									{asset.status.toUpperCase()}
+								<span class="status-badge" class:producing={asset.production.status === 'producing'} class:funding={asset.production.status === 'funding'}>
+									{asset.production.status.toUpperCase()}
 								</span>
 							</div>
 						</div>
 						
 						<div class="asset-metrics">
 							<div class="metric">
-								<div class="metric-value">{asset.currentYield}%</div>
-								<div class="metric-label">Current Yield</div>
+								<div class="metric-value">{asset.production.capacity}</div>
+								<div class="metric-label">Production</div>
 							</div>
 							<div class="metric">
-								<div class="metric-value">${(asset.totalValue / 1000000).toFixed(1)}M</div>
-								<div class="metric-label">Total Value</div>
+								<div class="metric-value">{asset.production.reserves}</div>
+								<div class="metric-label">Reserves</div>
 							</div>
 							<div class="metric">
-								<div class="metric-value">{asset.investorCount}</div>
-								<div class="metric-label">Investors</div>
+								<div class="metric-value">{asset.production.status}</div>
+								<div class="metric-label">Status</div>
 							</div>
 						</div>
 
 						<div class="asset-details">
 							<div class="detail-row">
 								<span>Production:</span>
-								<span>{asset.productionCapacity}</span>
+								<span>{asset.production.capacity}</span>
 							</div>
 							<div class="detail-row">
 								<span>Reserves:</span>
-								<span>{asset.reserves}</span>
+								<span>{asset.production.reserves}</span>
 							</div>
 							<div class="detail-row">
-								<span>Min Investment:</span>
-								<span>{formatCurrency(asset.minInvestment)}</span>
+								<span>Field Type:</span>
+								<span>{asset.technical.fieldType}</span>
 							</div>
 							<div class="detail-row">
-								<span>Breakeven:</span>
-								<span>${asset.breakeven}</span>
+								<span>Operator:</span>
+								<span>{asset.operator.name}</span>
 							</div>
 						</div>
 						
-						<!-- Token Progress -->
-						<div class="token-progress">
-							<div class="progress-header">
-								<span>Token Sale Progress</span>
-								<span>{((asset.tokensSold / asset.tokensAvailable) * 100).toFixed(1)}%</span>
-							</div>
-							<div class="progress-bar">
-								<div 
-									class="progress-fill" 
-									style="width: {(asset.tokensSold / asset.tokensAvailable) * 100}%"
-								></div>
+						<!-- Token Information -->
+						<div class="token-info">
+							<div class="info-header">
+								<span>Associated Tokens</span>
+								<span>{asset.tokenContracts.length} token{asset.tokenContracts.length !== 1 ? 's' : ''}</span>
 							</div>
 						</div>
 						
 						<div class="asset-actions">
-							<a href="/buy-token?asset={asset.id}" class="btn-primary">Invest Now</a>
+							<a href="/buy-tokens?asset={asset.id}" class="btn-primary">View Tokens</a>
 							<a href="/assets/{asset.id}" class="btn-secondary">View Details</a>
 						</div>
 					</article>
@@ -353,26 +223,23 @@
 					<article class="asset-list-item">
 						<div class="list-asset-info">
 							<h4>{asset.name}</h4>
-							<p>{asset.location}</p>
+							<p>{asset.location.state}, {asset.location.country}</p>
 						</div>
-						<div class="list-yield">
-							<div class="metric-value">{asset.currentYield}%</div>
-							<div class="metric-label">Yield</div>
+						<div class="list-payout">
+							<div class="metric-value">{asset.production.capacity}</div>
+							<div class="metric-label">Production</div>
 						</div>
 						<div class="list-value">
-							<div class="metric-value">${(asset.totalValue / 1000000).toFixed(1)}M</div>
-							<div class="metric-label">Value</div>
-						</div>
-						<div class="list-risk">
-							<span class="risk-badge">{asset.riskLevel}</span>
+							<div class="metric-value">{asset.production.reserves}</div>
+							<div class="metric-label">Reserves</div>
 						</div>
 						<div class="list-status">
-							<span class="status-badge" class:producing={asset.status === 'producing'} class:funding={asset.status === 'funding'}>
-								{asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}
+							<span class="status-badge" class:producing={asset.production.status === 'producing'} class:funding={asset.production.status === 'funding'}>
+								{asset.production.status.toUpperCase()}
 							</span>
 						</div>
 						<div class="list-actions">
-							<a href="/buy-token?asset={asset.id}" class="btn-primary-small">Invest</a>
+							<a href="/buy-tokens?asset={asset.id}" class="btn-primary-small">Tokens</a>
 							<a href="/assets/{asset.id}" class="btn-secondary-small">View</a>
 						</div>
 					</article>
@@ -591,7 +458,7 @@
 		align-items: flex-end;
 	}
 
-	.risk-badge {
+	.status-badge {
 		background: var(--color-black);
 		color: var(--color-white);
 		padding: 0.25rem 0.5rem;
@@ -664,30 +531,17 @@
 		color: var(--color-black);
 	}
 
-	.token-progress {
+	.token-info {
 		margin-bottom: 2rem;
 	}
 
-	.progress-header {
+	.info-header {
 		display: flex;
 		justify-content: space-between;
 		font-size: 0.8rem;
 		font-weight: var(--font-weight-semibold);
 		color: var(--color-black);
 		margin-bottom: 0.5rem;
-	}
-
-	.progress-bar {
-		width: 100%;
-		height: 8px;
-		background: var(--color-light-gray);
-		position: relative;
-	}
-
-	.progress-fill {
-		height: 100%;
-		background: var(--color-primary);
-		transition: width 0.3s ease;
 	}
 
 	.asset-actions {
@@ -707,7 +561,7 @@
 		border: 1px solid var(--color-light-gray);
 		padding: 1.5rem;
 		display: grid;
-		grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1.5fr;
+		grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
 		gap: 2rem;
 		align-items: center;
 		transition: border-color 0.2s ease;
@@ -730,12 +584,12 @@
 		font-weight: var(--font-weight-medium);
 	}
 
-	.list-yield,
+	.list-payout,
 	.list-value {
 		text-align: center;
 	}
 
-	.list-risk,
+	.list-status,
 	.list-status {
 		text-align: center;
 	}

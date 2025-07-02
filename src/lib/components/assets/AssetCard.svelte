@@ -1,12 +1,10 @@
 <script lang="ts">
-	import type { Asset } from '$lib/types';
-	import { AssetService } from '$lib/services';
+	import type { Asset } from '$lib/types/dataStore';
 
 	export let asset: Asset;
 
-	$: latestReport = AssetService.getLatestReport(asset.id);
-	$: totalIncome = AssetService.getTotalIncome(asset.id);
-	$: averageProduction = AssetService.getAverageProduction(asset.id);
+	// Use asset data directly from the data store
+	$: latestReport = asset.monthlyReports[asset.monthlyReports.length - 1] || null;
 
 	function formatCurrency(amount: number): string {
 		return new Intl.NumberFormat('en-US', {
@@ -24,30 +22,26 @@
 
 <article class="asset-card">
 	<div class="asset-image">
-		{#if asset.images.length > 0}
-			<img src={asset.images[0]} alt={asset.name} />
-		{:else}
-			<div class="placeholder-image">No Image</div>
-		{/if}
+		<div class="placeholder-image">{asset.name}</div>
 	</div>
 	
 	<div class="asset-content">
 		<header>
 			<h3 class="asset-name">{asset.name}</h3>
-			<p class="asset-location">{asset.location.county}, {asset.location.state}</p>
+			<p class="asset-location">{asset.location.state}, {asset.location.country}</p>
 		</header>
 		
 		<p class="asset-description">{asset.description}</p>
 		
 		<div class="asset-stats">
 			<div class="stat">
-				<span class="stat-label">Field Type</span>
-				<span class="stat-value">{asset.fieldType}</span>
+				<span class="stat-label">Production</span>
+				<span class="stat-value">{asset.production.capacity}</span>
 			</div>
 			
 			<div class="stat">
-				<span class="stat-label">Est. Reserves</span>
-				<span class="stat-value">{formatNumber(asset.estimatedReserves)} bbls</span>
+				<span class="stat-label">Status</span>
+				<span class="stat-value">{asset.production.status}</span>
 			</div>
 			
 			{#if latestReport}
@@ -57,20 +51,25 @@
 				</div>
 				
 				<div class="stat">
-					<span class="stat-label">Distribution/Token</span>
-					<span class="stat-value">${latestReport.distributionPerToken?.toFixed(2) || '0.00'}</span>
+					<span class="stat-label">Production</span>
+					<span class="stat-value">{formatNumber(latestReport.production)} bbls</span>
 				</div>
 			{/if}
 			
 			<div class="stat">
-				<span class="stat-label">Total Income</span>
-				<span class="stat-value">{formatCurrency(totalIncome)}</span>
+				<span class="stat-label">Reserves</span>
+				<span class="stat-value">{asset.production.reserves}</span>
 			</div>
 			
 			<div class="stat">
-				<span class="stat-label">Avg. Production</span>
-				<span class="stat-value">{formatNumber(averageProduction)} bbls/mo</span>
+				<span class="stat-label">Operator</span>
+				<span class="stat-value">{asset.operator.name}</span>
 			</div>
+		</div>
+		
+		<div class="asset-actions">
+			<a href="/assets/{asset.id}" class="btn-secondary">View Details</a>
+			<a href="/buy-tokens?asset={asset.id}" class="btn-primary">Buy Tokens</a>
 		</div>
 	</div>
 </article>
@@ -96,11 +95,6 @@
 		overflow: hidden;
 	}
 
-	.asset-image img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
 
 	.placeholder-image {
 		width: 100%;
@@ -169,5 +163,47 @@
 		color: #1a202c;
 		font-weight: 600;
 		margin-top: 0.25rem;
+	}
+
+	.asset-actions {
+		margin-top: 1.5rem;
+		display: flex;
+		gap: 0.75rem;
+	}
+
+	.btn-primary,
+	.btn-secondary {
+		flex: 1;
+		padding: 0.75rem 1rem;
+		text-decoration: none;
+		font-weight: 600;
+		font-size: 0.875rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		text-align: center;
+		transition: all 0.2s ease;
+		border: 1px solid;
+	}
+
+	.btn-primary {
+		background: #000;
+		color: #fff;
+		border-color: #000;
+	}
+
+	.btn-primary:hover {
+		background: #283c84;
+		border-color: #283c84;
+	}
+
+	.btn-secondary {
+		background: #fff;
+		color: #000;
+		border-color: #000;
+	}
+
+	.btn-secondary:hover {
+		background: #000;
+		color: #fff;
 	}
 </style>

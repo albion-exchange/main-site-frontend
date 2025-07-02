@@ -1,2 +1,1 @@
-export { AssetService } from './AssetService.js';
-export { TokenService } from './TokenService.js';
+export { default as DataStoreService } from './DataStoreService.js';
