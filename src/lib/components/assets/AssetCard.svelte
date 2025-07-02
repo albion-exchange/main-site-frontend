@@ -1,10 +1,20 @@
 <script lang="ts">
 	import type { Asset } from '$lib/types/dataStore';
+	import { dataStoreService } from '$lib/services/DataStoreService';
 
 	export let asset: Asset;
 
 	// Use asset data directly from the data store
 	$: latestReport = asset.monthlyReports[asset.monthlyReports.length - 1] || null;
+
+	// Get the primary royalty token for this asset (first royalty token found)
+	$: royaltyTokens = dataStoreService.getTokensByAssetId(asset.id).filter(token => token.tokenType === 'royalty');
+	$: primaryToken = royaltyTokens.length > 0 ? royaltyTokens[0] : null;
+
+	// Extract token data with fallbacks
+	$: estimatedBaseReturn = primaryToken?.returns?.baseReturn ? `${primaryToken.returns.baseReturn}%` : 'TBD';
+	$: estimatedBonusReturn = primaryToken?.returns?.bonusReturn ? `${primaryToken.returns.bonusReturn}%` : 'TBD';
+	$: shareOfAsset = primaryToken?.assetShare?.sharePercentage ? `${primaryToken.assetShare.sharePercentage}%` : 'TBD';
 
 	function formatCurrency(amount: number): string {
 		return new Intl.NumberFormat('en-US', {
@@ -89,8 +99,18 @@
 			{/if}
 			
 			<div class="stat">
-				<span class="stat-label">Expected End</span>
-				<span class="stat-value">{formatEndDate(asset.technical.expectedEndDate)}</span>
+				<span class="stat-label">Estimated Base Return</span>
+				<span class="stat-value">{estimatedBaseReturn}</span>
+			</div>
+			
+			<div class="stat">
+				<span class="stat-label">Estimated Bonus Return</span>
+				<span class="stat-value">{estimatedBonusReturn}</span>
+			</div>
+			
+			<div class="stat">
+				<span class="stat-label">Share of Asset</span>
+				<span class="stat-value">{shareOfAsset}</span>
 			</div>
 			
 			<div class="stat">
