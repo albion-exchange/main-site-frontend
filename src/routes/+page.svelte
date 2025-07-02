@@ -8,7 +8,6 @@
 	let platformStats = {
 		totalAssets: 0,
 		totalInvested: 0,
-		averageReturn: 0,
 		activeInvestors: 0,
 		totalRegions: 0,
 		monthlyGrowthRate: 0
@@ -25,10 +24,6 @@
 			// Calculate real total invested from asset financial data
 			const totalInvested = allAssets.reduce((sum, asset) => sum + asset.financial.totalValue, 0);
 			
-			// Calculate average return from asset financial data (current payout percentages)
-			const avgReturn = allAssets.length > 0 
-				? allAssets.reduce((sum, asset) => sum + asset.financial.currentPayout, 0) / allAssets.length
-				: 0;
 			
 			// Count unique regions from asset locations
 			const uniqueRegions = new Set(allAssets.map(asset => `${asset.location.state}, ${asset.location.country}`));
@@ -49,7 +44,6 @@
 			platformStats = {
 				totalAssets: stats.totalAssets,
 				totalInvested: totalInvested / 1000000, // Convert to millions
-				averageReturn: Number(avgReturn.toFixed(1)),
 				activeInvestors: stats.totalInvestors,
 				totalRegions: uniqueRegions.size,
 				monthlyGrowthRate: Number(monthlyGrowthRate.toFixed(1))
@@ -74,7 +68,7 @@
 
 <svelte:head>
 	<title>Albion - Institutional Grade Oil & Gas DeFi</title>
-	<meta name="description" content="Real-world energy assets. Tokenized payouts. Transparent returns. Access institutional-quality oil & gas investments through blockchain technology." />
+	<meta name="description" content="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality oil & gas investments through blockchain technology." />
 </svelte:head>
 
 <main class="homepage">
@@ -82,7 +76,7 @@
 	<section class="hero">
 		<div class="hero-content">
 			<h1>Institutional Grade Oil & Gas DeFi</h1>
-			<p>Real-world energy assets. Tokenized payouts. Transparent returns.<br>
+			<p>Real-world energy assets. Tokenized ownership. Transparent operations.<br>
 			Access institutional-quality oil & gas investments through blockchain technology.</p>
 		</div>
 		
@@ -99,9 +93,9 @@
 				<div class="stat-note">{platformStats.monthlyGrowthRate >= 0 ? '+' : ''}{platformStats.monthlyGrowthRate.toFixed(1)}% this month</div>
 			</div>
 			<div class="stat">
-				<div class="stat-value">{platformStats.averageReturn}%</div>
-				<div class="stat-label">Average Return</div>
-				<div class="stat-note">Current payout rate</div>
+				<div class="stat-value">{platformStats.totalRegions}</div>
+				<div class="stat-label">Regions</div>
+				<div class="stat-note">Operating locations</div>
 			</div>
 			<div class="stat">
 				<div class="stat-value">{platformStats.activeInvestors.toLocaleString()}</div>
@@ -192,8 +186,8 @@
 						<span class="price">${(platformStats.totalInvested).toFixed(1)}M</span>
 					</div>
 					<div class="data-row">
-						<span>Average Return Rate</span>
-						<span class="price">{platformStats.averageReturn}% APY</span>
+						<span>Operating Regions</span>
+						<span class="price">{platformStats.totalRegions}</span>
 					</div>
 					<div class="data-row">
 						<span>Platform Growth</span>

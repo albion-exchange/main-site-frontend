@@ -80,32 +80,50 @@
 	{:else}
 		<!-- Search and Filter Bar -->
 		<div class="filter-section">
-			<div class="search-bar">
-				<input 
-					type="text" 
-					placeholder="Search assets by name, location, or operator..."
-					bind:value={searchTerm}
-					class="search-input"
-				/>
-			</div>
-			<div class="filters">
-				<select bind:value={filterLocation} class="filter-select">
-					<option value="all">All Locations</option>
-					{#each countries as country}
-						<option value={country}>{country}</option>
-					{/each}
-				</select>
-				<select bind:value={filterPayout} class="filter-select">
-					<option value="all">All Payouts</option>
-					<option value="10-12">10-12%</option>
-					<option value="12-15">12-15%</option>
-					<option value="15+">15%+</option>
-				</select>
-				<select bind:value={filterStatus} class="filter-select">
-					<option value="all">All Status</option>
-					<option value="producing">Producing</option>
-					<option value="funding">Funding</option>
-				</select>
+			<div class="filter-controls">
+				<div class="filter-group search-group">
+					<label for="search-input" class="filter-control-label">Search Assets:</label>
+					<input 
+						id="search-input"
+						type="text" 
+						placeholder="Search by name, location, or operator..."
+						bind:value={searchTerm}
+						class="search-input"
+					/>
+				</div>
+				<div class="filter-row">
+					<div class="filter-group">
+						<label for="location-filter" class="filter-control-label">Location:</label>
+						<select id="location-filter" bind:value={filterLocation} class="filter-select">
+							<option value="all">All Locations</option>
+							{#each countries as country}
+								<option value={country}>{country}</option>
+							{/each}
+						</select>
+					</div>
+					<div class="filter-group">
+						<label for="payout-filter" class="filter-control-label">Payout Range:</label>
+						<select id="payout-filter" bind:value={filterPayout} class="filter-select">
+							<option value="all">All Payouts</option>
+							<option value="10-12">10-12%</option>
+							<option value="12-15">12-15%</option>
+							<option value="15+">15%+</option>
+						</select>
+					</div>
+					<div class="filter-group">
+						<label for="status-filter" class="filter-control-label">Status:</label>
+						<select id="status-filter" bind:value={filterStatus} class="filter-select">
+							<option value="all">All Status</option>
+							<option value="producing">Producing</option>
+							<option value="funding">Funding</option>
+						</select>
+					</div>
+					<div class="filter-group">
+						<button class="clear-filter-btn" on:click={clearAllFilters}>
+							Clear Filters
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -279,50 +297,103 @@
 		color: var(--color-black);
 	}
 
+	/* Filter Section Styles */
 	.filter-section {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
+		margin-bottom: 3rem;
 		padding: 2rem;
-		margin-bottom: 2rem;
+		background: var(--color-light-gray);
 	}
 
-	.search-bar {
-		margin-bottom: 1.5rem;
+	.filter-controls {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.search-group {
+		max-width: 100%;
+	}
+
+	.filter-row {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+		align-items: flex-end;
+	}
+
+	.filter-group {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		min-width: 150px;
+		flex: 1;
+	}
+
+	.filter-control-label {
+		font-size: 0.9rem;
+		font-weight: var(--font-weight-semibold);
+		color: var(--color-black);
 	}
 
 	.search-input {
 		width: 100%;
-		padding: 0.75rem;
-		border: 1px solid var(--color-light-gray);
+		padding: 0.75rem 1rem;
+		border: 1px solid var(--color-secondary);
+		background: var(--color-white);
 		font-family: var(--font-family);
 		font-weight: var(--font-weight-medium);
-		background: var(--color-white);
 		color: var(--color-black);
+		transition: border-color 0.2s ease;
 	}
 
 	.search-input:focus {
 		outline: none;
-		border-color: var(--color-black);
+		border-color: var(--color-primary);
 	}
 
-	.filters {
-		display: flex;
-		gap: 1rem;
-		flex-wrap: wrap;
+	.search-input:hover {
+		border-color: var(--color-primary);
 	}
 
 	.filter-select {
-		padding: 0.75rem;
-		border: 1px solid var(--color-light-gray);
+		padding: 0.75rem 1rem;
+		border: 1px solid var(--color-secondary);
 		background: var(--color-white);
+		font-size: 0.9rem;
+		font-weight: var(--font-weight-medium);
 		color: var(--color-black);
 		font-family: var(--font-family);
-		font-weight: var(--font-weight-medium);
+		cursor: pointer;
+		transition: border-color 0.2s ease;
 	}
 
 	.filter-select:focus {
 		outline: none;
-		border-color: var(--color-black);
+		border-color: var(--color-primary);
+	}
+
+	.filter-select:hover {
+		border-color: var(--color-primary);
+	}
+
+	.clear-filter-btn {
+		background: var(--color-white);
+		color: var(--color-secondary);
+		border: 1px solid var(--color-secondary);
+		padding: 0.75rem 1rem;
+		font-size: 0.9rem;
+		font-weight: var(--font-weight-semibold);
+		font-family: var(--font-family);
+		cursor: pointer;
+		transition: all 0.2s ease;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		white-space: nowrap;
+	}
+
+	.clear-filter-btn:hover {
+		background: var(--color-secondary);
+		color: var(--color-white);
 	}
 
 	.controls-section {
@@ -685,8 +756,18 @@
 			justify-content: center;
 		}
 
-		.filters {
+		.filter-row {
 			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.filter-group {
+			min-width: auto;
+			flex: none;
+		}
+
+		.filter-section {
+			padding: 1rem;
 		}
 
 		.assets-grid {

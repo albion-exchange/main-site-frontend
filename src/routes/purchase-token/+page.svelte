@@ -64,11 +64,11 @@
 						return {
 							id: token.symbol,
 							name: token.name,
-							payout: 13.5, // Mock payout rate
+							payout: 0, // Remove payout rate
 							minInvestment: 1000, // Mock minimum investment
 							available: supply?.availableSupply || 0,
 							sold: supply?.mintedSupply || 0,
-							terms: `13.5% estimated annual IRR`,
+							terms: `Royalty tokens for asset ownership`,
 							description: `Royalty tokens representing ownership in ${assetData?.name}`,
 							selectable: token.isActive
 						};
@@ -97,11 +97,11 @@
 								return {
 									id: token.symbol,
 									name: token.name,
-									payout: 13.5,
+									payout: 0,
 									minInvestment: 1000,
 									available: supply?.availableSupply || 0,
 									sold: supply?.mintedSupply || 0,
-									terms: `13.5% estimated annual IRR`,
+									terms: `Royalty tokens for asset ownership`,
 									description: `Royalty tokens representing ownership in ${assetData?.name}`,
 									selectable: token.isActive
 								};
@@ -152,8 +152,8 @@
 		}
 		
 		const tokens = Math.floor(investmentAmount / 10); // $10 per token
-		const annualPayout = (investmentAmount * tranche.payout) / 100;
-		const monthlyPayout = annualPayout / 12;
+		const annualPayout = 0; // Remove payout calculations
+		const monthlyPayout = 0; // Remove payout calculations
 		const platformFee = investmentAmount * 0.005; // 0.5% platform fee
 		const gasFee = 25.00; // Estimated gas fee
 		const totalCost = investmentAmount + platformFee + gasFee;
@@ -276,7 +276,7 @@
 										/>
 										<div class="token-info">
 											<div class="token-name">{tranche.name}</div>
-											<div class="token-details">{tranche.payout}% IRR • Min {formatCurrency(tranche.minInvestment)}</div>
+											<div class="token-details">Min {formatCurrency(tranche.minInvestment)}</div>
 										</div>
 									</label>
 								{/each}
@@ -396,19 +396,11 @@
 					</div>
 				</div>
 
-				<div class="projected-returns">
-					<h4>Projected Returns</h4>
-					<div class="return-metric">
-						<div class="return-label">Tokens Received</div>
-						<div class="return-value">{order.tokens.toLocaleString()}</div>
-					</div>
-					<div class="return-metric">
-						<div class="return-label">Estimated Monthly</div>
-						<div class="return-value">{formatCurrency(order.monthlyPayout)}</div>
-					</div>
-					<div class="return-metric">
-						<div class="return-label">Estimated Annual</div>
-						<div class="return-value">{formatCurrency(order.annualPayout)}</div>
+				<div class="token-info">
+					<h4>Token Information</h4>
+					<div class="info-metric">
+						<div class="info-label">Tokens Received</div>
+						<div class="info-value">{order.tokens.toLocaleString()}</div>
 					</div>
 				</div>
 			</div>
@@ -696,32 +688,32 @@
 		cursor: not-allowed;
 	}
 
-	.projected-returns {
+	.token-info {
 		margin-top: 2rem;
 		padding-top: 2rem;
 		border-top: 1px solid var(--color-light-gray);
 	}
 
-	.projected-returns h4 {
+	.token-info h4 {
 		font-size: 1rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-black);
 		margin-bottom: 1rem;
 	}
 
-	.return-metric {
+	.info-metric {
 		display: flex;
 		justify-content: space-between;
 		margin-bottom: 0.75rem;
 	}
 
-	.return-label {
+	.info-label {
 		font-size: 0.8rem;
 		font-weight: var(--font-weight-semibold);
 		color: var(--color-black);
 	}
 
-	.return-value {
+	.info-value {
 		font-size: 0.8rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-primary);

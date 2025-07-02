@@ -239,8 +239,8 @@
 								</div>
 
 								<div class="stat-item">
-									<div class="stat-label">Status</div>
-									<div class="stat-value">{currentItem.asset.production.status}</div>
+									<div class="stat-label">Current Payout</div>
+									<div class="stat-value">{currentItem.asset.financial.currentPayout}%</div>
 								</div>
 
 								<div class="stat-item">

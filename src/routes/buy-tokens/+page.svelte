@@ -102,21 +102,6 @@
 		return asset?.name || 'Unknown Asset';
 	}
 
-	function getEstimatedReturns(token: Token) {
-		// Mock estimated returns - in a real app this would be calculated from asset performance
-		const baseReturns = {
-			monthly: 1.1,
-			annual: 13.5
-		};
-		
-		// Add some variation based on token characteristics
-		const variation = (token.name.length % 5) * 0.1;
-		
-		return {
-			monthly: baseReturns.monthly + variation,
-			annual: baseReturns.annual + (variation * 10)
-		};
-	}
 </script>
 
 <svelte:head>
@@ -145,7 +130,6 @@
 					<div class="filter-status">
 						<span class="filter-label">Filtered by asset:</span>
 						<span class="filter-value">{selectedAssetName}</span>
-						<button class="clear-filter-btn" on:click={clearFilter}>Clear Filter</button>
 					</div>
 				{/if}
 			</div>
@@ -154,32 +138,37 @@
 					<div class="stat-value">{filteredTokens.length}</div>
 					<div class="stat-label">{selectedAssetId ? 'Filtered' : 'Available'} Tokens</div>
 				</div>
-				<div class="stat">
-					<div class="stat-value">13.5%</div>
-					<div class="stat-label">Avg. Est. IRR</div>
-				</div>
 			</div>
 		</div>
 
 		<!-- Filter Controls -->
 		<div class="filter-section">
 			<div class="filter-controls">
-				<div class="filter-group">
-					<label for="asset-filter" class="filter-control-label">Filter by Asset:</label>
-					<select 
-						id="asset-filter" 
-						class="filter-select" 
-						value={selectedAssetId || ''}
-						on:change={handleAssetFilterChange}
-					>
-						<option value="">All Assets</option>
-						{#each allAssets as asset (asset.id)}
-							{@const assetTokens = tokens.filter(token => token.assetId === asset.id)}
-							{#if assetTokens.length > 0}
-								<option value={asset.id}>{asset.name} ({assetTokens.length} token{assetTokens.length !== 1 ? 's' : ''})</option>
-							{/if}
-						{/each}
-					</select>
+				<div class="filter-row">
+					<div class="filter-group">
+						<label for="asset-filter" class="filter-control-label">Filter by Asset:</label>
+						<select 
+							id="asset-filter" 
+							class="filter-select" 
+							value={selectedAssetId || ''}
+							on:change={handleAssetFilterChange}
+						>
+							<option value="">All Assets</option>
+							{#each allAssets as asset (asset.id)}
+								{@const assetTokens = tokens.filter(token => token.assetId === asset.id)}
+								{#if assetTokens.length > 0}
+									<option value={asset.id}>{asset.name} ({assetTokens.length} token{assetTokens.length !== 1 ? 's' : ''})</option>
+								{/if}
+							{/each}
+						</select>
+					</div>
+					{#if selectedAssetId}
+						<div class="filter-group">
+							<button class="clear-filter-btn" on:click={clearFilter}>
+								Clear Filter
+							</button>
+						</div>
+					{/if}
 				</div>
 			</div>
 			{#if selectedAssetId}
@@ -207,7 +196,6 @@
 			{#each filteredTokens as token (token.contractAddress)}
 				{@const supplyInfo = getTokenSupplyInfo(token)}
 				{@const assetName = getAssetName(token)}
-				{@const returns = getEstimatedReturns(token)}
 				
 				<div class="token-card">
 					<!-- Token Header -->
@@ -253,23 +241,6 @@
 						</div>
 					</div>
 
-					<!-- Returns Information -->
-					<div class="returns-section">
-						<h4>Estimated Returns</h4>
-						<div class="returns-grid">
-							<div class="return-metric">
-								<div class="return-value">{returns.monthly.toFixed(1)}%</div>
-								<div class="return-label">Monthly</div>
-							</div>
-							<div class="return-metric">
-								<div class="return-value">{returns.annual.toFixed(1)}%</div>
-								<div class="return-label">Annual IRR</div>
-							</div>
-						</div>
-						<div class="return-note">
-							*Estimates based on current production and market conditions
-						</div>
-					</div>
 
 					<!-- Action Button -->
 					<div class="token-actions">
@@ -383,13 +354,15 @@
 		background: var(--color-white);
 		color: var(--color-secondary);
 		border: 1px solid var(--color-secondary);
-		padding: 0.25rem 0.75rem;
-		font-size: 0.8rem;
+		padding: 0.75rem 1rem;
+		font-size: 0.9rem;
 		font-weight: var(--font-weight-semibold);
+		font-family: var(--font-family);
 		cursor: pointer;
 		transition: all 0.2s ease;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+		white-space: nowrap;
 	}
 
 	.clear-filter-btn:hover {
@@ -535,51 +508,6 @@
 		text-align: center;
 	}
 
-	.returns-section {
-		margin-bottom: 2rem;
-	}
-
-	.returns-section h4 {
-		font-size: 1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1rem;
-	}
-
-	.returns-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 1rem;
-		margin-bottom: 1rem;
-	}
-
-	.return-metric {
-		text-align: center;
-		padding: 1rem;
-		border: 1px solid var(--color-light-gray);
-	}
-
-	.return-value {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-primary);
-		margin-bottom: 0.25rem;
-	}
-
-	.return-label {
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.return-note {
-		font-size: 0.75rem;
-		color: var(--color-secondary);
-		font-style: italic;
-		text-align: center;
-	}
 
 	.token-actions {
 		display: flex;
@@ -645,13 +573,24 @@
 	}
 
 	.filter-controls {
-		margin-bottom: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.filter-row {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+		align-items: flex-end;
 	}
 
 	.filter-group {
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
+		min-width: 150px;
+		flex: 1;
 		max-width: 400px;
 	}
 
@@ -668,6 +607,7 @@
 		font-size: 0.9rem;
 		font-weight: var(--font-weight-medium);
 		color: var(--color-black);
+		font-family: var(--font-family);
 		cursor: pointer;
 		transition: border-color 0.2s ease;
 	}
@@ -752,7 +692,14 @@
 			padding: 1rem;
 		}
 
+		.filter-row {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
 		.filter-group {
+			min-width: auto;
+			flex: none;
 			max-width: 100%;
 		}
 
