@@ -337,18 +337,6 @@
 		50% { opacity: 0.5; }
 	}
 
-	.tokens-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-		gap: 2rem;
-	}
-
-	.loading-message {
-		text-align: center;
-		padding: 3rem;
-		color: var(--color-black);
-		font-weight: var(--font-weight-medium);
-	}
 
 	.how-it-works {
 		padding: 4rem 2rem;
@@ -560,9 +548,6 @@
 			align-items: center;
 		}
 
-		.tokens-grid {
-			grid-template-columns: 1fr;
-		}
 
 		.steps {
 			grid-template-columns: 1fr;
