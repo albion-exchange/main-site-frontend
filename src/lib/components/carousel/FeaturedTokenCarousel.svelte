@@ -247,11 +247,11 @@
 								</div>
 
 								<div class="token-actions">
-									<a href="/marketplace/assets/{item.asset.id}" class="action-button primary">
-										View Asset
-									</a>
-									<a href="/purchase-token?token={item.token.contractAddress}" class="action-button secondary">
+									<a href="/purchase-token?token={item.token.contractAddress}" class="action-button primary">
 										Mint Tokens
+									</a>
+									<a href="/assets/{item.asset.id}" class="action-button secondary">
+										View Asset
 									</a>
 								</div>
 							</div>

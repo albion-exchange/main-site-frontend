@@ -29,27 +29,25 @@ export interface AssetTechnical {
   infrastructure: string;
   environmental: string;
   estimatedReserves: number;
+  expectedEndDate: string;
+  crudeBenchmark: string;
+  pricing: {
+    benchmarkPremium: string;
+    transportCosts: string;
+  };
 }
 
 export interface AssetProduction {
-  capacity: string;
   current: string;
-  peak: string;
-  reserves: string;
-  drillingDate: string;
+  expectedRemainingProduction: string;
   status: 'funding' | 'producing' | 'completed';
 }
 
-export interface AssetFinancial {
-  totalValue: number;
-  currentPayout: number;
-  operatingCosts: number;
-  breakeven: number;
-}
 
-export interface AssetInvestment {
-  investorCount: number;
-  daysToFunding: number;
+export interface AssetTerms {
+  interestType: string;
+  amount: string;
+  paymentFrequency: string;
 }
 
 
@@ -79,8 +77,7 @@ export interface Asset {
   operator: AssetOperator;
   technical: AssetTechnical;
   production: AssetProduction;
-  financial: AssetFinancial;
-  investment: AssetInvestment;
+  assetTerms: AssetTerms;
   tokenContracts: string[]; // Array of contract addresses
   monthlyReports: MonthlyReport[];
   metadata: AssetMetadata;
@@ -249,12 +246,13 @@ export interface AssetTemplate {
     infrastructure: string;
     environmental: string;
     estimatedReserves: number; // In barrels
+    expectedEndDate: string; // YYYY-MM format
   };
   production: {
     capacity: string; // e.g., "2,400 bbl/day"
     current: string;
     peak: string;
-    reserves: string; // Formatted display
+    expectedRemainingProduction: string; // Formatted display
     drillingDate: string; // ISO date
     status: 'funding' | 'producing' | 'completed';
   };

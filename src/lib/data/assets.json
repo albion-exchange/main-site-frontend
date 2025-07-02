@@ -9,47 +9,45 @@
         "/images/assets/europa-wressle-2.jpg"
       ],
       "location": {
-        "state": "North Sea",
-        "county": "Sector 7B",
+        "state": "East Midlands",
+        "county": "Lincolnshire",
         "country": "United Kingdom",
         "coordinates": {
-          "lat": 53.7,
-          "lng": -0.3
+          "lat": 53.2,
+          "lng": 0.2
         },
-        "waterDepth": "45m"
+        "waterDepth": "0m"
       },
       "operator": {
-        "name": "Europa Oil & Gas Holdings PLC",
-        "website": "https://europaoil.com",
-        "experience": "15+ years"
+        "name": "Egdon Resources",
+        "website": "https://www.egdon-resources.com",
+        "experience": "28 years"
       },
       "technical": {
         "fieldType": "Conventional Oil",
-        "depth": "1,200m",
-        "license": "PEDL 183",
-        "estimatedLife": "15+ years",
-        "firstOil": "2019-Q3",
+        "depth": "1,800m",
+        "license": "PEDL180/PEDL182",
+        "estimatedLife": "2+ years",
+        "firstOil": "2022-Q3",
         "infrastructure": "Existing pipeline connection",
         "environmental": "Full environmental compliance",
-        "estimatedReserves": 45200000
+        "estimatedReserves": 45200000,
+        "expectedEndDate": "2027-12",
+        "crudeBenchmark": "Brent",
+        "pricing": {
+          "benchmarkPremium": "-$1.30",
+          "transportCosts": "Title transfer at well head"
+        }
+      },
+      "assetTerms": {
+        "interestType": "Royalty",
+        "amount": "4.5% of gross",
+        "paymentFrequency": "Monthly within 30 days"
       },
       "production": {
-        "capacity": "2,400 bbl/day",
-        "current": "2,400 bbl/day",
-        "peak": "3,200 bbl/day",
+        "current": "200 boe/day",
         "expectedRemainingProduction": "45.2 mboe",
-        "drillingDate": "2019-01-15",
         "status": "producing"
-      },
-      "financial": {
-        "totalValue": 87500000,
-        "currentPayout": 14.8,
-        "operatingCosts": 18.5,
-        "breakeven": 45.2
-      },
-      "investment": {
-        "investorCount": 247,
-        "daysToFunding": 0
       },
       "tokenContracts": [
         "0x1234567890abcdef1234567890abcdef12345678",
@@ -58,20 +56,52 @@
       ],
       "monthlyReports": [
         {
-          "month": "2024-11",
-          "production": 72000,
-          "revenue": 6480000,
-          "expenses": 1332000,
-          "netIncome": 5148000,
-          "payoutPerToken": 32.15
+          "month": "2025-05",
+          "production": 6000,
+          "revenue": 540000,
+          "expenses": 520000,
+          "netIncome": 20000,
+          "payoutPerToken": 12.50
         },
         {
-          "month": "2024-10",
-          "production": 74400,
-          "revenue": 6696000,
-          "expenses": 1377600,
-          "netIncome": 5318400,
-          "payoutPerToken": 33.24
+          "month": "2025-04",
+          "production": 6150,
+          "revenue": 553500,
+          "expenses": 532000,
+          "netIncome": 21500,
+          "payoutPerToken": 13.44
+        },
+        {
+          "month": "2025-03",
+          "production": 6300,
+          "revenue": 567000,
+          "expenses": 545000,
+          "netIncome": 22000,
+          "payoutPerToken": 13.75
+        },
+        {
+          "month": "2025-02",
+          "production": 6450,
+          "revenue": 580500,
+          "expenses": 558000,
+          "netIncome": 22500,
+          "payoutPerToken": 14.06
+        },
+        {
+          "month": "2025-01",
+          "production": 6600,
+          "revenue": 594000,
+          "expenses": 571000,
+          "netIncome": 23000,
+          "payoutPerToken": 14.38
+        },
+        {
+          "month": "2024-12",
+          "production": 6750,
+          "revenue": 607500,
+          "expenses": 584000,
+          "netIncome": 23500,
+          "payoutPerToken": 14.69
         }
       ],
       "metadata": {
@@ -110,25 +140,23 @@
         "firstOil": "2020-Q2",
         "infrastructure": "Rail and pipeline access",
         "environmental": "EPA compliant with reduced emissions technology",
-        "estimatedReserves": 62800000
+        "estimatedReserves": 62800000,
+        "expectedEndDate": "2049-08",
+        "crudeBenchmark": "WTI",
+        "pricing": {
+          "benchmarkPremium": "-$1.25",
+          "transportCosts": "Title transfer at well head"
+        }
+      },
+      "assetTerms": {
+        "interestType": "Royalty",
+        "amount": "3.2% of gross",
+        "paymentFrequency": "Monthly within 30 days"
       },
       "production": {
-        "capacity": "3,200 bbl/day",
         "current": "2,800 bbl/day",
-        "peak": "3,600 bbl/day",
         "expectedRemainingProduction": "62.8 mboe",
-        "drillingDate": "2019-11-20",
         "status": "producing"
-      },
-      "financial": {
-        "totalValue": 125800000,
-        "currentPayout": 16.2,
-        "operatingCosts": 22.8,
-        "breakeven": 38.7
-      },
-      "investment": {
-        "investorCount": 184,
-        "daysToFunding": 12
       },
       "tokenContracts": [
         "0x4567890123def0123456789012cdef045678901",
@@ -188,25 +216,23 @@
         "firstOil": "2021-Q1",
         "infrastructure": "Midstream processing and pipeline network",
         "environmental": "Advanced water recycling and emissions control",
-        "estimatedReserves": 89500000
+        "estimatedReserves": 89500000,
+        "expectedEndDate": "2054-03",
+        "crudeBenchmark": "WTI",
+        "pricing": {
+          "benchmarkPremium": "+$0.75",
+          "transportCosts": "Title transfer at well head"
+        }
+      },
+      "assetTerms": {
+        "interestType": "Royalty",
+        "amount": "5.0% of gross",
+        "paymentFrequency": "Monthly within 30 days"
       },
       "production": {
-        "capacity": "4,200 bbl/day",
         "current": "3,800 bbl/day",
-        "peak": "4,800 bbl/day",
         "expectedRemainingProduction": "89.5 mboe",
-        "drillingDate": "2020-08-05",
         "status": "producing"
-      },
-      "financial": {
-        "totalValue": 195000000,
-        "currentPayout": 15.6,
-        "operatingCosts": 24.1,
-        "breakeven": 42.8
-      },
-      "investment": {
-        "investorCount": 312,
-        "daysToFunding": 0
       },
       "tokenContracts": [
         "0x6789012345f012345678901234ef067890123",
@@ -266,25 +292,23 @@
         "firstOil": "2022-Q4",
         "infrastructure": "Floating production platform with subsea manifolds",
         "environmental": "Zero discharge policy with advanced spill prevention",
-        "estimatedReserves": 125000000
+        "estimatedReserves": 125000000,
+        "expectedEndDate": "2044-11",
+        "crudeBenchmark": "Brent",
+        "pricing": {
+          "benchmarkPremium": "+$1.80",
+          "transportCosts": "Title transfer at well head"
+        }
+      },
+      "assetTerms": {
+        "interestType": "Royalty",
+        "amount": "6.25% of gross",
+        "paymentFrequency": "Monthly within 30 days"
       },
       "production": {
-        "capacity": "8,500 bbl/day",
         "current": "6,200 bbl/day",
-        "peak": "9,200 bbl/day",
         "expectedRemainingProduction": "125 mboe",
-        "drillingDate": "2021-05-12",
         "status": "producing"
-      },
-      "financial": {
-        "totalValue": 275000000,
-        "currentPayout": 13.9,
-        "operatingCosts": 35.2,
-        "breakeven": 52.3
-      },
-      "investment": {
-        "investorCount": 156,
-        "daysToFunding": 45
       },
       "tokenContracts": [
         "0x8901234567123456789012356f089012345",

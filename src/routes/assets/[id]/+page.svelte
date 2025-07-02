@@ -21,6 +21,61 @@
 		}).format(amount);
 	}
 
+	function formatEndDate(dateStr: string): string {
+		if (!dateStr) return 'TBD';
+		const [year, month] = dateStr.split('-');
+		const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+						 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		return `${monthNames[parseInt(month) - 1]} ${year}`;
+	}
+
+	function exportProductionData() {
+		if (!assetData?.monthlyReports) return;
+		
+		const csvContent = [
+			['Month', 'Production (bbl)', 'Revenue (USD)', 'Expenses (USD)', 'Net Income (USD)', 'Payout Per Token (USD)'],
+			...assetData.monthlyReports.map(report => [
+				report.month,
+				report.production.toString(),
+				report.revenue.toString(),
+				report.expenses.toString(),
+				report.netIncome.toString(),
+				report.payoutPerToken.toString()
+			])
+		].map(row => row.join(',')).join('\n');
+		
+		const blob = new Blob([csvContent], { type: 'text/csv' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `${assetData.id}-production-data.csv`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+
+	function getAssetImage(assetId: string): string {
+		// Map each asset to specific oil & gas industry images
+		const imageMap: Record<string, string> = {
+			'europa-wressle-release-1': '/images/assets/europa-wressle-1.jpg', // Wressle oil field (UK onshore)
+			'bakken-horizon-field': '/images/assets/bakken-horizon-1.jpeg', // Bakken shale operations (ND)
+			'permian-basin-venture': '/images/assets/permian-basin-1.jpg', // Permian basin operations (TX)
+			'gulf-mexico-deep-water': '/images/assets/gom-deepwater-1.avif' // Gulf of Mexico offshore platform
+		};
+		
+		// Fallback to a generic oil industry image
+		return imageMap[assetId] || '/images/assets/europa-wressle-1.jpg';
+	}
+
+	function formatPricing(benchmarkPremium: string): string {
+		if (benchmarkPremium.startsWith('-')) {
+			return `${benchmarkPremium.substring(1)} discount`;
+		} else if (benchmarkPremium.startsWith('+')) {
+			return `${benchmarkPremium.substring(1)} premium`;
+		} else {
+			return `${benchmarkPremium} premium`;
+		}
+	}
+
 
 	onMount(() => {
 		const assetId = $page.params.id;
@@ -79,7 +134,11 @@
 			<div class="asset-main-info">
 				<div class="asset-title-section">
 					<div class="asset-icon">
-						<span class="icon-placeholder">🌊</span>
+						<img 
+							src={getAssetImage(assetData?.id || '')} 
+							alt={assetData?.name || 'Asset'}
+							loading="lazy"
+						/>
 					</div>
 					<div class="title-info">
 						<h1>{assetData?.name}</h1>
@@ -102,15 +161,16 @@
 				</div>
 				<div class="metric">
 					<div class="metric-value">{assetData?.monthlyReports?.[0]?.netIncome 
-						? (assetData.monthlyReports[0].netIncome >= 1000000 
-							? '$' + (assetData.monthlyReports[0].netIncome / 1000000).toFixed(2) + 'M'
-							: '$' + (assetData.monthlyReports[0].netIncome / 1000).toFixed(0) + 'K')
-						: '$127K'}</div>
-					<div class="metric-label">Last Monthly Distribution</div>
+						? formatCurrency(assetData.monthlyReports[0].netIncome)
+						: '$20,000'}</div>
+					<div class="metric-label">Last Received Income</div>
+					<div class="metric-subtitle">{assetData?.monthlyReports?.[0]?.month 
+						? formatEndDate(assetData.monthlyReports[0].month + '-01')
+						: 'May 2025'}</div>
 				</div>
 				<div class="metric">
-					<div class="metric-value">{assetData?.investment.investorCount}</div>
-					<div class="metric-label">Investors</div>
+					<div class="metric-value">{assetData?.tokenContracts.length}</div>
+					<div class="metric-label">Token Contracts</div>
 				</div>
 			</div>
 		</div>
@@ -130,7 +190,7 @@
 					class:active={activeTab === 'production'}
 					on:click={() => activeTab = 'production'}
 				>
-					Production Data
+					Operations Data
 				</button>
 				<button 
 					class="tab-btn"
@@ -154,20 +214,20 @@
 										<span>{assetData?.technical.fieldType}</span>
 									</div>
 									<div class="detail-row">
-										<span>Water Depth</span>
-										<span>{assetData?.location.waterDepth || 'N/A'}</span>
+										<span>Crude Benchmark</span>
+										<span>{assetData?.technical.crudeBenchmark}</span>
 									</div>
 									<div class="detail-row">
-										<span>Well Depth</span>
-										<span>{assetData?.technical.depth}</span>
+										<span>Pricing</span>
+										<span>{formatPricing(assetData?.technical.pricing?.benchmarkPremium || '')}, {assetData?.technical.pricing?.transportCosts}</span>
 									</div>
 									<div class="detail-row">
 										<span>First Oil</span>
 										<span>{assetData?.technical.firstOil}</span>
 									</div>
 									<div class="detail-row">
-										<span>Estimated Life</span>
-										<span>{assetData?.technical.estimatedLife}</span>
+										<span>Estimated End Date</span>
+										<span>{formatEndDate(assetData?.technical.expectedEndDate || '')}</span>
 									</div>
 									<div class="detail-row">
 										<span>Coordinates</span>
@@ -177,27 +237,19 @@
 							</div>
 
 							<div class="operational-section">
-								<h4>Operational Data</h4>
+								<h4>Asset Terms</h4>
 								<div class="detail-rows">
 									<div class="detail-row">
-										<span>Current Production</span>
-										<span>{assetData?.production.current}</span>
+										<span>Interest Type</span>
+										<span>{assetData?.assetTerms?.interestType}</span>
 									</div>
 									<div class="detail-row">
-										<span>Peak Production</span>
-										<span>{assetData?.production.peak}</span>
+										<span>Amount</span>
+										<span>{assetData?.assetTerms?.amount}</span>
 									</div>
 									<div class="detail-row">
-										<span>Expected Remaining Production</span>
-										<span>{assetData?.production.expectedRemainingProduction}</span>
-									</div>
-									<div class="detail-row">
-										<span>Operating Costs</span>
-										<span>${assetData?.financial.operatingCosts}/bbl</span>
-									</div>
-									<div class="detail-row">
-										<span>Breakeven Price</span>
-										<span>${assetData?.financial.breakeven}/bbl</span>
+										<span>Payment Frequency</span>
+										<span>{assetData?.assetTerms?.paymentFrequency}</span>
 									</div>
 									<div class="detail-row">
 										<span>Infrastructure</span>
@@ -230,9 +282,85 @@
 					</div>
 				{:else if activeTab === 'production'}
 					<div class="production-content">
+						<!-- Production History Chart -->
+						<div class="chart-section">
+							<div class="chart-header">
+								<h4>Production History</h4>
+								<button class="export-btn" on:click={exportProductionData}>
+									📊 Export Data
+								</button>
+							</div>
+							<div class="chart-container">
+								<svg class="production-chart" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+									<!-- Chart background -->
+									<rect width="800" height="300" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
+									
+									<!-- Grid lines -->
+									{#each Array(6) as _, i}
+										<line x1="80" y1={50 + i * 40} x2="750" y2={50 + i * 40} stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.5"/>
+									{/each}
+									{#each Array(12) as _, i}
+										<line x1={80 + i * 55.8} y1="50" x2={80 + i * 55.8} y2="250" stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.5"/>
+									{/each}
+									
+									<!-- Y-axis labels (Production in bbl/day) -->
+									<text x="70" y="55" text-anchor="end" font-size="10" fill="var(--color-black)">3000</text>
+									<text x="70" y="95" text-anchor="end" font-size="10" fill="var(--color-black)">2500</text>
+									<text x="70" y="135" text-anchor="end" font-size="10" fill="var(--color-black)">2000</text>
+									<text x="70" y="175" text-anchor="end" font-size="10" fill="var(--color-black)">1500</text>
+									<text x="70" y="215" text-anchor="end" font-size="10" fill="var(--color-black)">1000</text>
+									<text x="70" y="255" text-anchor="end" font-size="10" fill="var(--color-black)">500</text>
+									
+									<!-- X-axis labels (Months) -->
+									<text x="108" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jan</text>
+									<text x="164" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Feb</text>
+									<text x="220" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Mar</text>
+									<text x="276" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Apr</text>
+									<text x="332" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">May</text>
+									<text x="388" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jun</text>
+									<text x="444" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jul</text>
+									<text x="500" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Aug</text>
+									<text x="556" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Sep</text>
+									<text x="612" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Oct</text>
+									<text x="668" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Nov</text>
+									<text x="724" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Dec</text>
+									
+									<!-- Production decline curve (simulated data) -->
+									<polyline 
+										points="108,80 164,85 220,92 276,100 332,110 388,122 444,136 500,152 556,170 612,190 668,212 724,236"
+										fill="none" 
+										stroke="var(--color-primary)" 
+										stroke-width="3"
+									/>
+									
+									<!-- Data points -->
+									{#each Array(12) as _, i}
+										<circle 
+											cx={108 + i * 55.8} 
+											cy={80 + i * 13 + Math.random() * 8} 
+											r="4" 
+											fill="var(--color-secondary)"
+											stroke="var(--color-white)"
+											stroke-width="2"
+										/>
+									{/each}
+									
+									<!-- Chart title -->
+									<text x="400" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="var(--color-black)">Production Decline Curve (bbl/day)</text>
+									
+									<!-- Legend -->
+									<rect x="580" y="60" width="150" height="40" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
+									<line x1="590" y1="70" x2="610" y2="70" stroke="var(--color-primary)" stroke-width="3"/>
+									<text x="615" y="75" font-size="9" fill="var(--color-black)">Production Rate</text>
+									<circle cx="600" cy="85" r="3" fill="var(--color-secondary)"/>
+									<text x="615" y="90" font-size="9" fill="var(--color-black)">Monthly Data</text>
+								</svg>
+							</div>
+						</div>
+
 						<div class="production-grid">
 							<div class="production-history">
-								<h4>Recent Production History</h4>
+								<h4>Received Payments History</h4>
 								<div class="history-list">
 									{#each (assetData?.monthlyReports || []).slice(0, 6) as report}
 										<div class="history-item">
@@ -241,8 +369,8 @@
 												<div class="production">{(report.production / 30).toFixed(0)} bbl/day avg</div>
 											</div>
 											<div class="revenue-info">
-												<div class="revenue">{formatCurrency(report.revenue)}</div>
-												<div class="price">${(report.revenue / report.production).toFixed(2)}/bbl</div>
+												<div class="revenue">{formatCurrency(report.netIncome)}</div>
+												<div class="price">${report.payoutPerToken.toFixed(2)}/token</div>
 											</div>
 										</div>
 									{/each}
@@ -283,14 +411,6 @@
 										<span>38° API</span>
 									</div>
 								</div>
-							</div>
-						</div>
-
-						<div class="chart-placeholder">
-							<div class="chart-content">
-								<div class="chart-icon">📊</div>
-								<div class="chart-label">Production Trend Chart</div>
-								<div class="chart-note">Monthly production and revenue data (Interactive)</div>
 							</div>
 						</div>
 					</div>
@@ -458,12 +578,15 @@
 	.asset-icon {
 		width: 4rem;
 		height: 4rem;
-		background: var(--color-light-gray);
 		border-radius: 0.5rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 2rem;
+		overflow: hidden;
+		border: 1px solid var(--color-light-gray);
+	}
+
+	.asset-icon img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.title-info {
@@ -552,6 +675,15 @@
 		color: var(--color-black);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+	}
+
+	.metric-subtitle {
+		font-size: 0.6rem;
+		font-weight: var(--font-weight-medium);
+		color: var(--color-primary);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin-top: 0.25rem;
 	}
 
 
@@ -698,6 +830,45 @@
 	}
 
 	/* Production Content */
+	.chart-section {
+		margin-bottom: 3rem;
+	}
+
+	.chart-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1.5rem;
+	}
+
+	.chart-header h4 {
+		font-size: 1.25rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin: 0;
+	}
+
+	.export-btn {
+		padding: 0.5rem 1rem;
+		border: 1px solid var(--color-black);
+		background: var(--color-white);
+		color: var(--color-black);
+		font-family: var(--font-family);
+		font-weight: var(--font-weight-bold);
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.export-btn:hover {
+		background: var(--color-black);
+		color: var(--color-white);
+	}
+
 	.production-grid {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
@@ -807,35 +978,25 @@
 		letter-spacing: 0.05em;
 	}
 
-	.chart-placeholder {
-		height: 16rem;
-		background: linear-gradient(135deg, var(--color-light-gray), var(--color-white));
+	.chart-container {
+		height: 18rem;
+		background: var(--color-white);
 		border: 1px solid var(--color-light-gray);
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		padding: 1rem;
 	}
 
-	.chart-content {
-		text-align: center;
+	.production-chart {
+		width: 100%;
+		height: 100%;
+		max-width: 800px;
+		max-height: 300px;
 	}
 
-	.chart-icon {
-		font-size: 3rem;
-		margin-bottom: 1rem;
-		opacity: 0.5;
-	}
-
-	.chart-label {
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.chart-note {
-		font-size: 0.75rem;
-		color: var(--color-black);
-		opacity: 0.7;
+	.production-chart text {
+		font-family: var(--font-family);
 	}
 
 	/* Risk Content */

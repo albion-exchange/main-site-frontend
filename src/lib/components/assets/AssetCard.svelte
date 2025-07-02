@@ -18,11 +18,37 @@
 	function formatNumber(num: number): string {
 		return new Intl.NumberFormat('en-US').format(Math.round(num));
 	}
+
+	function formatEndDate(dateStr: string): string {
+		if (!dateStr) return 'TBD';
+		const [year, month] = dateStr.split('-');
+		const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+							 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		return `${monthNames[parseInt(month) - 1]} ${year}`;
+	}
+
+	function getAssetImage(assetId: string): string {
+		// Map each asset to specific oil & gas industry images
+		const imageMap: Record<string, string> = {
+			'europa-wressle-release-1': '/images/assets/europa-wressle-1.jpg', // Wressle oil field (UK onshore)
+			'bakken-horizon-field': '/images/assets/bakken-horizon-1.jpeg', // Bakken shale operations (ND)
+			'permian-basin-venture': '/images/assets/permian-basin-1.jpg', // Permian basin operations (TX)
+			'gulf-mexico-deep-water': '/images/assets/gom-deepwater-1.avif' // Gulf of Mexico offshore platform
+		};
+		
+		// Fallback to a generic oil industry image
+		return imageMap[assetId] || '/images/assets/europa-wressle-1.jpg';
+	}
+
 </script>
 
 <article class="asset-card">
 	<div class="asset-image">
-		<div class="placeholder-image">{asset.name}</div>
+		<img 
+			src={getAssetImage(asset.id)} 
+			alt={asset.name}
+			loading="lazy"
+		/>
 	</div>
 	
 	<div class="asset-content">
@@ -30,6 +56,22 @@
 			<h3 class="asset-name">{asset.name}</h3>
 			<p class="asset-location">{asset.location.state}, {asset.location.country}</p>
 		</header>
+		
+		<!-- Highlighted Big Stats -->
+		<div class="highlighted-stats">
+			<div class="highlight-stat">
+				<span class="highlight-value">{asset.production.current}</span>
+				<span class="highlight-label">Current Production</span>
+			</div>
+			<div class="highlight-stat">
+				<span class="highlight-value">{asset.production.expectedRemainingProduction}</span>
+				<span class="highlight-label">Expected Remaining</span>
+			</div>
+			<div class="highlight-stat">
+				<span class="highlight-value">{formatEndDate(asset.technical.expectedEndDate)}</span>
+				<span class="highlight-label">Expected End Date</span>
+			</div>
+		</div>
 		
 		<p class="asset-description">{asset.description}</p>
 		
@@ -45,6 +87,11 @@
 					<span class="stat-value">{formatCurrency(latestReport.netIncome)}</span>
 				</div>
 			{/if}
+			
+			<div class="stat">
+				<span class="stat-label">Expected End</span>
+				<span class="stat-value">{formatEndDate(asset.technical.expectedEndDate)}</span>
+			</div>
 			
 			<div class="stat">
 				<span class="stat-label">Operator</span>
@@ -78,22 +125,54 @@
 	.asset-image {
 		height: 200px;
 		overflow: hidden;
+		position: relative;
 	}
 
-
-	.placeholder-image {
+	.asset-image img {
 		width: 100%;
 		height: 100%;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: white;
-		font-weight: 500;
+		object-fit: cover;
+		transition: transform 0.3s ease;
+	}
+
+	.asset-card:hover .asset-image img {
+		transform: scale(1.05);
 	}
 
 	.asset-content {
 		padding: 1.5rem;
+	}
+
+	.highlighted-stats {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1rem;
+		margin: 1rem 0 1.5rem 0;
+		padding: 1rem;
+		background: #f8f4f4;
+		border-radius: 8px;
+	}
+
+	.highlight-stat {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
+
+	.highlight-value {
+		font-size: 1.25rem;
+		font-weight: 700;
+		color: #283c84;
+		margin-bottom: 0.25rem;
+	}
+
+	.highlight-label {
+		font-size: 0.75rem;
+		color: #718096;
+		text-transform: uppercase;
+		font-weight: 500;
+		letter-spacing: 0.05em;
 	}
 
 	header {
@@ -126,8 +205,25 @@
 
 	.asset-stats {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: repeat(2, 1fr);
 		gap: 1rem;
+	}
+	
+	@media (min-width: 400px) {
+		.asset-stats {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+
+	@media (max-width: 400px) {
+		.highlighted-stats {
+			grid-template-columns: 1fr;
+			gap: 0.75rem;
+		}
+		
+		.highlight-value {
+			font-size: 1.1rem;
+		}
 	}
 
 	.stat {

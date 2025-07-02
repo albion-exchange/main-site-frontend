@@ -2,9 +2,9 @@
 	import { onMount } from 'svelte';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Asset } from '$lib/types/dataStore';
+	import AssetCard from '$lib/components/assets/AssetCard.svelte';
 
 	let viewMode = 'grid'; // grid or list
-	let sortBy = 'payout';
 	let loading = true;
 	let allAssets: Asset[] = [];
 
@@ -28,15 +28,8 @@
 		}).format(amount);
 	}
 
-	// Sort assets
-	$: filteredAssets = allAssets.sort((a, b) => {
-		switch(sortBy) {
-			case 'name': return a.name.localeCompare(b.name);
-			case 'reserves': return parseFloat(a.production.expectedRemainingProduction.replace(/[^\d.]/g, '')) - parseFloat(b.production.expectedRemainingProduction.replace(/[^\d.]/g, ''));
-			case 'status': return a.production.status.localeCompare(b.production.status);
-			default: return 0;
-		}
-	});
+	// Return all assets without sorting
+	$: filteredAssets = allAssets;
 </script>
 
 <svelte:head>
@@ -56,16 +49,9 @@
 		</div>
 	{:else}
 
-		<!-- Sort and View Controls -->
+		<!-- View Controls -->
 		<div class="controls-section">
-			<div class="sort-controls">
-				<span class="control-label">Sort By:</span>
-				<select bind:value={sortBy} class="sort-select">
-					<option value="payout">Highest Payout</option>
-					<option value="value">Highest Value</option>
-					<option value="name">Name A-Z</option>
-					<option value="funding">Funding Soon</option>
-				</select>
+			<div class="asset-count-section">
 				<span class="asset-count">
 					{allAssets.length} assets
 				</span>
@@ -94,74 +80,11 @@
 			<div class="empty-state">
 				<h3>No Assets Found</h3>
 				<p>Try adjusting your search criteria or filters to find assets.</p>
-				<button class="btn-primary" on:click={clearAllFilters}>
-					Clear All Filters
-				</button>
 			</div>
 		{:else if viewMode === 'grid'}
 			<div class="assets-grid">
 				{#each filteredAssets as asset}
-					<article class="asset-card">
-						<div class="asset-header">
-							<div class="asset-info">
-								<h3>{asset.name}</h3>
-								<p class="asset-location">{asset.location.state}, {asset.location.country}</p>
-								<p class="asset-operator">{asset.operator.name}</p>
-							</div>
-							<div class="asset-badges">
-								<span class="status-badge" class:producing={asset.production.status === 'producing'} class:funding={asset.production.status === 'funding'}>
-									{asset.production.status.toUpperCase()}
-								</span>
-							</div>
-						</div>
-						
-						<div class="asset-metrics">
-							<div class="metric">
-								<div class="metric-value">{asset.production.capacity}</div>
-								<div class="metric-label">Production</div>
-							</div>
-							<div class="metric">
-								<div class="metric-value">{asset.production.reserves}</div>
-								<div class="metric-label">Reserves</div>
-							</div>
-							<div class="metric">
-								<div class="metric-value">{asset.production.status}</div>
-								<div class="metric-label">Status</div>
-							</div>
-						</div>
-
-						<div class="asset-details">
-							<div class="detail-row">
-								<span>Production:</span>
-								<span>{asset.production.capacity}</span>
-							</div>
-							<div class="detail-row">
-								<span>Reserves:</span>
-								<span>{asset.production.reserves}</span>
-							</div>
-							<div class="detail-row">
-								<span>Field Type:</span>
-								<span>{asset.technical.fieldType}</span>
-							</div>
-							<div class="detail-row">
-								<span>Operator:</span>
-								<span>{asset.operator.name}</span>
-							</div>
-						</div>
-						
-						<!-- Token Information -->
-						<div class="token-info">
-							<div class="info-header">
-								<span>Associated Tokens</span>
-								<span>{asset.tokenContracts.length} token{asset.tokenContracts.length !== 1 ? 's' : ''}</span>
-							</div>
-						</div>
-						
-						<div class="asset-actions">
-							<a href="/buy-tokens?asset={asset.id}" class="btn-primary">View Tokens</a>
-							<a href="/assets/{asset.id}" class="btn-secondary">View Details</a>
-						</div>
-					</article>
+					<AssetCard {asset} />
 				{/each}
 			</div>
 		{:else}
@@ -177,8 +100,8 @@
 							<div class="metric-label">Production</div>
 						</div>
 						<div class="list-value">
-							<div class="metric-value">{asset.production.reserves}</div>
-							<div class="metric-label">Reserves</div>
+							<div class="metric-value">{asset.production.expectedRemainingProduction}</div>
+							<div class="metric-label">Expected Production</div>
 						</div>
 						<div class="list-status">
 							<span class="status-badge" class:producing={asset.production.status === 'producing'} class:funding={asset.production.status === 'funding'}>
@@ -335,7 +258,7 @@
 		align-items: center;
 	}
 
-	.sort-controls,
+	.asset-count-section,
 	.view-controls {
 		display: flex;
 		align-items: center;
@@ -348,15 +271,6 @@
 		font-size: 0.9rem;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-	}
-
-	.sort-select {
-		padding: 0.5rem;
-		border: 1px solid var(--color-light-gray);
-		background: var(--color-white);
-		color: var(--color-black);
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-medium);
 	}
 
 	.asset-count {
@@ -680,7 +594,7 @@
 			align-items: stretch;
 		}
 
-		.sort-controls,
+		.asset-count-section,
 		.view-controls {
 			justify-content: center;
 		}

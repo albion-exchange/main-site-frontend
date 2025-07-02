@@ -101,7 +101,7 @@
 
 		<!-- CTA Buttons -->
 		<div class="cta-buttons">
-			<a href="/assets" class="btn-primary">Explore Investments</a>
+			<a href="/buy-tokens" class="btn-primary">Explore Investments</a>
 			<a href="/about" class="btn-secondary">Learn How It Works</a>
 		</div>
 	</section>
@@ -145,21 +145,50 @@
 		<h2>Why Choose Albion</h2>
 		<div class="indicators">
 			<div class="indicator">
+				<div class="indicator-icon">
+					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M24 2L30 14H42L32 22L36 34L24 26L12 34L16 22L6 14H18L24 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+						<circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="2"/>
+					</svg>
+				</div>
 				<h3>SEC Compliant</h3>
 				<p>Full regulatory compliance</p>
 			</div>
 			
 			<div class="indicator">
+				<div class="indicator-icon">
+					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M20 28L28 20M20 28L16 32L20 28ZM28 20L32 16L28 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
+						<path d="M15 24C15 24 18 30 24 30C30 30 33 24 33 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+					</svg>
+				</div>
 				<h3>Audited Assets</h3>
 				<p>Third-party verified</p>
 			</div>
 			
 			<div class="indicator">
+				<div class="indicator-icon">
+					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<rect x="8" y="12" width="32" height="28" stroke="currentColor" stroke-width="2"/>
+						<path d="M8 20H40" stroke="currentColor" stroke-width="2"/>
+						<path d="M16 8V12M32 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<path d="M16 28H24M16 32H32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+					</svg>
+				</div>
 				<h3>Institutional Grade</h3>
 				<p>Professional operators</p>
 			</div>
 			
 			<div class="indicator">
+				<div class="indicator-icon">
+					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
+						<path d="M24 24L32 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<circle cx="24" cy="24" r="3" fill="currentColor"/>
+						<path d="M12 28L16 24L20 26L28 20L36 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+				</div>
 				<h3>Transparent</h3>
 				<p>Real-time reporting</p>
 			</div>
@@ -190,7 +219,7 @@
 			<div class="cta-box">
 				<h4>Start Investing Today</h4>
 				<p>Join {platformStats.activeInvestors.toLocaleString()} investors earning from energy assets</p>
-				<a href="/assets" class="btn-primary">Get Started Now</a>
+				<a href="/buy-tokens" class="btn-primary">Get Started Now</a>
 			</div>
 		</div>
 	</section>
@@ -363,6 +392,33 @@
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
 		gap: 2rem;
+	}
+
+	.indicator {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.indicator-icon {
+		margin-bottom: 1.5rem;
+		color: var(--color-black);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 64px;
+		height: 64px;
+		position: relative;
+	}
+
+	.indicator-icon svg {
+		width: 48px;
+		height: 48px;
+		transition: transform 0.2s ease;
+	}
+
+	.indicator:hover .indicator-icon svg {
+		transform: scale(1.1);
 	}
 
 	.indicator h3 {
