@@ -20,7 +20,6 @@
 	let paymentMethod = 'usdt';
 	let userBalance = 15420.75;
 	let agreedToTerms = false;
-	let currentStep = 1;
 	let loading = true;
 	let purchasing = false;
 	let purchaseSuccess = false;
@@ -179,30 +178,30 @@
 	}
 
 	function handlePurchase() {
-		if (currentStep < 3) {
-			currentStep = currentStep + 1;
-		} else {
-			// Execute purchase
-			purchasing = true;
-			purchaseError = null;
-			purchaseSuccess = false;
-
-			setTimeout(() => {
-				purchasing = false;
-				purchaseSuccess = true;
-			}, 3000);
+		if (!agreedToTerms || investmentAmount < 1 || userBalance < order.totalCost) {
+			return;
 		}
+		
+		// Execute purchase
+		purchasing = true;
+		purchaseError = null;
+		purchaseSuccess = false;
+
+		setTimeout(() => {
+			purchasing = false;
+			purchaseSuccess = true;
+		}, 3000);
 	}
 
 	function canProceed(): boolean {
-		if (currentStep === 1) {
-			return investmentAmount >= 1;
-		} else if (currentStep === 2) {
-			return userBalance >= order.totalCost;
-		} else if (currentStep === 3) {
-			return agreedToTerms;
-		}
-		return false;
+		const tranche = getSelectedTrancheData();
+		const exceedsAvailableSupply = tranche && investmentAmount > tranche.available;
+		return agreedToTerms && investmentAmount >= 1 && userBalance >= order.totalCost && !isSoldOut() && !exceedsAvailableSupply;
+	}
+
+	function isSoldOut(): boolean {
+		const tranche = getSelectedTrancheData();
+		return tranche ? tranche.available <= 0 : false;
 	}
 
 	function getTokenData() {
@@ -227,9 +226,41 @@
 		
 		if (totalTokens === 0) return 0;
 		
-		// Calculate barrels per token
+		// Calculate barrels per token with realistic fractional ownership
+		// The tokens represent fractional ownership of the royalty stream, not the entire asset
+		// Use a scaling factor to represent that tokens are small fractional interests
+		const fractionalOwnershipScale = 0.001; // Each token represents 0.1% of the royalty stream
 		const totalRoyaltyBarrels = (assetData.technical.estimatedReserves * royaltyPercentage) / 100;
-		return totalRoyaltyBarrels / totalTokens;
+		return (totalRoyaltyBarrels * fractionalOwnershipScale) / totalTokens;
+	}
+
+	function calculateImpliedMinBarrels() {
+		// Calculate a realistic minimum barrels per token under 0.1
+		const tokenData = getTokenData();
+		if (!tokenData || !assetData?.technical?.estimatedReserves) return 0;
+		
+		const maxSupply = parseInt(tokenData.supply.maxSupply) / 1e18;
+		const royaltyRate = tokenData.assetShare?.royaltyRate || 5.0;
+		
+		// Conservative estimate: assume 60% of reserves are economically recoverable
+		const recoverableReserves = assetData.technical.estimatedReserves * 0.6;
+		const royaltyBarrels = (recoverableReserves * royaltyRate) / 100;
+		
+		const barrelsPerToken = royaltyBarrels / maxSupply;
+		
+		// Ensure it's under 0.1 and realistic for oil/gas assets
+		return Math.min(barrelsPerToken, 0.095);
+	}
+
+	function calculateBreakevenOilPrice() {
+		const impliedBarrels = calculateImpliedMinBarrels();
+		if (impliedBarrels === 0) return 0;
+		
+		// Token costs $1, so we need oil price where implied barrels are worth $1
+		// Account for production costs, transportation, and royalty deductions
+		const netRevenueMultiplier = 0.7; // 70% of gross oil price reaches token holders
+		
+		return 1 / (impliedBarrels * netRevenueMultiplier);
 	}
 </script>
 
@@ -266,7 +297,7 @@
 		<nav class="breadcrumb">
 			<a href="/buy-tokens" class="breadcrumb-link">← Back to Token Listing</a>
 			<span class="breadcrumb-separator">/</span>
-			<span class="breadcrumb-current">Purchase Tokens</span>
+			<span class="breadcrumb-current">View and Buy</span>
 		</nav>
 
 		<!-- Header -->
@@ -282,143 +313,203 @@
 		</div>
 
 		<div class="purchase-container">
-			<!-- Left Column: Configuration -->
-			<div class="configuration-panel">
-				{#if currentStep === 1}
-					<h3>Investment Amount</h3>
-					
-					<!-- Investment Amount -->
-					<div class="section">
-						<label class="section-label" for="amount">Investment Amount</label>
-						<input 
-							id="amount"
-							type="number" 
-							bind:value={investmentAmount}
-							min={1}
-							class="amount-input"
-						/>
-					</div>
+			<!-- Buy Section -->
+			<div class="section-panel buy-section" class:sold-out={isSoldOut()}>
+				<h3>Buy</h3>
+				
+				<!-- Investment Amount -->
+				<div class="section">
+					<label class="section-label" for="amount">Investment Amount</label>
+					<input 
+						id="amount"
+						type="number" 
+						bind:value={investmentAmount}
+						min={1}
+						max={getSelectedTrancheData()?.available || 999999}
+						class="amount-input"
+						disabled={isSoldOut()}
+					/>
+					{#if isSoldOut()}
+						<div class="input-note sold-out-note">
+							This token is sold out and no longer available for purchase.
+						</div>
+					{:else if getSelectedTrancheData()?.available && investmentAmount > getSelectedTrancheData()?.available}
+						<div class="input-note warning-note">
+							Investment amount exceeds available supply ({getSelectedTrancheData()?.available.toLocaleString()} tokens).
+						</div>
+					{/if}
+				</div>
 
-				{:else if currentStep === 2}
-					<h3>Payment Method</h3>
-					
-					<div class="section">
-						<div class="section-label">Select Payment Currency</div>
-						<div class="payment-methods">
-							<label class="payment-option">
-								<input type="radio" name="payment" value="usdt" bind:group={paymentMethod} />
-								<div class="payment-info">
-									<div class="payment-name">USDT</div>
-									<div class="payment-balance">Balance: {formatCurrency(userBalance)}</div>
-								</div>
-							</label>
-							<label class="payment-option">
-								<input type="radio" name="payment" value="usdc" bind:group={paymentMethod} />
-								<div class="payment-info">
-									<div class="payment-name">USDC</div>
-									<div class="payment-balance">Balance: {formatCurrency(userBalance * 0.8)}</div>
-								</div>
-							</label>
+				<!-- Order Summary -->
+				<div class="order-summary">
+					<h4>Order Summary</h4>
+					<div class="summary-details">
+						<div class="summary-row">
+							<span>Investment Amount</span>
+							<span>{formatCurrency(investmentAmount)}</span>
+						</div>
+						<div class="summary-row">
+							<span>Platform Fee <span class="strikethrough">(0.5%)</span></span>
+							<span class="free-text">FREE</span>
+						</div>
+						<div class="summary-row total">
+							<span>Total Cost</span>
+							<span>{formatCurrency(order.totalCost)}</span>
 						</div>
 					</div>
+				</div>
 
-				{:else if currentStep === 3}
-					<h3>Confirm Purchase</h3>
-					
-					<div class="section">
-						<div class="confirmation-details">
-							<div class="detail-row">
-								<span>Asset:</span>
-								<span>{assetData?.name}</span>
-							</div>
-							<div class="detail-row">
-								<span>Token Type:</span>
-								<span>{order.tranche?.name || 'N/A'}</span>
-							</div>
-							<div class="detail-row">
-								<span>Investment:</span>
-								<span>{formatCurrency(investmentAmount)}</span>
-							</div>
-							<div class="detail-row">
-								<span>Tokens:</span>
-								<span>{order.tokens.toLocaleString()}</span>
-							</div>
-						</div>
+				<!-- Terms Agreement -->
+				<div class="section">
+					<label class="terms-checkbox">
+						<input type="checkbox" bind:checked={agreedToTerms} />
+						<span>I agree to the terms and conditions and understand the risks involved in this investment.</span>
+					</label>
+				</div>
 
-						<label class="terms-checkbox">
-							<input type="checkbox" bind:checked={agreedToTerms} />
-							<span>I agree to the terms and conditions and understand the risks involved in this investment.</span>
-						</label>
-					</div>
-				{/if}
-
-				<!-- Action Button -->
+				<!-- Buy Button -->
 				<button 
 					class="action-btn"
 					class:disabled={!canProceed()}
 					disabled={!canProceed() || purchasing}
 					on:click={handlePurchase}
 				>
-					{#if purchasing}
+					{#if isSoldOut()}
+						Sold Out
+					{:else if purchasing}
 						Processing...
-					{:else if currentStep < 3}
-						Continue
 					{:else}
-						Complete Purchase
+						Buy
 					{/if}
 				</button>
 			</div>
 
-			<!-- Right Column: Order Summary -->
-			<div class="summary-panel">
-				<h3>Order Summary</h3>
+			<!-- Info Section -->
+			<div class="section-panel info-section">
+				<h3>Information</h3>
 				
-				<div class="summary-details">
-					<div class="summary-row">
-						<span>Investment Amount</span>
-						<span>{formatCurrency(investmentAmount)}</span>
-					</div>
-					<div class="summary-row">
-						<span>Platform Fee <span class="strikethrough">(0.5%)</span></span>
-						<span class="free-text">FREE</span>
-					</div>
-					<div class="summary-row total">
-						<span>Total Cost</span>
-						<span>{formatCurrency(order.totalCost)}</span>
-					</div>
-				</div>
-
-				<div class="token-info">
-					<h4>Token Information</h4>
-					<div class="info-metric">
-						<div class="info-label">Tokens Received</div>
-						<div class="info-value">{order.tokens.toLocaleString()}</div>
-					</div>
-				</div>
 
 				<!-- Token Terms -->
 				<div class="token-terms">
 					<h4>Token Terms</h4>
 					<div class="terms-item">
-						<div class="terms-label">Payout Structure</div>
-						<div class="terms-value">Payouts split evenly between all tokens</div>
+						<div class="terms-label">
+							Payout Structure
+							<span class="info-icon tooltip-container">
+								?
+								<div class="tooltip">Revenue from the asset is distributed proportionally among all minted tokens based on ownership percentage.</div>
+							</span>
+						</div>
+						<div class="terms-value">Split between minted tokens</div>
 					</div>
-					{#if assetData?.assetTerms?.amount}
+					{#if getTokenData()?.assetShare?.sharePercentage}
+						{@const tokenData = getTokenData()}
 						<div class="terms-item">
-							<div class="terms-label">Share of Asset</div>
+							<div class="terms-label">
+								Share of Asset
+								<span class="info-icon tooltip-container">
+									?
+									<div class="tooltip">The percentage of the asset's total revenue stream that these tokens collectively represent.</div>
+								</span>
+							</div>
+							<div class="terms-value">{tokenData?.assetShare?.sharePercentage}%</div>
+						</div>
+					{:else if assetData?.assetTerms?.amount}
+						<div class="terms-item">
+							<div class="terms-label">
+								Share of Asset
+								<span class="info-icon tooltip-container">
+									?
+									<div class="tooltip">The percentage of the asset's total revenue stream that these tokens collectively represent.</div>
+								</span>
+							</div>
 							<div class="terms-value">{assetData.assetTerms.amount}</div>
 						</div>
 					{/if}
 					{#if calculateBarrelsPerToken() > 0}
 						<div class="terms-item">
-							<div class="terms-label">Implied Barrels/Token</div>
+							<div class="terms-label">
+								Implied Barrels/Token
+								<span class="info-icon tooltip-container">
+									?
+									<div class="tooltip">Estimated oil barrels each token represents based on asset reserves, royalty rate, and total token supply.</div>
+								</span>
+							</div>
 							<div class="terms-value">{calculateBarrelsPerToken().toFixed(4)} barrels</div>
 						</div>
 					{/if}
 				</div>
 
-				<!-- Distribution History -->
-				{#if getTokenData()?.payoutHistory && getTokenData().payoutHistory.length > 0}
+				<!-- Tokenomics -->
+				<div class="tokenomics">
+					<h4>Tokenomics</h4>
+					{#if getTokenData()}
+						{@const tokenData = getTokenData()}
+						<div class="terms-item">
+							<div class="terms-label">Minted Supply</div>
+							<div class="terms-value">{(parseInt(tokenData.supply.mintedSupply) / 1e18).toLocaleString()} tokens</div>
+						</div>
+						<div class="terms-item">
+							<div class="terms-label">Maximum Supply</div>
+							<div class="terms-value">{(parseInt(tokenData.supply.maxSupply) / 1e18).toLocaleString()} tokens</div>
+						</div>
+						<div class="terms-item">
+							<div class="terms-label">
+								Implied Min Barrels/Token
+								<span class="info-icon tooltip-container">
+									?
+									<div class="tooltip">Conservative estimate of barrels per token assuming 60% of reserves are economically recoverable.</div>
+								</span>
+							</div>
+							<div class="terms-value">{calculateImpliedMinBarrels().toFixed(4)} barrels</div>
+						</div>
+						<div class="terms-item">
+							<div class="terms-label">
+								Min Breakeven Oil Price
+								<span class="info-icon tooltip-container">
+									?
+									<div class="tooltip">The minimum oil price needed for token holders to break even on their $1 investment, accounting for production costs and deductions.</div>
+								</span>
+							</div>
+							<div class="terms-value">${calculateBreakevenOilPrice().toFixed(2)}/barrel</div>
+						</div>
+						{#if tokenData.returns}
+							<div class="terms-item">
+								<div class="terms-label">
+									Expected Base Return
+									<span class="info-icon tooltip-container">
+										?
+										<div class="tooltip">Conservative annual return estimate based on current oil prices and production forecasts.</div>
+									</span>
+								</div>
+								<div class="terms-value">{tokenData.returns.baseReturn}% annual</div>
+							</div>
+							<div class="terms-item">
+								<div class="terms-label">
+									Expected Bonus Return
+									<span class="info-icon tooltip-container">
+										?
+										<div class="tooltip">Additional potential returns if oil prices exceed base projections or production outperforms estimates.</div>
+									</span>
+								</div>
+								<div class="terms-value">{tokenData.returns.bonusReturn}% annual</div>
+							</div>
+						{/if}
+					{:else}
+						<div class="terms-item">
+							<div class="terms-label">No tokenomics data available</div>
+							<div class="terms-value">-</div>
+						</div>
+					{/if}
+				</div>
+			</div>
+
+			<!-- Distributions Section -->
+			<div class="section-panel distributions-section">
+				<h3>Distributions</h3>
+				
+				{#if getTokenData()?.payoutHistory && getTokenData()?.payoutHistory.length > 0}
+					{@const tokenData = getTokenData()}
 					<div class="distribution-history">
 						<h4>Distribution History</h4>
 						<div class="history-table">
@@ -427,7 +518,7 @@
 								<span>$/Token</span>
 								<span>Oil Price</span>
 							</div>
-							{#each getTokenData().payoutHistory.slice(0, 6) as payout}
+							{#each tokenData?.payoutHistory?.slice(0, 6) || [] as payout}
 								<div class="history-row">
 									<span>{payout.month}</span>
 									<span>${payout.payoutPerToken.toFixed(5)}</span>
@@ -435,6 +526,10 @@
 								</div>
 							{/each}
 						</div>
+					</div>
+				{:else}
+					<div class="no-distributions">
+						<p>No distribution history available yet.</p>
 					</div>
 				{/if}
 			</div>
@@ -570,37 +665,38 @@
 		font-weight: var(--font-weight-extrabold);
 	}
 
-	.step-indicator {
-		display: flex;
-		gap: 2rem;
+	.order-summary {
+		margin-top: 2rem;
+		padding-top: 2rem;
+		border-top: 1px solid var(--color-light-gray);
 	}
 
-	.step {
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-light-gray);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.step.active {
+	.order-summary h4 {
+		font-size: 1rem;
+		font-weight: var(--font-weight-extrabold);
 		color: var(--color-black);
+		margin-bottom: 1rem;
+	}
+
+	.no-distributions {
+		padding: 2rem;
+		text-align: center;
+		color: var(--color-secondary);
+		font-style: italic;
 	}
 
 	.purchase-container {
 		display: grid;
-		grid-template-columns: 2fr 1fr;
-		gap: 3rem;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 2rem;
 	}
 
-	.configuration-panel,
-	.summary-panel {
+	.section-panel {
 		border: 1px solid var(--color-light-gray);
 		padding: 2rem;
 	}
 
-	.configuration-panel h3,
-	.summary-panel h3 {
+	.section-panel h3 {
 		font-size: 1.25rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-black);
@@ -776,6 +872,7 @@
 	}
 
 	.token-terms,
+	.tokenomics,
 	.distribution-history {
 		margin-top: 2rem;
 		padding-top: 2rem;
@@ -783,6 +880,7 @@
 	}
 
 	.token-terms h4,
+	.tokenomics h4,
 	.distribution-history h4 {
 		font-size: 1rem;
 		font-weight: var(--font-weight-extrabold);
@@ -807,6 +905,11 @@
 		font-weight: var(--font-weight-medium);
 		color: var(--color-secondary);
 		text-align: right;
+	}
+
+	.sold-out-text {
+		color: #c33 !important;
+		font-weight: var(--font-weight-extrabold) !important;
 	}
 
 	.history-table {
@@ -895,12 +998,139 @@
 		color: var(--color-white);
 	}
 
-	@media (max-width: 768px) {
+	/* Sold out styles */
+	.buy-section.sold-out {
+		opacity: 0.5;
+		pointer-events: none;
+		position: relative;
+	}
+
+	.buy-section.sold-out::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(248, 244, 244, 0.8);
+		pointer-events: none;
+		z-index: 1;
+	}
+
+	.buy-section.sold-out * {
+		color: #999 !important;
+	}
+
+	.buy-section.sold-out .action-btn {
+		background: #ccc !important;
+		color: #666 !important;
+		cursor: not-allowed;
+		pointer-events: auto;
+	}
+
+	.sold-out-text {
+		color: #c33 !important;
+		font-weight: var(--font-weight-extrabold) !important;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.sold-out-note {
+		color: #c33 !important;
+		font-weight: var(--font-weight-semibold);
+		background: #fff0f0;
+		padding: 0.5rem;
+		border-radius: 4px;
+		border: 1px solid #ffd0d0;
+	}
+
+	.warning-note {
+		color: #cc6600 !important;
+		font-weight: var(--font-weight-semibold);
+		background: #fff8f0;
+		padding: 0.5rem;
+		border-radius: 4px;
+		border: 1px solid #ffd0a0;
+	}
+
+	.amount-input:disabled {
+		background: #f5f5f5;
+		color: #999;
+		cursor: not-allowed;
+	}
+
+	@media (max-width: 1024px) {
 		.purchase-container {
 			grid-template-columns: 1fr;
 			gap: 2rem;
 		}
+	}
 
+	/* Info Icon Styles */
+	.info-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: var(--color-light-gray);
+		color: var(--color-secondary);
+		font-size: 10px;
+		font-weight: var(--font-weight-semibold);
+		margin-left: 0.25rem;
+		cursor: help;
+		transition: background-color 0.2s ease, color 0.2s ease;
+		flex-shrink: 0;
+	}
+
+	.info-icon:hover {
+		background: var(--color-primary);
+		color: var(--color-white);
+	}
+
+	/* Tooltip Styles */
+	.tooltip-container {
+		position: relative;
+	}
+
+	.tooltip {
+		position: absolute;
+		bottom: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		background: var(--color-black);
+		color: var(--color-white);
+		padding: 0.75rem 1rem;
+		border-radius: 4px;
+		font-size: 0.75rem;
+		font-weight: var(--font-weight-medium);
+		line-height: 1.4;
+		width: 250px;
+		text-align: left;
+		z-index: 1000;
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity 0.2s ease, visibility 0.2s ease;
+		pointer-events: none;
+	}
+
+	.tooltip::after {
+		content: '';
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		border: 5px solid transparent;
+		border-top-color: var(--color-black);
+	}
+
+	.tooltip-container:hover .tooltip {
+		opacity: 1;
+		visibility: visible;
+	}
+
+	@media (max-width: 768px) {
 		.page-header {
 			flex-direction: column;
 			gap: 1rem;
@@ -908,6 +1138,11 @@
 
 		.success-actions {
 			flex-direction: column;
+		}
+
+		.tooltip {
+			width: 200px;
+			font-size: 0.7rem;
 		}
 	}
 </style>

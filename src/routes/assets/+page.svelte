@@ -109,7 +109,7 @@
 							</span>
 						</div>
 						<div class="list-actions">
-							<a href="/buy-tokens?asset={asset.id}" class="btn-primary-small">Tokens</a>
+							<a href="/buy-tokens?asset={asset.id}" class="btn-primary-small">Buy Tokens</a>
 							<a href="/assets/{asset.id}" class="btn-secondary-small">View</a>
 						</div>
 					</article>

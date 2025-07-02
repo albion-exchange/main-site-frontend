@@ -214,6 +214,22 @@
 						</div>
 					</div>
 
+					<!-- Token Details -->
+					<div class="token-details">
+						<div class="detail-row">
+							<span class="detail-label">Share of Asset</span>
+							<span class="detail-value">{token.assetShare?.sharePercentage || 'TBD'}%</span>
+						</div>
+						<div class="detail-row">
+							<span class="detail-label">Est. Base Return</span>
+							<span class="detail-value">{token.returns?.baseReturn || 'TBD'}%</span>
+						</div>
+						<div class="detail-row">
+							<span class="detail-label">Est. Bonus Return</span>
+							<span class="detail-value">{token.returns?.bonusReturn || 'TBD'}%</span>
+						</div>
+					</div>
+
 					<!-- Supply Information -->
 					<div class="supply-section">
 						<div class="supply-row">
@@ -249,11 +265,18 @@
 								href="/purchase-token?asset={token.assetId}&token={token.contractAddress}" 
 								class="btn-primary buy-btn"
 							>
-								Buy Tokens
+								View and Buy
+							</a>
+						{:else if token.isActive && supplyInfo.availableSupply <= 0}
+							<a 
+								href="/purchase-token?asset={token.assetId}&token={token.contractAddress}" 
+								class="btn-primary buy-btn"
+							>
+								View Details
 							</a>
 						{:else}
 							<button class="btn-disabled" disabled>
-								{supplyInfo.availableSupply <= 0 ? 'Sold Out' : 'Unavailable'}
+								Unavailable
 							</button>
 						{/if}
 						<a href="/assets/{token.assetId}" class="btn-secondary">View Asset</a>
@@ -466,10 +489,28 @@
 		color: var(--color-secondary);
 	}
 
+	.token-details,
 	.supply-section {
 		margin-bottom: 2rem;
-		padding: 1.5rem;
+		padding: 2rem;
 		background: #fafafa;
+	}
+
+	.detail-row {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 0.75rem;
+		font-size: 0.9rem;
+	}
+
+	.detail-label {
+		font-weight: var(--font-weight-semibold);
+		color: var(--color-black);
+	}
+
+	.detail-value {
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-primary);
 	}
 
 	.supply-row {
@@ -520,6 +561,7 @@
 	.token-actions {
 		display: flex;
 		gap: 1rem;
+		align-items: stretch;
 	}
 
 	.buy-btn,

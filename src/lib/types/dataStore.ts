@@ -120,6 +120,25 @@ export interface TokenMetadata {
   updatedAt: string; // ISO date
 }
 
+export interface TokenReturns {
+  baseReturn: number; // Base return percentage
+  bonusReturn: number; // Bonus return percentage
+  totalExpectedReturn: number; // Sum of base + bonus
+  returnType: string; // e.g., "annual"
+}
+
+export interface TokenAssetShare {
+  sharePercentage: number; // Percentage of asset ownership
+  royaltyRate: number; // Royalty rate percentage
+  totalAssetValue: number; // Total value of the underlying asset
+}
+
+export interface TokenAvailability {
+  totalAvailable: string; // BigInt as string - total tokens available
+  currentlyAvailable: string; // BigInt as string - tokens currently available
+  percentageAvailable: number; // Percentage of tokens still available
+}
+
 /**
  * Complete Token data structure for the static data store
  */
@@ -130,10 +149,14 @@ export interface Token {
   decimals: number;
   tokenType: 'royalty' | 'payment';
   assetId: string; // Links to Asset.id
+  assetName?: string; // Asset name for convenience
   isActive: boolean;
   supply: TokenSupply;
   holders: TokenHolder[];
   payoutHistory: TokenPayoutRecord[];
+  returns?: TokenReturns; // Only for royalty tokens
+  assetShare?: TokenAssetShare; // Only for royalty tokens
+  availability?: TokenAvailability; // Only for royalty tokens
   metadata: TokenMetadata;
 }
 

@@ -121,7 +121,11 @@
 		
 		<div class="asset-actions">
 			<a href="/assets/{asset.id}" class="btn-secondary">View Details</a>
-			<a href="/buy-tokens?asset={asset.id}" class="btn-primary">Buy Tokens</a>
+			{#if royaltyTokens.length > 0}
+				<a href="/buy-tokens?asset={asset.id}" class="btn-primary">Buy Tokens</a>
+			{:else}
+				<button class="btn-disabled" disabled>No Tokens Available</button>
+			{/if}
 		</div>
 	</div>
 </article>
@@ -160,7 +164,7 @@
 	}
 
 	.asset-content {
-		padding: 1.5rem;
+		padding: 2rem;
 	}
 
 	.highlighted-stats {
@@ -306,5 +310,21 @@
 	.btn-secondary:hover {
 		background: #000;
 		color: #fff;
+	}
+
+	.btn-disabled {
+		flex: 1;
+		padding: 0.75rem 1rem;
+		text-decoration: none;
+		font-weight: 600;
+		font-size: 0.875rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		text-align: center;
+		transition: all 0.2s ease;
+		border: 1px solid #f8f4f4;
+		background: #f8f4f4;
+		color: #718096;
+		cursor: not-allowed;
 	}
 </style>
