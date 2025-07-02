@@ -202,8 +202,8 @@
 					<div class="token-header">
 						<div class="token-info">
 							<h3 class="token-name">{token.name}</h3>
-							<p class="asset-name">{assetName}</p>
-							<div class="token-symbol">{token.symbol}</div>
+							<p class="asset-name-label">{assetName}</p>
+							<div class="token-contract">{token.contractAddress}</div>
 						</div>
 						<div class="token-status">
 							{#if token.isActive}
@@ -425,19 +425,27 @@
 		margin-bottom: 0.5rem;
 	}
 
-	.asset-name {
-		color: var(--color-secondary);
-		font-weight: var(--font-weight-medium);
+	.asset-name-label {
+		font-size: 0.75rem;
+		font-weight: var(--font-weight-semibold);
+		color: var(--color-white);
+		background: var(--color-secondary);
+		padding: 0.25rem 0.75rem;
+		border-radius: 12px;
+		display: inline-block;
 		margin-bottom: 0.5rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 
-	.token-symbol {
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-primary);
-		background: rgba(8, 188, 204, 0.1);
-		padding: 0.25rem 0.5rem;
-		display: inline-block;
+	.token-contract {
+		font-size: 0.75rem;
+		font-weight: var(--font-weight-medium);
+		color: var(--color-secondary);
+		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+		word-break: break-all;
+		line-height: 1.4;
+		opacity: 0.8;
 	}
 
 	.status-badge {

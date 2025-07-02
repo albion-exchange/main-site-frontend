@@ -5,10 +5,6 @@
 
 	let viewMode = 'grid'; // grid or list
 	let sortBy = 'payout';
-	let filterLocation = 'all';
-	let filterPayout = 'all';
-	let filterStatus = 'all';
-	let searchTerm = '';
 	let loading = true;
 	let allAssets: Asset[] = [];
 
@@ -32,34 +28,15 @@
 		}).format(amount);
 	}
 
-	// Get unique countries for filter
-	$: countries = [...new Set(allAssets.map(asset => asset.location.country))];
-
-	// Filter and sort assets
-	$: filteredAssets = allAssets.filter(asset => {
-		const matchesSearch = asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-							 asset.location.state.toLowerCase().includes(searchTerm.toLowerCase()) ||
-							 asset.operator.name.toLowerCase().includes(searchTerm.toLowerCase());
-		const matchesLocation = filterLocation === 'all' || asset.location.country === filterLocation;
-		const matchesPayout = filterPayout === 'all'; // Simplified - no payout filtering without financial data
-		const matchesStatus = filterStatus === 'all' || asset.production.status === filterStatus;
-		
-		return matchesSearch && matchesLocation && matchesPayout && matchesStatus;
-	}).sort((a, b) => {
+	// Sort assets
+	$: filteredAssets = allAssets.sort((a, b) => {
 		switch(sortBy) {
 			case 'name': return a.name.localeCompare(b.name);
-			case 'reserves': return parseFloat(a.production.reserves.replace(/[^\d.]/g, '')) - parseFloat(b.production.reserves.replace(/[^\d.]/g, ''));
+			case 'reserves': return parseFloat(a.production.expectedRemainingProduction.replace(/[^\d.]/g, '')) - parseFloat(b.production.expectedRemainingProduction.replace(/[^\d.]/g, ''));
 			case 'status': return a.production.status.localeCompare(b.production.status);
 			default: return 0;
 		}
 	});
-
-	function clearAllFilters() {
-		searchTerm = '';
-		filterLocation = 'all';
-		filterPayout = 'all';
-		filterStatus = 'all';
-	}
 </script>
 
 <svelte:head>
@@ -78,54 +55,6 @@
 			<p>Loading assets...</p>
 		</div>
 	{:else}
-		<!-- Search and Filter Bar -->
-		<div class="filter-section">
-			<div class="filter-controls">
-				<div class="filter-group search-group">
-					<label for="search-input" class="filter-control-label">Search Assets:</label>
-					<input 
-						id="search-input"
-						type="text" 
-						placeholder="Search by name, location, or operator..."
-						bind:value={searchTerm}
-						class="search-input"
-					/>
-				</div>
-				<div class="filter-row">
-					<div class="filter-group">
-						<label for="location-filter" class="filter-control-label">Location:</label>
-						<select id="location-filter" bind:value={filterLocation} class="filter-select">
-							<option value="all">All Locations</option>
-							{#each countries as country}
-								<option value={country}>{country}</option>
-							{/each}
-						</select>
-					</div>
-					<div class="filter-group">
-						<label for="payout-filter" class="filter-control-label">Payout Range:</label>
-						<select id="payout-filter" bind:value={filterPayout} class="filter-select">
-							<option value="all">All Payouts</option>
-							<option value="10-12">10-12%</option>
-							<option value="12-15">12-15%</option>
-							<option value="15+">15%+</option>
-						</select>
-					</div>
-					<div class="filter-group">
-						<label for="status-filter" class="filter-control-label">Status:</label>
-						<select id="status-filter" bind:value={filterStatus} class="filter-select">
-							<option value="all">All Status</option>
-							<option value="producing">Producing</option>
-							<option value="funding">Funding</option>
-						</select>
-					</div>
-					<div class="filter-group">
-						<button class="clear-filter-btn" on:click={clearAllFilters}>
-							Clear Filters
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
 
 		<!-- Sort and View Controls -->
 		<div class="controls-section">
@@ -138,7 +67,7 @@
 					<option value="funding">Funding Soon</option>
 				</select>
 				<span class="asset-count">
-					{filteredAssets.length} of {allAssets.length} assets
+					{allAssets.length} assets
 				</span>
 			</div>
 			<div class="view-controls">

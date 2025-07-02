@@ -35,11 +35,6 @@
 		
 		<div class="asset-stats">
 			<div class="stat">
-				<span class="stat-label">Production</span>
-				<span class="stat-value">{asset.production.capacity}</span>
-			</div>
-			
-			<div class="stat">
 				<span class="stat-label">Status</span>
 				<span class="stat-value">{asset.production.status}</span>
 			</div>
@@ -49,17 +44,7 @@
 					<span class="stat-label">Latest Month</span>
 					<span class="stat-value">{formatCurrency(latestReport.netIncome)}</span>
 				</div>
-				
-				<div class="stat">
-					<span class="stat-label">Production</span>
-					<span class="stat-value">{formatNumber(latestReport.production)} bbls</span>
-				</div>
 			{/if}
-			
-			<div class="stat">
-				<span class="stat-label">Reserves</span>
-				<span class="stat-value">{asset.production.reserves}</span>
-			</div>
 			
 			<div class="stat">
 				<span class="stat-label">Operator</span>

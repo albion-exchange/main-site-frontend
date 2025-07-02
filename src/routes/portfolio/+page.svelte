@@ -231,7 +231,7 @@
 					<div class="metric">
 						<div class="metric-value">{formatCurrency(totalPortfolioValue)}</div>
 						<div class="metric-label">Total Value</div>
-						<div class="metric-note">Live update</div>
+						<div class="metric-note">Real-time</div>
 					</div>
 					<div class="metric">
 						<div class="metric-value">{formatCurrency(totalInvested)}</div>
@@ -254,11 +254,7 @@
 					</div>
 				</div>
 
-				<div class="live-tracking">
-					<div class="live-indicator">
-						<div class="pulse-dot"></div>
-						<span>Live Tracking</span>
-					</div>
+				<div class="portfolio-info">
 					<div class="update-time">
 						Last updated: {getCurrentTime()}
 					</div>
@@ -791,34 +787,12 @@
 		color: #dc2626;
 	}
 
-	.live-tracking {
+	.portfolio-info {
 		display: flex;
 		align-items: center;
 		gap: 2rem;
 		font-size: 0.85rem;
 		font-weight: var(--font-weight-semibold);
-	}
-
-	.live-indicator {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.pulse-dot {
-		width: 8px;
-		height: 8px;
-		background: var(--color-primary);
-		border-radius: 50%;
-		animation: pulse 2s infinite;
-	}
-
-	@keyframes pulse {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0.5; }
 	}
 
 	.update-time,
@@ -1682,7 +1656,7 @@
 			padding-bottom: 0;
 		}
 
-		.live-tracking {
+		.portfolio-info {
 			flex-direction: column;
 			gap: 0.5rem;
 			align-items: flex-start;

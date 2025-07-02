@@ -12,6 +12,9 @@
 	let error: string | null = null;
 	let autoPlayTimer: NodeJS.Timeout | null = null;
 	let carouselContainer: HTMLElement;
+	let isTransitioning = false;
+	let touchStartX = 0;
+	let touchEndX = 0;
 
 	onMount(async () => {
 		await loadFeaturedTokens();
@@ -50,18 +53,30 @@
 	}
 
 	function nextSlide() {
-		if (featuredTokensWithAssets.length === 0) return;
+		if (featuredTokensWithAssets.length === 0 || isTransitioning) return;
+		isTransitioning = true;
 		currentIndex = (currentIndex + 1) % featuredTokensWithAssets.length;
+		setTimeout(() => {
+			isTransitioning = false;
+		}, 600);
 	}
 
 	function prevSlide() {
-		if (featuredTokensWithAssets.length === 0) return;
+		if (featuredTokensWithAssets.length === 0 || isTransitioning) return;
+		isTransitioning = true;
 		currentIndex = currentIndex === 0 ? featuredTokensWithAssets.length - 1 : currentIndex - 1;
+		setTimeout(() => {
+			isTransitioning = false;
+		}, 600);
 	}
 
 	function goToSlide(index: number) {
-		if (index >= 0 && index < featuredTokensWithAssets.length) {
+		if (index >= 0 && index < featuredTokensWithAssets.length && !isTransitioning) {
+			isTransitioning = true;
 			currentIndex = index;
+			setTimeout(() => {
+				isTransitioning = false;
+			}, 600);
 		}
 	}
 
@@ -105,6 +120,28 @@
 				event.preventDefault();
 				goToSlide(featuredTokensWithAssets.length - 1);
 				break;
+		}
+	}
+
+	function handleTouchStart(event: TouchEvent) {
+		touchStartX = event.touches[0].clientX;
+	}
+
+	function handleTouchEnd(event: TouchEvent) {
+		touchEndX = event.changedTouches[0].clientX;
+		handleSwipe();
+	}
+
+	function handleSwipe() {
+		const swipeThreshold = 50;
+		const difference = touchStartX - touchEndX;
+		
+		if (Math.abs(difference) > swipeThreshold) {
+			if (difference > 0) {
+				nextSlide();
+			} else {
+				prevSlide();
+			}
 		}
 	}
 
@@ -159,109 +196,104 @@
 			on:mouseenter={handleMouseEnter}
 			on:mouseleave={handleMouseLeave}
 			on:keydown={handleKeydown}
+			on:touchstart={handleTouchStart}
+			on:touchend={handleTouchEnd}
 			role="region"
 			aria-label="Featured tokens carousel"
 			tabindex="0"
 		>
-			<!-- Main carousel slide -->
-			<div class="carousel-slide">
-				{#if currentItem}
-					<div class="banner-card">
-						<!-- Token Section -->
-						<div class="token-section">
-							<div class="token-header">
-								<div class="token-type-badge">
-									{currentItem.token.tokenType === 'royalty' ? 'Royalty Token' : 'Payment Token'}
-								</div>
-								<h3 class="token-name">{currentItem.token.name}</h3>
-								<div class="token-symbol">{currentItem.token.symbol}</div>
-							</div>
-
-							<div class="token-stats">
-								<div class="stat-item">
-									<div class="stat-label">Total Supply</div>
-									<div class="stat-value">
-										{formatSupply(currentItem.token.supply.maxSupply, currentItem.token.decimals)}
+			<!-- Carousel track -->
+			<div 
+				class="carousel-track"
+				style="transform: translateX(-{currentIndex * 100}%)"
+			>
+				{#each featuredTokensWithAssets as item, index}
+					<div class="carousel-slide" class:active={index === currentIndex}>
+						<div class="banner-card">
+							<!-- Token Section -->
+							<div class="token-section">
+								<div class="token-header">
+									<div class="token-type-badge">
+										{item.token.tokenType === 'royalty' ? 'Royalty Token' : 'Payment Token'}
 									</div>
+									<h3 class="token-name">{item.token.name}</h3>
+									<div class="token-contract">{item.token.contractAddress}</div>
 								</div>
-								
-								<div class="stat-item">
-									<div class="stat-label">Minted Supply</div>
-									<div class="stat-value">
-										{formatSupply(currentItem.token.supply.mintedSupply, currentItem.token.decimals)}
+
+								<div class="token-stats">
+									<div class="stat-item">
+										<div class="stat-label">Total Supply</div>
+										<div class="stat-value">
+											{formatSupply(item.token.supply.maxSupply, item.token.decimals)}
+										</div>
 									</div>
-								</div>
+									
+									<div class="stat-item">
+										<div class="stat-label">Available Supply</div>
+										<div class="stat-value">
+											{formatSupply((BigInt(item.token.supply.maxSupply) - BigInt(item.token.supply.mintedSupply)).toString(), item.token.decimals)}
+										</div>
+									</div>
 
-								<div class="stat-item">
-									<div class="stat-label">Token Holders</div>
-									<div class="stat-value">{currentItem.token.holders.length}</div>
-								</div>
-							</div>
-
-							<div class="token-actions">
-								<a href="/marketplace/assets/{currentItem.asset.id}" class="action-button primary">
-									View Asset
-								</a>
-								<a href="/purchase-token?token={currentItem.token.contractAddress}" class="action-button secondary">
-									Mint Tokens
-								</a>
-							</div>
-						</div>
-
-						<!-- Asset Section -->
-						<div class="asset-section">
-							<div class="asset-header">
-								<div class="asset-status">
-									<div class="status-indicator {currentItem.asset.production.status}"></div>
-									<span class="status-text">{currentItem.asset.production.status.toUpperCase()}</span>
-								</div>
-								<h3 class="asset-name">{currentItem.asset.name}</h3>
-								<div class="asset-location">
-									{currentItem.asset.location.state}, {currentItem.asset.location.country}
-								</div>
-							</div>
-
-							<div class="asset-description">
-								{currentItem.asset.description}
-							</div>
-
-							<div class="asset-stats">
-								<div class="stat-item">
-									<div class="stat-label">Production</div>
-									<div class="stat-value">{currentItem.asset.production.current}</div>
-								</div>
-								
-								<div class="stat-item">
-									<div class="stat-label">Total Value</div>
-									<div class="stat-value">
-										{formatCurrency(currentItem.asset.financial.totalValue / 1000000)}M
+									<div class="stat-item">
+										<div class="stat-label">Estimated Base Payout</div>
+										<div class="stat-value">8.5%</div>
+									</div>
+									
+									<div class="stat-item">
+										<div class="stat-label">Estimated Bonus Payout</div>
+										<div class="stat-value">2.3%</div>
 									</div>
 								</div>
 
-								<div class="stat-item">
-									<div class="stat-label">Current Payout</div>
-									<div class="stat-value">{currentItem.asset.financial.currentPayout}%</div>
-								</div>
-
-								<div class="stat-item">
-									<div class="stat-label">Investors</div>
-									<div class="stat-value">{currentItem.asset.investment.investorCount}</div>
+								<div class="token-actions">
+									<a href="/marketplace/assets/{item.asset.id}" class="action-button primary">
+										View Asset
+									</a>
+									<a href="/purchase-token?token={item.token.contractAddress}" class="action-button secondary">
+										Mint Tokens
+									</a>
 								</div>
 							</div>
 
-							<div class="asset-meta">
-								<div class="operator">
-									<span class="label">Operator:</span>
-									<span class="value">{currentItem.asset.operator.name}</span>
+							<!-- Asset Section -->
+							<div class="asset-section">
+								<div class="asset-header">
+									<div class="asset-status">
+										<div class="status-indicator {item.asset.production.status}"></div>
+										<span class="status-text">{item.asset.production.status.toUpperCase()}</span>
+									</div>
+									<h3 class="asset-name">{item.asset.name}</h3>
+									<div class="asset-location">
+										{item.asset.location.state}, {item.asset.location.country}
+									</div>
 								</div>
-								<div class="field-type">
-									<span class="label">Type:</span>
-									<span class="value">{currentItem.asset.technical.fieldType}</span>
+
+								<div class="asset-description">
+									{item.asset.description}
+								</div>
+
+								<div class="asset-stats">
+									<div class="stat-item">
+										<div class="stat-label">Expected Remaining Production</div>
+										<div class="stat-value">45.2 mboe</div>
+									</div>
+								</div>
+
+								<div class="asset-meta">
+									<div class="operator">
+										<span class="label">Operator:</span>
+										<span class="value">{item.asset.operator.name}</span>
+									</div>
+									<div class="field-type">
+										<span class="label">Type:</span>
+										<span class="value">{item.asset.technical.fieldType}</span>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				{/if}
+				{/each}
 			</div>
 
 			<!-- Navigation Controls -->
@@ -355,15 +387,34 @@
 		border-radius: 12px;
 		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 		outline: none;
+		touch-action: pan-y;
 	}
 
 	.carousel-wrapper:focus {
 		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), 0 0 0 3px var(--color-primary);
 	}
 
-	.carousel-slide {
+	.carousel-track {
+		display: flex;
 		width: 100%;
-		transition: all 0.6s ease-in-out;
+		transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+		will-change: transform;
+		transform: translateZ(0);
+		backface-visibility: hidden;
+	}
+
+	.carousel-slide {
+		flex: 0 0 100%;
+		width: 100%;
+		position: relative;
+		transition: opacity 0.6s ease, transform 0.6s ease;
+		transform: scale(0.95);
+		opacity: 0.7;
+	}
+
+	.carousel-slide.active {
+		transform: scale(1);
+		opacity: 1;
 	}
 
 	.banner-card {
@@ -373,6 +424,18 @@
 		background: var(--color-white);
 		border: 1px solid var(--color-light-gray);
 		transition: transform 0.3s ease, box-shadow 0.3s ease;
+		animation: slideIn 0.6s ease-out;
+	}
+
+	@keyframes slideIn {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 
 	.carousel-wrapper:hover .banner-card {
@@ -427,6 +490,17 @@
 		font-weight: var(--font-weight-semibold);
 		color: var(--color-secondary);
 		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	}
+
+	.token-contract {
+		font-size: 0.85rem;
+		font-weight: var(--font-weight-medium);
+		color: var(--color-secondary);
+		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+		word-break: break-all;
+		line-height: 1.4;
+		padding: 0.25rem 0;
+		opacity: 0.8;
 	}
 
 	.asset-header {
@@ -493,10 +567,18 @@
 		margin-bottom: 2rem;
 	}
 
-	.token-stats, .asset-stats {
+	.token-stats {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-		gap: 1.5rem;
+		grid-template-rows: repeat(2, 1fr);
+		gap: 1rem;
+		margin-bottom: 2rem;
+	}
+
+	.asset-stats {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 1rem;
 		margin-bottom: 2rem;
 	}
 
@@ -599,6 +681,8 @@
 	.nav-button:hover {
 		background: var(--color-black);
 		transform: translateY(-50%) scale(1.1);
+		backdrop-filter: blur(10px);
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 	}
 
 	.nav-button.prev {
@@ -632,6 +716,7 @@
 	.indicator.active {
 		background: var(--color-white);
 		transform: scale(1.2);
+		box-shadow: 0 2px 8px rgba(255, 255, 255, 0.4);
 	}
 
 	.indicator:hover {
@@ -651,6 +736,10 @@
 		.token-section {
 			border-right: none;
 			border-bottom: 1px solid var(--color-light-gray);
+		}
+
+		.token-contract {
+			font-size: 0.75rem;
 		}
 
 		.token-stats, .asset-stats {
@@ -691,6 +780,10 @@
 			font-size: 1.25rem;
 		}
 
+		.token-contract {
+			font-size: 0.7rem;
+		}
+
 		.action-button {
 			font-size: 0.75rem;
 			padding: 0.6rem 0.8rem;
@@ -704,6 +797,15 @@
 
 		.carousel-wrapper:hover .banner-card {
 			transform: none;
+		}
+
+		.carousel-slide {
+			transform: scale(1);
+			opacity: 1;
+		}
+
+		.carousel-track {
+			transition: transform 0.4s ease;
 		}
 	}
 </style>

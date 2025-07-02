@@ -83,19 +83,14 @@
 		<!-- Platform Stats -->
 		<div class="platform-stats">
 			<div class="stat">
-				<div class="stat-value">{platformStats.totalAssets}</div>
-				<div class="stat-label">Total Assets</div>
-				<div class="stat-note">Across {platformStats.totalRegions} regions</div>
-			</div>
-			<div class="stat">
 				<div class="stat-value">${platformStats.totalInvested.toFixed(1)}M</div>
 				<div class="stat-label">Total Invested</div>
 				<div class="stat-note">{platformStats.monthlyGrowthRate >= 0 ? '+' : ''}{platformStats.monthlyGrowthRate.toFixed(1)}% this month</div>
 			</div>
 			<div class="stat">
-				<div class="stat-value">{platformStats.totalRegions}</div>
-				<div class="stat-label">Regions</div>
-				<div class="stat-note">Operating locations</div>
+				<div class="stat-value">{platformStats.totalAssets}</div>
+				<div class="stat-label">Assets</div>
+				<div class="stat-note">Across {platformStats.totalRegions} regions</div>
 			</div>
 			<div class="stat">
 				<div class="stat-value">{platformStats.activeInvestors.toLocaleString()}</div>
@@ -115,10 +110,6 @@
 	<section class="featured-tokens">
 		<div class="section-header">
 			<h2>Featured Tokens</h2>
-			<div class="live-indicator">
-				<div class="pulse-dot"></div>
-				Live Data
-			</div>
 		</div>
 		
 		<FeaturedTokenCarousel autoPlay={true} autoPlayInterval={6000} />
@@ -179,19 +170,19 @@
 	<section class="market-insights">
 		<div class="insights-content">
 			<div class="insights-text">
-				<h3>Platform Performance</h3>
+				<h3>Market Indicators</h3>
 				<div class="market-data">
 					<div class="data-row">
-						<span>Total Assets Value</span>
-						<span class="price">${(platformStats.totalInvested).toFixed(1)}M</span>
+						<span>WTI Crude Oil</span>
+						<span class="price">$73.45 <span class="change positive">+1.2%</span></span>
 					</div>
 					<div class="data-row">
-						<span>Operating Regions</span>
-						<span class="price">{platformStats.totalRegions}</span>
+						<span>Brent Crude</span>
+						<span class="price">$78.20 <span class="change negative">-0.8%</span></span>
 					</div>
 					<div class="data-row">
-						<span>Platform Growth</span>
-						<span class="price">{platformStats.monthlyGrowthRate >= 0 ? '+' : ''}{platformStats.monthlyGrowthRate.toFixed(1)}% monthly</span>
+						<span>Natural Gas</span>
+						<span class="price">$2.84 <span class="change positive">+0.5%</span></span>
 					</div>
 				</div>
 			</div>
@@ -241,23 +232,16 @@
 
 	.platform-stats {
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: 3rem;
-		max-width: 800px;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 2rem;
+		max-width: 700px;
 		margin: 0 auto 4rem;
-		padding: 3rem;
+		padding: 2rem;
 		border: 1px solid var(--color-light-gray);
 	}
 
 	.stat {
 		text-align: center;
-		padding-right: 3rem;
-		border-right: 1px solid var(--color-light-gray);
-	}
-
-	.stat:last-child {
-		border-right: none;
-		padding-right: 0;
 	}
 
 	.stat-value {
@@ -307,29 +291,6 @@
 		color: var(--color-black);
 	}
 
-	.live-indicator {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.pulse-dot {
-		width: 8px;
-		height: 8px;
-		background: var(--color-primary);
-		border-radius: 50%;
-		animation: pulse 2s infinite;
-	}
-
-	@keyframes pulse {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0.5; }
-	}
 
 
 	.how-it-works {
@@ -456,6 +417,20 @@
 		font-weight: var(--font-weight-extrabold);
 	}
 
+	.change {
+		font-size: 0.8rem;
+		font-weight: var(--font-weight-semibold);
+		margin-left: 0.5rem;
+	}
+
+	.change.positive {
+		color: var(--color-primary);
+	}
+
+	.change.negative {
+		color: #ff4444;
+	}
+
 	.cta-box {
 		text-align: center;
 		padding: 3rem;
@@ -526,8 +501,6 @@
 		}
 
 		.stat {
-			border-right: none;
-			padding-right: 0;
 			border-bottom: 1px solid var(--color-light-gray);
 			padding-bottom: 2rem;
 		}

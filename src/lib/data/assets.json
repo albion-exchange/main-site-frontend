@@ -37,7 +37,7 @@
         "capacity": "2,400 bbl/day",
         "current": "2,400 bbl/day",
         "peak": "3,200 bbl/day",
-        "reserves": "45.2M bbl",
+        "expectedRemainingProduction": "45.2 mboe",
         "drillingDate": "2019-01-15",
         "status": "producing"
       },
@@ -116,7 +116,7 @@
         "capacity": "3,200 bbl/day",
         "current": "2,800 bbl/day",
         "peak": "3,600 bbl/day",
-        "reserves": "62.8M bbl",
+        "expectedRemainingProduction": "62.8 mboe",
         "drillingDate": "2019-11-20",
         "status": "producing"
       },
@@ -194,7 +194,7 @@
         "capacity": "4,200 bbl/day",
         "current": "3,800 bbl/day",
         "peak": "4,800 bbl/day",
-        "reserves": "89.5M bbl",
+        "expectedRemainingProduction": "89.5 mboe",
         "drillingDate": "2020-08-05",
         "status": "producing"
       },
@@ -272,7 +272,7 @@
         "capacity": "8,500 bbl/day",
         "current": "6,200 bbl/day",
         "peak": "9,200 bbl/day",
-        "reserves": "125M bbl",
+        "expectedRemainingProduction": "125 mboe",
         "drillingDate": "2021-05-12",
         "status": "producing"
       },
