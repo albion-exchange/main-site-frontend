@@ -3,47 +3,59 @@
 	import { goto } from '$app/navigation';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Token } from '$lib/types/dataStore';
-import TokenCard from '$lib/components/tokens/TokenCard.svelte';
+	import FeaturedTokenCarousel from '$lib/components/carousel/FeaturedTokenCarousel.svelte';
 
 	let platformStats = {
-		totalAssets: 4,
-		totalInvested: 127.4,
-		averagePayout: 11.3,
-		activeInvestors: 8924
+		totalAssets: 0,
+		totalInvested: 0,
+		averageReturn: 0,
+		activeInvestors: 0,
+		totalRegions: 0,
+		monthlyGrowthRate: 0
 	};
-	let featuredTokens: Token[] = [];
 	let loading = true;
 
 	onMount(async () => {
 		try {
-			// Load tokens from data store
-			const allTokens = dataStoreService.getAllTokens();
 			
-			// Get first 3 royalty tokens as featured
-			featuredTokens = allTokens.filter(token => token.tokenType === 'royalty').slice(0, 3);
-			
-			// Get platform statistics from new token data structure
+			// Get platform statistics from real data
 			const stats = dataStoreService.getPlatformStatistics();
+			const allAssets = dataStoreService.getAllAssets();
+			
+			// Calculate real total invested from asset financial data
+			const totalInvested = allAssets.reduce((sum, asset) => sum + asset.financial.totalValue, 0);
+			
+			// Calculate average return from asset financial data (current payout percentages)
+			const avgReturn = allAssets.length > 0 
+				? allAssets.reduce((sum, asset) => sum + asset.financial.currentPayout, 0) / allAssets.length
+				: 0;
+			
+			// Count unique regions from asset locations
+			const uniqueRegions = new Set(allAssets.map(asset => `${asset.location.state}, ${asset.location.country}`));
+			
+			// Calculate monthly growth rate from recent asset reports
+			let monthlyGrowthRate = 0;
+			const assetsWithReports = allAssets.filter(asset => asset.monthlyReports.length >= 2);
+			if (assetsWithReports.length > 0) {
+				const growthRates = assetsWithReports.map(asset => {
+					const reports = asset.monthlyReports;
+					const latest = reports[reports.length - 1];
+					const previous = reports[reports.length - 2];
+					return ((latest.netIncome - previous.netIncome) / previous.netIncome) * 100;
+				});
+				monthlyGrowthRate = growthRates.reduce((sum, rate) => sum + rate, 0) / growthRates.length;
+			}
 			
 			platformStats = {
 				totalAssets: stats.totalAssets,
-				totalInvested: stats.totalValueLocked / 1000000, // Convert to millions
-				averagePayout: Number(stats.averageYield.toFixed(1)),
-				activeInvestors: stats.totalInvestors
+				totalInvested: totalInvested / 1000000, // Convert to millions
+				averageReturn: Number(avgReturn.toFixed(1)),
+				activeInvestors: stats.totalInvestors,
+				totalRegions: uniqueRegions.size,
+				monthlyGrowthRate: Number(monthlyGrowthRate.toFixed(1))
 			};
 			
 			loading = false;
-			
-			// Animate platform stats on load
-			const interval = setInterval(() => {
-				platformStats = {
-					...platformStats,
-					totalInvested: platformStats.totalInvested + (Math.random() * 0.1),
-					activeInvestors: platformStats.activeInvestors + Math.floor(Math.random() * 2)
-				};
-			}, 5000);
-			
-			return () => clearInterval(interval);
 		} catch (error) {
 			console.error('Error loading homepage data:', error);
 			loading = false;
@@ -79,22 +91,22 @@ import TokenCard from '$lib/components/tokens/TokenCard.svelte';
 			<div class="stat">
 				<div class="stat-value">{platformStats.totalAssets}</div>
 				<div class="stat-label">Total Assets</div>
-				<div class="stat-note">Across 12 regions</div>
+				<div class="stat-note">Across {platformStats.totalRegions} regions</div>
 			</div>
 			<div class="stat">
 				<div class="stat-value">${platformStats.totalInvested.toFixed(1)}M</div>
 				<div class="stat-label">Total Invested</div>
-				<div class="stat-note">+8.2% this month</div>
+				<div class="stat-note">{platformStats.monthlyGrowthRate >= 0 ? '+' : ''}{platformStats.monthlyGrowthRate.toFixed(1)}% this month</div>
 			</div>
 			<div class="stat">
-				<div class="stat-value">{platformStats.averagePayout}%</div>
+				<div class="stat-value">{platformStats.averageReturn}%</div>
 				<div class="stat-label">Average Return</div>
-				<div class="stat-note">Annual IRR</div>
+				<div class="stat-note">Current payout rate</div>
 			</div>
 			<div class="stat">
 				<div class="stat-value">{platformStats.activeInvestors.toLocaleString()}</div>
 				<div class="stat-label">Active Investors</div>
-				<div class="stat-note">Growing daily</div>
+				<div class="stat-note">Token holders</div>
 			</div>
 		</div>
 
@@ -105,21 +117,17 @@ import TokenCard from '$lib/components/tokens/TokenCard.svelte';
 		</div>
 	</section>
 
-	<!-- Featured Assets -->
+	<!-- Featured Tokens Carousel -->
 	<section class="featured-tokens">
 		<div class="section-header">
 			<h2>Featured Tokens</h2>
+			<div class="live-indicator">
+				<div class="pulse-dot"></div>
+				Live Data
+			</div>
 		</div>
 		
-		<div class="tokens-grid">
-			{#if loading}
-				<div class="loading-message">Loading featured tokens...</div>
-			{:else}
-				{#each featuredTokens as token}
-					<TokenCard contractAddress={token.contractAddress} />
-				{/each}
-			{/if}
-		</div>
+		<FeaturedTokenCarousel autoPlay={true} autoPlayInterval={6000} />
 	</section>
 
 	<!-- How It Works -->
@@ -177,26 +185,26 @@ import TokenCard from '$lib/components/tokens/TokenCard.svelte';
 	<section class="market-insights">
 		<div class="insights-content">
 			<div class="insights-text">
-				<h3>Market Insights</h3>
+				<h3>Platform Performance</h3>
 				<div class="market-data">
 					<div class="data-row">
-						<span>WTI Crude Oil</span>
-						<span class="price">$78.45 +2.3%</span>
+						<span>Total Assets Value</span>
+						<span class="price">${(platformStats.totalInvested).toFixed(1)}M</span>
 					</div>
 					<div class="data-row">
-						<span>Brent Crude</span>
-						<span class="price">$82.17 +1.8%</span>
+						<span>Average Return Rate</span>
+						<span class="price">{platformStats.averageReturn}% APY</span>
 					</div>
 					<div class="data-row">
-						<span>Natural Gas</span>
-						<span class="price">$3.24 +4.2%</span>
+						<span>Platform Growth</span>
+						<span class="price">{platformStats.monthlyGrowthRate >= 0 ? '+' : ''}{platformStats.monthlyGrowthRate.toFixed(1)}% monthly</span>
 					</div>
 				</div>
 			</div>
 			
 			<div class="cta-box">
 				<h4>Start Investing Today</h4>
-				<p>Join thousands of investors earning from energy assets</p>
+				<p>Join {platformStats.activeInvestors.toLocaleString()} investors earning from energy assets</p>
 				<a href="/assets" class="btn-primary">Get Started Now</a>
 			</div>
 		</div>
