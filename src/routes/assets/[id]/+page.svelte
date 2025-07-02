@@ -7,12 +7,9 @@
 	let loading = true;
 	let error: string | null = null;
 	let activeTab = 'overview';
-	let investmentAmount = 5000;
-	let selectedTranche = 'A';
 	let unclaimedPayout = 1247.82;
 	let assetData: Asset | null = null;
 	let assetTokens: Token[] = [];
-	let tranches: any[] = [];
 
 
 	function formatCurrency(amount: number): string {
@@ -24,14 +21,6 @@
 		}).format(amount);
 	}
 
-	// Calculate projected returns
-	$: selectedTrancheData = tranches.find(t => t.id === selectedTranche);
-	$: projectedReturns = {
-		tokens: Math.floor(investmentAmount / 10), // $10 per token example
-		monthlyReturn: (investmentAmount * (selectedTrancheData?.payout || 0)) / 100 / 12,
-		annualIRR: (investmentAmount * (selectedTrancheData?.payout || 0)) / 100,
-		payout: selectedTrancheData?.payout || 0
-	};
 
 	onMount(() => {
 		const assetId = $page.params.id;
@@ -51,27 +40,6 @@
 			// Load associated tokens
 			const tokens = dataStoreService.getTokensByAssetId(assetId);
 			assetTokens = tokens;
-			
-			// Convert token data to tranches format for the UI
-			tranches = tokens
-				.filter(token => token.tokenType === 'royalty' && token.isActive)
-				.map(token => {
-					const supply = dataStoreService.getTokenSupply(token.contractAddress);
-					return {
-						id: token.symbol,
-						name: token.name,
-						payout: 13.5, // Mock payout rate
-						minInvestment: 1000, // Mock minimum investment
-						available: supply?.availableSupply || 0,
-						sold: supply?.mintedSupply || 0,
-						terms: `13.5% estimated annual IRR`
-					};
-				});
-			
-			// Set default tranche if available
-			if (tranches.length > 0) {
-				selectedTranche = tranches[0].id;
-			}
 			
 			loading = false;
 		} catch (err) {
@@ -125,102 +93,26 @@
 						</div>
 					</div>
 				</div>
-				<div class="oil-price">
-					<div class="price">WTI: $78.45</div>
-					<div class="price-change">📈 +2.3%</div>
-				</div>
 			</div>
 
 			<div class="asset-metrics">
-				<div class="metric">
-					<div class="metric-value">${((assetData?.financial.totalValue || 0) / 1000000).toFixed(1)}M</div>
-					<div class="metric-label">Total Value</div>
-				</div>
-				<div class="metric">
-					<div class="metric-value">{assetData?.financial.currentPayout}%</div>
-					<div class="metric-label">Current Payout</div>
-				</div>
 				<div class="metric">
 					<div class="metric-value">{assetData?.production.current}</div>
 					<div class="metric-label">Current Production</div>
 				</div>
 				<div class="metric">
+					<div class="metric-value">{assetData?.monthlyReports?.[0]?.netIncome 
+						? (assetData.monthlyReports[0].netIncome >= 1000000 
+							? '$' + (assetData.monthlyReports[0].netIncome / 1000000).toFixed(2) + 'M'
+							: '$' + (assetData.monthlyReports[0].netIncome / 1000).toFixed(0) + 'K')
+						: '$127K'}</div>
+					<div class="metric-label">Last Monthly Distribution</div>
+				</div>
+				<div class="metric">
 					<div class="metric-value">{assetData?.investment.investorCount}</div>
 					<div class="metric-label">Investors</div>
 				</div>
-				<div class="metric">
-					<div class="metric-value">{assetData?.investment.daysToFunding}</div>
-					<div class="metric-label">Days to Close</div>
-				</div>
 			</div>
-		</div>
-
-		<!-- Investment Calculator -->
-		<div class="investment-calculator">
-			<h3>Investment Calculator</h3>
-			
-			<!-- Tranche Selection -->
-			<div class="tranche-selection">
-				<div class="section-label">Select Tranche</div>
-				<div class="tranches">
-					{#each tranches as tranche}
-						<label class="tranche-option">
-							<input 
-								type="radio" 
-								name="tranche" 
-								value={tranche.id}
-								bind:group={selectedTranche}
-							/>
-							<div class="tranche-info">
-								<div class="tranche-name">{tranche.name}</div>
-								<div class="tranche-details">{tranche.payout}% payout • Min {formatCurrency(tranche.minInvestment)}</div>
-							</div>
-						</label>
-					{/each}
-				</div>
-			</div>
-
-			<!-- Investment Amount -->
-			<div class="investment-amount">
-				<label class="section-label" for="amount">Investment Amount</label>
-				<input 
-					id="amount"
-					type="number" 
-					bind:value={investmentAmount}
-					min={selectedTrancheData?.minInvestment || 1000}
-					class="amount-input"
-				/>
-			</div>
-
-			<!-- Projected Returns -->
-			<div class="projected-returns">
-				<h4>Projected Returns</h4>
-				<div class="returns-grid">
-					<div class="return-metric">
-						<div class="return-value">{projectedReturns.tokens.toLocaleString()}</div>
-						<div class="return-label">Tokens</div>
-					</div>
-					<div class="return-metric">
-						<div class="return-value">{projectedReturns.payout}%</div>
-						<div class="return-label">IRR</div>
-					</div>
-				</div>
-				<div class="return-breakdown">
-					<div class="breakdown-row">
-						<span>Monthly Est.</span>
-						<span>{formatCurrency(projectedReturns.monthlyReturn)}</span>
-					</div>
-					<div class="breakdown-row">
-						<span>Annual IRR Est.</span>
-						<span>{formatCurrency(projectedReturns.annualIRR)}</span>
-					</div>
-				</div>
-			</div>
-
-			<!-- Invest Button -->
-			<a href="/buy-tokens?asset={assetData?.id}" class="invest-btn">
-				Buy Tokens for {assetData?.name}
-			</a>
 		</div>
 
 		<!-- Tabs Navigation -->
@@ -296,8 +188,8 @@
 										<span>{assetData?.production.peak}</span>
 									</div>
 									<div class="detail-row">
-										<span>Proven Reserves</span>
-										<span>{assetData?.production.reserves}</span>
+										<span>Expected Remaining Production</span>
+										<span>{assetData?.production.expectedRemainingProduction}</span>
 									</div>
 									<div class="detail-row">
 										<span>Operating Costs</span>
@@ -632,7 +524,7 @@
 
 	.asset-metrics {
 		display: grid;
-		grid-template-columns: repeat(5, 1fr);
+		grid-template-columns: repeat(3, 1fr);
 		gap: 2rem;
 	}
 
@@ -662,168 +554,6 @@
 		letter-spacing: 0.05em;
 	}
 
-	/* Investment Calculator */
-	.investment-calculator {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-		margin-bottom: 2rem;
-	}
-
-	.investment-calculator h3 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 2rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.section-label {
-		display: block;
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin-bottom: 1rem;
-	}
-
-	.tranches {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		margin-bottom: 2rem;
-	}
-
-	.tranche-option {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		cursor: pointer;
-	}
-
-	.tranche-info {
-		flex: 1;
-	}
-
-	.tranche-name {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		font-size: 0.9rem;
-	}
-
-	.tranche-details {
-		font-size: 0.75rem;
-		color: var(--color-black);
-		font-weight: var(--font-weight-medium);
-	}
-
-	.investment-amount {
-		margin-bottom: 2rem;
-	}
-
-	.amount-input {
-		width: 100%;
-		padding: 1rem;
-		border: 1px solid var(--color-light-gray);
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-bold);
-		font-size: 1.1rem;
-		background: var(--color-white);
-		color: var(--color-black);
-	}
-
-	.amount-input:focus {
-		outline: none;
-		border-color: var(--color-black);
-	}
-
-	.projected-returns {
-		background: var(--color-light-gray);
-		border: 1px solid var(--color-light-gray);
-		padding: 1.5rem;
-		margin-bottom: 2rem;
-	}
-
-	.projected-returns h4 {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1rem;
-		text-transform: uppercase;
-		font-size: 0.9rem;
-		letter-spacing: 0.05em;
-	}
-
-	.returns-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 2rem;
-		margin-bottom: 1rem;
-	}
-
-	.return-metric {
-		text-align: center;
-	}
-
-	.return-value {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.25rem;
-	}
-
-	.return-label {
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.return-breakdown {
-		border-top: 1px solid var(--color-light-gray);
-		padding-top: 1rem;
-	}
-
-	.breakdown-row {
-		display: flex;
-		justify-content: space-between;
-		margin-bottom: 0.5rem;
-		font-size: 0.85rem;
-	}
-
-	.breakdown-row span:first-child {
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-	}
-
-	.breakdown-row span:last-child {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-primary);
-	}
-
-	.invest-btn {
-		display: block;
-		width: 100%;
-		background: var(--color-black);
-		color: var(--color-white);
-		border: none;
-		padding: 1rem;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-extrabold);
-		font-size: 1.1rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		text-decoration: none;
-		text-align: center;
-		cursor: pointer;
-		transition: background-color 0.2s ease;
-	}
-
-	.invest-btn:hover {
-		background: var(--color-secondary);
-	}
 
 	/* Tabs */
 	.tabs-container {
