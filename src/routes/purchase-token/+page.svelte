@@ -151,12 +151,12 @@
 			};
 		}
 		
-		const tokens = Math.floor(investmentAmount / 10); // $10 per token
+		const tokens = Math.floor(investmentAmount / 1); // $1 per token
 		const annualPayout = 0; // Remove payout calculations
 		const monthlyPayout = 0; // Remove payout calculations
-		const platformFee = investmentAmount * 0.005; // 0.5% platform fee
-		const gasFee = 25.00; // Estimated gas fee
-		const totalCost = investmentAmount + platformFee + gasFee;
+		const platformFee = 0; // FREE during launch
+		const gasFee = 0; // No gas fee shown
+		const totalCost = investmentAmount;
 		
 		return {
 			tokens,
@@ -196,13 +196,40 @@
 
 	function canProceed(): boolean {
 		if (currentStep === 1) {
-			return order.tranche && investmentAmount >= order.tranche.minInvestment;
+			return investmentAmount >= 1;
 		} else if (currentStep === 2) {
 			return userBalance >= order.totalCost;
 		} else if (currentStep === 3) {
 			return agreedToTerms;
 		}
 		return false;
+	}
+
+	function getTokenData() {
+		const urlParams = new URLSearchParams(window.location.search);
+		const tokenAddress = urlParams.get('token');
+		return tokenAddress ? dataStoreService.getTokenByAddress(tokenAddress) : null;
+	}
+
+	function calculateBarrelsPerToken() {
+		if (!assetData || !order.tranche) return 0;
+		
+		// Get the royalty percentage from asset terms (e.g., "4.5% of gross")
+		const royaltyMatch = assetData.assetTerms?.amount?.match(/([\d.]+)%/);
+		const royaltyPercentage = royaltyMatch ? parseFloat(royaltyMatch[1]) : 0;
+		
+		if (!royaltyPercentage || !assetData.technical?.estimatedReserves) return 0;
+		
+		// Get total supply from token data
+		const tokenData = getTokenData();
+		const maxSupply = tokenData?.supply?.maxSupply || '0';
+		const totalTokens = parseInt(maxSupply) / 1e18; // Convert from wei to tokens
+		
+		if (totalTokens === 0) return 0;
+		
+		// Calculate barrels per token
+		const totalRoyaltyBarrels = (assetData.technical.estimatedReserves * royaltyPercentage) / 100;
+		return totalRoyaltyBarrels / totalTokens;
 	}
 </script>
 
@@ -245,13 +272,12 @@
 		<!-- Header -->
 		<div class="page-header">
 			<div class="asset-info">
-				<h1>{assetData?.name || 'Asset Purchase'}</h1>
-				<p class="asset-location">📍 {assetData?.location.state}, {assetData?.location.country}</p>
-			</div>
-			<div class="step-indicator">
-				<span class="step" class:active={currentStep >= 1}>1. Select</span>
-				<span class="step" class:active={currentStep >= 2}>2. Payment</span>
-				<span class="step" class:active={currentStep >= 3}>3. Confirm</span>
+				{#if order.tranche}
+					<h1>{order.tranche.name}</h1>
+					<a href="/assets/{assetData?.id}" class="asset-link">{assetData?.name}</a>
+				{:else}
+					<h1>Purchase Tokens</h1>
+				{/if}
 			</div>
 		</div>
 
@@ -259,49 +285,19 @@
 			<!-- Left Column: Configuration -->
 			<div class="configuration-panel">
 				{#if currentStep === 1}
-					<h3>Select Token & Amount</h3>
+					<h3>Investment Amount</h3>
 					
-					<!-- Token Selection -->
-					<div class="section">
-						<div class="section-label">Token Type</div>
-						{#if tranches && tranches.length > 0}
-							<div class="token-options">
-								{#each tranches as tranche}
-									<label class="token-option">
-										<input 
-											type="radio" 
-											name="tranche" 
-											value={tranche.id}
-											bind:group={selectedTranche}
-										/>
-										<div class="token-info">
-											<div class="token-name">{tranche.name}</div>
-											<div class="token-details">Min {formatCurrency(tranche.minInvestment)}</div>
-										</div>
-									</label>
-								{/each}
-							</div>
-						{:else}
-							<div class="no-tokens">
-								<p>No tokens available for this asset.</p>
-							</div>
-						{/if}
-					</div>
-
 					<!-- Investment Amount -->
-					{#if order.tranche}
-						<div class="section">
-							<label class="section-label" for="amount">Investment Amount</label>
-							<input 
-								id="amount"
-								type="number" 
-								bind:value={investmentAmount}
-								min={order.tranche.minInvestment}
-								class="amount-input"
-							/>
-							<p class="input-note">Minimum: {formatCurrency(order.tranche.minInvestment)}</p>
-						</div>
-					{/if}
+					<div class="section">
+						<label class="section-label" for="amount">Investment Amount</label>
+						<input 
+							id="amount"
+							type="number" 
+							bind:value={investmentAmount}
+							min={1}
+							class="amount-input"
+						/>
+					</div>
 
 				{:else if currentStep === 2}
 					<h3>Payment Method</h3>
@@ -383,12 +379,8 @@
 						<span>{formatCurrency(investmentAmount)}</span>
 					</div>
 					<div class="summary-row">
-						<span>Platform Fee (0.5%)</span>
-						<span>{formatCurrency(order.platformFee)}</span>
-					</div>
-					<div class="summary-row">
-						<span>Gas Fee</span>
-						<span>{formatCurrency(order.gasFee)}</span>
+						<span>Platform Fee <span class="strikethrough">(0.5%)</span></span>
+						<span class="free-text">FREE</span>
 					</div>
 					<div class="summary-row total">
 						<span>Total Cost</span>
@@ -403,6 +395,48 @@
 						<div class="info-value">{order.tokens.toLocaleString()}</div>
 					</div>
 				</div>
+
+				<!-- Token Terms -->
+				<div class="token-terms">
+					<h4>Token Terms</h4>
+					<div class="terms-item">
+						<div class="terms-label">Payout Structure</div>
+						<div class="terms-value">Payouts split evenly between all tokens</div>
+					</div>
+					{#if assetData?.assetTerms?.amount}
+						<div class="terms-item">
+							<div class="terms-label">Share of Asset</div>
+							<div class="terms-value">{assetData.assetTerms.amount}</div>
+						</div>
+					{/if}
+					{#if calculateBarrelsPerToken() > 0}
+						<div class="terms-item">
+							<div class="terms-label">Implied Barrels/Token</div>
+							<div class="terms-value">{calculateBarrelsPerToken().toFixed(4)} barrels</div>
+						</div>
+					{/if}
+				</div>
+
+				<!-- Distribution History -->
+				{#if getTokenData()?.payoutHistory && getTokenData().payoutHistory.length > 0}
+					<div class="distribution-history">
+						<h4>Distribution History</h4>
+						<div class="history-table">
+							<div class="history-header">
+								<span>Month</span>
+								<span>$/Token</span>
+								<span>Oil Price</span>
+							</div>
+							{#each getTokenData().payoutHistory.slice(0, 6) as payout}
+								<div class="history-row">
+									<span>{payout.month}</span>
+									<span>${payout.payoutPerToken.toFixed(5)}</span>
+									<span>{formatCurrency(payout.oilPrice)}</span>
+								</div>
+							{/each}
+						</div>
+					</div>
+				{/if}
 			</div>
 		</div>
 	{/if}
@@ -512,6 +546,28 @@
 		color: var(--color-secondary);
 		font-weight: var(--font-weight-medium);
 		font-size: 0.9rem;
+	}
+
+	.asset-link {
+		color: var(--color-primary);
+		text-decoration: none;
+		font-weight: var(--font-weight-medium);
+		font-size: 1rem;
+		transition: color 0.2s ease;
+	}
+
+	.asset-link:hover {
+		color: var(--color-secondary);
+	}
+
+	.strikethrough {
+		text-decoration: line-through;
+		color: #c33;
+	}
+
+	.free-text {
+		color: #c33;
+		font-weight: var(--font-weight-extrabold);
 	}
 
 	.step-indicator {
@@ -717,6 +773,82 @@
 		font-size: 0.8rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-primary);
+	}
+
+	.token-terms,
+	.distribution-history {
+		margin-top: 2rem;
+		padding-top: 2rem;
+		border-top: 1px solid var(--color-light-gray);
+	}
+
+	.token-terms h4,
+	.distribution-history h4 {
+		font-size: 1rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin-bottom: 1rem;
+	}
+
+	.terms-item {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 0.75rem;
+	}
+
+	.terms-label {
+		font-size: 0.8rem;
+		font-weight: var(--font-weight-semibold);
+		color: var(--color-black);
+	}
+
+	.terms-value {
+		font-size: 0.8rem;
+		font-weight: var(--font-weight-medium);
+		color: var(--color-secondary);
+		text-align: right;
+	}
+
+	.history-table {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.history-header {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 1rem;
+		padding: 0.5rem 0;
+		border-bottom: 1px solid var(--color-light-gray);
+		font-size: 0.75rem;
+		font-weight: var(--font-weight-semibold);
+		color: var(--color-black);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.history-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 1rem;
+		padding: 0.5rem 0;
+		font-size: 0.8rem;
+	}
+
+	.history-row span:first-child {
+		font-weight: var(--font-weight-medium);
+		color: var(--color-black);
+	}
+
+	.history-row span:nth-child(2) {
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-primary);
+	}
+
+	.history-row span:last-child {
+		font-weight: var(--font-weight-medium);
+		color: var(--color-secondary);
 	}
 
 	.no-tokens {
