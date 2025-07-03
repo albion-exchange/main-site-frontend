@@ -63,16 +63,20 @@
 	
 	<CardContent>
 		<header>
-			<h3 class="asset-name">{asset.name}</h3>
-			<p class="asset-location">{asset.location.state}, {asset.location.country}</p>
+			<div class="header-main">
+				<div class="name-location">
+					<h3 class="asset-name">{asset.name}</h3>
+					<p class="asset-location">{asset.location.state}, {asset.location.country}</p>
+				</div>
+				<div class="operator">
+					<span class="operator-label">Operator</span>
+					<span class="operator-name">{asset.operator.name}</span>
+				</div>
+			</div>
 		</header>
 		
 		<!-- Highlighted Big Stats -->
 		<div class="highlighted-stats">
-			<div class="highlight-stat">
-				<span class="highlight-value">{asset.production.current}</span>
-				<span class="highlight-label">Current Production</span>
-			</div>
 			<div class="highlight-stat">
 				<span class="highlight-value">{asset.production.expectedRemainingProduction}</span>
 				<span class="highlight-label">Expected Remaining</span>
@@ -81,48 +85,54 @@
 				<span class="highlight-value">{formatEndDate(asset.technical.expectedEndDate)}</span>
 				<span class="highlight-label">Expected End Date</span>
 			</div>
+			{#if latestReport}
+				<div class="highlight-stat">
+					<span class="highlight-value">{formatCurrency(latestReport.netIncome)}</span>
+					<span class="highlight-label">Latest Payment</span>
+				</div>
+			{/if}
 		</div>
 		
 		<p class="asset-description">{asset.description}</p>
 		
-		<div class="asset-stats">
-			<div class="stat">
-				<span class="stat-label">Status</span>
-				<span class="stat-value">{asset.production.status}</span>
-			</div>
-			
-			{#if latestReport}
-				<div class="stat">
-					<span class="stat-label">Latest Month</span>
-					<span class="stat-value">{formatCurrency(latestReport.netIncome)}</span>
-				</div>
-			{/if}
-			
-			<div class="stat">
-				<span class="stat-label">Share of Asset</span>
-				<span class="stat-value">{shareOfAsset}</span>
-			</div>
-			
-			<div class="stat">
-				<span class="stat-label">Operator</span>
-				<span class="stat-value">{asset.operator.name}</span>
-			</div>
+		<!-- View Details Button -->
+		<div class="view-details-section">
+			<PrimaryButton href="/assets/{asset.id}" fullWidth on:click={(e) => e.stopPropagation()}>
+				View details and buy
+			</PrimaryButton>
 		</div>
+
+		<!-- Available Tokens Section -->
+		{#if royaltyTokens.length > 0}
+			<div class="tokens-section">
+				<h4 class="tokens-title">Available Tokens ({royaltyTokens.length})</h4>
+				<div class="tokens-list" class:scrollable={royaltyTokens.length > 2}>
+					{#each royaltyTokens as token}
+						{@const supply = dataStoreService.getTokenSupply(token.contractAddress)}
+						{@const baseReturn = token.estimatedReturns?.baseCase || 0}
+						{@const bonusReturn = token.estimatedReturns?.bonusCase || 0}
+						{@const combinedReturn = baseReturn + bonusReturn}
+						<div class="token-item">
+							<div class="token-info">
+								<span class="token-symbol">{token.symbol}</span>
+								<span class="token-name">{token.name}</span>
+							</div>
+							<div class="token-metrics">
+								<div class="metric">
+									<span class="metric-label">Est. Return</span>
+									<span class="metric-value">{combinedReturn}%</span>
+								</div>
+								<div class="metric">
+									<span class="metric-label">Available</span>
+									<span class="metric-value">{formatNumber(supply?.availableSupply || 0)}</span>
+								</div>
+							</div>
+						</div>
+					{/each}
+				</div>
+			</div>
+		{/if}
 		
-		<CardActions>
-			<SecondaryButton href="/assets/{asset.id}" on:click={(e) => e.stopPropagation()}>
-				View Details
-			</SecondaryButton>
-			{#if royaltyTokens.length > 0}
-				<PrimaryButton on:click={(e) => { e.stopPropagation(); handleBuyTokens(); }}>
-					Buy Tokens
-				</PrimaryButton>
-			{:else}
-				<SecondaryButton disabled>
-					No Tokens Available
-				</SecondaryButton>
-			{/if}
-		</CardActions>
 	</CardContent>
 </Card>
 
@@ -131,7 +141,7 @@
 
 	.highlighted-stats {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
 		gap: 1rem;
 		margin: 1rem 0 1.5rem 0;
 		padding: 1rem;
@@ -165,11 +175,48 @@
 		margin-bottom: 1rem;
 	}
 
+	.header-main {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 1rem;
+	}
+
+	.name-location {
+		flex: 1;
+	}
+
+	.operator {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		text-align: right;
+	}
+
+	.operator-label {
+		font-size: 0.75rem;
+		color: #718096;
+		text-transform: uppercase;
+		font-weight: 500;
+		letter-spacing: 0.05em;
+		margin-bottom: 0.25rem;
+	}
+
+	.operator-name {
+		font-size: 0.875rem;
+		color: #1a202c;
+		font-weight: 600;
+	}
+
 	.asset-name {
 		font-size: 1.25rem;
 		font-weight: 600;
 		color: #1a202c;
 		margin: 0 0 0.5rem 0;
+		min-height: 3.125rem; /* Reserve space for exactly 2 lines (1.25rem * 2 + extra space) */
+		line-height: 1.25;
+		display: flex;
+		align-items: flex-start;
 	}
 
 	.asset-location {
@@ -189,52 +236,132 @@
 		overflow: hidden;
 	}
 
-	.asset-stats {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 1rem;
+	.view-details-section {
+		margin: 1.5rem 0;
 	}
-	
-	@media (min-width: 400px) {
-		.asset-stats {
-			grid-template-columns: repeat(3, 1fr);
-		}
+
+	.tokens-section {
+		margin: 1.5rem 0;
+	}
+
+	.tokens-title {
+		font-size: 1rem;
+		font-weight: 600;
+		color: #1a202c;
+		margin: 0 0 1rem 0;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.tokens-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.tokens-list.scrollable {
+		max-height: calc(2 * (4rem + 0.75rem)); /* Height for 2 items (4rem each) + gaps (0.75rem each) */
+		overflow-y: auto;
+		padding-right: 0.5rem;
+	}
+
+	.tokens-list.scrollable::-webkit-scrollbar {
+		width: 4px;
+	}
+
+	.tokens-list.scrollable::-webkit-scrollbar-track {
+		background: #f1f1f1;
+		border-radius: 2px;
+	}
+
+	.tokens-list.scrollable::-webkit-scrollbar-thumb {
+		background: #c1c1c1;
+		border-radius: 2px;
+	}
+
+	.tokens-list.scrollable::-webkit-scrollbar-thumb:hover {
+		background: #a8a8a8;
+	}
+
+	.token-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.75rem;
+		background: #f8f4f4;
+		border-radius: 4px;
+	}
+
+	.token-info {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.token-symbol {
+		font-weight: 700;
+		font-size: 0.875rem;
+		color: #1a202c;
+		text-transform: uppercase;
+	}
+
+	.token-name {
+		font-size: 0.75rem;
+		color: #718096;
+		line-height: 1.2;
+	}
+
+	.token-metrics {
+		display: flex;
+		gap: 2rem;
+	}
+
+	.metric {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		text-align: right;
+	}
+
+	.metric-label {
+		font-size: 0.75rem;
+		color: #718096;
+		text-transform: uppercase;
+		font-weight: 500;
+		letter-spacing: 0.05em;
+		margin-bottom: 0.25rem;
+	}
+
+	.metric-value {
+		font-size: 0.875rem;
+		color: #1a202c;
+		font-weight: 600;
 	}
 
 	@media (max-width: 400px) {
 		.highlighted-stats {
-			grid-template-columns: 1fr;
+			grid-template-columns: repeat(2, 1fr);
 			gap: 0.75rem;
 		}
 		
 		.highlight-value {
 			font-size: 1.1rem;
 		}
+
+		.header-main {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+
+		.operator {
+			align-items: flex-start;
+			text-align: left;
+		}
+
+		.token-metrics {
+			gap: 1rem;
+		}
 	}
 
-	.stat {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.stat-label {
-		font-size: 0.75rem;
-		color: #718096;
-		text-transform: uppercase;
-		font-weight: 500;
-		letter-spacing: 0.05em;
-	}
-
-	.stat-value {
-		font-size: 0.875rem;
-		color: #1a202c;
-		font-weight: 600;
-		margin-top: 0.25rem;
-	}
-
-	/* Asset actions spacing */
-	:global(.card-actions) {
-		margin-top: 1.5rem;
-	}
 
 </style>

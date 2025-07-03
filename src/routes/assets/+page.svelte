@@ -5,7 +5,7 @@
 	import AssetCard from '$lib/components/assets/AssetCard.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
 
-	let viewMode = 'grid'; // grid or list
+	let viewMode = 'grid';
 	let loading = true;
 	let allAssets: Asset[] = [];
 	
@@ -69,70 +69,16 @@
 		</div>
 	{:else}
 
-		<!-- View Controls -->
-		<div class="controls-section">
-			<div class="asset-count-section">
-				<span class="asset-count">
-					{allAssets.length} assets
-				</span>
-			</div>
-			<div class="view-controls">
-				<span class="control-label">View:</span>
-				<button 
-					class="view-btn"
-					class:active={viewMode === 'grid'}
-					on:click={() => viewMode = 'grid'}
-				>
-					Grid
-				</button>
-				<button 
-					class="view-btn"
-					class:active={viewMode === 'list'}
-					on:click={() => viewMode = 'list'}
-				>
-					List
-				</button>
-			</div>
-		</div>
-
 		<!-- Assets Display -->
 		{#if filteredAssets.length === 0}
 			<div class="empty-state">
 				<h3>No Assets Found</h3>
 				<p>Try adjusting your search criteria or filters to find assets.</p>
 			</div>
-		{:else if viewMode === 'grid'}
+		{:else}
 			<div class="assets-grid">
 				{#each filteredAssets as asset}
 					<AssetCard {asset} on:buyTokens={handleBuyTokens} />
-				{/each}
-			</div>
-		{:else}
-			<div class="assets-list">
-				{#each filteredAssets as asset}
-					<article class="asset-list-item">
-						<div class="list-asset-info">
-							<h4>{asset.name}</h4>
-							<p>{asset.location.state}, {asset.location.country}</p>
-						</div>
-						<div class="list-payout">
-							<div class="metric-value">{asset.production.capacity}</div>
-							<div class="metric-label">Production</div>
-						</div>
-						<div class="list-value">
-							<div class="metric-value">{asset.production.expectedRemainingProduction}</div>
-							<div class="metric-label">Expected Production</div>
-						</div>
-						<div class="list-status">
-							<span class="status-badge" class:producing={asset.production.status === 'producing'} class:funding={asset.production.status === 'funding'}>
-								{asset.production.status.toUpperCase()}
-							</span>
-						</div>
-						<div class="list-actions">
-							<a href="/buy-tokens?asset={asset.id}" class="btn-primary-small">Buy Tokens</a>
-							<a href="/assets/{asset.id}" class="btn-secondary-small">View</a>
-						</div>
-					</article>
 				{/each}
 			</div>
 		{/if}

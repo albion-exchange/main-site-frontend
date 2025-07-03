@@ -30,7 +30,7 @@
 				
 				<div class="nav-links">
 					<a href="/" class:active={currentPath === '/'}>Home</a>
-					<a href="/assets" class:active={currentPath.startsWith('/assets')}>Assets</a>
+					<a href="/assets" class:active={currentPath.startsWith('/assets')}>Invest</a>
 					<a href="/portfolio" class:active={currentPath === '/portfolio'}>Portfolio</a>
 					<a href="/claims" class:active={currentPath === '/claims'}>Claims</a>
 				</div>
@@ -50,7 +50,6 @@
 							Connect Wallet
 						{/if}
 					</SecondaryButton>
-					<PrimaryButton href="/buy-tokens">Buy Tokens</PrimaryButton>
 				</div>
 			</div>
 		</nav>
