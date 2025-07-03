@@ -8,6 +8,7 @@
 	let viewMode = 'grid';
 	let loading = true;
 	let allAssets: Asset[] = [];
+	let showSoldOutAssets = false;
 	
 	// Token purchase widget state
 	let showPurchaseWidget = false;
@@ -33,8 +34,22 @@
 		}).format(amount);
 	}
 
-	// Return all assets without sorting
-	$: filteredAssets = allAssets;
+	// Check if an asset has available tokens
+	function hasAvailableTokens(asset: Asset): boolean {
+		const tokens = dataStoreService.getTokensByAssetId(asset.id).filter(token => token.tokenType === 'royalty');
+		return tokens.some(token => {
+			const supply = dataStoreService.getTokenSupply(token.contractAddress);
+			return supply && supply.availableSupply > 0;
+		});
+	}
+	
+	// Filter assets based on availability
+	$: filteredAssets = showSoldOutAssets 
+		? allAssets 
+		: allAssets.filter(asset => hasAvailableTokens(asset));
+	
+	// Count sold out assets
+	$: soldOutCount = allAssets.filter(asset => !hasAvailableTokens(asset)).length;
 	
 	function handleBuyTokens(event) {
 		selectedAssetId = event.detail.assetId;
@@ -70,7 +85,12 @@
 	{:else}
 
 		<!-- Assets Display -->
-		{#if filteredAssets.length === 0}
+		{#if filteredAssets.length === 0 && !showSoldOutAssets}
+			<div class="empty-state">
+				<h3>No Available Assets</h3>
+				<p>All assets are currently sold out.</p>
+			</div>
+		{:else if filteredAssets.length === 0}
 			<div class="empty-state">
 				<h3>No Assets Found</h3>
 				<p>Try adjusting your search criteria or filters to find assets.</p>
@@ -80,6 +100,21 @@
 				{#each filteredAssets as asset}
 					<AssetCard {asset} on:buyTokens={handleBuyTokens} />
 				{/each}
+			</div>
+		{/if}
+		
+		<!-- View Previous Assets Button -->
+		{#if soldOutCount > 0 && !showSoldOutAssets}
+			<div class="view-previous-section">
+				<button class="view-previous-btn" on:click={() => showSoldOutAssets = true}>
+					View previous assets ({soldOutCount})
+				</button>
+			</div>
+		{:else if showSoldOutAssets && soldOutCount > 0}
+			<div class="view-previous-section">
+				<button class="view-previous-btn" on:click={() => showSoldOutAssets = false}>
+					Hide sold out assets
+				</button>
 			</div>
 		{/if}
 	{/if}
@@ -543,6 +578,33 @@
 	.btn-secondary-small:hover {
 		background: var(--color-secondary);
 		color: var(--color-white);
+	}
+
+	.view-previous-section {
+		text-align: center;
+		margin-top: 3rem;
+		padding: 2rem 0;
+	}
+
+	.view-previous-btn {
+		background: var(--color-white);
+		color: var(--color-black);
+		border: 2px solid var(--color-black);
+		padding: 1rem 2rem;
+		font-size: 1rem;
+		font-weight: var(--font-weight-semibold);
+		font-family: var(--font-family);
+		cursor: pointer;
+		transition: all 0.2s ease;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		border-radius: 0;
+	}
+
+	.view-previous-btn:hover {
+		background: var(--color-primary);
+		color: var(--color-white);
+		border-color: var(--color-primary);
 	}
 
 	@media (max-width: 768px) {

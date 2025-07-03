@@ -5,6 +5,7 @@
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/ui';
 
 	export let asset: Asset;
+	export let showSoldOut: boolean = true;
 	
 	const dispatch = createEventDispatcher();
 
@@ -14,6 +15,12 @@
 	// Get the primary royalty token for this asset (first royalty token found)
 	$: royaltyTokens = dataStoreService.getTokensByAssetId(asset.id).filter(token => token.tokenType === 'royalty');
 	$: primaryToken = royaltyTokens.length > 0 ? royaltyTokens[0] : null;
+	
+	// Check if any tokens are available
+	$: hasAvailableTokens = royaltyTokens.some(token => {
+		const supply = dataStoreService.getTokenSupply(token.contractAddress);
+		return supply && supply.availableSupply > 0;
+	});
 
 	// Extract token data with fallbacks
 	$: shareOfAsset = primaryToken?.assetShare?.sharePercentage ? `${primaryToken.assetShare.sharePercentage}%` : 'TBD';
@@ -98,7 +105,7 @@
 		<!-- View Details Button -->
 		<div class="view-details-section">
 			<PrimaryButton href="/assets/{asset.id}" fullWidth on:click={(e) => e.stopPropagation()}>
-				View details and buy
+				{hasAvailableTokens ? 'View details and buy tokens' : 'View details'}
 			</PrimaryButton>
 		</div>
 
