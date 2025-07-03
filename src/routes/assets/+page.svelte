@@ -3,10 +3,15 @@
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Asset } from '$lib/types/dataStore';
 	import AssetCard from '$lib/components/assets/AssetCard.svelte';
+	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
 
 	let viewMode = 'grid'; // grid or list
 	let loading = true;
 	let allAssets: Asset[] = [];
+	
+	// Token purchase widget state
+	let showPurchaseWidget = false;
+	let selectedAssetId = null;
 
 	onMount(async () => {
 		try {
@@ -30,6 +35,21 @@
 
 	// Return all assets without sorting
 	$: filteredAssets = allAssets;
+	
+	function handleBuyTokens(event) {
+		selectedAssetId = event.detail.assetId;
+		showPurchaseWidget = true;
+	}
+	
+	function handlePurchaseSuccess(event) {
+		console.log('Purchase successful:', event.detail);
+		showPurchaseWidget = false;
+	}
+	
+	function handleWidgetClose() {
+		showPurchaseWidget = false;
+		selectedAssetId = null;
+	}
 </script>
 
 <svelte:head>
@@ -84,7 +104,7 @@
 		{:else if viewMode === 'grid'}
 			<div class="assets-grid">
 				{#each filteredAssets as asset}
-					<AssetCard {asset} />
+					<AssetCard {asset} on:buyTokens={handleBuyTokens} />
 				{/each}
 			</div>
 		{:else}
@@ -628,3 +648,11 @@
 		}
 	}
 </style>
+
+<!-- Token Purchase Widget -->
+<TokenPurchaseWidget 
+	bind:isOpen={showPurchaseWidget}
+	assetId={selectedAssetId}
+	on:purchaseSuccess={handlePurchaseSuccess}
+	on:close={handleWidgetClose}
+/>

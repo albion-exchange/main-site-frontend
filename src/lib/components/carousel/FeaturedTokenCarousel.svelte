@@ -1,10 +1,13 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Token, Asset } from '$lib/types/dataStore';
+	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
 
 	export let autoPlay = true;
 	export let autoPlayInterval = 5000;
+	
+	const dispatch = createEventDispatcher();
 
 	let currentIndex = 0;
 	let featuredTokensWithAssets: Array<{ token: Token; asset: Asset }> = [];
@@ -144,6 +147,10 @@
 			}
 		}
 	}
+	
+	function handleMintTokens(tokenAddress: string) {
+		dispatch('mintTokens', { tokenAddress });
+	}
 
 	function formatCurrency(amount: number): string {
 		return new Intl.NumberFormat('en-US', {
@@ -266,12 +273,12 @@
 								</div>
 
 								<div class="token-actions">
-									<a href="/purchase-token?token={item.token.contractAddress}" class="action-button primary">
+									<PrimaryButton on:click={() => handleMintTokens(item.token.contractAddress)}>
 										Mint Tokens
-									</a>
-									<a href="/assets/{item.asset.id}" class="action-button secondary">
+									</PrimaryButton>
+									<SecondaryButton href="/assets/{item.asset.id}">
 										View Asset
-									</a>
+									</SecondaryButton>
 								</div>
 							</div>
 

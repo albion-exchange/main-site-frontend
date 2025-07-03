@@ -4,6 +4,7 @@
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Token } from '$lib/types/dataStore';
 	import FeaturedTokenCarousel from '$lib/components/carousel/FeaturedTokenCarousel.svelte';
+	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
 
 	let platformStats = {
 		totalAssets: 0,
@@ -13,6 +14,11 @@
 		monthlyGrowthRate: 0
 	};
 	let loading = true;
+	
+	// Token purchase widget state
+	let showPurchaseWidget = false;
+	let selectedTokenAddress = null;
+	let selectedAssetId = null;
 
 	onMount(async () => {
 		try {
@@ -101,6 +107,29 @@
 			maximumFractionDigits: 2
 		}).format(amount);
 	}
+	
+	function handleMintTokens(event) {
+		selectedTokenAddress = event.detail.tokenAddress;
+		selectedAssetId = null;
+		showPurchaseWidget = true;
+	}
+	
+	function handleBuyTokens(event) {
+		selectedAssetId = event.detail.assetId;
+		selectedTokenAddress = null;
+		showPurchaseWidget = true;
+	}
+	
+	function handlePurchaseSuccess(event) {
+		console.log('Purchase successful:', event.detail);
+		showPurchaseWidget = false;
+	}
+	
+	function handleWidgetClose() {
+		showPurchaseWidget = false;
+		selectedTokenAddress = null;
+		selectedAssetId = null;
+	}
 </script>
 
 <svelte:head>
@@ -167,7 +196,7 @@
 			<h2>Featured Token Releases</h2>
 		</div>
 		
-		<FeaturedTokenCarousel autoPlay={true} autoPlayInterval={6000} />
+		<FeaturedTokenCarousel autoPlay={true} autoPlayInterval={6000} on:mintTokens={handleMintTokens} />
 	</section>
 
 	<!-- How It Works -->
@@ -649,3 +678,12 @@
 		}
 	}
 </style>
+
+<!-- Token Purchase Widget -->
+<TokenPurchaseWidget 
+	bind:isOpen={showPurchaseWidget}
+	tokenAddress={selectedTokenAddress}
+	assetId={selectedAssetId}
+	on:purchaseSuccess={handlePurchaseSuccess}
+	on:close={handleWidgetClose}
+/>

@@ -1,8 +1,12 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
 	import type { Asset } from '$lib/types/dataStore';
 	import { dataStoreService } from '$lib/services/DataStoreService';
+	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/ui';
 
 	export let asset: Asset;
+	
+	const dispatch = createEventDispatcher();
 
 	// Use asset data directly from the data store
 	$: latestReport = asset.monthlyReports[asset.monthlyReports.length - 1] || null;
@@ -47,19 +51,17 @@
 		// Fallback to a generic oil industry image
 		return imageMap[assetId] || '/images/assets/europa-wressle-1.jpg';
 	}
+	
+	function handleBuyTokens() {
+		dispatch('buyTokens', { assetId: asset.id });
+	}
 
 </script>
 
-<article class="asset-card">
-	<div class="asset-image">
-		<img 
-			src={getAssetImage(asset.id)} 
-			alt={asset.name}
-			loading="lazy"
-		/>
-	</div>
+<Card hoverable clickable on:click={() => window.location.href = `/assets/${asset.id}`}>
+	<CardImage src={getAssetImage(asset.id)} alt={asset.name} zoomOnHover />
 	
-	<div class="asset-content">
+	<CardContent>
 		<header>
 			<h3 class="asset-name">{asset.name}</h3>
 			<p class="asset-location">{asset.location.state}, {asset.location.country}</p>
@@ -107,53 +109,25 @@
 			</div>
 		</div>
 		
-		<div class="asset-actions">
-			<a href="/assets/{asset.id}" class="btn-secondary">View Details</a>
+		<CardActions>
+			<SecondaryButton href="/assets/{asset.id}" on:click={(e) => e.stopPropagation()}>
+				View Details
+			</SecondaryButton>
 			{#if royaltyTokens.length > 0}
-				<a href="/buy-tokens?asset={asset.id}" class="btn-primary">Buy Tokens</a>
+				<PrimaryButton on:click={(e) => { e.stopPropagation(); handleBuyTokens(); }}>
+					Buy Tokens
+				</PrimaryButton>
 			{:else}
-				<button class="btn-disabled" disabled>No Tokens Available</button>
+				<SecondaryButton disabled>
+					No Tokens Available
+				</SecondaryButton>
 			{/if}
-		</div>
-	</div>
-</article>
+		</CardActions>
+	</CardContent>
+</Card>
 
 <style>
-	.asset-card {
-		border: 1px solid #e2e8f0;
-		border-radius: 12px;
-		overflow: hidden;
-		background: white;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-		transition: transform 0.2s ease, box-shadow 0.2s ease;
-		cursor: pointer;
-	}
-
-	.asset-card:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-	}
-
-	.asset-image {
-		height: 200px;
-		overflow: hidden;
-		position: relative;
-	}
-
-	.asset-image img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		transition: transform 0.3s ease;
-	}
-
-	.asset-card:hover .asset-image img {
-		transform: scale(1.05);
-	}
-
-	.asset-content {
-		padding: 2rem;
-	}
+	/* Card-specific styles are now handled by Card components */
 
 	.highlighted-stats {
 		display: grid;
@@ -258,61 +232,9 @@
 		margin-top: 0.25rem;
 	}
 
-	.asset-actions {
+	/* Asset actions spacing */
+	:global(.card-actions) {
 		margin-top: 1.5rem;
-		display: flex;
-		gap: 0.75rem;
 	}
 
-	.btn-primary,
-	.btn-secondary {
-		flex: 1;
-		padding: 0.75rem 1rem;
-		text-decoration: none;
-		font-weight: 600;
-		font-size: 0.875rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		text-align: center;
-		transition: all 0.2s ease;
-		border: 1px solid;
-	}
-
-	.btn-primary {
-		background: #000;
-		color: #fff;
-		border-color: #000;
-	}
-
-	.btn-primary:hover {
-		background: #283c84;
-		border-color: #283c84;
-	}
-
-	.btn-secondary {
-		background: #fff;
-		color: #000;
-		border-color: #000;
-	}
-
-	.btn-secondary:hover {
-		background: #000;
-		color: #fff;
-	}
-
-	.btn-disabled {
-		flex: 1;
-		padding: 0.75rem 1rem;
-		text-decoration: none;
-		font-weight: 600;
-		font-size: 0.875rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		text-align: center;
-		transition: all 0.2s ease;
-		border: 1px solid #f8f4f4;
-		background: #f8f4f4;
-		color: #718096;
-		cursor: not-allowed;
-	}
 </style>

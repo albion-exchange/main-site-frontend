@@ -2,6 +2,7 @@
 	import '../app.css';
 	import { page } from '$app/stores';
 	import { walletStore, walletActions, formatAddress } from '$lib/stores/wallet';
+	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
 	
 	$: currentPath = $page.url.pathname;
 	
@@ -35,10 +36,7 @@
 				</div>
 				
 				<div class="nav-actions">
-					<button 
-						class="wallet-btn"
-						class:connected={$walletStore.isConnected}
-						class:connecting={$walletStore.isConnecting}
+					<SecondaryButton 
 						on:click={connectWallet}
 						disabled={$walletStore.isConnecting}
 					>
@@ -51,8 +49,8 @@
 							<span class="wallet-icon">🔌</span>
 							Connect Wallet
 						{/if}
-					</button>
-					<a href="/buy-tokens" class="btn-primary">Buy Tokens</a>
+					</SecondaryButton>
+					<PrimaryButton href="/buy-tokens">Buy Tokens</PrimaryButton>
 				</div>
 			</div>
 		</nav>
@@ -171,60 +169,6 @@
 		display: flex;
 		align-items: center;
 		gap: 1rem;
-	}
-
-	.btn-primary {
-		background: var(--color-primary);
-		color: var(--color-white);
-		padding: 0.5rem 1rem;
-		text-decoration: none;
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		transition: background-color 0.2s ease;
-	}
-
-	.btn-primary:hover {
-		background: var(--color-secondary);
-	}
-
-	.wallet-btn {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		color: var(--color-black);
-		padding: 0.5rem 1rem;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.9rem;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.wallet-btn:hover:not(:disabled) {
-		background: var(--color-light-gray);
-		border-color: var(--color-black);
-	}
-
-	.wallet-btn.connected {
-		background: var(--color-light-gray);
-		border-color: var(--color-primary);
-		color: var(--color-primary);
-	}
-
-	.wallet-btn.connecting {
-		opacity: 0.7;
-		cursor: not-allowed;
-	}
-
-	.wallet-btn:disabled {
-		opacity: 0.7;
-		cursor: not-allowed;
 	}
 
 	.wallet-icon {
