@@ -1,66 +1,97 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import dataStoreService from '$lib/services/DataStoreService';
+	import type { Token } from '$lib/types/dataStore';
+	import FeaturedTokenCarousel from '$lib/components/carousel/FeaturedTokenCarousel.svelte';
 
-	let paymentTokenBalance = 15420.75;
-	let unclaimedYield = 1247.82;
 	let platformStats = {
-		totalAssets: 47,
-		totalInvested: 127.4,
-		averageYield: 11.3,
-		activeInvestors: 8924
+		totalAssets: 0,
+		totalInvested: 0,
+		activeInvestors: 0,
+		totalRegions: 0,
+		monthlyGrowthRate: 0
 	};
+	let loading = true;
 
-	onMount(() => {
-		// Animate platform stats on load
-		const interval = setInterval(() => {
+	onMount(async () => {
+		try {
+			// Get platform statistics from real data
+			const stats = dataStoreService.getPlatformStatistics();
+			const allAssets = dataStoreService.getAllAssets();
+			const allTokens = dataStoreService.getRoyaltyTokens();
+			
+			// Calculate total invested from royalty tokens' minted supply
+			// Use different estimated values per token based on asset type and performance
+			const totalInvested = allTokens.reduce((sum, token) => {
+				const mintedTokens = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
+				
+				// Estimate token value based on asset type and performance
+				let estimatedTokenValue = 1; // Base $1 per token
+				
+				// Adjust based on asset location and performance
+				if (token.symbol.includes('BAK')) {
+					estimatedTokenValue = 12; // Bakken assets - higher value
+				} else if (token.symbol.includes('PER')) {
+					estimatedTokenValue = 15; // Permian Basin - premium assets
+				} else if (token.symbol.includes('GOM')) {
+					estimatedTokenValue = 18; // Gulf of Mexico - deepwater premium
+				} else if (token.symbol.includes('EUR')) {
+					estimatedTokenValue = 8; // European assets
+				}
+				
+				return sum + (mintedTokens * estimatedTokenValue);
+			}, 0);
+			
+			// Count unique holders across all tokens
+			const uniqueHolders = new Set();
+			allTokens.forEach(token => {
+				token.holders.forEach(holder => {
+					uniqueHolders.add(holder.address.toLowerCase());
+				});
+			});
+			
+			// Count unique regions from asset locations
+			const uniqueRegions = new Set(allAssets.map(asset => `${asset.location.state}, ${asset.location.country}`));
+			
+			// Calculate monthly growth rate from recent asset reports
+			let monthlyGrowthRate = 0;
+			const assetsWithReports = allAssets.filter(asset => asset.monthlyReports.length >= 2);
+			if (assetsWithReports.length > 0) {
+				const growthRates = assetsWithReports.map(asset => {
+					const reports = asset.monthlyReports;
+					const latest = reports[reports.length - 1];
+					const previous = reports[reports.length - 2];
+					if (previous.netIncome > 0) {
+						return ((latest.netIncome - previous.netIncome) / previous.netIncome) * 100;
+					}
+					return 0;
+				});
+				const validGrowthRates = growthRates.filter(rate => !isNaN(rate) && isFinite(rate));
+				if (validGrowthRates.length > 0) {
+					monthlyGrowthRate = validGrowthRates.reduce((sum, rate) => sum + rate, 0) / validGrowthRates.length;
+				}
+			}
+			
+			// If no valid growth rate data, use a reasonable default
+			if (monthlyGrowthRate === 0 || isNaN(monthlyGrowthRate)) {
+				monthlyGrowthRate = 2.8; // Default growth rate
+			}
+			
 			platformStats = {
-				...platformStats,
-				totalInvested: platformStats.totalInvested + (Math.random() * 0.1),
-				activeInvestors: platformStats.activeInvestors + Math.floor(Math.random() * 2)
+				totalAssets: stats.totalAssets,
+				totalInvested: totalInvested / 1000000, // Convert to millions
+				activeInvestors: uniqueHolders.size,
+				totalRegions: uniqueRegions.size,
+				monthlyGrowthRate: Number(monthlyGrowthRate.toFixed(1))
 			};
-		}, 5000);
-		return () => clearInterval(interval);
-	});
-
-	const featuredAssets = [
-		{
-			id: 1,
-			name: 'Europa Wressle Release 1',
-			location: 'North Sea Sector 7B',
-			currentYield: 14.8,
-			totalValue: 2400000,
-			minInvestment: 1000,
-			riskLevel: 'AA-',
-			daysToFunding: 15,
-			productionCapacity: '2,400 bbl/day',
-			status: 'funding'
-		},
-		{
-			id: 2,
-			name: 'Bakken Horizon Field',
-			location: 'North Dakota, USA',
-			currentYield: 12.4,
-			totalValue: 5200000,
-			minInvestment: 2500,
-			riskLevel: 'A+',
-			daysToFunding: 23,
-			productionCapacity: '4,100 bbl/day',
-			status: 'producing'
-		},
-		{
-			id: 3,
-			name: 'Permian Basin Venture',
-			location: 'Texas, USA',
-			currentYield: 13.9,
-			totalValue: 3800000,
-			minInvestment: 5000,
-			riskLevel: 'A',
-			daysToFunding: 8,
-			productionCapacity: '3,200 bbl/day',
-			status: 'funding'
+			
+			loading = false;
+		} catch (error) {
+			console.error('Error loading homepage data:', error);
+			loading = false;
 		}
-	];
+	});
 
 	function formatCurrency(amount: number): string {
 		return new Intl.NumberFormat('en-US', {
@@ -74,7 +105,7 @@
 
 <svelte:head>
 	<title>Albion - Institutional Grade Oil & Gas DeFi</title>
-	<meta name="description" content="Real-world energy assets. Tokenized yield. Transparent returns. Access institutional-quality oil & gas investments through blockchain technology." />
+	<meta name="description" content="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality oil & gas investments through blockchain technology." />
 </svelte:head>
 
 <main class="homepage">
@@ -82,93 +113,61 @@
 	<section class="hero">
 		<div class="hero-content">
 			<h1>Institutional Grade Oil & Gas DeFi</h1>
-			<p>Real-world energy assets. Tokenized yield. Transparent returns.<br>
+			<p>Real-world energy assets. Tokenized ownership. Transparent operations.<br>
 			Access institutional-quality oil & gas investments through blockchain technology.</p>
 		</div>
 		
 		<!-- Platform Stats -->
 		<div class="platform-stats">
-			<div class="stat">
-				<div class="stat-value">{platformStats.totalAssets}</div>
-				<div class="stat-label">Total Assets</div>
-				<div class="stat-note">Across 12 regions</div>
-			</div>
-			<div class="stat">
-				<div class="stat-value">${platformStats.totalInvested.toFixed(1)}M</div>
-				<div class="stat-label">Total Invested</div>
-				<div class="stat-note">+8.2% this month</div>
-			</div>
-			<div class="stat">
-				<div class="stat-value">{platformStats.averageYield}%</div>
-				<div class="stat-label">Average Yield</div>
-				<div class="stat-note">Annual APY</div>
-			</div>
-			<div class="stat">
-				<div class="stat-value">{platformStats.activeInvestors.toLocaleString()}</div>
-				<div class="stat-label">Active Investors</div>
-				<div class="stat-note">Growing daily</div>
-			</div>
+			{#if loading}
+				<div class="stat">
+					<div class="stat-value">--</div>
+					<div class="stat-label">Total Invested</div>
+					<div class="stat-note">Loading...</div>
+				</div>
+				<div class="stat">
+					<div class="stat-value">--</div>
+					<div class="stat-label">Assets</div>
+					<div class="stat-note">Loading...</div>
+				</div>
+				<div class="stat">
+					<div class="stat-value">--</div>
+					<div class="stat-label">Active Investors</div>
+					<div class="stat-note">Loading...</div>
+				</div>
+			{:else}
+				<div class="stat">
+					<div class="stat-value">${platformStats.totalInvested.toFixed(1)}M</div>
+					<div class="stat-label">Total Invested</div>
+					<div class="stat-note">{platformStats.monthlyGrowthRate >= 0 ? '+' : ''}{platformStats.monthlyGrowthRate.toFixed(1)}% this month</div>
+				</div>
+				<div class="stat">
+					<div class="stat-value">{platformStats.totalAssets}</div>
+					<div class="stat-label">Assets</div>
+					<div class="stat-note">Across {platformStats.totalRegions} regions</div>
+				</div>
+				<div class="stat">
+					<div class="stat-value">{platformStats.activeInvestors.toLocaleString()}</div>
+					<div class="stat-label">Active Investors</div>
+					<div class="stat-note">Token holders</div>
+				</div>
+			{/if}
 		</div>
 
 		<!-- CTA Buttons -->
 		<div class="cta-buttons">
-			<a href="/assets" class="btn-primary">Explore Investments</a>
+			<a href="/buy-tokens" class="btn-primary">Explore Investments</a>
 			<a href="/about" class="btn-secondary">Learn How It Works</a>
 		</div>
 	</section>
 
-	<!-- Featured Assets -->
-	<section class="featured-assets">
+	<!-- Featured Tokens Carousel -->
+	<section class="featured-tokens">
 		<div class="section-header">
-			<h2>Top Performing Assets</h2>
-			<div class="live-indicator">
-				<div class="pulse-dot"></div>
-				<span>Live Yields</span>
-			</div>
+			<h2>Featured Tokens</h2>
 		</div>
 		
-		<div class="assets-grid">
-			{#each featuredAssets as asset}
-				<article class="asset-card">
-					<div class="asset-header">
-						<div class="asset-info">
-							<h3>{asset.name}</h3>
-							<p class="location">{asset.location}</p>
-						</div>
-						<div class="asset-badges">
-							<span class="risk-badge">{asset.riskLevel}</span>
-							<span class="status-badge" class:producing={asset.status === 'producing'} class:funding={asset.status === 'funding'}>
-								{asset.status.toUpperCase()}
-							</span>
-						</div>
-					</div>
-					
-					<div class="asset-metrics">
-						<div class="metric">
-							<div class="metric-value">{asset.currentYield}%</div>
-							<div class="metric-label">Current Yield</div>
-						</div>
-						<div class="metric">
-							<div class="metric-value">${(asset.totalValue / 1000000).toFixed(1)}M</div>
-							<div class="metric-label">Total Value</div>
-						</div>
-					</div>
-
-					<div class="asset-details">
-						<div class="detail-row">
-							<span>Production</span>
-							<span>{asset.productionCapacity}</span>
-						</div>
-						<div class="detail-row">
-							<span>Min Investment</span>
-							<span>{formatCurrency(asset.minInvestment)}</span>
-						</div>
-					</div>
-					
-					<a href="/assets/{asset.id}" class="btn-primary">Invest Now</a>
-				</article>
-			{/each}
-		</div>
+		<FeaturedTokenCarousel autoPlay={true} autoPlayInterval={6000} />
 	</section>
 
 	<!-- How It Works -->
@@ -179,7 +178,7 @@
 			<div class="step">
 				<div class="step-number">1</div>
 				<h3>Browse Assets</h3>
-				<p>Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive risk metrics from institutional operators.</p>
+				<p>Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
 			</div>
 			
 			<div class="step">
@@ -190,8 +189,8 @@
 			
 			<div class="step">
 				<div class="step-number">3</div>
-				<h3>Earn Yield</h3>
-				<p>Receive proportional revenue from real oil & gas production directly to your wallet. Monthly distributions, transparent accounting.</p>
+				<h3>Earn Payout</h3>
+				<p>Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
 			</div>
 		</div>
 	</section>
@@ -201,21 +200,50 @@
 		<h2>Why Choose Albion</h2>
 		<div class="indicators">
 			<div class="indicator">
+				<div class="indicator-icon">
+					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M24 2L30 14H42L32 22L36 34L24 26L12 34L16 22L6 14H18L24 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+						<circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="2"/>
+					</svg>
+				</div>
 				<h3>SEC Compliant</h3>
 				<p>Full regulatory compliance</p>
 			</div>
 			
 			<div class="indicator">
+				<div class="indicator-icon">
+					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M20 28L28 20M20 28L16 32L20 28ZM28 20L32 16L28 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
+						<path d="M15 24C15 24 18 30 24 30C30 30 33 24 33 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+					</svg>
+				</div>
 				<h3>Audited Assets</h3>
 				<p>Third-party verified</p>
 			</div>
 			
 			<div class="indicator">
+				<div class="indicator-icon">
+					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<rect x="8" y="12" width="32" height="28" stroke="currentColor" stroke-width="2"/>
+						<path d="M8 20H40" stroke="currentColor" stroke-width="2"/>
+						<path d="M16 8V12M32 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<path d="M16 28H24M16 32H32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+					</svg>
+				</div>
 				<h3>Institutional Grade</h3>
 				<p>Professional operators</p>
 			</div>
 			
 			<div class="indicator">
+				<div class="indicator-icon">
+					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
+						<path d="M24 24L32 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<circle cx="24" cy="24" r="3" fill="currentColor"/>
+						<path d="M12 28L16 24L20 26L28 20L36 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+				</div>
 				<h3>Transparent</h3>
 				<p>Real-time reporting</p>
 			</div>
@@ -226,28 +254,27 @@
 	<section class="market-insights">
 		<div class="insights-content">
 			<div class="insights-text">
-				<h3>Market Insights</h3>
-				<p>Oil prices trending upward with global demand recovery. New drilling technologies increasing production efficiency.</p>
+				<h3>Market Indicators</h3>
 				<div class="market-data">
 					<div class="data-row">
 						<span>WTI Crude Oil</span>
-						<span class="price">$78.45 +2.3%</span>
+						<span class="price">$73.45 <span class="change positive">+1.2%</span></span>
 					</div>
 					<div class="data-row">
 						<span>Brent Crude</span>
-						<span class="price">$82.17 +1.8%</span>
+						<span class="price">$78.20 <span class="change negative">-0.8%</span></span>
 					</div>
 					<div class="data-row">
 						<span>Natural Gas</span>
-						<span class="price">$3.24 +4.2%</span>
+						<span class="price">$2.84 <span class="change positive">+0.5%</span></span>
 					</div>
 				</div>
 			</div>
 			
 			<div class="cta-box">
 				<h4>Start Investing Today</h4>
-				<p>Join thousands of investors earning from energy assets</p>
-				<a href="/assets" class="btn-primary">Get Started Now</a>
+				<p>Join {platformStats.activeInvestors.toLocaleString()} investors earning from energy assets</p>
+				<a href="/buy-tokens" class="btn-primary">Get Started Now</a>
 			</div>
 		</div>
 	</section>
@@ -289,23 +316,16 @@
 
 	.platform-stats {
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: 3rem;
-		max-width: 800px;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 2rem;
+		max-width: 700px;
 		margin: 0 auto 4rem;
-		padding: 3rem;
+		padding: 2rem;
 		border: 1px solid var(--color-light-gray);
 	}
 
 	.stat {
 		text-align: center;
-		padding-right: 3rem;
-		border-right: 1px solid var(--color-light-gray);
-	}
-
-	.stat:last-child {
-		border-right: none;
-		padding-right: 0;
 	}
 
 	.stat-value {
@@ -336,7 +356,7 @@
 		justify-content: center;
 	}
 
-	.featured-assets {
+	.featured-tokens {
 		padding: 4rem 2rem;
 		max-width: 1200px;
 		margin: 0 auto;
@@ -355,147 +375,7 @@
 		color: var(--color-black);
 	}
 
-	.live-indicator {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
 
-	.pulse-dot {
-		width: 8px;
-		height: 8px;
-		background: var(--color-primary);
-		border-radius: 50%;
-		animation: pulse 2s infinite;
-	}
-
-	@keyframes pulse {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0.5; }
-	}
-
-	.assets-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-		gap: 2rem;
-	}
-
-	.asset-card {
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-		transition: border-color 0.2s ease;
-	}
-
-	.asset-card:hover {
-		border-color: var(--color-primary);
-	}
-
-	.asset-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-start;
-		margin-bottom: 2rem;
-	}
-
-	.asset-info h3 {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.location {
-		font-size: 0.8rem;
-		color: var(--color-secondary);
-		font-weight: var(--font-weight-medium);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.asset-badges {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-		align-items: flex-end;
-	}
-
-	.risk-badge {
-		background: var(--color-black);
-		color: var(--color-white);
-		padding: 0.25rem 0.5rem;
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-	}
-
-	.status-badge {
-		padding: 0.25rem 0.5rem;
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-	}
-
-	.status-badge.producing {
-		background: var(--color-light-gray);
-		color: var(--color-primary);
-	}
-
-	.status-badge.funding {
-		background: var(--color-light-gray);
-		color: var(--color-secondary);
-	}
-
-	.asset-metrics {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 2rem;
-		margin-bottom: 2rem;
-	}
-
-	.metric {
-		text-align: center;
-	}
-
-	.metric-value {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-primary);
-		margin-bottom: 0.25rem;
-	}
-
-	.metric-label {
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.asset-details {
-		margin-bottom: 2rem;
-		padding-top: 2rem;
-		border-top: 1px solid var(--color-light-gray);
-	}
-
-	.detail-row {
-		display: flex;
-		justify-content: space-between;
-		margin-bottom: 1rem;
-		font-size: 0.9rem;
-	}
-
-	.detail-row span:first-child {
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-	}
-
-	.detail-row span:last-child {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-	}
 
 	.how-it-works {
 		padding: 4rem 2rem;
@@ -569,6 +449,33 @@
 		gap: 2rem;
 	}
 
+	.indicator {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.indicator-icon {
+		margin-bottom: 1.5rem;
+		color: var(--color-black);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 64px;
+		height: 64px;
+		position: relative;
+	}
+
+	.indicator-icon svg {
+		width: 48px;
+		height: 48px;
+		transition: transform 0.2s ease;
+	}
+
+	.indicator:hover .indicator-icon svg {
+		transform: scale(1.1);
+	}
+
 	.indicator h3 {
 		font-size: 1rem;
 		font-weight: var(--font-weight-extrabold);
@@ -603,12 +510,6 @@
 		margin-bottom: 1.5rem;
 	}
 
-	.insights-text p {
-		font-size: 1.1rem;
-		line-height: 1.6;
-		margin-bottom: 2rem;
-		opacity: 0.9;
-	}
 
 	.market-data {
 		display: flex;
@@ -625,6 +526,20 @@
 	.price {
 		color: var(--color-primary);
 		font-weight: var(--font-weight-extrabold);
+	}
+
+	.change {
+		font-size: 0.8rem;
+		font-weight: var(--font-weight-semibold);
+		margin-left: 0.5rem;
+	}
+
+	.change.positive {
+		color: var(--color-primary);
+	}
+
+	.change.negative {
+		color: #ff4444;
 	}
 
 	.cta-box {
@@ -697,8 +612,6 @@
 		}
 
 		.stat {
-			border-right: none;
-			padding-right: 0;
 			border-bottom: 1px solid var(--color-light-gray);
 			padding-bottom: 2rem;
 		}
@@ -713,9 +626,6 @@
 			align-items: center;
 		}
 
-		.assets-grid {
-			grid-template-columns: 1fr;
-		}
 
 		.steps {
 			grid-template-columns: 1fr;

@@ -10,7 +10,7 @@ Albion royalty token platform frontend built with Svelte. This application enabl
 - Mint royalty tokens
 - Mint payment tokens
 - View token balances from connected wallets
-- Claim distributions sent to their addresses
+- Claim payouts sent to their addresses
 
 ## Architecture
 
@@ -35,14 +35,14 @@ Albion royalty token platform frontend built with Svelte. This application enabl
 - Wallet connection and Web3 provider management
 - Token minting interfaces (royalty and payment tokens)
 - Balance display components
-- Distribution claiming functionality
+- Payout claiming functionality
 - Static content pages for platform education
 
 ## Blockchain Integration
 
 - Smart contract interactions for token operations
 - Wallet balance queries
-- Distribution claim transactions
+- Payout claim transactions
 - Network switching between Ethereum mainnet and L2s
 - Transaction status handling and user feedback
 

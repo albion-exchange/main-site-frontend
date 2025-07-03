@@ -1,0 +1,341 @@
+{
+  "assets": {
+    "europa-wressle-release-1": {
+      "id": "europa-wressle-release-1",
+      "name": "Wressle-1 Royalty Stream",
+      "description": "Onshore conventional oil field located in the North Sea Sector 7B with proven reserves and established infrastructure.",
+      "images": [
+        "/images/assets/europa-wressle-1.jpg",
+        "/images/assets/europa-wressle-2.jpg"
+      ],
+      "location": {
+        "state": "East Midlands",
+        "county": "Lincolnshire",
+        "country": "United Kingdom",
+        "coordinates": {
+          "lat": 53.2,
+          "lng": 0.2
+        },
+        "waterDepth": "0m"
+      },
+      "operator": {
+        "name": "Egdon Resources",
+        "website": "https://www.egdon-resources.com",
+        "experience": "28 years"
+      },
+      "technical": {
+        "fieldType": "Conventional Oil",
+        "depth": "1,800m",
+        "license": "PEDL180/PEDL182",
+        "estimatedLife": "2+ years",
+        "firstOil": "2022-Q3",
+        "infrastructure": "Existing pipeline connection",
+        "environmental": "Full environmental compliance",
+        "estimatedReserves": 45200000,
+        "expectedEndDate": "2027-12",
+        "crudeBenchmark": "Brent",
+        "pricing": {
+          "benchmarkPremium": "-$1.30",
+          "transportCosts": "Title transfer at well head"
+        }
+      },
+      "assetTerms": {
+        "interestType": "Royalty",
+        "amount": "4.5% of gross",
+        "paymentFrequency": "Monthly within 30 days"
+      },
+      "production": {
+        "current": "200 boe/day",
+        "expectedRemainingProduction": "45.2 mboe",
+        "status": "producing"
+      },
+      "tokenContracts": [
+        "0x1234567890abcdef1234567890abcdef12345678",
+        "0x2345678901bcdef01234567890abcdef23456789",
+        "0x3456789012cdef012345678901bcdef034567890"
+      ],
+      "monthlyReports": [
+        {
+          "month": "2025-05",
+          "production": 6000,
+          "revenue": 540000,
+          "expenses": 520000,
+          "netIncome": 20000,
+          "payoutPerToken": 12.50
+        },
+        {
+          "month": "2025-04",
+          "production": 6150,
+          "revenue": 553500,
+          "expenses": 532000,
+          "netIncome": 21500,
+          "payoutPerToken": 13.44
+        },
+        {
+          "month": "2025-03",
+          "production": 6300,
+          "revenue": 567000,
+          "expenses": 545000,
+          "netIncome": 22000,
+          "payoutPerToken": 13.75
+        },
+        {
+          "month": "2025-02",
+          "production": 6450,
+          "revenue": 580500,
+          "expenses": 558000,
+          "netIncome": 22500,
+          "payoutPerToken": 14.06
+        },
+        {
+          "month": "2025-01",
+          "production": 6600,
+          "revenue": 594000,
+          "expenses": 571000,
+          "netIncome": 23000,
+          "payoutPerToken": 14.38
+        },
+        {
+          "month": "2024-12",
+          "production": 6750,
+          "revenue": 607500,
+          "expenses": 584000,
+          "netIncome": 23500,
+          "payoutPerToken": 14.69
+        }
+      ],
+      "metadata": {
+        "createdAt": "2024-01-15T10:00:00Z",
+        "updatedAt": "2024-12-01T15:30:00Z"
+      }
+    },
+    "bakken-horizon-field": {
+      "id": "bakken-horizon-field",
+      "name": "Bakken Horizon-2 Royalty Stream",
+      "description": "High-payout shale oil development in the heart of the Bakken formation with advanced horizontal drilling technology.",
+      "images": [
+        "/images/assets/bakken-horizon-1.jpg",
+        "/images/assets/bakken-horizon-2.jpg"
+      ],
+      "location": {
+        "state": "North Dakota",
+        "county": "McKenzie County",
+        "country": "United States",
+        "coordinates": {
+          "lat": 47.8,
+          "lng": -103.2
+        },
+        "waterDepth": null
+      },
+      "operator": {
+        "name": "Horizon Energy Partners LLC",
+        "website": "https://horizonenergypartners.com",
+        "experience": "20+ years"
+      },
+      "technical": {
+        "fieldType": "Shale Oil",
+        "depth": "3,200m",
+        "license": "ND-2847",
+        "estimatedLife": "25+ years",
+        "firstOil": "2020-Q2",
+        "infrastructure": "Rail and pipeline access",
+        "environmental": "EPA compliant with reduced emissions technology",
+        "estimatedReserves": 62800000,
+        "expectedEndDate": "2049-08",
+        "crudeBenchmark": "WTI",
+        "pricing": {
+          "benchmarkPremium": "-$1.25",
+          "transportCosts": "Title transfer at well head"
+        }
+      },
+      "assetTerms": {
+        "interestType": "Royalty",
+        "amount": "3.2% of gross",
+        "paymentFrequency": "Monthly within 30 days"
+      },
+      "production": {
+        "current": "2,800 bbl/day",
+        "expectedRemainingProduction": "62.8 mboe",
+        "status": "producing"
+      },
+      "tokenContracts": [
+        "0x4567890123def0123456789012cdef045678901",
+        "0x5678901234ef01234567890123def056789012"
+      ],
+      "monthlyReports": [
+        {
+          "month": "2024-11",
+          "production": 84000,
+          "revenue": 7560000,
+          "expenses": 1872000,
+          "netIncome": 5688000,
+          "payoutPerToken": 28.44
+        },
+        {
+          "month": "2024-10",
+          "production": 86800,
+          "revenue": 7812000,
+          "expenses": 1936400,
+          "netIncome": 5875600,
+          "payoutPerToken": 29.38
+        }
+      ],
+      "metadata": {
+        "createdAt": "2024-02-10T09:15:00Z",
+        "updatedAt": "2024-12-01T16:45:00Z"
+      }
+    },
+    "permian-basin-venture": {
+      "id": "permian-basin-venture",
+      "name": "Permian Wolfcamp-1 Royalty Stream",
+      "description": "Large-scale unconventional oil development in the prolific Permian Basin with multi-zone horizontal wells.",
+      "images": [
+        "/images/assets/permian-basin-1.jpg",
+        "/images/assets/permian-basin-2.jpg"
+      ],
+      "location": {
+        "state": "Texas",
+        "county": "Midland County",
+        "country": "United States",
+        "coordinates": {
+          "lat": 32.0,
+          "lng": -102.1
+        },
+        "waterDepth": null
+      },
+      "operator": {
+        "name": "Permian Resources Corporation",
+        "website": "https://permianresources.com",
+        "experience": "18+ years"
+      },
+      "technical": {
+        "fieldType": "Unconventional Oil",
+        "depth": "2,800m",
+        "license": "TX-PB-4521",
+        "estimatedLife": "30+ years",
+        "firstOil": "2021-Q1",
+        "infrastructure": "Midstream processing and pipeline network",
+        "environmental": "Advanced water recycling and emissions control",
+        "estimatedReserves": 89500000,
+        "expectedEndDate": "2054-03",
+        "crudeBenchmark": "WTI",
+        "pricing": {
+          "benchmarkPremium": "+$0.75",
+          "transportCosts": "Title transfer at well head"
+        }
+      },
+      "assetTerms": {
+        "interestType": "Royalty",
+        "amount": "5.0% of gross",
+        "paymentFrequency": "Monthly within 30 days"
+      },
+      "production": {
+        "current": "3,800 bbl/day",
+        "expectedRemainingProduction": "89.5 mboe",
+        "status": "producing"
+      },
+      "tokenContracts": [
+        "0x6789012345f012345678901234ef067890123",
+        "0x7890123456012345678901245f078901234"
+      ],
+      "monthlyReports": [
+        {
+          "month": "2024-11",
+          "production": 114000,
+          "revenue": 10260000,
+          "expenses": 2262000,
+          "netIncome": 7998000,
+          "payoutPerToken": 32.67
+        },
+        {
+          "month": "2024-10",
+          "production": 117600,
+          "revenue": 10584000,
+          "expenses": 2332800,
+          "netIncome": 8251200,
+          "payoutPerToken": 33.70
+        }
+      ],
+      "metadata": {
+        "createdAt": "2024-03-22T11:30:00Z",
+        "updatedAt": "2024-12-01T14:20:00Z"
+      }
+    },
+    "gulf-mexico-deep-water": {
+      "id": "gulf-mexico-deep-water",
+      "name": "Gulf of Mexico Deep Water",
+      "description": "Offshore deep-water oil development with state-of-the-art subsea production systems and enhanced recovery techniques.",
+      "images": [
+        "/images/assets/gulf-mexico-1.jpg",
+        "/images/assets/gulf-mexico-2.jpg"
+      ],
+      "location": {
+        "state": "Louisiana",
+        "county": "Offshore",
+        "country": "United States",
+        "coordinates": {
+          "lat": 28.5,
+          "lng": -89.2
+        },
+        "waterDepth": "1,850m"
+      },
+      "operator": {
+        "name": "Deep Water Solutions Inc.",
+        "website": "https://deepwatersolutions.com",
+        "experience": "25+ years"
+      },
+      "technical": {
+        "fieldType": "Deep Water Oil",
+        "depth": "4,500m",
+        "license": "GOM-DW-7834",
+        "estimatedLife": "20+ years",
+        "firstOil": "2022-Q4",
+        "infrastructure": "Floating production platform with subsea manifolds",
+        "environmental": "Zero discharge policy with advanced spill prevention",
+        "estimatedReserves": 125000000,
+        "expectedEndDate": "2044-11",
+        "crudeBenchmark": "Brent",
+        "pricing": {
+          "benchmarkPremium": "+$1.80",
+          "transportCosts": "Title transfer at well head"
+        }
+      },
+      "assetTerms": {
+        "interestType": "Royalty",
+        "amount": "6.25% of gross",
+        "paymentFrequency": "Monthly within 30 days"
+      },
+      "production": {
+        "current": "6,200 bbl/day",
+        "expectedRemainingProduction": "125 mboe",
+        "status": "producing"
+      },
+      "tokenContracts": [
+        "0x8901234567123456789012356f089012345",
+        "0x9012345678234567890123467f090123456"
+      ],
+      "monthlyReports": [
+        {
+          "month": "2024-11",
+          "production": 186000,
+          "revenue": 16740000,
+          "expenses": 6540000,
+          "netIncome": 10200000,
+          "payoutPerToken": 25.50
+        },
+        {
+          "month": "2024-10",
+          "production": 192200,
+          "revenue": 17298000,
+          "expenses": 6764400,
+          "netIncome": 10533600,
+          "payoutPerToken": 26.33
+        }
+      ],
+      "metadata": {
+        "createdAt": "2024-04-18T13:45:00Z",
+        "updatedAt": "2024-12-01T17:10:00Z"
+      }
+    }
+  }
+}

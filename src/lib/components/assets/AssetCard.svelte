@@ -1,12 +1,20 @@
 <script lang="ts">
-	import type { Asset } from '$lib/types';
-	import { AssetService } from '$lib/services';
+	import type { Asset } from '$lib/types/dataStore';
+	import { dataStoreService } from '$lib/services/DataStoreService';
 
 	export let asset: Asset;
 
-	$: latestReport = AssetService.getLatestReport(asset.id);
-	$: totalIncome = AssetService.getTotalIncome(asset.id);
-	$: averageProduction = AssetService.getAverageProduction(asset.id);
+	// Use asset data directly from the data store
+	$: latestReport = asset.monthlyReports[asset.monthlyReports.length - 1] || null;
+
+	// Get the primary royalty token for this asset (first royalty token found)
+	$: royaltyTokens = dataStoreService.getTokensByAssetId(asset.id).filter(token => token.tokenType === 'royalty');
+	$: primaryToken = royaltyTokens.length > 0 ? royaltyTokens[0] : null;
+
+	// Extract token data with fallbacks
+	$: estimatedBaseReturn = primaryToken?.returns?.baseReturn ? `${primaryToken.returns.baseReturn}%` : 'TBD';
+	$: estimatedBonusReturn = primaryToken?.returns?.bonusReturn ? `${primaryToken.returns.bonusReturn}%` : 'TBD';
+	$: shareOfAsset = primaryToken?.assetShare?.sharePercentage ? `${primaryToken.assetShare.sharePercentage}%` : 'TBD';
 
 	function formatCurrency(amount: number): string {
 		return new Intl.NumberFormat('en-US', {
@@ -20,34 +28,67 @@
 	function formatNumber(num: number): string {
 		return new Intl.NumberFormat('en-US').format(Math.round(num));
 	}
+
+	function formatEndDate(dateStr: string): string {
+		if (!dateStr) return 'TBD';
+		const [year, month] = dateStr.split('-');
+		const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+							 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		return `${monthNames[parseInt(month) - 1]} ${year}`;
+	}
+
+	function getAssetImage(assetId: string): string {
+		// Map each asset to specific oil & gas industry images
+		const imageMap: Record<string, string> = {
+			'europa-wressle-release-1': '/images/assets/europa-wressle-1.jpg', // Wressle oil field (UK onshore)
+			'bakken-horizon-field': '/images/assets/bakken-horizon-1.jpeg', // Bakken shale operations (ND)
+			'permian-basin-venture': '/images/assets/permian-basin-1.jpg', // Permian basin operations (TX)
+			'gulf-mexico-deep-water': '/images/assets/gom-deepwater-1.avif' // Gulf of Mexico offshore platform
+		};
+		
+		// Fallback to a generic oil industry image
+		return imageMap[assetId] || '/images/assets/europa-wressle-1.jpg';
+	}
+
 </script>
 
 <article class="asset-card">
 	<div class="asset-image">
-		{#if asset.images.length > 0}
-			<img src={asset.images[0]} alt={asset.name} />
-		{:else}
-			<div class="placeholder-image">No Image</div>
-		{/if}
+		<img 
+			src={getAssetImage(asset.id)} 
+			alt={asset.name}
+			loading="lazy"
+		/>
 	</div>
 	
 	<div class="asset-content">
 		<header>
 			<h3 class="asset-name">{asset.name}</h3>
-			<p class="asset-location">{asset.location.county}, {asset.location.state}</p>
+			<p class="asset-location">{asset.location.state}, {asset.location.country}</p>
 		</header>
+		
+		<!-- Highlighted Big Stats -->
+		<div class="highlighted-stats">
+			<div class="highlight-stat">
+				<span class="highlight-value">{asset.production.current}</span>
+				<span class="highlight-label">Current Production</span>
+			</div>
+			<div class="highlight-stat">
+				<span class="highlight-value">{asset.production.expectedRemainingProduction}</span>
+				<span class="highlight-label">Expected Remaining</span>
+			</div>
+			<div class="highlight-stat">
+				<span class="highlight-value">{formatEndDate(asset.technical.expectedEndDate)}</span>
+				<span class="highlight-label">Expected End Date</span>
+			</div>
+		</div>
 		
 		<p class="asset-description">{asset.description}</p>
 		
 		<div class="asset-stats">
 			<div class="stat">
-				<span class="stat-label">Field Type</span>
-				<span class="stat-value">{asset.fieldType}</span>
-			</div>
-			
-			<div class="stat">
-				<span class="stat-label">Est. Reserves</span>
-				<span class="stat-value">{formatNumber(asset.estimatedReserves)} bbls</span>
+				<span class="stat-label">Status</span>
+				<span class="stat-value">{asset.production.status}</span>
 			</div>
 			
 			{#if latestReport}
@@ -55,22 +96,36 @@
 					<span class="stat-label">Latest Month</span>
 					<span class="stat-value">{formatCurrency(latestReport.netIncome)}</span>
 				</div>
-				
-				<div class="stat">
-					<span class="stat-label">Distribution/Token</span>
-					<span class="stat-value">${latestReport.distributionPerToken?.toFixed(2) || '0.00'}</span>
-				</div>
 			{/if}
 			
 			<div class="stat">
-				<span class="stat-label">Total Income</span>
-				<span class="stat-value">{formatCurrency(totalIncome)}</span>
+				<span class="stat-label">Estimated Base Return</span>
+				<span class="stat-value">{estimatedBaseReturn}</span>
 			</div>
 			
 			<div class="stat">
-				<span class="stat-label">Avg. Production</span>
-				<span class="stat-value">{formatNumber(averageProduction)} bbls/mo</span>
+				<span class="stat-label">Estimated Bonus Return</span>
+				<span class="stat-value">{estimatedBonusReturn}</span>
 			</div>
+			
+			<div class="stat">
+				<span class="stat-label">Share of Asset</span>
+				<span class="stat-value">{shareOfAsset}</span>
+			</div>
+			
+			<div class="stat">
+				<span class="stat-label">Operator</span>
+				<span class="stat-value">{asset.operator.name}</span>
+			</div>
+		</div>
+		
+		<div class="asset-actions">
+			<a href="/assets/{asset.id}" class="btn-secondary">View Details</a>
+			{#if royaltyTokens.length > 0}
+				<a href="/buy-tokens?asset={asset.id}" class="btn-primary">Buy Tokens</a>
+			{:else}
+				<button class="btn-disabled" disabled>No Tokens Available</button>
+			{/if}
 		</div>
 	</div>
 </article>
@@ -94,27 +149,54 @@
 	.asset-image {
 		height: 200px;
 		overflow: hidden;
+		position: relative;
 	}
 
 	.asset-image img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		transition: transform 0.3s ease;
 	}
 
-	.placeholder-image {
-		width: 100%;
-		height: 100%;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: white;
-		font-weight: 500;
+	.asset-card:hover .asset-image img {
+		transform: scale(1.05);
 	}
 
 	.asset-content {
-		padding: 1.5rem;
+		padding: 2rem;
+	}
+
+	.highlighted-stats {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1rem;
+		margin: 1rem 0 1.5rem 0;
+		padding: 1rem;
+		background: #f8f4f4;
+		border-radius: 8px;
+	}
+
+	.highlight-stat {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
+
+	.highlight-value {
+		font-size: 1.25rem;
+		font-weight: 700;
+		color: #283c84;
+		margin-bottom: 0.25rem;
+	}
+
+	.highlight-label {
+		font-size: 0.75rem;
+		color: #718096;
+		text-transform: uppercase;
+		font-weight: 500;
+		letter-spacing: 0.05em;
 	}
 
 	header {
@@ -147,8 +229,25 @@
 
 	.asset-stats {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: repeat(2, 1fr);
 		gap: 1rem;
+	}
+	
+	@media (min-width: 400px) {
+		.asset-stats {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+
+	@media (max-width: 400px) {
+		.highlighted-stats {
+			grid-template-columns: 1fr;
+			gap: 0.75rem;
+		}
+		
+		.highlight-value {
+			font-size: 1.1rem;
+		}
 	}
 
 	.stat {
@@ -169,5 +268,63 @@
 		color: #1a202c;
 		font-weight: 600;
 		margin-top: 0.25rem;
+	}
+
+	.asset-actions {
+		margin-top: 1.5rem;
+		display: flex;
+		gap: 0.75rem;
+	}
+
+	.btn-primary,
+	.btn-secondary {
+		flex: 1;
+		padding: 0.75rem 1rem;
+		text-decoration: none;
+		font-weight: 600;
+		font-size: 0.875rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		text-align: center;
+		transition: all 0.2s ease;
+		border: 1px solid;
+	}
+
+	.btn-primary {
+		background: #000;
+		color: #fff;
+		border-color: #000;
+	}
+
+	.btn-primary:hover {
+		background: #283c84;
+		border-color: #283c84;
+	}
+
+	.btn-secondary {
+		background: #fff;
+		color: #000;
+		border-color: #000;
+	}
+
+	.btn-secondary:hover {
+		background: #000;
+		color: #fff;
+	}
+
+	.btn-disabled {
+		flex: 1;
+		padding: 0.75rem 1rem;
+		text-decoration: none;
+		font-weight: 600;
+		font-size: 0.875rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		text-align: center;
+		transition: all 0.2s ease;
+		border: 1px solid #f8f4f4;
+		background: #f8f4f4;
+		color: #718096;
+		cursor: not-allowed;
 	}
 </style>
