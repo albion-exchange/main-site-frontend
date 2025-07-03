@@ -220,14 +220,6 @@
 							<span class="detail-label">Share of Asset</span>
 							<span class="detail-value">{token.assetShare?.sharePercentage || 'TBD'}%</span>
 						</div>
-						<div class="detail-row">
-							<span class="detail-label">Est. Base Return</span>
-							<span class="detail-value">{token.returns?.baseReturn || 'TBD'}%</span>
-						</div>
-						<div class="detail-row">
-							<span class="detail-label">Est. Bonus Return</span>
-							<span class="detail-value">{token.returns?.bonusReturn || 'TBD'}%</span>
-						</div>
 					</div>
 
 					<!-- Supply Information -->
@@ -311,7 +303,7 @@
 <style>
 	.buy-tokens-page {
 		padding: 2rem;
-		max-width: 1400px;
+		max-width: 1200px;
 		margin: 0 auto;
 	}
 

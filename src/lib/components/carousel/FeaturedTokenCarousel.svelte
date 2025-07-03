@@ -191,6 +191,25 @@
 			<p>No featured tokens available</p>
 		</div>
 	{:else}
+		<!-- Navigation Controls (outside carousel wrapper) -->
+		{#if featuredTokensWithAssets.length > 1}
+			<button 
+				class="nav-button prev" 
+				on:click={prevSlide}
+				aria-label="Previous token"
+			>
+				‹
+			</button>
+			
+			<button 
+				class="nav-button next" 
+				on:click={nextSlide}
+				aria-label="Next token"
+			>
+				›
+			</button>
+		{/if}
+
 		<div 
 			class="carousel-wrapper"
 			on:mouseenter={handleMouseEnter}
@@ -296,25 +315,8 @@
 				{/each}
 			</div>
 
-			<!-- Navigation Controls -->
+			<!-- Indicators (remain inside carousel wrapper) -->
 			{#if featuredTokensWithAssets.length > 1}
-				<button 
-					class="nav-button prev" 
-					on:click={prevSlide}
-					aria-label="Previous token"
-				>
-					‹
-				</button>
-				
-				<button 
-					class="nav-button next" 
-					on:click={nextSlide}
-					aria-label="Next token"
-				>
-					›
-				</button>
-
-				<!-- Indicators -->
 				<div class="indicators">
 					{#each featuredTokensWithAssets as _, index}
 						<button 
@@ -686,11 +688,11 @@
 	}
 
 	.nav-button.prev {
-		left: 1rem;
+		left: -4rem;
 	}
 
 	.nav-button.next {
-		right: 1rem;
+		right: -4rem;
 	}
 
 	.indicators {
@@ -759,11 +761,11 @@
 		}
 
 		.nav-button.prev {
-			left: 0.5rem;
+			left: -3rem;
 		}
 
 		.nav-button.next {
-			right: 0.5rem;
+			right: -3rem;
 		}
 
 		.indicators {
@@ -793,6 +795,14 @@
 			width: 36px;
 			height: 36px;
 			font-size: 1.1rem;
+		}
+
+		.nav-button.prev {
+			left: -2rem;
+		}
+
+		.nav-button.next {
+			right: -2rem;
 		}
 
 		.carousel-wrapper:hover .banner-card {

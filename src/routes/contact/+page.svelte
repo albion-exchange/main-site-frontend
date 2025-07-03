@@ -266,7 +266,7 @@
 	}
 
 	.hero-content {
-		max-width: 800px;
+		max-width: 1200px;
 		margin: 0 auto;
 	}
 
@@ -509,7 +509,7 @@
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
 		gap: 2rem;
-		max-width: 800px;
+		max-width: 1200px;
 		margin: 0 auto;
 	}
 
@@ -550,7 +550,7 @@
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		gap: 2rem;
-		max-width: 800px;
+		max-width: 1200px;
 		margin: 0 auto;
 	}
 

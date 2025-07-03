@@ -473,28 +473,6 @@
 							</div>
 							<div class="terms-value">${calculateBreakevenOilPrice().toFixed(2)}/barrel</div>
 						</div>
-						{#if tokenData.returns}
-							<div class="terms-item">
-								<div class="terms-label">
-									Expected Base Return
-									<span class="info-icon tooltip-container">
-										?
-										<div class="tooltip">Conservative annual return estimate based on current oil prices and production forecasts.</div>
-									</span>
-								</div>
-								<div class="terms-value">{tokenData.returns.baseReturn}% annual</div>
-							</div>
-							<div class="terms-item">
-								<div class="terms-label">
-									Expected Bonus Return
-									<span class="info-icon tooltip-container">
-										?
-										<div class="tooltip">Additional potential returns if oil prices exceed base projections or production outperforms estimates.</div>
-									</span>
-								</div>
-								<div class="terms-value">{tokenData.returns.bonusReturn}% annual</div>
-							</div>
-						{/if}
 					{:else}
 						<div class="terms-item">
 							<div class="terms-label">No tokenomics data available</div>

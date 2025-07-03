@@ -23,7 +23,8 @@
 		<nav class="main-nav">
 			<div class="nav-container">
 				<a href="/" class="logo">
-					<span>Albion</span>
+					<img src="/assets/logo.svg" alt="Albion Logo" class="logo-image" />
+					<img src="/assets/brand-text.svg" alt="Albion Exchange" class="brand-text" />
 				</a>
 				
 				<div class="nav-links">
@@ -65,7 +66,7 @@
 		<div class="footer-container">
 			<div class="footer-content">
 				<div class="footer-section">
-					<h3>Albion</h3>
+					<img src="/assets/footer.svg" alt="Albion" class="footer-logo" />
 					<p>Tokenized oil field investments</p>
 				</div>
 				<div class="footer-section">
@@ -114,14 +115,23 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		height: 80px;
+		height: 100px;
 	}
 
-	.logo span {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		text-decoration: none;
+	.logo {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
+
+	.logo-image {
+		height: 4rem;
+		width: auto;
+	}
+
+	.brand-text {
+		height: 2rem;
+		width: auto;
 	}
 
 	.nav-links {
@@ -248,6 +258,11 @@
 		font-weight: var(--font-weight-extrabold);
 		margin-bottom: 1rem;
 		color: var(--color-black);
+	}
+
+	.footer-logo {
+		height: 40px;
+		margin-bottom: 1rem;
 	}
 
 	.footer-section h4 {

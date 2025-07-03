@@ -12,8 +12,6 @@
 	$: primaryToken = royaltyTokens.length > 0 ? royaltyTokens[0] : null;
 
 	// Extract token data with fallbacks
-	$: estimatedBaseReturn = primaryToken?.returns?.baseReturn ? `${primaryToken.returns.baseReturn}%` : 'TBD';
-	$: estimatedBonusReturn = primaryToken?.returns?.bonusReturn ? `${primaryToken.returns.bonusReturn}%` : 'TBD';
 	$: shareOfAsset = primaryToken?.assetShare?.sharePercentage ? `${primaryToken.assetShare.sharePercentage}%` : 'TBD';
 
 	function formatCurrency(amount: number): string {
@@ -97,16 +95,6 @@
 					<span class="stat-value">{formatCurrency(latestReport.netIncome)}</span>
 				</div>
 			{/if}
-			
-			<div class="stat">
-				<span class="stat-label">Estimated Base Return</span>
-				<span class="stat-value">{estimatedBaseReturn}</span>
-			</div>
-			
-			<div class="stat">
-				<span class="stat-label">Estimated Bonus Return</span>
-				<span class="stat-value">{estimatedBonusReturn}</span>
-			</div>
 			
 			<div class="stat">
 				<span class="stat-label">Share of Asset</span>

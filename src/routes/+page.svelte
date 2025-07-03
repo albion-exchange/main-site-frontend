@@ -164,7 +164,7 @@
 	<!-- Featured Tokens Carousel -->
 	<section class="featured-tokens">
 		<div class="section-header">
-			<h2>Featured Tokens</h2>
+			<h2>Featured Token Releases</h2>
 		</div>
 		
 		<FeaturedTokenCarousel autoPlay={true} autoPlayInterval={6000} />
@@ -293,7 +293,7 @@
 	}
 
 	.hero-content {
-		max-width: 900px;
+		max-width: 1200px;
 		margin: 0 auto 4rem;
 	}
 
@@ -394,7 +394,7 @@
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		gap: 3rem;
-		max-width: 1000px;
+		max-width: 1200px;
 		margin: 0 auto;
 	}
 
@@ -432,7 +432,7 @@
 	.trust-indicators {
 		padding: 4rem 2rem;
 		text-align: center;
-		max-width: 1000px;
+		max-width: 1200px;
 		margin: 0 auto;
 	}
 
@@ -508,6 +508,7 @@
 		font-size: 2rem;
 		font-weight: var(--font-weight-extrabold);
 		margin-bottom: 1.5rem;
+		color: #ffffff;
 	}
 
 
@@ -553,6 +554,7 @@
 		font-size: 1.5rem;
 		font-weight: var(--font-weight-extrabold);
 		margin-bottom: 1rem;
+		color: #ffffff;
 	}
 
 	.cta-box p {
