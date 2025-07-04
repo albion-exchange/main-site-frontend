@@ -148,8 +148,8 @@
 		}
 	}
 	
-	function handleMintTokens(tokenAddress: string) {
-		dispatch('mintTokens', { tokenAddress });
+	function handleBuyTokens(tokenAddress: string) {
+		dispatch('buyTokens', { tokenAddress });
 	}
 
 	function formatCurrency(amount: number): string {
@@ -224,7 +224,7 @@
 			on:keydown={handleKeydown}
 			on:touchstart={handleTouchStart}
 			on:touchend={handleTouchEnd}
-			role="region"
+			role="application"
 			aria-label="Featured tokens carousel"
 			tabindex="0"
 		>
@@ -270,8 +270,8 @@
 								</div>
 
 								<div class="token-actions">
-									<PrimaryButton on:click={() => handleMintTokens(item.token.contractAddress)}>
-										Mint Tokens
+									<PrimaryButton on:click={() => handleBuyTokens(item.token.contractAddress)}>
+										Buy Tokens
 									</PrimaryButton>
 									<SecondaryButton href="/assets/{item.asset.id}">
 										View Asset

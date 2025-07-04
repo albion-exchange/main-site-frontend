@@ -5,7 +5,6 @@
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/ui';
 
 	export let asset: Asset;
-	export let showSoldOut: boolean = true;
 	
 	const dispatch = createEventDispatcher();
 

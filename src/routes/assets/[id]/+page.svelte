@@ -181,6 +181,17 @@
 		flippedCards = new Set(flippedCards); // Trigger reactivity
 	}
 
+	// Decide what to do when the card itself is clicked
+	function handleCardClick(tokenAddress: string) {
+		if (flippedCards.has(tokenAddress)) {
+			// If the card is showing the back, flip it back to the front
+			toggleCardFlip(tokenAddress);
+		} else {
+			// Otherwise open the purchase panel
+			handleBuyTokens(tokenAddress);
+		}
+	}
+
 
 	onMount(() => {
 		const assetId = $page.params.id;
@@ -246,7 +257,27 @@
 						/>
 					</div>
 					<div class="title-info">
-						<h1>{assetData?.name}</h1>
+						<div class="title-row">
+							<h1>{assetData?.name}</h1>
+							<div class="social-sharing">
+								<button class="share-btn" title="Share on Twitter" on:click={() => window.open(`https://twitter.com/intent/tweet?text=Check out this investment opportunity: ${assetData?.name}&url=${encodeURIComponent(window.location.href)}`, '_blank')}>
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+										<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+									</svg>
+								</button>
+								<button class="share-btn" title="Share on LinkedIn" on:click={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank')}>
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+										<path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+									</svg>
+								</button>
+								<button class="share-btn" title="Copy Link" on:click={() => { navigator.clipboard.writeText(window.location.href); /* You could add a toast notification here */ }}>
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+										<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+										<path d="m14 11-7.54.54-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+									</svg>
+								</button>
+							</div>
+						</div>
 						<div class="asset-meta">
 							<span class="location">📍 {assetData?.location.state}, {assetData?.location.country}</span>
 						</div>
@@ -273,7 +304,7 @@
 						? formatEndDate(assetData.monthlyReports[0].month + '-01')
 						: 'May 2025'}</div>
 				</div>
-				<div class="metric clickable-metric" on:click={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })}>
+				<div class="metric clickable-metric" on:click={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' }); } }} role="button" tabindex="0">
 					<div class="metric-value">{assetTokens.length}</div>
 					<div class="metric-label">Available Tokens</div>
 					<div class="metric-subtitle">👆 Click to view tokens</div>
@@ -478,13 +509,14 @@
 				{:else if activeTab === 'payments'}
 					<div class="payments-content" id="payments-section">
 						<div class="payments-grid">
-							<div class="payments-chart">
+							<div class="chart-section chart-large">
 								<div class="chart-header">
 									<h4>Payment History</h4>
 									<SecondaryButton on:click={exportPaymentsData}>
 										📊 Export Data
 									</SecondaryButton>
 								</div>
+								<div class="chart-container">
 								<svg class="bar-chart" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
 									<!-- Chart background -->
 									<rect width="800" height="400" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
@@ -542,6 +574,7 @@
 									<!-- Chart title -->
 									<text x="400" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="var(--color-black)">Monthly Payments to Token Holders</text>
 								</svg>
+								</div>
 							</div>
 							<div class="payment-metrics">
 								<h4>Payment Metrics</h4>
@@ -671,8 +704,8 @@
 					{@const latestPayout = payoutHistory[payoutHistory.length - 1]}
 					{@const isFlipped = flippedCards.has(token.contractAddress)}
 					<div class="token-card-container" class:flipped={isFlipped}>
-						<Card hoverable clickable on:click={() => handleBuyTokens(token.contractAddress)}>
-							<CardContent>
+						<Card hoverable clickable padding="0" on:click={() => handleCardClick(token.contractAddress)}>
+							<CardContent padding="0">
 								<div class="token-card-front">
 									<div class="token-header">
 										<div class="token-title">
@@ -701,7 +734,9 @@
 												Implied Barrels/Token
 												<span class="tooltip-trigger" 
 													on:mouseenter={() => showTooltipWithDelay('barrels')}
-													on:mouseleave={hideTooltip}>ⓘ</span>
+													on:mouseleave={hideTooltip}
+													role="button"
+													tabindex="0">ⓘ</span>
 											</span>
 											<span class="metric-value">0.008</span>
 											{#if showTooltip === 'barrels'}
@@ -715,7 +750,9 @@
 												Breakeven Oil Price
 												<span class="tooltip-trigger"
 													on:mouseenter={() => showTooltipWithDelay('breakeven')}
-													on:mouseleave={hideTooltip}>ⓘ</span>
+													on:mouseleave={hideTooltip}
+													role="button"
+													tabindex="0">ⓘ</span>
 											</span>
 											<span class="metric-value">$45</span>
 											{#if showTooltip === 'breakeven'}
@@ -734,7 +771,9 @@
 													Base
 													<span class="tooltip-trigger"
 														on:mouseenter={() => showTooltipWithDelay('base')}
-														on:mouseleave={hideTooltip}>ⓘ</span>
+														on:mouseleave={hideTooltip}
+														role="button"
+														tabindex="0">ⓘ</span>
 												</span>
 												<span class="return-value">6-8%</span>
 												{#if showTooltip === 'base'}
@@ -748,7 +787,9 @@
 													Bonus
 													<span class="tooltip-trigger"
 														on:mouseenter={() => showTooltipWithDelay('bonus')}
-														on:mouseleave={hideTooltip}>ⓘ</span>
+														on:mouseleave={hideTooltip}
+														role="button"
+														tabindex="0">ⓘ</span>
 												</span>
 												<span class="return-value">+2-4%</span>
 												{#if showTooltip === 'bonus'}
@@ -794,9 +835,11 @@
 													Sold Out
 												</PrimaryButton>
 											{/if}
-											<SecondaryButton fullWidth on:click={(e) => { e.stopPropagation(); toggleCardFlip(token.contractAddress); }}>
-												View History
-											</SecondaryButton>
+											<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} style="width:100%">
+												<SecondaryButton fullWidth>
+													Payment History
+												</SecondaryButton>
+											</div>
 										</div>
 									</div>
 								</div>
@@ -804,9 +847,11 @@
 								<div class="token-card-back">
 									<div class="back-header">
 										<h4>Payment History</h4>
-										<SecondaryButton on:click={(e) => { e.stopPropagation(); toggleCardFlip(token.contractAddress); }}>
-											← Back
-										</SecondaryButton>
+										<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)}>
+											<SecondaryButton>
+												← Back
+											</SecondaryButton>
+										</div>
 									</div>
 									
 									{#if payoutHistory.length > 0}
@@ -871,8 +916,8 @@
 
 <!-- Email Notification Popup -->
 {#if showEmailPopup}
-	<div class="email-popup-overlay" on:click={handleCloseEmailPopup}>
-		<div class="email-popup" on:click|stopPropagation>
+	<div class="email-popup-overlay" on:click={handleCloseEmailPopup} on:keydown={(e) => { if (e.key === 'Escape') handleCloseEmailPopup(); }} role="dialog" aria-modal="true">
+		<div class="email-popup" on:click|stopPropagation on:keydown|stopPropagation>
 			<div class="email-popup-header">
 				<h3 class="email-popup-title">Get Notified</h3>
 				<button class="email-popup-close" on:click={handleCloseEmailPopup}>×</button>
@@ -983,11 +1028,45 @@
 		flex: 1;
 	}
 
+	.title-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	.social-sharing {
+		display: flex;
+		gap: 0.5rem;
+		flex-shrink: 0;
+	}
+
+	.share-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2rem;
+		height: 2rem;
+		background: var(--color-white);
+		border: 1px solid var(--color-light-gray);
+		color: var(--color-black);
+		cursor: pointer;
+		transition: all 0.2s ease;
+		border-radius: 4px;
+	}
+
+	.share-btn:hover {
+		background: var(--color-light-gray);
+		border-color: var(--color-secondary);
+		color: var(--color-secondary);
+	}
+
 	.title-info h1 {
 		font-size: 2.5rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-black);
-		margin-bottom: 1rem;
+		margin: 0;
 		line-height: 1.1;
 	}
 
@@ -1004,36 +1083,6 @@
 		font-size: 0.9rem;
 	}
 
-	.risk-badge {
-		background: var(--color-black);
-		color: var(--color-white);
-		padding: 0.25rem 0.75rem;
-		font-size: 0.75rem;
-		font-weight: var(--font-weight-bold);
-	}
-
-	.operator-info {
-		color: var(--color-black);
-		font-size: 0.85rem;
-		font-weight: var(--font-weight-medium);
-	}
-
-	.oil-price {
-		text-align: right;
-	}
-
-	.price {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.price-change {
-		color: var(--color-primary);
-		font-weight: var(--font-weight-bold);
-		font-size: 0.9rem;
-	}
 
 	.asset-metrics {
 		display: grid;
@@ -1083,11 +1132,19 @@
 		border-radius: 4px;
 		padding: 1rem;
 		margin: -1rem;
+		border: 2px solid transparent;
 	}
 
 	.clickable-metric:hover {
 		background: var(--color-light-gray);
 		transform: translateY(-2px);
+		border-color: var(--color-primary);
+	}
+
+	.clickable-metric:focus {
+		outline: none;
+		border-color: var(--color-primary);
+		background: var(--color-light-gray);
 	}
 
 	.clickable-metric .metric-subtitle {
@@ -1199,98 +1256,6 @@
 		color: var(--color-black);
 	}
 
-	.investment-highlights {
-		background: var(--color-light-gray);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-	}
-
-	.investment-highlights h4 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1.5rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.highlights-grid {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 2rem;
-	}
-
-	.highlight {
-		text-align: center;
-	}
-
-	.highlight-icon {
-		width: 3rem;
-		height: 3rem;
-		background: var(--color-primary);
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 1.5rem;
-		margin: 0 auto 1rem;
-	}
-
-	.highlight h5 {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.75rem;
-		text-transform: uppercase;
-		font-size: 0.9rem;
-		letter-spacing: 0.05em;
-	}
-
-	.highlight p {
-		font-size: 0.85rem;
-		color: var(--color-black);
-		font-weight: var(--font-weight-medium);
-		line-height: 1.5;
-	}
-
-	/* Production Content */
-	.chart-section {
-		margin-bottom: 3rem;
-	}
-
-	.chart-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 1.5rem;
-	}
-
-	.chart-header h4 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin: 0;
-	}
-
-	.export-btn {
-		padding: 0.5rem 1rem;
-		border: 1px solid var(--color-black);
-		background: var(--color-white);
-		color: var(--color-black);
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-bold);
-		font-size: 0.75rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
-
-	.export-btn:hover {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
 
 	.production-grid {
 		display: grid;
@@ -1737,8 +1702,8 @@
 
 	.tokens-grid {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 3rem;
+		grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+		gap: 2rem;
 	}
 
 	.token-card-container {
@@ -1769,6 +1734,7 @@
 		height: 100%;
 		transition: transform 0.6s;
 		transform-style: preserve-3d;
+		padding: 0;
 	}
 
 	.token-card-container.flipped :global(.card-content) {
@@ -1815,7 +1781,7 @@
 	}
 
 	.token-symbol {
-		font-size: 0.9rem;
+		font-size: 0.7rem;
 		color: var(--color-secondary);
 		font-weight: var(--font-weight-medium);
 		margin: 0;
@@ -1823,6 +1789,7 @@
 		letter-spacing: 0.05em;
 		word-wrap: break-word;
 		overflow-wrap: break-word;
+		line-height: 1.2;
 	}
 
 	.token-badge {

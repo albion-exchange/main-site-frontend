@@ -109,7 +109,7 @@
 		}).format(amount);
 	}
 	
-	function handleMintTokens(event: CustomEvent) {
+	function handleBuyTokensFromCarousel(event: CustomEvent) {
 		selectedTokenAddress = event.detail.tokenAddress;
 		selectedAssetId = null;
 		showPurchaseWidget = true;
@@ -197,7 +197,7 @@
 			<h2>Featured Token Releases</h2>
 		</div>
 		
-		<FeaturedTokenCarousel autoPlay={true} autoPlayInterval={6000} on:mintTokens={handleMintTokens} />
+		<FeaturedTokenCarousel autoPlay={true} autoPlayInterval={6000} on:buyTokens={handleBuyTokensFromCarousel} />
 	</section>
 
 	<!-- How It Works -->
@@ -308,10 +308,11 @@
 			<div class="cta-box">
 				<h4>Start Investing Today</h4>
 				<p>Join {platformStats.activeInvestors.toLocaleString()} investors earning from energy assets</p>
-				<PrimaryButton href="/assets">Get Started Now</PrimaryButton>
+				<SecondaryButton href="/assets">Get Started Now</SecondaryButton>
 			</div>
 		</div>
 	</section>
+
 </main>
 
 <style>
@@ -677,6 +678,7 @@
 			gap: 1rem;
 			text-align: center;
 		}
+
 	}
 </style>
 

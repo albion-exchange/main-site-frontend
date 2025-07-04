@@ -27,7 +27,7 @@
 	on:click={handleClick}
 	on:keydown
 	role={clickable ? 'button' : 'article'}
-	tabindex={clickable ? 0 : undefined}
+	{...(clickable ? { tabindex: 0 } : {})}
 >
 	<slot />
 </article>

@@ -142,7 +142,7 @@
 
 <!-- Widget Overlay -->
 {#if isOpen}
-	<div class="widget-overlay" on:click={handleBackdropClick}>
+	<div class="widget-overlay" on:click={handleBackdropClick} on:keydown={(e) => { if (e.key === 'Escape') handleBackdropClick(e); }} role="dialog" aria-modal="true" tabindex="-1">
 		<div class="widget-container">
 			<!-- Header -->
 			<div class="widget-header">
@@ -238,7 +238,6 @@
 								Cancel
 							</SecondaryButton>
 							<PrimaryButton 
-								disabled={!canProceed() || purchasing}
 								on:click={handlePurchase}
 							>
 								{#if isSoldOut()}
@@ -278,7 +277,7 @@
 		max-width: 500px;
 		height: 100%;
 		max-height: 80vh;
-		border-radius: 1rem;
+		border-radius: 0;
 		display: flex;
 		flex-direction: column;
 		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
@@ -325,7 +324,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		border-radius: 50%;
+		border-radius: 0;
 		transition: background-color 0.2s;
 	}
 
@@ -360,7 +359,7 @@
 	.amount-input {
 		padding: 1rem;
 		border: 2px solid var(--color-light-gray);
-		border-radius: 0.5rem;
+		border-radius: 0;
 		font-size: 1.1rem;
 		transition: border-color 0.2s;
 	}
@@ -373,7 +372,7 @@
 	.input-note {
 		font-size: 0.8rem;
 		padding: 0.5rem;
-		border-radius: 0.25rem;
+		border-radius: 0;
 	}
 
 	.warning-note {
@@ -388,7 +387,7 @@
 
 	.order-summary {
 		border: 1px solid var(--color-light-gray);
-		border-radius: 0.5rem;
+		border-radius: 0;
 		padding: 1.5rem;
 	}
 
