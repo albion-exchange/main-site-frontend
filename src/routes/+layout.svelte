@@ -84,7 +84,7 @@
 				</div>
 			</div>
 			<div class="footer-bottom">
-				<p>&copy; 2024 Albion. All rights reserved.</p>
+				<p>&copy; 2025 Albion. All rights reserved.</p>
 			</div>
 		</div>
 	</footer>
@@ -196,12 +196,6 @@
 		margin-bottom: 2rem;
 	}
 
-	.footer-section h3 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 1rem;
-		color: var(--color-black);
-	}
 
 	.footer-logo {
 		height: 40px;
@@ -273,10 +267,6 @@
 			gap: 0.5rem;
 		}
 
-		.wallet-btn {
-			font-size: 0.8rem;
-			padding: 0.4rem 0.8rem;
-		}
 
 		.footer-content {
 			grid-template-columns: 1fr;

@@ -4,6 +4,7 @@
 	import type { Asset } from '$lib/types/dataStore';
 	import AssetCard from '$lib/components/assets/AssetCard.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
+	import { SecondaryButton } from '$lib/components/ui';
 
 	let viewMode = 'grid';
 	let loading = true;
@@ -12,7 +13,7 @@
 	
 	// Token purchase widget state
 	let showPurchaseWidget = false;
-	let selectedAssetId = null;
+	let selectedAssetId: string | null = null;
 
 	onMount(async () => {
 		try {
@@ -51,12 +52,12 @@
 	// Count sold out assets
 	$: soldOutCount = allAssets.filter(asset => !hasAvailableTokens(asset)).length;
 	
-	function handleBuyTokens(event) {
+	function handleBuyTokens(event: CustomEvent) {
 		selectedAssetId = event.detail.assetId;
 		showPurchaseWidget = true;
 	}
 	
-	function handlePurchaseSuccess(event) {
+	function handlePurchaseSuccess(event: CustomEvent) {
 		console.log('Purchase successful:', event.detail);
 		showPurchaseWidget = false;
 	}
@@ -106,15 +107,15 @@
 		<!-- View Previous Assets Button -->
 		{#if soldOutCount > 0 && !showSoldOutAssets}
 			<div class="view-previous-section">
-				<button class="view-previous-btn" on:click={() => showSoldOutAssets = true}>
+				<SecondaryButton on:click={() => showSoldOutAssets = true}>
 					View previous assets ({soldOutCount})
-				</button>
+				</SecondaryButton>
 			</div>
 		{:else if showSoldOutAssets && soldOutCount > 0}
 			<div class="view-previous-section">
-				<button class="view-previous-btn" on:click={() => showSoldOutAssets = false}>
+				<SecondaryButton on:click={() => showSoldOutAssets = false}>
 					Hide sold out assets
-				</button>
+				</SecondaryButton>
 			</div>
 		{/if}
 	{/if}
@@ -586,26 +587,6 @@
 		padding: 2rem 0;
 	}
 
-	.view-previous-btn {
-		background: var(--color-white);
-		color: var(--color-black);
-		border: 2px solid var(--color-black);
-		padding: 1rem 2rem;
-		font-size: 1rem;
-		font-weight: var(--font-weight-semibold);
-		font-family: var(--font-family);
-		cursor: pointer;
-		transition: all 0.2s ease;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		border-radius: 0;
-	}
-
-	.view-previous-btn:hover {
-		background: var(--color-primary);
-		color: var(--color-white);
-		border-color: var(--color-primary);
-	}
 
 	@media (max-width: 768px) {
 		.assets-page {

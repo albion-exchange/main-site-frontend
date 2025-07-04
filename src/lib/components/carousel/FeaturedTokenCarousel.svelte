@@ -13,7 +13,7 @@
 	let featuredTokensWithAssets: Array<{ token: Token; asset: Asset }> = [];
 	let loading = true;
 	let error: string | null = null;
-	let autoPlayTimer: NodeJS.Timeout | null = null;
+	let autoPlayTimer: ReturnType<typeof setTimeout> | null = null;
 	let carouselContainer: HTMLElement;
 	let isTransitioning = false;
 	let touchStartX = 0;
@@ -239,9 +239,6 @@
 							<!-- Token Section -->
 							<div class="token-section">
 								<div class="token-header">
-									<div class="token-type-badge">
-										{item.token.tokenType === 'royalty' ? 'Royalty Token' : 'Payment Token'}
-									</div>
 									<h3 class="token-name">{item.token.name}</h3>
 									<div class="token-contract">{item.token.contractAddress}</div>
 								</div>
@@ -344,6 +341,7 @@
 		width: 100%;
 		max-width: 1200px;
 		margin: 0 auto;
+		padding: 0 2rem;
 	}
 
 	.loading-state, .error-state, .empty-state {
@@ -473,24 +471,11 @@
 		margin-bottom: 2rem;
 	}
 
-	.token-type-badge {
-		display: inline-block;
-		padding: 0.25rem 0.75rem;
-		background: var(--color-primary);
-		color: var(--color-white);
-		font-size: 0.75rem;
-		font-weight: var(--font-weight-semibold);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		border-radius: 12px;
-		margin-bottom: 1rem;
-	}
-
 	.token-name {
 		font-size: 1.5rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-black);
-		margin-bottom: 0.5rem;
+		margin-bottom: 0.75rem;
 		line-height: 1.2;
 	}
 
@@ -780,7 +765,17 @@
 		}
 	}
 
+	@media (max-width: 768px) {
+		.carousel-container {
+			padding: 0 1rem;
+		}
+	}
+
 	@media (max-width: 480px) {
+		.carousel-container {
+			padding: 0 1rem;
+		}
+
 		.token-section, .asset-section {
 			padding: 1.5rem;
 		}

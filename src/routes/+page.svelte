@@ -5,6 +5,7 @@
 	import type { Token } from '$lib/types/dataStore';
 	import FeaturedTokenCarousel from '$lib/components/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
+	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
 
 	let platformStats = {
 		totalAssets: 0,
@@ -17,8 +18,8 @@
 	
 	// Token purchase widget state
 	let showPurchaseWidget = false;
-	let selectedTokenAddress = null;
-	let selectedAssetId = null;
+	let selectedTokenAddress: string | null = null;
+	let selectedAssetId: string | null = null;
 
 	onMount(async () => {
 		try {
@@ -108,19 +109,19 @@
 		}).format(amount);
 	}
 	
-	function handleMintTokens(event) {
+	function handleMintTokens(event: CustomEvent) {
 		selectedTokenAddress = event.detail.tokenAddress;
 		selectedAssetId = null;
 		showPurchaseWidget = true;
 	}
 	
-	function handleBuyTokens(event) {
+	function handleBuyTokens(event: CustomEvent) {
 		selectedAssetId = event.detail.assetId;
 		selectedTokenAddress = null;
 		showPurchaseWidget = true;
 	}
 	
-	function handlePurchaseSuccess(event) {
+	function handlePurchaseSuccess(event: CustomEvent) {
 		console.log('Purchase successful:', event.detail);
 		showPurchaseWidget = false;
 	}
@@ -185,8 +186,8 @@
 
 		<!-- CTA Buttons -->
 		<div class="cta-buttons">
-			<a href="/buy-tokens" class="btn-primary">Explore Investments</a>
-			<a href="/about" class="btn-secondary">Learn How It Works</a>
+			<PrimaryButton href="/assets">Explore Investments</PrimaryButton>
+			<SecondaryButton href="/about">Learn How It Works</SecondaryButton>
 		</div>
 	</section>
 
@@ -201,33 +202,36 @@
 
 	<!-- How It Works -->
 	<section class="how-it-works">
-		<h2>How It Works</h2>
-		
-		<div class="steps">
-			<div class="step">
-				<div class="step-number">1</div>
-				<h3>Browse Assets</h3>
-				<p>Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
-			</div>
+		<div class="how-it-works-content">
+			<h2>How It Works</h2>
 			
-			<div class="step">
-				<div class="step-number">2</div>
-				<h3>Invest Tokens</h3>
-				<p>Purchase royalty tokens using our smart payment system with automatic collateral management and instant settlement.</p>
-			</div>
-			
-			<div class="step">
-				<div class="step-number">3</div>
-				<h3>Earn Payout</h3>
-				<p>Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
+			<div class="steps">
+				<div class="step">
+					<div class="step-number">1</div>
+					<h3>Browse Assets</h3>
+					<p>Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
+				</div>
+				
+				<div class="step">
+					<div class="step-number">2</div>
+					<h3>Buy Tokens</h3>
+					<p>Purchase royalty tokens using our smart payment system with automatic collateral management and instant settlement.</p>
+				</div>
+				
+				<div class="step">
+					<div class="step-number">3</div>
+					<h3>Earn Payout</h3>
+					<p>Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
+				</div>
 			</div>
 		</div>
 	</section>
 
 	<!-- Trust Indicators -->
 	<section class="trust-indicators">
-		<h2>Why Choose Albion</h2>
-		<div class="indicators">
+		<div class="trust-indicators-content">
+			<h2>Why Choose Albion</h2>
+			<div class="indicators">
 			<div class="indicator">
 				<div class="indicator-icon">
 					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -277,6 +281,7 @@
 				<p>Real-time reporting</p>
 			</div>
 		</div>
+		</div>
 	</section>
 
 	<!-- Market Insights -->
@@ -303,7 +308,7 @@
 			<div class="cta-box">
 				<h4>Start Investing Today</h4>
 				<p>Join {platformStats.activeInvestors.toLocaleString()} investors earning from energy assets</p>
-				<a href="/buy-tokens" class="btn-primary">Get Started Now</a>
+				<PrimaryButton href="/assets">Get Started Now</PrimaryButton>
 			</div>
 		</div>
 	</section>
@@ -315,7 +320,7 @@
 	}
 
 	.hero {
-		padding: 6rem 2rem;
+		padding: 6rem 0;
 		text-align: center;
 		background: var(--color-white);
 		border-bottom: 1px solid var(--color-light-gray);
@@ -324,6 +329,7 @@
 	.hero-content {
 		max-width: 1200px;
 		margin: 0 auto 4rem;
+		padding: 0 2rem;
 	}
 
 	.hero h1 {
@@ -386,9 +392,15 @@
 	}
 
 	.featured-tokens {
-		padding: 4rem 2rem;
+		padding: 4rem 0;
+		width: 100%;
+		overflow: hidden;
+	}
+
+	.featured-tokens .section-header {
 		max-width: 1200px;
-		margin: 0 auto;
+		margin: 0 auto 3rem;
+		padding: 0 2rem;
 	}
 
 	.section-header {
@@ -407,9 +419,15 @@
 
 
 	.how-it-works {
-		padding: 4rem 2rem;
+		padding: 4rem 0;
 		background: var(--color-light-gray);
 		text-align: center;
+	}
+
+	.how-it-works-content {
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 0 2rem;
 	}
 
 	.how-it-works h2 {
@@ -423,8 +441,6 @@
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		gap: 3rem;
-		max-width: 1200px;
-		margin: 0 auto;
 	}
 
 	.step {
@@ -459,10 +475,14 @@
 	}
 
 	.trust-indicators {
-		padding: 4rem 2rem;
+		padding: 4rem 0;
 		text-align: center;
 		max-width: 1200px;
 		margin: 0 auto;
+	}
+
+	.trust-indicators-content {
+		padding: 0 2rem;
 	}
 
 	.trust-indicators h2 {
@@ -519,7 +539,7 @@
 	}
 
 	.market-insights {
-		padding: 4rem 2rem;
+		padding: 4rem 0;
 		background: var(--color-secondary);
 		color: var(--color-white);
 	}
@@ -531,6 +551,7 @@
 		max-width: 1200px;
 		margin: 0 auto;
 		align-items: center;
+		padding: 0 2rem;
 	}
 
 	.insights-text h3 {
@@ -591,48 +612,16 @@
 		opacity: 0.9;
 	}
 
-	.btn-primary,
-	.btn-secondary {
-		padding: 1rem 2rem;
-		text-decoration: none;
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		transition: background-color 0.2s ease;
-		display: inline-block;
-	}
-
-	.btn-primary {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	.btn-primary:hover {
-		background: var(--color-secondary);
-	}
-
-	.btn-secondary {
-		background: var(--color-white);
-		color: var(--color-black);
-		border: 1px solid var(--color-black);
-	}
-
-	.btn-secondary:hover {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	.market-insights .btn-primary {
-		background: var(--color-white);
-		color: var(--color-black);
-	}
-
-	.market-insights .btn-primary:hover {
-		background: var(--color-light-gray);
-	}
 
 	@media (max-width: 768px) {
+		.hero {
+			padding: 4rem 0;
+		}
+
+		.hero-content {
+			padding: 0 1rem;
+		}
+
 		.hero h1 {
 			font-size: 2.5rem;
 		}
@@ -657,9 +646,20 @@
 			align-items: center;
 		}
 
+		.featured-tokens .section-header {
+			padding: 0 1rem;
+		}
+
+		.how-it-works-content {
+			padding: 0 1rem;
+		}
 
 		.steps {
 			grid-template-columns: 1fr;
+		}
+
+		.trust-indicators-content {
+			padding: 0 1rem;
 		}
 
 		.indicators {
@@ -669,6 +669,7 @@
 		.insights-content {
 			grid-template-columns: 1fr;
 			gap: 2rem;
+			padding: 0 1rem;
 		}
 
 		.section-header {

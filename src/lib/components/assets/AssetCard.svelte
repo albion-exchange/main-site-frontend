@@ -116,8 +116,8 @@
 				<div class="tokens-list" class:scrollable={royaltyTokens.length > 2}>
 					{#each royaltyTokens as token}
 						{@const supply = dataStoreService.getTokenSupply(token.contractAddress)}
-						{@const baseReturn = token.estimatedReturns?.baseCase || 0}
-						{@const bonusReturn = token.estimatedReturns?.bonusCase || 0}
+						{@const baseReturn = (token as any).estimatedReturns?.baseCase || 0}
+						{@const bonusReturn = (token as any).estimatedReturns?.bonusCase || 0}
 						{@const combinedReturn = baseReturn + bonusReturn}
 						<div class="token-item">
 							<div class="token-info">
