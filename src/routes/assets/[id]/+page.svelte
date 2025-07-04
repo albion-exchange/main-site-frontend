@@ -507,8 +507,8 @@
 						</div>
 					</div>
 				{:else if activeTab === 'payments'}
-					<div class="payments-content" id="payments-section">
-						<div class="payments-grid">
+					<div class="payments-content">
+						<div class="production-grid">
 							<div class="chart-section chart-large">
 								<div class="chart-header">
 									<h4>Payment History</h4>
@@ -517,78 +517,92 @@
 									</SecondaryButton>
 								</div>
 								<div class="chart-container">
-								<svg class="bar-chart" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
-									<!-- Chart background -->
-									<rect width="800" height="400" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
-									
-									<!-- Grid lines -->
-									{#each Array(6) as _, i}
-										<line x1="80" y1={50 + i * 50} x2="750" y2={50 + i * 50} stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.5"/>
-									{/each}
-									
-									<!-- Y-axis labels (Payment amounts) -->
-									<text x="70" y="55" text-anchor="end" font-size="10" fill="var(--color-black)">$50k</text>
-									<text x="70" y="105" text-anchor="end" font-size="10" fill="var(--color-black)">$40k</text>
-									<text x="70" y="155" text-anchor="end" font-size="10" fill="var(--color-black)">$30k</text>
-									<text x="70" y="205" text-anchor="end" font-size="10" fill="var(--color-black)">$20k</text>
-									<text x="70" y="255" text-anchor="end" font-size="10" fill="var(--color-black)">$10k</text>
-									<text x="70" y="305" text-anchor="end" font-size="10" fill="var(--color-black)">$0</text>
-									
-									<!-- Bars for each month -->
-									{#each (assetData?.monthlyReports || []).slice(-12).reverse() as report, i}
-										{@const barHeight = (report.netIncome / 50000) * 250}
-										{@const x = 100 + i * 55}
-										{@const [year, month] = report.month.split('-')}
-										{@const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']}
-										{@const monthLabel = `${monthNames[parseInt(month) - 1]}-${year}`}
-										<rect 
-											x={x} 
-											y={300 - barHeight} 
-											width="40" 
-											height={barHeight}
-											fill="var(--color-primary)"
-											opacity="0.8"
+									<svg class="production-chart" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+										<!-- Chart background -->
+										<rect width="800" height="300" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
+										
+										<!-- Grid lines -->
+										{#each Array(6) as _, i}
+											<line x1="80" y1={50 + i * 40} x2="750" y2={50 + i * 40} stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.5"/>
+										{/each}
+										{#each Array(12) as _, i}
+											<line x1={80 + i * 55.8} y1="50" x2={80 + i * 55.8} y2="250" stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.5"/>
+										{/each}
+										
+										<!-- Y-axis labels (Payment amounts) -->
+										<text x="70" y="55" text-anchor="end" font-size="10" fill="var(--color-black)">$50k</text>
+										<text x="70" y="95" text-anchor="end" font-size="10" fill="var(--color-black)">$40k</text>
+										<text x="70" y="135" text-anchor="end" font-size="10" fill="var(--color-black)">$30k</text>
+										<text x="70" y="175" text-anchor="end" font-size="10" fill="var(--color-black)">$20k</text>
+										<text x="70" y="215" text-anchor="end" font-size="10" fill="var(--color-black)">$10k</text>
+										<text x="70" y="255" text-anchor="end" font-size="10" fill="var(--color-black)">$0</text>
+										
+										<!-- X-axis labels (Months) -->
+										<text x="108" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jan</text>
+										<text x="164" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Feb</text>
+										<text x="220" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Mar</text>
+										<text x="276" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Apr</text>
+										<text x="332" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">May</text>
+										<text x="388" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jun</text>
+										<text x="444" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jul</text>
+										<text x="500" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Aug</text>
+										<text x="556" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Sep</text>
+										<text x="612" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Oct</text>
+										<text x="668" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Nov</text>
+										<text x="724" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Dec</text>
+										
+										<!-- Production decline curve (simulated data) -->
+										<polyline 
+											points="108,80 164,85 220,92 276,100 332,110 388,122 444,136 500,152 556,170 612,190 668,212 724,236"
+											fill="none" 
+											stroke="var(--color-primary)" 
+											stroke-width="3"
 										/>
-										<text 
-											x={x + 20} 
-											y="320" 
-											text-anchor="middle" 
-											font-size="8" 
-											fill="var(--color-black)"
-											transform="rotate(-45 {x + 20} 320)"
-										>
-											{monthLabel}
-										</text>
-										<text 
-											x={x + 20} 
-											y={295 - barHeight} 
-											text-anchor="middle" 
-											font-size="8" 
-											fill="var(--color-black)"
-											font-weight="bold"
-										>
-											${(report.netIncome / 1000).toFixed(1)}k
-										</text>
-									{/each}
-									
-									<!-- Chart title -->
-									<text x="400" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="var(--color-black)">Monthly Payments to Token Holders</text>
-								</svg>
+										
+										<!-- Data points -->
+										{#each Array(12) as _, i}
+											<circle 
+												cx={108 + i * 55.8} 
+												cy={80 + i * 13 + Math.random() * 8} 
+												r="4" 
+												fill="var(--color-secondary)"
+												stroke="var(--color-white)"
+												stroke-width="2"
+											/>
+										{/each}
+										
+										<!-- Chart title -->
+										<text x="400" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="var(--color-black)">Monthly Payment History</text>
+										
+										<!-- Legend -->
+										<rect x="580" y="60" width="150" height="40" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
+										<line x1="590" y1="70" x2="610" y2="70" stroke="var(--color-primary)" stroke-width="3"/>
+										<text x="615" y="75" font-size="9" fill="var(--color-black)">Payment Amount</text>
+										<circle cx="600" cy="85" r="3" fill="var(--color-secondary)"/>
+										<text x="615" y="90" font-size="9" fill="var(--color-black)">Monthly Data</text>
+									</svg>
 								</div>
 							</div>
-							<div class="payment-metrics">
+
+							<div class="production-metrics">
 								<h4>Payment Metrics</h4>
-								<div class="payment-metric-item">
-									<div class="metric-label">Next Payment Due</div>
-									<div class="metric-value">15 Jan 2025</div>
+								<div class="uptime-metric">
+									<div class="uptime-value">15 Jan</div>
+									<div class="uptime-label">Next Payment Due</div>
 								</div>
-								<div class="payment-metric-item">
-									<div class="metric-label">Realised Avg Oil Price</div>
-									<div class="metric-value">$72.45/bbl</div>
+								<div class="metrics-grid">
+									<div class="metric-item">
+										<div class="metric-value">$72.45</div>
+										<div class="metric-label">Avg Oil Price</div>
+									</div>
+									<div class="metric-item">
+										<div class="metric-value">-$2.50</div>
+										<div class="metric-label">Diff to Benchmark</div>
+									</div>
 								</div>
-								<div class="payment-metric-item">
-									<div class="metric-label">Realised Diff to Benchmark</div>
-									<div class="metric-value">-$2.50/bbl</div>
+								<div class="hse-metric">
+									<div class="hse-value">12</div>
+									<div class="hse-label">Months of Payouts</div>
 								</div>
 							</div>
 						</div>
@@ -1131,20 +1145,24 @@
 		transition: all 0.2s ease;
 		border-radius: 4px;
 		padding: 1rem;
-		margin: -1rem;
-		border: 2px solid transparent;
+		margin: -1rem 0;
+		border: 2px solid var(--color-light-gray);
+		background: var(--color-white);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 	}
 
 	.clickable-metric:hover {
 		background: var(--color-light-gray);
 		transform: translateY(-2px);
 		border-color: var(--color-primary);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 	}
 
 	.clickable-metric:focus {
 		outline: none;
 		border-color: var(--color-primary);
 		background: var(--color-light-gray);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 	}
 
 	.clickable-metric .metric-subtitle {
@@ -1501,7 +1519,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		padding: 1rem;
+		padding: 0.5rem;
 	}
 
 	.production-chart {
@@ -1653,35 +1671,6 @@
 		background: var(--color-secondary);
 	}
 
-	/* Payments Content */
-	.payments-content {
-		height: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.payments-chart {
-		height: 400px;
-		width: 100%;
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 1rem;
-	}
-
-	.bar-chart {
-		width: 100%;
-		height: 100%;
-		max-width: 800px;
-		max-height: 400px;
-	}
-
-	.bar-chart text {
-		font-family: var(--font-family);
-	}
 
 	/* Token Information Section */
 	.token-info-section {
