@@ -224,8 +224,8 @@
 			on:keydown={handleKeydown}
 			on:touchstart={handleTouchStart}
 			on:touchend={handleTouchEnd}
-			role="application"
-			aria-label="Featured tokens carousel"
+			role="button"
+			aria-label="Featured tokens carousel - use arrow keys to navigate"
 			tabindex="0"
 		>
 			<!-- Carousel track -->

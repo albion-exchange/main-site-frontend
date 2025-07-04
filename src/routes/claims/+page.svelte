@@ -56,7 +56,7 @@
 					unclaimedAmount: balance.unclaimedAmount,
 					totalEarned: balance.totalEarned,
 					lastPayout: balance.lastPayout,
-					currentPayout: asset.financial.currentPayout,
+					currentPayout: asset.monthlyReports.length > 0 ? asset.monthlyReports[asset.monthlyReports.length - 1].payoutPerToken : 0,
 					status: asset.production.status
 				};
 			}).filter(Boolean);
@@ -163,7 +163,7 @@
 						unclaimedAmount: balance.unclaimedAmount,
 						totalEarned: balance.totalEarned,
 						lastPayout: balance.lastPayout,
-						currentPayout: asset.financial.currentPayout,
+						currentPayout: asset.monthlyReports.length > 0 ? asset.monthlyReports[asset.monthlyReports.length - 1].payoutPerToken : 0,
 						status: asset.production.status
 					};
 				}).filter(Boolean);

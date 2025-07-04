@@ -138,11 +138,17 @@
 			closeWidget();
 		}
 	}
+
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			closeWidget();
+		}
+	}
 </script>
 
 <!-- Widget Overlay -->
 {#if isOpen}
-	<div class="widget-overlay" on:click={handleBackdropClick} on:keydown={(e) => { if (e.key === 'Escape') handleBackdropClick(e); }} role="dialog" aria-modal="true" tabindex="-1">
+	<div class="widget-overlay" on:click={handleBackdropClick} on:keydown={handleKeydown} role="dialog" aria-modal="true" tabindex="-1">
 		<div class="widget-container">
 			<!-- Header -->
 			<div class="widget-header">
@@ -275,7 +281,7 @@
 		background: white;
 		width: 100%;
 		max-width: 500px;
-		height: 100%;
+		height: auto;
 		max-height: 80vh;
 		border-radius: 0;
 		display: flex;
@@ -333,7 +339,7 @@
 	}
 
 	.widget-content {
-		flex: 1;
+		flex: 0 1 auto;
 		padding: 2rem;
 		overflow-y: auto;
 	}

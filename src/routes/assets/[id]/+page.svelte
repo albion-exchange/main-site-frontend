@@ -844,7 +844,7 @@
 													Sold Out
 												</PrimaryButton>
 											{/if}
-											<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} style="width:100%">
+											<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCardFlip(token.contractAddress); }} role="button" tabindex="0" style="width:100%">
 												<SecondaryButton fullWidth>
 													Distributions History
 												</SecondaryButton>
@@ -856,7 +856,7 @@
 								<div class="token-card-back">
 									<div class="back-header">
 										<h4>Distributions History</h4>
-										<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)}>
+										<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCardFlip(token.contractAddress); }} role="button" tabindex="0">
 											<SecondaryButton>
 												← Back
 											</SecondaryButton>
@@ -931,8 +931,8 @@
 
 <!-- Email Notification Popup -->
 {#if showEmailPopup}
-	<div class="email-popup-overlay" on:click={handleCloseEmailPopup} on:keydown={(e) => { if (e.key === 'Escape') handleCloseEmailPopup(); }} role="dialog" aria-modal="true">
-		<div class="email-popup" on:click|stopPropagation on:keydown|stopPropagation>
+	<div class="email-popup-overlay" on:click={handleCloseEmailPopup} on:keydown={(e) => { if (e.key === 'Escape') handleCloseEmailPopup(); }} role="dialog" aria-modal="true" tabindex="-1">
+		<div class="email-popup" on:click|stopPropagation on:keydown|stopPropagation role="document">
 			<div class="email-popup-header">
 				<h3 class="email-popup-title">Get Notified</h3>
 				<button class="email-popup-close" on:click={handleCloseEmailPopup}>×</button>
@@ -1298,14 +1298,7 @@
 		margin-bottom: 3rem;
 	}
 
-	.payments-grid {
-		display: grid;
-		grid-template-columns: 2fr 1fr;
-		gap: 3rem;
-		margin-bottom: 3rem;
-	}
 
-	.production-history h4,
 	.production-metrics h4 {
 		font-size: 1.25rem;
 		font-weight: var(--font-weight-extrabold);
@@ -1315,48 +1308,12 @@
 		letter-spacing: 0.05em;
 	}
 
-	.history-list {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
 
-	.history-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding-bottom: 1rem;
-		border-bottom: 1px solid var(--color-light-gray);
-	}
 
-	.history-item:last-child {
-		border-bottom: none;
-		padding-bottom: 0;
-	}
 
-	.month {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		font-size: 0.9rem;
-	}
 
-	.production {
-		font-size: 0.8rem;
-		color: var(--color-black);
-		font-weight: var(--font-weight-medium);
-	}
 
-	.revenue {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		font-size: 0.9rem;
-	}
 
-	.price {
-		font-size: 0.8rem;
-		color: var(--color-primary);
-		font-weight: var(--font-weight-medium);
-	}
 
 	.uptime-metric {
 		background: var(--color-light-gray);
@@ -1435,18 +1392,7 @@
 		width: 100%;
 	}
 
-	.payments-grid {
-		display: grid;
-		grid-template-columns: 2fr 1fr;
-		gap: 3rem;
-		align-items: start;
-	}
 
-	.payments-chart {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 1.5rem;
-	}
 
 	.chart-header {
 		display: flex;
@@ -1464,19 +1410,9 @@
 		letter-spacing: 0.05em;
 	}
 
-	.bar-chart {
-		width: 100%;
-		height: auto;
-		max-width: 100%;
-		display: block;
-	}
 
 	/* Responsive layout for payments */
 	@media (max-width: 768px) {
-		.payments-grid {
-			grid-template-columns: 1fr;
-			gap: 2rem;
-		}
 
 		.chart-header {
 			flex-direction: column;
@@ -1489,44 +1425,10 @@
 		}
 	}
 
-	.payment-metrics {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
 
-	.payment-metrics h4 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1.5rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
 
-	.payment-metric-item {
-		background: var(--color-light-gray);
-		border: 1px solid var(--color-light-gray);
-		padding: 1rem;
-		text-align: center;
-	}
 
-	.payment-metric-item .metric-label {
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-medium);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin-bottom: 0.5rem;
-		display: block;
-	}
 
-	.payment-metric-item .metric-value {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-primary);
-		display: block;
-	}
 
 	.chart-container {
 		height: 18rem;
@@ -1549,71 +1451,17 @@
 		font-family: var(--font-family);
 	}
 
-	/* Risk Content */
-	.risk-metrics-grid {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 2rem;
-	}
 
-	.risk-metric {
-		border: 1px solid var(--color-light-gray);
-		padding: 1.5rem;
-	}
 
-	.risk-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 1rem;
-	}
 
-	.risk-label {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		font-size: 0.9rem;
-	}
 
-	.risk-value-container {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
 
-	.risk-value {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		font-size: 0.9rem;
-	}
 
-	.risk-status {
-		width: 0.75rem;
-		height: 0.75rem;
-		border-radius: 50%;
-	}
 
-	.risk-status.excellent {
-		background: var(--color-primary);
-	}
 
-	.risk-status.good {
-		background: var(--color-secondary);
-	}
 
-	.risk-status.low {
-		background: #fbbf24;
-	}
 
-	.risk-status.minimal {
-		background: var(--color-primary);
-	}
 
-	.risk-description {
-		font-size: 0.85rem;
-		color: var(--color-black);
-		font-weight: var(--font-weight-medium);
-		line-height: 1.5;
-	}
 
 	/* Documents Content */
 	.documents-grid {
@@ -1858,80 +1706,16 @@
 		margin: 0;
 	}
 
-	.back-btn {
-		background: var(--color-light-gray);
-		color: var(--color-black);
-		border: none;
-		padding: 0.5rem 1rem;
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-medium);
-		cursor: pointer;
-		border-radius: 4px;
-		transition: background 0.2s ease;
-	}
 
-	.back-btn:hover {
-		background: var(--color-secondary);
-		color: var(--color-white);
-	}
 
-	.history-list {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		margin-bottom: 1.5rem;
-	}
 
-	.history-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 0.75rem;
-		background: var(--color-light-gray);
-		border-radius: 4px;
-	}
 
-	.history-date {
-		font-size: 0.9rem;
-		font-weight: var(--font-weight-medium);
-		color: var(--color-black);
-	}
 
-	.history-amount {
-		font-size: 0.9rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-secondary);
-	}
 
-	.history-summary {
-		padding: 1rem;
-		background: var(--color-light-gray);
-		border-radius: 4px;
-		margin-top: auto;
-	}
 
-	.summary-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 0.5rem;
-	}
 
-	.summary-item:last-child {
-		margin-bottom: 0;
-	}
 
-	.summary-label {
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-medium);
-		color: var(--color-black);
-	}
 
-	.summary-value {
-		font-size: 0.9rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-secondary);
-	}
 
 	.no-history {
 		display: flex;
@@ -2060,12 +1844,6 @@
 		gap: 1rem;
 	}
 
-	.share-text {
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-white);
-		line-height: 1;
-	}
 
 	.token-metric {
 		text-align: center;
@@ -2137,91 +1915,18 @@
 		gap: 0.75rem;
 	}
 
-	.buy-token-btn {
-		width: 100%;
-		padding: 0.75rem 1.5rem;
-		background: var(--color-black);
-		color: var(--color-white);
-		border: 2px solid var(--color-black);
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		border-radius: 0;
-	}
 
-	.buy-token-btn:hover:not(:disabled) {
-		background: var(--color-primary);
-		border-color: var(--color-primary);
-	}
 
-	.buy-token-btn:disabled {
-		background: var(--color-light-gray);
-		color: var(--color-black);
-		border-color: var(--color-light-gray);
-		cursor: not-allowed;
-		opacity: 0.6;
-	}
 
 
 	/* Recent Distribution Styles */
-	.recent-distribution {
-		margin-top: 1rem;
-		padding: 1rem;
-		background: var(--color-light-gray);
-		border-radius: 4px;
-	}
 
-	.recent-distribution h5 {
-		font-size: 0.9rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.75rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
 
-	.distribution-info {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
 
-	.distribution-amounts {
-		display: flex;
-		gap: 1rem;
-	}
 
-	.total-amount,
-	.per-token-amount {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-	}
 
-	.amount-label {
-		font-size: 0.7rem;
-		color: var(--color-black);
-		font-weight: var(--font-weight-semibold);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
 
-	.amount-value {
-		font-size: 0.9rem;
-		color: var(--color-primary);
-		font-weight: var(--font-weight-extrabold);
-	}
 
-	.distribution-date {
-		font-size: 0.75rem;
-		color: var(--color-black);
-		font-weight: var(--font-weight-medium);
-		opacity: 0.7;
-	}
 
 	/* Coming Soon Card Styles */
 	.coming-soon-card {
@@ -2252,26 +1957,7 @@
 		opacity: 0.8;
 	}
 
-	.notify-btn {
-		padding: 0.75rem 1.5rem;
-		background: var(--color-primary);
-		color: var(--color-white);
-		border: 1px solid var(--color-primary);
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		width: 100%;
-		transition: all 0.2s ease;
-		border-radius: 0;
-	}
 
-	.notify-btn:hover {
-		background: var(--color-secondary);
-		border-color: var(--color-secondary);
-	}
 
 	/* Email Popup Modal Styles */
 	.email-popup-overlay {
@@ -2366,33 +2052,8 @@
 		border-color: var(--color-primary);
 	}
 
-	.email-submit-btn {
-		padding: 0.75rem 1.5rem;
-		background: var(--color-primary);
-		color: var(--color-white);
-		border: 1px solid var(--color-primary);
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		border-radius: 0;
-	}
 
-	.email-submit-btn:hover:not(:disabled) {
-		background: var(--color-secondary);
-		border-color: var(--color-secondary);
-	}
 
-	.email-submit-btn:disabled {
-		background: var(--color-light-gray);
-		color: var(--color-black);
-		border-color: var(--color-light-gray);
-		cursor: not-allowed;
-		opacity: 0.6;
-	}
 
 	.success-message {
 		color: var(--color-primary);
@@ -2403,128 +2064,21 @@
 		margin-bottom: 1rem;
 	}
 
-	.flip-btn {
-		width: 100%;
-		padding: 0.5rem 1.5rem;
-		background: var(--color-white);
-		color: var(--color-black);
-		border: 1px solid var(--color-light-gray);
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-medium);
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		border-radius: 0;
-	}
 
-	.flip-btn:hover {
-		background: var(--color-light-gray);
-		border-color: var(--color-black);
-	}
 
-	.close-flip-btn {
-		background: none;
-		border: none;
-		font-size: 1.5rem;
-		color: var(--color-black);
-		cursor: pointer;
-		padding: 0;
-		width: 2rem;
-		height: 2rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		transition: opacity 0.2s ease;
-	}
 
-	.close-flip-btn:hover {
-		opacity: 0.7;
-	}
 
-	/* Distribution History Styles */
-	.distribution-history {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-	}
 
-	.history-header h5 {
-		font-size: 1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin: 0 0 1rem 0;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
 
-	.history-list {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		margin-bottom: 1.5rem;
-		max-height: 200px;
-		overflow-y: auto;
-	}
 
-	.history-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 0.75rem;
-		background: var(--color-light-gray);
-		border-radius: 4px;
-	}
 
-	.history-date .month {
-		font-size: 0.85rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-	}
 
-	.history-amount {
-		text-align: right;
-	}
 
-	.history-amount .amount {
-		font-size: 0.9rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-primary);
-		display: block;
-	}
 
-	.history-amount .per-token {
-		font-size: 0.75rem;
-		color: var(--color-black);
-		opacity: 0.7;
-	}
 
-	.history-summary {
-		border-top: 1px solid var(--color-light-gray);
-		padding-top: 1rem;
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
 
-	.summary-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		font-size: 0.85rem;
-	}
 
-	.summary-label {
-		color: var(--color-black);
-		font-weight: var(--font-weight-medium);
-	}
 
-	.summary-value {
-		color: var(--color-primary);
-		font-weight: var(--font-weight-extrabold);
-	}
 
 	/* Tooltip Styles */
 	.tooltip-container {
@@ -2580,61 +2134,14 @@
 		border-top-color: var(--color-black);
 	}
 
-	/* Distribution History Table Styles */
-	.history-table {
-		margin-bottom: 1.5rem;
-	}
 
-	.table-header {
-		display: grid;
-		grid-template-columns: 1fr 1fr 1fr;
-		gap: 0.5rem;
-		padding: 0.5rem 0;
-		border-bottom: 2px solid var(--color-black);
-		font-weight: var(--font-weight-extrabold);
-		font-size: 0.75rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
 
-	.history-list {
-		max-height: 200px;
-		overflow-y: auto;
-	}
 
-	.history-row {
-		display: grid;
-		grid-template-columns: 1fr 1fr 1fr;
-		gap: 0.5rem;
-		padding: 0.4rem 0;
-		border-bottom: 1px solid var(--color-light-gray);
-		font-size: 0.8rem;
-	}
 
-	.history-row:last-child {
-		border-bottom: none;
-	}
 
-	.table-cell {
-		padding: 0.25rem;
-	}
 
-	.month-cell {
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-	}
 
-	.total-cell {
-		text-align: center;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-primary);
-	}
 
-	.per-token-cell {
-		text-align: right;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-	}
 
 	/* Mobile Responsive */
 	@media (max-width: 768px) {
@@ -2679,14 +2186,10 @@
 
 		.fundamentals-grid,
 		.production-grid,
-		.risk-metrics-grid,
 		.documents-grid {
 			grid-template-columns: 1fr;
 		}
 
-		.highlights-grid {
-			grid-template-columns: 1fr;
-		}
 
 		.tokens-grid {
 			grid-template-columns: 1fr;
