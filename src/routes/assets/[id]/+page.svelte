@@ -69,16 +69,21 @@
 	}
 
 	function exportPaymentsData() {
-		if (!assetData?.monthlyReports) return;
+		if (assetTokens.length === 0) return;
+		
+		const paymentData = dataStoreService.getTokenPayoutHistory(assetTokens[0].contractAddress);
+		if (!paymentData?.recentPayouts) return;
 		
 		const csvContent = [
-			['Month', 'Total Payout (USD)', 'Payout Per Token (USD)', 'Total Tokens', 'Oil Price (USD/bbl)'],
-			...assetData.monthlyReports.map(report => [
-				report.month,
-				report.netIncome.toString(),
-				report.payoutPerToken.toString(),
-				'50000', // Placeholder for total tokens
-				'72.45' // Placeholder for oil price
+			['Month', 'Date', 'Total Payout (USD)', 'Payout Per Token (USD)', 'Oil Price (USD/bbl)', 'Gas Price (USD/MMBtu)', 'Production Volume (bbl)'],
+			...paymentData.recentPayouts.map(payout => [
+				payout.month,
+				payout.date,
+				payout.totalPayout.toString(),
+				payout.payoutPerToken.toString(),
+				payout.oilPrice.toString(),
+				payout.gasPrice.toString(),
+				payout.productionVolume.toString()
 			])
 		].map(row => row.join(',')).join('\n');
 		
@@ -86,7 +91,7 @@
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = `${assetData.id}-payments-data.csv`;
+		a.download = `${assetData?.id || 'asset'}-payments-data.csv`;
 		a.click();
 		URL.revokeObjectURL(url);
 	}
@@ -260,22 +265,35 @@
 						<div class="title-row">
 							<h1>{assetData?.name}</h1>
 							<div class="social-sharing">
-								<button class="share-btn" title="Share on Twitter" on:click={() => window.open(`https://twitter.com/intent/tweet?text=Check out this investment opportunity: ${assetData?.name}&url=${encodeURIComponent(window.location.href)}`, '_blank')}>
-									<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-										<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-									</svg>
-								</button>
-								<button class="share-btn" title="Share on LinkedIn" on:click={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank')}>
-									<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-										<path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-									</svg>
-								</button>
-								<button class="share-btn" title="Copy Link" on:click={() => { navigator.clipboard.writeText(window.location.href); /* You could add a toast notification here */ }}>
-									<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-										<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-										<path d="m14 11-7.54.54-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-									</svg>
-								</button>
+								<div class="sharing-label">Share this investment:</div>
+								<div class="share-buttons">
+									<button class="share-btn" title="Share asset on Twitter" aria-label="Share asset on Twitter" on:click={() => window.open(`https://twitter.com/intent/tweet?text=Check out this energy investment opportunity: ${assetData?.name} on @Albion&url=${encodeURIComponent(window.location.href)}`, '_blank')}>
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+											<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+										</svg>
+									</button>
+									<button class="share-btn" title="Share asset on LinkedIn" aria-label="Share asset on LinkedIn" on:click={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank')}>
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+											<path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+										</svg>
+									</button>
+									<button class="share-btn" title="Share asset on Telegram" aria-label="Share asset on Telegram" on:click={() => window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=Check out this energy investment opportunity: ${assetData?.name}`, '_blank')}>
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+											<path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+										</svg>
+									</button>
+									<button class="share-btn" title="Share asset via email" aria-label="Share asset via email" on:click={() => window.open(`mailto:?subject=Investment Opportunity: ${assetData?.name}&body=I thought you might be interested in this energy investment opportunity:%0D%0A%0D%0A${assetData?.name}%0D%0A${window.location.href}%0D%0A%0D%0ACheck it out on Albion!`, '_blank')}>
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+											<path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+										</svg>
+									</button>
+									<button class="share-btn" title="Copy asset link" aria-label="Copy asset link" on:click={() => { navigator.clipboard.writeText(window.location.href); /* You could add a toast notification here */ }}>
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+											<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+											<path d="m14 11-7.54.54-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+										</svg>
+									</button>
+								</div>
 							</div>
 						</div>
 						<div class="asset-meta">
@@ -507,6 +525,9 @@
 						</div>
 					</div>
 				{:else if activeTab === 'payments'}
+					{@const paymentData = assetTokens.length > 0 ? dataStoreService.getTokenPayoutHistory(assetTokens[0].contractAddress) : null}
+					{@const payouts = paymentData?.recentPayouts || []}
+					{@const maxPayout = payouts.length > 0 ? Math.max(...payouts.map(p => p.totalPayout)) : 600}
 					<div class="payments-content">
 						<div class="production-grid">
 							<div class="chart-section chart-large">
@@ -525,50 +546,44 @@
 										{#each Array(6) as _, i}
 											<line x1="80" y1={50 + i * 40} x2="750" y2={50 + i * 40} stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.5"/>
 										{/each}
-										{#each Array(12) as _, i}
-											<line x1={80 + i * 55.8} y1="50" x2={80 + i * 55.8} y2="250" stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.5"/>
+										{#each payouts as _, i}
+											<line x1={80 + (i + 1) * (670 / Math.max(payouts.length, 1))} y1="50" x2={80 + (i + 1) * (670 / Math.max(payouts.length, 1))} y2="250" stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.3"/>
 										{/each}
 										
 										<!-- Y-axis labels (Payment amounts) -->
-										<text x="70" y="55" text-anchor="end" font-size="10" fill="var(--color-black)">$50k</text>
-										<text x="70" y="95" text-anchor="end" font-size="10" fill="var(--color-black)">$40k</text>
-										<text x="70" y="135" text-anchor="end" font-size="10" fill="var(--color-black)">$30k</text>
-										<text x="70" y="175" text-anchor="end" font-size="10" fill="var(--color-black)">$20k</text>
-										<text x="70" y="215" text-anchor="end" font-size="10" fill="var(--color-black)">$10k</text>
+										<text x="70" y="55" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxPayout)}</text>
+										<text x="70" y="95" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxPayout * 0.8)}</text>
+										<text x="70" y="135" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxPayout * 0.6)}</text>
+										<text x="70" y="175" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxPayout * 0.4)}</text>
+										<text x="70" y="215" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxPayout * 0.2)}</text>
 										<text x="70" y="255" text-anchor="end" font-size="10" fill="var(--color-black)">$0</text>
 										
-										<!-- X-axis labels (Months) -->
-										<text x="108" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jan</text>
-										<text x="164" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Feb</text>
-										<text x="220" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Mar</text>
-										<text x="276" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Apr</text>
-										<text x="332" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">May</text>
-										<text x="388" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jun</text>
-										<text x="444" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jul</text>
-										<text x="500" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Aug</text>
-										<text x="556" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Sep</text>
-										<text x="612" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Oct</text>
-										<text x="668" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Nov</text>
-										<text x="724" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Dec</text>
+										<!-- X-axis labels (Months from real data) -->
+										{#each payouts as payout, i}
+											{@const monthLabel = new Date(payout.date).toLocaleDateString('en-US', { month: 'short' })}
+											<text x={80 + (i + 1) * (670 / Math.max(payouts.length, 1))} y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">{monthLabel}</text>
+										{/each}
 										
-										<!-- Production decline curve (simulated data) -->
-										<polyline 
-											points="108,80 164,85 220,92 276,100 332,110 388,122 444,136 500,152 556,170 612,190 668,212 724,236"
-											fill="none" 
-											stroke="var(--color-primary)" 
-											stroke-width="3"
-										/>
-										
-										<!-- Data points -->
-										{#each Array(12) as _, i}
-											<circle 
-												cx={108 + i * 55.8} 
-												cy={80 + i * 13 + Math.random() * 8} 
-												r="4" 
-												fill="var(--color-secondary)"
+										<!-- Column chart bars (from real data) -->
+										{#each payouts as payout, i}
+											{@const barWidth = 30}
+											{@const x = 80 + (i + 1) * (670 / Math.max(payouts.length, 1)) - barWidth / 2}
+											{@const barHeight = (payout.totalPayout / maxPayout) * 200}
+											{@const y = 250 - barHeight}
+											<rect 
+												x={x} 
+												y={y} 
+												width={barWidth} 
+												height={barHeight}
+												fill="var(--color-primary)"
 												stroke="var(--color-white)"
-												stroke-width="2"
+												stroke-width="1"
+												rx="2"
 											/>
+											<!-- Value label on top of bar -->
+											<text x={x + barWidth / 2} y={y - 5} text-anchor="middle" font-size="8" fill="var(--color-black)" font-weight="semibold">
+												${Math.round(payout.totalPayout)}
+											</text>
 										{/each}
 										
 										<!-- Chart title -->
@@ -576,10 +591,8 @@
 										
 										<!-- Legend -->
 										<rect x="580" y="60" width="150" height="40" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
-										<line x1="590" y1="70" x2="610" y2="70" stroke="var(--color-primary)" stroke-width="3"/>
-										<text x="615" y="75" font-size="9" fill="var(--color-black)">Payment Amount</text>
-										<circle cx="600" cy="85" r="3" fill="var(--color-secondary)"/>
-										<text x="615" y="90" font-size="9" fill="var(--color-black)">Monthly Data</text>
+										<rect x="590" y="70" width="15" height="10" fill="var(--color-primary)"/>
+										<text x="615" y="80" font-size="9" fill="var(--color-black)">Total Payout ($)</text>
 									</svg>
 								</div>
 							</div>
@@ -592,16 +605,16 @@
 								</div>
 								<div class="metrics-grid">
 									<div class="metric-item">
-										<div class="metric-value">$72.45</div>
-										<div class="metric-label">Avg Oil Price</div>
+										<div class="metric-value">${paymentData?.recentPayouts?.[0]?.oilPrice?.toFixed(2) || '72.45'}</div>
+										<div class="metric-label">Latest Oil Price</div>
 									</div>
 									<div class="metric-item">
-										<div class="metric-value">-$2.50</div>
-										<div class="metric-label">Diff to Benchmark</div>
+										<div class="metric-value">${paymentData?.averageMonthlyPayout?.toFixed(0) || '500'}</div>
+										<div class="metric-label">Avg Monthly Payout</div>
 									</div>
 								</div>
 								<div class="hse-metric">
-									<div class="hse-value">12</div>
+									<div class="hse-value">{paymentData?.totalPayouts || 12}</div>
 									<div class="hse-label">Months of Payouts</div>
 								</div>
 							</div>
@@ -714,8 +727,8 @@
 				{#each assetTokens as token}
 					{@const supply = dataStoreService.getTokenSupply(token.contractAddress)}
 					{@const hasAvailableSupply = supply && supply.availableSupply > 0}
-					{@const payoutHistory = (supply as any)?.payoutHistory || []}
-					{@const latestPayout = payoutHistory[payoutHistory.length - 1]}
+					{@const tokenPayoutData = dataStoreService.getTokenPayoutHistory(token.contractAddress)}
+					{@const latestPayout = tokenPayoutData?.recentPayouts?.[0]}
 					{@const isFlipped = flippedCards.has(token.contractAddress)}
 					<div class="token-card-container" class:flipped={isFlipped}>
 						<Card hoverable clickable padding="0" on:click={() => handleCardClick(token.contractAddress)}>
@@ -819,24 +832,6 @@
 										</div>
 									</div>
 
-									{#if latestPayout}
-										<div class="recent-distribution">
-											<h5>Most Recent Distribution</h5>
-											<div class="distribution-info">
-												<div class="distribution-amounts">
-													<div class="total-amount">
-														<span class="amount-label">Total</span>
-														<span class="amount-value">${latestPayout.totalPayout.toFixed(2)}</span>
-													</div>
-													<div class="per-token-amount">
-														<span class="amount-label">Per Token</span>
-														<span class="amount-value">${latestPayout.payoutPerToken.toFixed(4)}</span>
-													</div>
-												</div>
-												<div class="distribution-date">{latestPayout.month}</div>
-											</div>
-										</div>
-									{/if}
 
 									<div class="token-actions">
 										<div class="action-buttons">
@@ -851,7 +846,7 @@
 											{/if}
 											<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} style="width:100%">
 												<SecondaryButton fullWidth>
-													Payment History
+													Distributions History
 												</SecondaryButton>
 											</div>
 										</div>
@@ -860,7 +855,7 @@
 								
 								<div class="token-card-back">
 									<div class="back-header">
-										<h4>Payment History</h4>
+										<h4>Distributions History</h4>
 										<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)}>
 											<SecondaryButton>
 												← Back
@@ -868,28 +863,34 @@
 										</div>
 									</div>
 									
-									{#if payoutHistory.length > 0}
-										<div class="history-list">
-											{#each payoutHistory.slice(-6) as payout}
-												<div class="history-item">
-													<div class="history-date">{payout.month}</div>
-													<div class="history-amount">${payout.payoutPerToken.toFixed(4)}</div>
-												</div>
-											{/each}
-										</div>
-										<div class="history-summary">
-											<div class="summary-item">
-												<span class="summary-label">Total Received</span>
-												<span class="summary-value">${payoutHistory.reduce((sum, p) => sum + p.payoutPerToken, 0).toFixed(2)}</span>
+									{#if tokenPayoutData?.recentPayouts && tokenPayoutData.recentPayouts.length > 0}
+										<div class="distributions-content">
+											<div class="distributions-header">
+												<div class="header-month">Month</div>
+												<div class="header-total">Total Payments</div>
+												<div class="header-per-token">Per Token</div>
 											</div>
-											<div class="summary-item">
-												<span class="summary-label">Avg Per Month</span>
-												<span class="summary-value">${(payoutHistory.reduce((sum, p) => sum + p.payoutPerToken, 0) / payoutHistory.length).toFixed(4)}</span>
+											<div class="distributions-list">
+												{#each tokenPayoutData.recentPayouts.slice(-6) as payout}
+													<div class="distribution-row">
+														<div class="dist-month">{payout.month}</div>
+														<div class="dist-total">${(payout.totalPayout * 1000).toLocaleString()}</div>
+														<div class="dist-per-token">${(payout.payoutPerToken * 100).toFixed(2)}</div>
+													</div>
+												{/each}
+											</div>
+											<div class="distributions-divider"></div>
+											<div class="distributions-summary">
+												<div class="summary-row">
+													<div class="summary-month">Total</div>
+													<div class="summary-total">${(tokenPayoutData.totalPaid * 1000).toLocaleString()}</div>
+													<div class="summary-per-token">${(tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.payoutPerToken, 0) * 100).toFixed(2)}</div>
+												</div>
 											</div>
 										</div>
 									{:else}
 										<div class="no-history">
-											<p>No payment history available yet.</p>
+											<p>No distributions available yet.</p>
 											<p>First payout expected in Q1 2025.</p>
 										</div>
 									{/if}
@@ -1052,8 +1053,23 @@
 
 	.social-sharing {
 		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
 		gap: 0.5rem;
 		flex-shrink: 0;
+	}
+
+	.sharing-label {
+		font-size: 0.75rem;
+		font-weight: var(--font-weight-medium);
+		color: var(--color-black);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.share-buttons {
+		display: flex;
+		gap: 0.5rem;
 	}
 
 	.share-btn {
@@ -1933,6 +1949,102 @@
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		line-height: 1;
+	}
+
+	/* New Distributions Styles */
+	.distributions-content {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		flex: 1;
+	}
+
+	.distributions-header {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 0.5rem;
+		margin-bottom: 1rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 1px solid var(--color-light-gray);
+	}
+
+	.header-month,
+	.header-total,
+	.header-per-token {
+		font-size: 0.75rem;
+		font-weight: var(--font-weight-bold);
+		color: var(--color-black);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		text-align: center;
+	}
+
+	.distributions-list {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		gap: 0.5rem;
+	}
+
+	.distribution-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 0.5rem;
+		padding: 0.75rem 0;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+	}
+
+	.distribution-row:last-child {
+		border-bottom: none;
+	}
+
+	.dist-month,
+	.dist-total,
+	.dist-per-token {
+		font-size: 0.85rem;
+		color: var(--color-black);
+		text-align: center;
+	}
+
+	.dist-month {
+		font-weight: var(--font-weight-medium);
+	}
+
+	.dist-total,
+	.dist-per-token {
+		font-weight: var(--font-weight-bold);
+		color: var(--color-secondary);
+	}
+
+	.distributions-divider {
+		height: 1px;
+		background: var(--color-black);
+		margin: 1rem 0;
+	}
+
+	.distributions-summary {
+		margin-top: auto;
+	}
+
+	.summary-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 0.5rem;
+		padding: 0.75rem 0;
+	}
+
+	.summary-month,
+	.summary-total,
+	.summary-per-token {
+		font-size: 0.9rem;
+		font-weight: var(--font-weight-bold);
+		color: var(--color-black);
+		text-align: center;
+	}
+
+	.summary-total,
+	.summary-per-token {
+		color: var(--color-secondary);
 	}
 
 	/* Token Actions Styles */
