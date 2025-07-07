@@ -25,7 +25,6 @@
 			<div class="nav-container">
 				<a href="/" class="logo">
 					<img src="/assets/logo.svg" alt="Albion Logo" class="logo-image" />
-					<img src="/assets/brand-text.svg" alt="Albion Exchange" class="brand-text" />
 				</a>
 				
 				<div class="nav-links">
@@ -152,10 +151,6 @@
 		width: auto;
 	}
 
-	.brand-text {
-		height: 2rem;
-		width: auto;
-	}
 
 	.nav-links {
 		display: flex;
