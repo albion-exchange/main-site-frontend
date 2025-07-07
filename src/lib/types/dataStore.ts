@@ -157,6 +157,7 @@ export interface Token {
   returns?: TokenReturns; // Only for royalty tokens
   assetShare?: TokenAssetShare; // Only for royalty tokens
   availability?: TokenAvailability; // Only for royalty tokens
+  firstPaymentDate?: string; // YYYY-MM format or "Month YYYY" format
   metadata: TokenMetadata;
 }
 

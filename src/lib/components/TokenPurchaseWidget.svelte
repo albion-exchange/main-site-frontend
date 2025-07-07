@@ -188,6 +188,27 @@
 				{:else}
 					<!-- Purchase Form -->
 					<div class="purchase-form">
+						<!-- Token Details -->
+						{#if tokenData}
+							<div class="token-details">
+								<h4>Token Details</h4>
+								<div class="details-grid">
+									<div class="detail-item">
+										<span class="detail-label">Share of Asset</span>
+										<span class="detail-value">{tokenData.assetShare?.sharePercentage || 0}%</span>
+									</div>
+									<div class="detail-item">
+										<span class="detail-label">Maximum Supply</span>
+										<span class="detail-value">{(supply?.maxSupply || 0).toLocaleString()}</span>
+									</div>
+									<div class="detail-item">
+										<span class="detail-label">Current Supply</span>
+										<span class="detail-value">{(supply?.mintedSupply || 0).toLocaleString()}</span>
+									</div>
+								</div>
+							</div>
+						{/if}
+
 						<!-- Investment Amount -->
 						<div class="form-section">
 							<label class="form-label" for="amount">Investment Amount</label>
@@ -200,13 +221,16 @@
 								class="amount-input"
 								disabled={isSoldOut()}
 							/>
-							{#if isSoldOut()}
-								<div class="input-note sold-out-note">
-									This token is sold out and no longer available for purchase.
-								</div>
-							{:else if supply?.availableSupply && investmentAmount > supply.availableSupply}
+							<div class="available-tokens">
+								{#if isSoldOut()}
+									<span class="sold-out">Sold Out</span>
+								{:else}
+									<span>Available: {(supply?.availableSupply || 0).toLocaleString()} tokens</span>
+								{/if}
+							</div>
+							{#if !isSoldOut() && supply?.availableSupply && investmentAmount > supply.availableSupply}
 								<div class="input-note warning-note">
-									Investment amount exceeds available supply ({supply.availableSupply.toLocaleString()} tokens).
+									Investment amount exceeds available supply.
 								</div>
 							{/if}
 						</div>
@@ -282,7 +306,7 @@
 		width: 100%;
 		max-width: 500px;
 		height: auto;
-		max-height: 80vh;
+		max-height: 90vh;
 		border-radius: 0;
 		display: flex;
 		flex-direction: column;
@@ -339,9 +363,10 @@
 	}
 
 	.widget-content {
-		flex: 0 1 auto;
+		flex: 1;
 		padding: 2rem;
 		overflow-y: auto;
+		min-height: 0;
 	}
 
 	.purchase-form {
@@ -375,20 +400,65 @@
 		border-color: var(--color-primary-blue);
 	}
 
+	.token-details {
+		background: var(--color-light-gray);
+		padding: 1.5rem;
+		border-radius: 0;
+	}
+
+	.token-details h4 {
+		margin: 0 0 1rem 0;
+		font-size: 1rem;
+		font-weight: var(--font-weight-medium);
+		color: var(--color-black);
+	}
+
+	.details-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1rem;
+	}
+
+	.detail-item {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.detail-label {
+		font-size: 0.75rem;
+		color: #6b7280;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.detail-value {
+		font-size: 1.1rem;
+		font-weight: var(--font-weight-bold);
+		color: var(--color-secondary-blue);
+	}
+
+	.available-tokens {
+		margin-top: 0.5rem;
+		font-size: 0.875rem;
+		color: var(--color-secondary-blue);
+		font-weight: var(--font-weight-medium);
+	}
+
+	.available-tokens .sold-out {
+		color: #dc2626;
+	}
+
 	.input-note {
 		font-size: 0.8rem;
 		padding: 0.5rem;
 		border-radius: 0;
+		margin-top: 0.5rem;
 	}
 
 	.warning-note {
 		color: #d97706;
 		background: #fef3c7;
-	}
-
-	.sold-out-note {
-		color: #dc2626;
-		background: #fee2e2;
 	}
 
 	.order-summary {
@@ -497,6 +567,10 @@
 			to {
 				transform: translateY(0);
 			}
+		}
+
+		.details-grid {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>

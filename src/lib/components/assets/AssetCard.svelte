@@ -109,31 +109,42 @@
 		</div>
 
 		<!-- Available Tokens Section -->
-		{#if royaltyTokens.length > 0}
+		{#if hasAvailableTokens}
+			{@const availableTokens = royaltyTokens.filter(token => {
+				const supply = dataStoreService.getTokenSupply(token.contractAddress);
+				return supply && supply.availableSupply > 0;
+			})}
 			<div class="tokens-section">
-				<h4 class="tokens-title">Available Tokens ({royaltyTokens.length})</h4>
-				<div class="tokens-list" class:scrollable={royaltyTokens.length > 2}>
-					{#each royaltyTokens as token}
-						{@const supply = dataStoreService.getTokenSupply(token.contractAddress)}
-						{@const baseReturn = (token as any).estimatedReturns?.baseCase || 0}
-						{@const bonusReturn = (token as any).estimatedReturns?.bonusCase || 0}
-						{@const combinedReturn = baseReturn + bonusReturn}
-						<div class="token-item">
-							<div class="token-info">
+				<h4 class="tokens-title">Available Token Releases</h4>
+				<div class="tokens-list" class:scrollable={availableTokens.length > 2}>
+					{#each availableTokens as token}
+						{@const baseReturn = (token as any).estimatedReturns?.baseCase || 15}
+						{@const bonusReturn = (token as any).estimatedReturns?.bonusCase || 10}
+						{@const firstPaymentMonth = token.firstPaymentDate || 'TBD'}
+						<button 
+							class="token-button" 
+							on:click|stopPropagation={() => handleBuyTokens()}
+						>
+							<div class="token-button-left">
 								<span class="token-symbol">{token.symbol}</span>
 								<span class="token-name">{token.name}</span>
+								<span class="token-payment-date">First payment: {firstPaymentMonth}</span>
 							</div>
-							<div class="token-metrics">
-								<div class="metric">
-									<span class="metric-label">Est. Return</span>
-									<span class="metric-value">{combinedReturn}%</span>
+							<div class="token-button-right">
+								<div class="returns-display">
+									<div class="return-item">
+										<span class="return-label">Est. Base</span>
+										<span class="return-value">{baseReturn}%</span>
+									</div>
+									<div class="return-divider">+</div>
+									<div class="return-item">
+										<span class="return-label">Est. Bonus</span>
+										<span class="return-value bonus">{bonusReturn}%</span>
+									</div>
 								</div>
-								<div class="metric">
-									<span class="metric-label">Available</span>
-									<span class="metric-value">{formatNumber(supply?.availableSupply || 0)}</span>
-								</div>
+								<span class="buy-cta">Buy Now →</span>
 							</div>
-						</div>
+						</button>
 					{/each}
 				</div>
 			</div>
@@ -267,9 +278,10 @@
 	}
 
 	.tokens-list.scrollable {
-		max-height: calc(2 * (4rem + 0.75rem)); /* Height for 2 items (4rem each) + gaps (0.75rem each) */
+		max-height: calc(2 * (5rem + 0.75rem) + 1rem); /* Height for 2 items with padding + gaps + extra space */
 		overflow-y: auto;
 		padding-right: 0.5rem;
+		padding-bottom: 0.5rem; /* Extra padding to prevent cut-off */
 	}
 
 	.tokens-list.scrollable::-webkit-scrollbar {
@@ -290,25 +302,53 @@
 		background: #a8a8a8;
 	}
 
-	.token-item {
+	.token-button {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 0.75rem;
-		background: #f8f4f4;
-		border-radius: 4px;
+		width: 100%;
+		padding: 1rem;
+		background: var(--color-white);
+		border: 2px solid var(--color-primary-blue);
+		border-radius: 0;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		text-align: left;
+		position: relative;
 	}
 
-	.token-info {
+
+	.token-button:hover:not(.unavailable) {
+		background: rgba(8, 188, 204, 0.05);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(8, 188, 204, 0.15);
+		border-color: var(--color-primary-blue);
+	}
+
+	.token-button.unavailable {
+		background: var(--color-light-gray);
+		border-color: #e2e8f0;
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+
+	.token-button-left {
 		display: flex;
 		flex-direction: column;
 		gap: 0.25rem;
 	}
 
+	.token-button-right {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.5rem;
+	}
+
 	.token-symbol {
 		font-weight: 700;
 		font-size: 0.875rem;
-		color: #1a202c;
+		color: var(--color-black);
 		text-transform: uppercase;
 	}
 
@@ -318,31 +358,57 @@
 		line-height: 1.2;
 	}
 
-	.token-metrics {
-		display: flex;
-		gap: 2rem;
+	.token-payment-date {
+		font-size: 0.7rem;
+		color: var(--color-secondary-blue);
+		font-weight: 500;
+		margin-top: 0.25rem;
 	}
 
-	.metric {
+	.returns-display {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.return-item {
 		display: flex;
 		flex-direction: column;
-		align-items: flex-end;
-		text-align: right;
+		align-items: center;
+		text-align: center;
 	}
 
-	.metric-label {
-		font-size: 0.75rem;
+	.return-label {
+		font-size: 0.625rem;
 		color: #718096;
 		text-transform: uppercase;
 		font-weight: 500;
 		letter-spacing: 0.05em;
-		margin-bottom: 0.25rem;
 	}
 
-	.metric-value {
+	.return-value {
+		font-size: 1rem;
+		color: var(--color-secondary-blue);
+		font-weight: 700;
+	}
+
+	.return-value.bonus {
+		color: var(--color-primary-blue);
+	}
+
+	.return-divider {
 		font-size: 0.875rem;
-		color: #1a202c;
-		font-weight: 600;
+		color: #718096;
+		font-weight: 500;
+		margin: 0 0.25rem;
+	}
+
+	.buy-cta {
+		font-size: 0.875rem;
+		font-weight: 700;
+		color: var(--color-primary-blue);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 
 	@media (max-width: 400px) {
@@ -365,8 +431,25 @@
 			text-align: left;
 		}
 
-		.token-metrics {
-			gap: 1rem;
+		.token-button {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.75rem;
+		}
+
+		.token-button-right {
+			width: 100%;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.returns-display {
+			font-size: 0.875rem;
+		}
+
+		.return-value {
+			font-size: 0.875rem;
 		}
 	}
 
