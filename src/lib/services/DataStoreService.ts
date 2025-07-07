@@ -1,26 +1,54 @@
 /**
  * DataStoreService - Service layer for accessing static asset and token data
- * This service provides a unified interface to the JSON data stores
+ * This service provides a unified interface to the folder-based data structure
  */
 
 import type { 
   Asset, 
   Token, 
-  AssetsStore, 
-  TokensStore,
   MarketData,
   UserTokenBalance 
 } from '$lib/types/dataStore';
-import assetsData from '$lib/data/assets.json';
-import tokensData from '$lib/data/tokens.json';
+import { getTokenReturns, type TokenReturns } from '$lib/utils/returnCalculations';
+
+// Import all asset data
+import europaWressleAsset from '$lib/data/assets/europa-wressle-release-1/asset.json';
+import bakkenHorizonAsset from '$lib/data/assets/bakken-horizon-field/asset.json';
+import permianBasinAsset from '$lib/data/assets/permian-basin-venture/asset.json';
+import gulfMexicoAsset from '$lib/data/assets/gulf-mexico-deep-water/asset.json';
+
+// Import all token data
+import eurWr1Token from '$lib/data/assets/europa-wressle-release-1/tokens/eur_wr1.json';
+import eurWr2Token from '$lib/data/assets/europa-wressle-release-1/tokens/eur_wr2.json';
+import eurWr3Token from '$lib/data/assets/europa-wressle-release-1/tokens/eur_wr3.json';
+import bakHfToken from '$lib/data/assets/bakken-horizon-field/tokens/bak_hf.json';
+import bakHf2Token from '$lib/data/assets/bakken-horizon-field/tokens/bak_hf2.json';
+import perBvToken from '$lib/data/assets/permian-basin-venture/tokens/per_bv.json';
+import gomDwToken from '$lib/data/assets/gulf-mexico-deep-water/tokens/gom_dw.json';
 
 class DataStoreService {
-  private assets: AssetsStore;
-  private tokens: TokensStore;
+  private assets: Record<string, Asset>;
+  private tokens: Record<string, Token>;
 
   constructor() {
-    this.assets = assetsData as AssetsStore;
-    this.tokens = tokensData as TokensStore;
+    // Initialize assets
+    this.assets = {
+      'europa-wressle-release-1': europaWressleAsset as Asset,
+      'bakken-horizon-field': bakkenHorizonAsset as Asset,
+      'permian-basin-venture': permianBasinAsset as Asset,
+      'gulf-mexico-deep-water': gulfMexicoAsset as Asset,
+    };
+
+    // Initialize tokens
+    this.tokens = {
+      [eurWr1Token.contractAddress]: eurWr1Token as Token,
+      [eurWr2Token.contractAddress]: eurWr2Token as Token,
+      [eurWr3Token.contractAddress]: eurWr3Token as Token,
+      [bakHfToken.contractAddress]: bakHfToken as Token,
+      [bakHf2Token.contractAddress]: bakHf2Token as Token,
+      [perBvToken.contractAddress]: perBvToken as Token,
+      [gomDwToken.contractAddress]: gomDwToken as Token,
+    };
   }
 
   // Asset-related methods
@@ -29,14 +57,14 @@ class DataStoreService {
    * Get all assets
    */
   getAllAssets(): Asset[] {
-    return Object.values(this.assets.assets);
+    return Object.values(this.assets);
   }
 
   /**
    * Get asset by ID
    */
   getAssetById(assetId: string): Asset | null {
-    return this.assets.assets[assetId] || null;
+    return this.assets[assetId] || null;
   }
 
   /**
@@ -57,22 +85,13 @@ class DataStoreService {
   }
 
   /**
-   * Get assets by operator
-   */
-  getAssetsByOperator(operatorName: string): Asset[] {
-    return this.getAllAssets().filter(asset =>
-      asset.operator.name.toLowerCase().includes(operatorName.toLowerCase())
-    );
-  }
-
-  /**
    * Search assets by name or description
    */
   searchAssets(query: string): Asset[] {
-    const lowercaseQuery = query.toLowerCase();
-    return this.getAllAssets().filter(asset =>
-      asset.name.toLowerCase().includes(lowercaseQuery) ||
-      asset.description.toLowerCase().includes(lowercaseQuery)
+    const searchTerm = query.toLowerCase();
+    return this.getAllAssets().filter(asset => 
+      asset.name.toLowerCase().includes(searchTerm) ||
+      asset.description.toLowerCase().includes(searchTerm)
     );
   }
 
@@ -82,14 +101,14 @@ class DataStoreService {
    * Get all tokens
    */
   getAllTokens(): Token[] {
-    return Object.values(this.tokens.tokens);
+    return Object.values(this.tokens);
   }
 
   /**
    * Get token by contract address
    */
   getTokenByAddress(contractAddress: string): Token | null {
-    return this.tokens.tokens[contractAddress] || null;
+    return this.tokens[contractAddress] || null;
   }
 
   /**
@@ -156,45 +175,22 @@ class DataStoreService {
     return { asset, tokens };
   }
 
-  /**
-   * Get all assets with their associated tokens
-   */
-  getAllAssetsWithTokens(): Array<{ asset: Asset; tokens: Token[] }> {
-    return this.getAllAssets().map(asset => ({
-      asset,
-      tokens: this.getTokensByAssetId(asset.id)
-    }));
-  }
+  // Market data methods (mock implementations for now)
 
   /**
-   * Get token with its associated asset
+   * Get market data for all active tokens
    */
-  getTokenWithAsset(contractAddress: string): { token: Token; asset: Asset } | null {
-    const token = this.getTokenByAddress(contractAddress);
-    if (!token) return null;
-
-    const asset = this.getAssetById(token.assetId);
-    if (!asset) return null;
-
-    return { token, asset };
-  }
-
-  // Market data methods
-
-  /**
-   * Get market data for trading interface
-   */
-  getMarketData(): Record<string, MarketData> {
-    const marketData: Record<string, MarketData> = {};
+  getAllMarketData(): MarketData[] {
+    const marketData: MarketData[] = [];
     
-    this.getAllTokens().forEach(token => {
-      if (token.isActive && token.tokenType === 'royalty') {
+    this.getActiveTokens().forEach(token => {
+      if (token.tokenType === 'royalty') {
         // Generate mock market data based on token
         const basePrice = 1.0;
         const priceChange = (Math.random() - 0.5) * 0.1;
         const volume = Math.random() * 1000000;
         
-        marketData[token.symbol] = {
+        marketData.push({
           symbol: token.symbol,
           price: basePrice + priceChange,
           change: priceChange,
@@ -206,7 +202,7 @@ class DataStoreService {
           high24h: basePrice + Math.abs(priceChange) + 0.05,
           low24h: basePrice - Math.abs(priceChange) - 0.05,
           marketCap: parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals) * (basePrice + priceChange)
-        };
+        });
       }
     });
 
@@ -250,6 +246,19 @@ class DataStoreService {
     if (!asset || asset.monthlyReports.length === 0) return null;
 
     return asset.monthlyReports[asset.monthlyReports.length - 1];
+  }
+
+  /**
+   * Get calculated returns for a token based on planned production
+   */
+  getCalculatedTokenReturns(contractAddress: string): TokenReturns | null {
+    const token = this.getTokenByAddress(contractAddress);
+    if (!token) return null;
+
+    const asset = this.getAssetById(token.assetId);
+    if (!asset) return null;
+
+    return getTokenReturns(asset, token);
   }
 
   /**
@@ -300,26 +309,14 @@ class DataStoreService {
   }
 
   /**
-   * Format percentage values
+   * Format token amounts (with decimals consideration)
    */
-  formatPercentage(value: number, decimals: number = 2): string {
-    return `${value.toFixed(decimals)}%`;
-  }
-
-  /**
-   * Format large numbers with appropriate suffixes
-   */
-  formatLargeNumber(value: number): string {
-    if (value >= 1000000000) {
-      return `${(value / 1000000000).toFixed(1)}B`;
-    }
-    if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)}M`;
-    }
-    if (value >= 1000) {
-      return `${(value / 1000).toFixed(1)}K`;
-    }
-    return value.toString();
+  formatTokenAmount(amount: string, decimals: number = 18): string {
+    const value = parseFloat(amount) / Math.pow(10, decimals);
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    }).format(value);
   }
 
   // New token data structure methods
@@ -353,72 +350,95 @@ class DataStoreService {
     const totalHolders = token.holders.length;
     const totalBalance = token.holders.reduce((sum, holder) => 
       sum + parseFloat(holder.balance), 0
-    ) / Math.pow(10, token.decimals);
-    
+    );
+
     return {
       totalHolders,
-      totalBalance,
+      averageBalance: totalBalance / totalHolders,
       holders: token.holders.map(holder => ({
         ...holder,
-        formattedBalance: (parseFloat(holder.balance) / Math.pow(10, token.decimals)).toFixed(2)
+        formattedBalance: this.formatTokenAmount(holder.balance, token.decimals)
       }))
     };
   }
 
   /**
-   * Get token payout history
+   * Get platform statistics
+   */
+  getPlatformStatistics() {
+    const allAssets = this.getAllAssets();
+    const allTokens = this.getRoyaltyTokens();
+    
+    // Calculate total assets
+    const totalAssets = allAssets.length;
+    
+    // Calculate total invested from royalty tokens' minted supply
+    const totalInvested = allTokens.reduce((sum, token) => {
+      const mintedTokens = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
+      // Use $1 per token as base estimation
+      return sum + mintedTokens;
+    }, 0);
+    
+    // Calculate total payouts from monthly reports
+    const totalPayouts = allAssets.reduce((sum, asset) => {
+      return sum + asset.monthlyReports.reduce((assetSum, report) => assetSum + report.netIncome, 0);
+    }, 0);
+    
+    // Get active token holders count
+    const totalHolders = allTokens.reduce((sum, token) => sum + token.holders.length, 0);
+    
+    return {
+      totalAssets,
+      totalInvested,
+      totalPayouts,
+      totalHolders
+    };
+  }
+
+  /**
+   * Get token payout history data
    */
   getTokenPayoutHistory(contractAddress: string) {
     const token = this.getTokenByAddress(contractAddress);
     if (!token) return null;
 
-    return {
-      totalPayouts: token.payoutHistory.length,
-      totalPaid: token.payoutHistory.reduce((sum, payout) => sum + payout.totalPayout, 0),
-      recentPayouts: token.payoutHistory.slice(-6), // Last 6 payouts
-      averageMonthlyPayout: token.payoutHistory.length > 0 
-        ? token.payoutHistory.reduce((sum, payout) => sum + payout.totalPayout, 0) / token.payoutHistory.length
-        : 0
-    };
-  }
+    // Mock payout history for now
+    const recentPayouts = [
+      {
+        month: '2024-11',
+        date: '2024-11-15',
+        totalPayout: 18750,
+        payoutPerToken: 12.50,
+        oilPrice: 72.45,
+        gasPrice: 2.85,
+        productionVolume: 6000,
+        txHash: '0x1234567890abcdef1234567890abcdef12345678'
+      },
+      {
+        month: '2024-10',
+        date: '2024-10-15',
+        totalPayout: 20160,
+        payoutPerToken: 13.44,
+        oilPrice: 74.20,
+        gasPrice: 2.92,
+        productionVolume: 6150,
+        txHash: '0x2345678901bcdef01234567890abcdef23456789'
+      }
+    ];
 
-  /**
-   * Get platform statistics from token data
-   */
-  getPlatformStatistics() {
-    const allTokens = this.getAllTokens();
-    const royaltyTokens = allTokens.filter(token => token.tokenType === 'royalty');
-    
-    const totalInvestors = royaltyTokens.reduce((sum, token) => 
-      sum + token.holders.length, 0
-    );
-    
-    // Calculate total value locked from token balances (assume $1 per token)
-    const totalValueLocked = royaltyTokens.reduce((sum, token) => 
-      sum + token.holders.reduce((holderSum, holder) => 
-        holderSum + (parseFloat(holder.balance) / Math.pow(10, token.decimals)), 0
-      ), 0
-    );
-
-    const totalPayouts = royaltyTokens.reduce((sum, token) => 
-      sum + token.payoutHistory.reduce((payoutSum, payout) => 
-        payoutSum + payout.totalPayout, 0
-      ), 0
-    );
-
-    // Mock average yield since tokenomics data was removed
-    const averageYield = 13.5; // Average estimated yield
+    const totalPayouts = recentPayouts.length;
+    const averageMonthlyPayout = recentPayouts.reduce((sum, payout) => sum + payout.payoutPerToken, 0) / totalPayouts;
 
     return {
-      totalAssets: this.getAllAssets().length,
-      totalInvestors,
-      totalValueLocked,
+      recentPayouts,
       totalPayouts,
-      averageYield
+      averageMonthlyPayout,
+      totalPaid: recentPayouts.reduce((sum, payout) => sum + payout.totalPayout, 0)
     };
   }
 }
 
 // Export singleton instance
-export const dataStoreService = new DataStoreService();
+const dataStoreService = new DataStoreService();
 export default dataStoreService;
+export { dataStoreService };

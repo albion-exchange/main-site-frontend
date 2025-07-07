@@ -55,7 +55,7 @@
 				report.revenue.toString(),
 				report.expenses.toString(),
 				report.netIncome.toString(),
-				report.payoutPerToken.toString()
+				(report.payoutPerToken ?? 0).toString()
 			])
 		].map(row => row.join(',')).join('\n');
 		
@@ -407,7 +407,21 @@
 										<span>{assetData?.assetTerms?.interestType}</span>
 									</div>
 									<div class="detail-row">
-										<span>Amount</span>
+										<span class="tooltip-container">
+											Amount
+											{#if assetData?.assetTerms?.amountTooltip}
+												<span class="tooltip-trigger"
+													on:mouseenter={() => showTooltipWithDelay('amount')}
+													on:mouseleave={hideTooltip}
+													role="button"
+													tabindex="0">ⓘ</span>
+												{#if showTooltip === 'amount'}
+													<div class="tooltip">
+														{assetData.assetTerms.amountTooltip}
+													</div>
+												{/if}
+											{/if}
+										</span>
 										<span>{assetData?.assetTerms?.amount}</span>
 									</div>
 									<div class="detail-row">
@@ -740,7 +754,7 @@
 											<p class="token-symbol">{token.contractAddress}</p>
 										</div>
 										<div class="token-share-badge">
-											{token.assetShare?.sharePercentage || 25}% of Asset
+											{token.sharePercentage || 25}% of Asset
 										</div>
 									</div>
 									<div class="token-badge" class:sold-out={!hasAvailableSupply}>

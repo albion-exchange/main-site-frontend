@@ -1,0 +1,139 @@
+{
+  "contractAddress": "0x4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f",
+  "name": "Permian Wolfcamp-1 Release 1",
+  "assetName": "Permian Basin Venture",
+  "symbol": "PER-BV",
+  "decimals": 18,
+  "tokenType": "royalty",
+  "assetId": "permian-basin-venture",
+  "isActive": true,
+  "firstPaymentDate": "May 2025",
+  "supply": {
+    "maxSupply": "25000000000000000000000",
+    "mintedSupply": "18750000000000000000000"
+  },
+  "holders": [
+    {
+      "address": "0xf4567890123456789abcdef123456789abcdef1",
+      "balance": "3750000000000000000000",
+      "joinedDate": "2024-03-25"
+    },
+    {
+      "address": "0x4567890123456789abcdef123456789abcdef12",
+      "balance": "3375000000000000000000",
+      "joinedDate": "2024-04-15"
+    },
+    {
+      "address": "0x567890123456789abcdef123456789abcdef123",
+      "balance": "3000000000000000000000",
+      "joinedDate": "2024-05-10"
+    },
+    {
+      "address": "0x67890123456789abcdef123456789abcdef1234",
+      "balance": "2625000000000000000000",
+      "joinedDate": "2024-05-25"
+    },
+    {
+      "address": "0x7890123456789abcdef123456789abcdef12345",
+      "balance": "1875000000000000000000",
+      "joinedDate": "2024-06-08"
+    },
+    {
+      "address": "0x890123456789abcdef123456789abcdef123456",
+      "balance": "1875000000000000000000",
+      "joinedDate": "2024-06-20"
+    },
+    {
+      "address": "0x90123456789abcdef123456789abcdef1234567",
+      "balance": "1250000000000000000000",
+      "joinedDate": "2024-07-02"
+    },
+    {
+      "address": "0x0123456789abcdef123456789abcdef12345678",
+      "balance": "1000000000000000000000",
+      "joinedDate": "2024-07-15"
+    }
+  ],
+  "payoutHistory": [
+    {
+      "month": "2024-12",
+      "date": "2024-12-20",
+      "totalPayout": 217.19,
+      "payoutPerToken": 0.01158,
+      "oilPrice": 78.45,
+      "gasPrice": 3.24,
+      "productionVolume": 750,
+      "txHash": "0x67890123456789abcdef123456789abcdef1234"
+    },
+    {
+      "month": "2024-11",
+      "date": "2024-11-20",
+      "totalPayout": 210.94,
+      "payoutPerToken": 0.01125,
+      "oilPrice": 76.2,
+      "gasPrice": 3.15,
+      "productionVolume": 728,
+      "txHash": "0x7890123456789abcdef123456789abcdef12345"
+    },
+    {
+      "month": "2024-10",
+      "date": "2024-10-20",
+      "totalPayout": 206.25,
+      "payoutPerToken": 0.011,
+      "oilPrice": 74.8,
+      "gasPrice": 3.08,
+      "productionVolume": 712,
+      "txHash": "0x890123456789abcdef123456789abcdef123456"
+    },
+    {
+      "month": "2024-09",
+      "date": "2024-09-20",
+      "totalPayout": 201.56,
+      "payoutPerToken": 0.01075,
+      "oilPrice": 72.35,
+      "gasPrice": 2.95,
+      "productionVolume": 695,
+      "txHash": "0x90123456789abcdef123456789abcdef1234567"
+    },
+    {
+      "month": "2024-08",
+      "date": "2024-08-20",
+      "totalPayout": 196.88,
+      "payoutPerToken": 0.0105,
+      "oilPrice": 70.15,
+      "gasPrice": 2.87,
+      "productionVolume": 678,
+      "txHash": "0x0123456789abcdef123456789abcdef12345678"
+    },
+    {
+      "month": "2024-07",
+      "date": "2024-07-20",
+      "totalPayout": 192.19,
+      "payoutPerToken": 0.01025,
+      "oilPrice": 68.9,
+      "gasPrice": 2.79,
+      "productionVolume": 662,
+      "txHash": "0x123456789abcdef123456789abcdef123456789"
+    }
+  ],
+  "returns": {
+    "baseReturn": 10.5,
+    "bonusReturn": 4.2,
+    "totalExpectedReturn": 14.7,
+    "returnType": "annual"
+  },
+  "assetShare": {
+    "sharePercentage": 28,
+    "royaltyRate": 6.2,
+    "totalAssetValue": 35000000
+  },
+  "availability": {
+    "totalAvailable": "25000000000000000000000",
+    "currentlyAvailable": "6250000000000000000000",
+    "percentageAvailable": 25
+  },
+  "metadata": {
+    "createdAt": "2024-03-22T11:30:00Z",
+    "updatedAt": "2024-12-01T14:20:00Z"
+  }
+}

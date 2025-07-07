@@ -1,0 +1,76 @@
+{
+  "id": "permian-basin-venture",
+  "name": "Permian Wolfcamp-1 Royalty Stream",
+  "description": "Large-scale unconventional oil development in the prolific Permian Basin with multi-zone horizontal wells.",
+  "images": [
+    "/images/assets/permian-basin-1.jpg",
+    "/images/assets/permian-basin-2.jpg"
+  ],
+  "location": {
+    "state": "Texas",
+    "county": "Midland County",
+    "country": "United States",
+    "coordinates": {
+      "lat": 32,
+      "lng": -102.1
+    },
+    "waterDepth": null
+  },
+  "operator": {
+    "name": "Permian Resources Corporation",
+    "website": "https://permianresources.com",
+    "experience": "18+ years"
+  },
+  "technical": {
+    "fieldType": "Unconventional Oil",
+    "depth": "2,800m",
+    "license": "TX-PB-4521",
+    "estimatedLife": "30+ years",
+    "firstOil": "2021-Q1",
+    "infrastructure": "Midstream processing and pipeline network",
+    "environmental": "Advanced water recycling and emissions control",
+    "estimatedReserves": 89500000,
+    "expectedEndDate": "2054-03",
+    "crudeBenchmark": "WTI",
+    "pricing": {
+      "benchmarkPremium": "+$0.75",
+      "transportCosts": "Title transfer at well head"
+    }
+  },
+  "assetTerms": {
+    "interestType": "Royalty",
+    "amount": "5.0% of gross",
+    "paymentFrequency": "Monthly within 30 days"
+  },
+  "production": {
+    "current": "3,800 bbl/day",
+    "expectedRemainingProduction": "89.5 mboe",
+    "status": "producing"
+  },
+  "tokenContracts": [
+    "0x6789012345f012345678901234ef067890123",
+    "0x7890123456012345678901245f078901234"
+  ],
+  "monthlyReports": [
+    {
+      "month": "2024-11",
+      "production": 114000,
+      "revenue": 10260000,
+      "expenses": 2262000,
+      "netIncome": 7998000,
+      "payoutPerToken": 32.67
+    },
+    {
+      "month": "2024-10",
+      "production": 117600,
+      "revenue": 10584000,
+      "expenses": 2332800,
+      "netIncome": 8251200,
+      "payoutPerToken": 33.7
+    }
+  ],
+  "metadata": {
+    "createdAt": "2024-03-22T11:30:00Z",
+    "updatedAt": "2024-12-01T14:20:00Z"
+  }
+}

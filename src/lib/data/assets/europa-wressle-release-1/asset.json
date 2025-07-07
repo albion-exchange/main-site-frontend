@@ -1,0 +1,260 @@
+{
+  "id": "europa-wressle-release-1",
+  "name": "Wressle-1 Royalty Stream",
+  "description": "Onshore conventional oil field located in the North Sea Sector 7B with proven reserves and established infrastructure.",
+  "images": [
+    "/images/assets/europa-wressle-1.jpg",
+    "/images/assets/europa-wressle-2.jpg"
+  ],
+  "location": {
+    "state": "East Midlands",
+    "county": "Lincolnshire",
+    "country": "United Kingdom",
+    "coordinates": {
+      "lat": 53.2,
+      "lng": 0.2
+    },
+    "waterDepth": "0m"
+  },
+  "operator": {
+    "name": "Egdon Resources",
+    "website": "https://www.egdon-resources.com",
+    "experience": "28 years"
+  },
+  "technical": {
+    "fieldType": "Conventional Oil",
+    "depth": "1,800m",
+    "license": "PEDL180/PEDL182",
+    "estimatedLife": "2+ years",
+    "firstOil": "2022-Q3",
+    "infrastructure": "Existing pipeline connection",
+    "environmental": "Full environmental compliance",
+    "estimatedReserves": 45200000,
+    "expectedEndDate": "2027-12",
+    "crudeBenchmark": "Brent",
+    "pricing": {
+      "benchmarkPremium": "-$1.30",
+      "transportCosts": "Title transfer at well head"
+    }
+  },
+  "assetTerms": {
+    "interestType": "Royalty",
+    "amount": "4.5% of gross",
+    "amountTooltip": "All numbers shown have already been adjusted for the royalty percentage and represent the net amounts payable to token holders",
+    "paymentFrequency": "Monthly within 30 days"
+  },
+  "production": {
+    "current": "15 boe/day",
+    "expectedRemainingProduction": "45.2 mboe",
+    "status": "producing",
+    "units": {
+      "production": "BOE (Barrels of Oil Equivalent)",
+      "revenue": "USD"
+    }
+  },
+  "tokenContracts": [
+    "0x1234567890abcdef1234567890abcdef12345678",
+    "0x2345678901bcdef01234567890abcdef23456789",
+    "0x3456789012cdef012345678901bcdef034567890"
+  ],
+  "monthlyReports": [
+    {
+      "month": "2025-06",
+      "production": 20.25,
+      "revenue": 1417.5,
+      "expenses": 0,
+      "netIncome": 1417.5
+    },
+    {
+      "month": "2025-05",
+      "production": 20.025,
+      "revenue": 1401.75,
+      "expenses": 0,
+      "netIncome": 1401.75
+    },
+    {
+      "month": "2025-04",
+      "production": 19.89,
+      "revenue": 1392.3,
+      "expenses": 0,
+      "netIncome": 1392.3
+    },
+    {
+      "month": "2025-03",
+      "production": 20.16,
+      "revenue": 1411.2,
+      "expenses": 0,
+      "netIncome": 1411.2
+    }
+  ],
+  "plannedProduction": {
+    "oilPriceAssumption": 65,
+    "oilPriceAssumptionCurrency": "USD",
+    "projections": [
+      {
+        "month": "2025-07",
+        "production": 15.335,
+        "revenue": 996.8
+      },
+      {
+        "month": "2025-08",
+        "production": 14.592,
+        "revenue": 948.49
+      },
+      {
+        "month": "2025-09",
+        "production": 14.827,
+        "revenue": 963.76
+      },
+      {
+        "month": "2025-10",
+        "production": 14.58,
+        "revenue": 947.7
+      },
+      {
+        "month": "2025-11",
+        "production": 13.875,
+        "revenue": 901.89
+      },
+      {
+        "month": "2025-12",
+        "production": 14.1,
+        "revenue": 916.5
+      },
+      {
+        "month": "2026-01",
+        "production": 13.418,
+        "revenue": 872.15
+      },
+      {
+        "month": "2026-02",
+        "production": 13.355,
+        "revenue": 868.07
+      },
+      {
+        "month": "2026-03",
+        "production": 13.13,
+        "revenue": 853.46
+      },
+      {
+        "month": "2026-04",
+        "production": 11.144,
+        "revenue": 724.33
+      },
+      {
+        "month": "2026-05",
+        "production": 12.35,
+        "revenue": 802.78
+      },
+      {
+        "month": "2026-06",
+        "production": 6.008,
+        "revenue": 390.53
+      },
+      {
+        "month": "2026-07",
+        "production": 17.514,
+        "revenue": 1138.42
+      },
+      {
+        "month": "2026-08",
+        "production": 14.983,
+        "revenue": 973.89
+      },
+      {
+        "month": "2026-09",
+        "production": 14.469,
+        "revenue": 940.46
+      },
+      {
+        "month": "2026-10",
+        "production": 13.454,
+        "revenue": 874.52
+      },
+      {
+        "month": "2026-11",
+        "production": 13.288,
+        "revenue": 863.72
+      },
+      {
+        "month": "2026-12",
+        "production": 13.981,
+        "revenue": 908.74
+      },
+      {
+        "month": "2027-01",
+        "production": 13.57,
+        "revenue": 882.02
+      },
+      {
+        "month": "2027-02",
+        "production": 13.73,
+        "revenue": 892.42
+      },
+      {
+        "month": "2027-03",
+        "production": 12.081,
+        "revenue": 785.27
+      },
+      {
+        "month": "2027-04",
+        "production": 9.771,
+        "revenue": 635.09
+      },
+      {
+        "month": "2027-05",
+        "production": 10.105,
+        "revenue": 656.81
+      },
+      {
+        "month": "2027-06",
+        "production": 9.673,
+        "revenue": 628.77
+      },
+      {
+        "month": "2027-07",
+        "production": 10.04,
+        "revenue": 652.6
+      },
+      {
+        "month": "2027-08",
+        "production": 9.574,
+        "revenue": 622.32
+      },
+      {
+        "month": "2027-09",
+        "production": 9.603,
+        "revenue": 624.17
+      },
+      {
+        "month": "2027-10",
+        "production": 8.989,
+        "revenue": 584.28
+      },
+      {
+        "month": "2027-11",
+        "production": 8.134,
+        "revenue": 528.74
+      },
+      {
+        "month": "2027-12",
+        "production": 7.845,
+        "revenue": 509.92
+      },
+      {
+        "month": "2028-01",
+        "production": 7.049,
+        "revenue": 458.19
+      },
+      {
+        "month": "2028-02",
+        "production": 6.66,
+        "revenue": 432.91
+      }
+    ]
+  },
+  "metadata": {
+    "createdAt": "2024-01-15T10:00:00Z",
+    "updatedAt": "2025-01-07T10:00:00Z"
+  }
+}

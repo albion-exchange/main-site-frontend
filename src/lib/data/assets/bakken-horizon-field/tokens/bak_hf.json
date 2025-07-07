@@ -1,0 +1,199 @@
+{
+  "contractAddress": "0x1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d",
+  "name": "Bakken Horizon-2 Release 1",
+  "assetName": "Bakken Horizon Field",
+  "symbol": "BAK-HF",
+  "decimals": 18,
+  "tokenType": "royalty",
+  "assetId": "bakken-horizon-field",
+  "isActive": true,
+  "firstPaymentDate": "April 2025",
+  "supply": {
+    "maxSupply": "75000000000000000000000",
+    "mintedSupply": "56250000000000000000000"
+  },
+  "holders": [
+    {
+      "address": "0x9a0b1c2d3e4f5678901234567890abcdef123456",
+      "balance": "7500000000000000000000",
+      "joinedDate": "2024-02-15"
+    },
+    {
+      "address": "0xa0b1c2d3e4f5678901234567890abcdef1234567",
+      "balance": "6750000000000000000000",
+      "joinedDate": "2024-03-20"
+    },
+    {
+      "address": "0xb0c1d2e3f4567890123456789abcdef12345678",
+      "balance": "6000000000000000000000",
+      "joinedDate": "2024-04-25"
+    },
+    {
+      "address": "0xc0d1e2f3456789012345678abcdef123456789",
+      "balance": "5250000000000000000000",
+      "joinedDate": "2024-05-10"
+    },
+    {
+      "address": "0xd0e1f234567890123456789abcdef123456789a",
+      "balance": "4500000000000000000000",
+      "joinedDate": "2024-05-25"
+    },
+    {
+      "address": "0xe0f123456789012345678abcdef123456789ab",
+      "balance": "3750000000000000000000",
+      "joinedDate": "2024-06-08"
+    },
+    {
+      "address": "0xf012345678901234567abcdef123456789abc",
+      "balance": "3375000000000000000000",
+      "joinedDate": "2024-06-20"
+    },
+    {
+      "address": "0x0123456789012345678abcdef123456789abcd",
+      "balance": "3000000000000000000000",
+      "joinedDate": "2024-07-02"
+    },
+    {
+      "address": "0x123456789012345678abcdef123456789abcde",
+      "balance": "2625000000000000000000",
+      "joinedDate": "2024-07-15"
+    },
+    {
+      "address": "0x23456789012345678abcdef123456789abcdef",
+      "balance": "2250000000000000000000",
+      "joinedDate": "2024-07-28"
+    },
+    {
+      "address": "0x3456789012345678abcdef123456789abcdef1",
+      "balance": "1875000000000000000000",
+      "joinedDate": "2024-08-10"
+    },
+    {
+      "address": "0x456789012345678abcdef123456789abcdef12",
+      "balance": "1500000000000000000000",
+      "joinedDate": "2024-08-22"
+    },
+    {
+      "address": "0x56789012345678abcdef123456789abcdef123",
+      "balance": "1500000000000000000000",
+      "joinedDate": "2024-09-03"
+    },
+    {
+      "address": "0x6789012345678abcdef123456789abcdef1234",
+      "balance": "1125000000000000000000",
+      "joinedDate": "2024-09-15"
+    },
+    {
+      "address": "0x789012345678abcdef123456789abcdef12345",
+      "balance": "1125000000000000000000",
+      "joinedDate": "2024-09-28"
+    },
+    {
+      "address": "0x89012345678abcdef123456789abcdef123456",
+      "balance": "750000000000000000000",
+      "joinedDate": "2024-10-10"
+    },
+    {
+      "address": "0x9012345678abcdef123456789abcdef1234567",
+      "balance": "750000000000000000000",
+      "joinedDate": "2024-10-22"
+    },
+    {
+      "address": "0x012345678abcdef123456789abcdef12345678",
+      "balance": "750000000000000000000",
+      "joinedDate": "2024-11-03"
+    },
+    {
+      "address": "0x12345678abcdef123456789abcdef123456789",
+      "balance": "375000000000000000000",
+      "joinedDate": "2024-11-15"
+    },
+    {
+      "address": "0x2345678abcdef123456789abcdef123456789a",
+      "balance": "1500000000000000000000",
+      "joinedDate": "2024-11-28"
+    }
+  ],
+  "payoutHistory": [
+    {
+      "month": "2024-12",
+      "date": "2024-12-10",
+      "totalPayout": 579.25,
+      "payoutPerToken": 0.0103,
+      "oilPrice": 78.45,
+      "gasPrice": 3.24,
+      "productionVolume": 1685,
+      "txHash": "0xc1d2e3f456789012345678901234567890123456"
+    },
+    {
+      "month": "2024-11",
+      "date": "2024-11-10",
+      "totalPayout": 562.15,
+      "payoutPerToken": 0.00999,
+      "oilPrice": 76.2,
+      "gasPrice": 3.15,
+      "productionVolume": 1642,
+      "txHash": "0xd2e3f45678901234567890123456789012345678"
+    },
+    {
+      "month": "2024-10",
+      "date": "2024-10-10",
+      "totalPayout": 548.8,
+      "payoutPerToken": 0.00976,
+      "oilPrice": 74.8,
+      "gasPrice": 3.08,
+      "productionVolume": 1598,
+      "txHash": "0xe3f4567890123456789012345678901234567890"
+    },
+    {
+      "month": "2024-09",
+      "date": "2024-09-10",
+      "totalPayout": 535.9,
+      "payoutPerToken": 0.00953,
+      "oilPrice": 72.35,
+      "gasPrice": 2.95,
+      "productionVolume": 1555,
+      "txHash": "0xf456789012345678901234567890123456789012"
+    },
+    {
+      "month": "2024-08",
+      "date": "2024-08-10",
+      "totalPayout": 521.45,
+      "payoutPerToken": 0.00927,
+      "oilPrice": 70.15,
+      "gasPrice": 2.87,
+      "productionVolume": 1512,
+      "txHash": "0x567890123456789012345678901234567890123a"
+    },
+    {
+      "month": "2024-07",
+      "date": "2024-07-10",
+      "totalPayout": 508.2,
+      "payoutPerToken": 0.00904,
+      "oilPrice": 68.9,
+      "gasPrice": 2.79,
+      "productionVolume": 1468,
+      "txHash": "0x67890123456789012345678901234567890123ab"
+    }
+  ],
+  "returns": {
+    "baseReturn": 8.5,
+    "bonusReturn": 2.8,
+    "totalExpectedReturn": 11.3,
+    "returnType": "annual"
+  },
+  "assetShare": {
+    "sharePercentage": 18,
+    "royaltyRate": 4.8,
+    "totalAssetValue": 62800000
+  },
+  "availability": {
+    "totalAvailable": "75000000000000000000000",
+    "currentlyAvailable": "18750000000000000000000",
+    "percentageAvailable": 25
+  },
+  "metadata": {
+    "createdAt": "2024-02-10T09:15:00Z",
+    "updatedAt": "2024-12-01T16:45:00Z"
+  }
+}

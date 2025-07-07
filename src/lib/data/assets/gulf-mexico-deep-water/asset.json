@@ -1,0 +1,76 @@
+{
+  "id": "gulf-mexico-deep-water",
+  "name": "Gulf of Mexico Deep Water",
+  "description": "Offshore deep-water oil development with state-of-the-art subsea production systems and enhanced recovery techniques.",
+  "images": [
+    "/images/assets/gulf-mexico-1.jpg",
+    "/images/assets/gulf-mexico-2.jpg"
+  ],
+  "location": {
+    "state": "Louisiana",
+    "county": "Offshore",
+    "country": "United States",
+    "coordinates": {
+      "lat": 28.5,
+      "lng": -89.2
+    },
+    "waterDepth": "1,850m"
+  },
+  "operator": {
+    "name": "Deep Water Solutions Inc.",
+    "website": "https://deepwatersolutions.com",
+    "experience": "25+ years"
+  },
+  "technical": {
+    "fieldType": "Deep Water Oil",
+    "depth": "4,500m",
+    "license": "GOM-DW-7834",
+    "estimatedLife": "20+ years",
+    "firstOil": "2022-Q4",
+    "infrastructure": "Floating production platform with subsea manifolds",
+    "environmental": "Zero discharge policy with advanced spill prevention",
+    "estimatedReserves": 125000000,
+    "expectedEndDate": "2044-11",
+    "crudeBenchmark": "Brent",
+    "pricing": {
+      "benchmarkPremium": "+$1.80",
+      "transportCosts": "Title transfer at well head"
+    }
+  },
+  "assetTerms": {
+    "interestType": "Royalty",
+    "amount": "6.25% of gross",
+    "paymentFrequency": "Monthly within 30 days"
+  },
+  "production": {
+    "current": "6,200 bbl/day",
+    "expectedRemainingProduction": "125 mboe",
+    "status": "producing"
+  },
+  "tokenContracts": [
+    "0x8901234567123456789012356f089012345",
+    "0x9012345678234567890123467f090123456"
+  ],
+  "monthlyReports": [
+    {
+      "month": "2024-11",
+      "production": 186000,
+      "revenue": 16740000,
+      "expenses": 6540000,
+      "netIncome": 10200000,
+      "payoutPerToken": 25.5
+    },
+    {
+      "month": "2024-10",
+      "production": 192200,
+      "revenue": 17298000,
+      "expenses": 6764400,
+      "netIncome": 10533600,
+      "payoutPerToken": 26.33
+    }
+  ],
+  "metadata": {
+    "createdAt": "2024-04-18T13:45:00Z",
+    "updatedAt": "2024-12-01T17:10:00Z"
+  }
+}

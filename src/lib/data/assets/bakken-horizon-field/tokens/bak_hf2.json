@@ -1,0 +1,79 @@
+{
+  "contractAddress": "0x1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a",
+  "name": "Bakken Horizon-2 Release 2",
+  "assetName": "Bakken Horizon Field",
+  "symbol": "BAK-HF2",
+  "decimals": 18,
+  "tokenType": "royalty",
+  "assetId": "bakken-horizon-field",
+  "isActive": true,
+  "firstPaymentDate": "September 2025",
+  "supply": {
+    "maxSupply": "55000000000000000000000",
+    "mintedSupply": "33000000000000000000000"
+  },
+  "holders": [
+    {
+      "address": "0xe5f6789012345678901234567890abcdef123456",
+      "balance": "16500000000000000000000",
+      "joinedDate": "2024-04-05"
+    },
+    {
+      "address": "0xf6789012345678901234567890abcdef1234567",
+      "balance": "16500000000000000000000",
+      "joinedDate": "2024-04-12"
+    }
+  ],
+  "payoutHistory": [
+    {
+      "month": "2024-12",
+      "date": "2024-12-05",
+      "totalPayout": 610.75,
+      "payoutPerToken": 0.0184,
+      "oilPrice": 78.45,
+      "gasPrice": 3.24,
+      "productionVolume": 980,
+      "txHash": "0x23456789abcdef123456789abcdef123456789a"
+    },
+    {
+      "month": "2024-11",
+      "date": "2024-11-05",
+      "totalPayout": 593.6,
+      "payoutPerToken": 0.0179,
+      "oilPrice": 76.2,
+      "gasPrice": 3.15,
+      "productionVolume": 952,
+      "txHash": "0x3456789abcdef123456789abcdef123456789ab"
+    },
+    {
+      "month": "2024-10",
+      "date": "2024-10-05",
+      "totalPayout": 577.3,
+      "payoutPerToken": 0.0174,
+      "oilPrice": 74.8,
+      "gasPrice": 3.08,
+      "productionVolume": 925,
+      "txHash": "0x456789abcdef123456789abcdef123456789abc"
+    }
+  ],
+  "returns": {
+    "baseReturn": 8,
+    "bonusReturn": 3.5,
+    "totalExpectedReturn": 11.5,
+    "returnType": "annual"
+  },
+  "assetShare": {
+    "sharePercentage": 25,
+    "royaltyRate": 6.5,
+    "totalAssetValue": 62800000
+  },
+  "availability": {
+    "totalAvailable": "55000000000000000000000",
+    "currentlyAvailable": "22000000000000000000000",
+    "percentageAvailable": 40
+  },
+  "metadata": {
+    "createdAt": "2024-04-05T09:45:00Z",
+    "updatedAt": "2024-12-01T18:30:00Z"
+  }
+}

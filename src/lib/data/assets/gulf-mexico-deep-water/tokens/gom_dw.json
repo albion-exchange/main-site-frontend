@@ -1,0 +1,154 @@
+{
+  "contractAddress": "0x3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
+  "name": "Gulf of Mexico Deep Water Release 1",
+  "assetName": "Gulf of Mexico Deep Water",
+  "symbol": "GOM-DW",
+  "decimals": 18,
+  "tokenType": "royalty",
+  "assetId": "gulf-mexico-deep-water",
+  "isActive": true,
+  "firstPaymentDate": "June 2025",
+  "supply": {
+    "maxSupply": "30000000000000000000000",
+    "mintedSupply": "30000000000000000000000"
+  },
+  "holders": [
+    {
+      "address": "0x90123456789abcdef123456789abcdef1234567",
+      "balance": "5400000000000000000000",
+      "joinedDate": "2024-04-20"
+    },
+    {
+      "address": "0x0123456789abcdef123456789abcdef12345678",
+      "balance": "4500000000000000000000",
+      "joinedDate": "2024-05-15"
+    },
+    {
+      "address": "0x123456789abcdef123456789abcdef123456789",
+      "balance": "3600000000000000000000",
+      "joinedDate": "2024-06-10"
+    },
+    {
+      "address": "0x23456789abcdef123456789abcdef123456789a",
+      "balance": "2700000000000000000000",
+      "joinedDate": "2024-06-25"
+    },
+    {
+      "address": "0x3456789abcdef123456789abcdef123456789ab",
+      "balance": "2700000000000000000000",
+      "joinedDate": "2024-07-08"
+    },
+    {
+      "address": "0x456789abcdef123456789abcdef123456789abc",
+      "balance": "1800000000000000000000",
+      "joinedDate": "2024-07-22"
+    },
+    {
+      "address": "0x56789abcdef123456789abcdef123456789abcd",
+      "balance": "1800000000000000000000",
+      "joinedDate": "2024-08-03"
+    },
+    {
+      "address": "0x6789abcdef123456789abcdef123456789abcde",
+      "balance": "1350000000000000000000",
+      "joinedDate": "2024-08-15"
+    },
+    {
+      "address": "0x789abcdef123456789abcdef123456789abcdef",
+      "balance": "1350000000000000000000",
+      "joinedDate": "2024-08-28"
+    },
+    {
+      "address": "0x89abcdef123456789abcdef123456789abcdef1",
+      "balance": "900000000000000000000",
+      "joinedDate": "2024-09-10"
+    },
+    {
+      "address": "0x9abcdef123456789abcdef123456789abcdef12",
+      "balance": "900000000000000000000",
+      "joinedDate": "2024-09-22"
+    }
+  ],
+  "payoutHistory": [
+    {
+      "month": "2024-12",
+      "date": "2024-12-05",
+      "totalPayout": 342,
+      "payoutPerToken": 0.01267,
+      "oilPrice": 78.45,
+      "gasPrice": 3.24,
+      "productionVolume": 980,
+      "txHash": "0x23456789abcdef123456789abcdef123456789a"
+    },
+    {
+      "month": "2024-11",
+      "date": "2024-11-05",
+      "totalPayout": 332.1,
+      "payoutPerToken": 0.0123,
+      "oilPrice": 76.2,
+      "gasPrice": 3.15,
+      "productionVolume": 952,
+      "txHash": "0x3456789abcdef123456789abcdef123456789ab"
+    },
+    {
+      "month": "2024-10",
+      "date": "2024-10-05",
+      "totalPayout": 324.45,
+      "payoutPerToken": 0.01202,
+      "oilPrice": 74.8,
+      "gasPrice": 3.08,
+      "productionVolume": 925,
+      "txHash": "0x456789abcdef123456789abcdef123456789abc"
+    },
+    {
+      "month": "2024-09",
+      "date": "2024-09-05",
+      "totalPayout": 316.8,
+      "payoutPerToken": 0.01173,
+      "oilPrice": 72.35,
+      "gasPrice": 2.95,
+      "productionVolume": 898,
+      "txHash": "0x56789abcdef123456789abcdef123456789abcd"
+    },
+    {
+      "month": "2024-08",
+      "date": "2024-08-05",
+      "totalPayout": 308.25,
+      "payoutPerToken": 0.01142,
+      "oilPrice": 70.15,
+      "gasPrice": 2.87,
+      "productionVolume": 870,
+      "txHash": "0x6789abcdef123456789abcdef123456789abcde"
+    },
+    {
+      "month": "2024-07",
+      "date": "2024-07-05",
+      "totalPayout": 300.6,
+      "payoutPerToken": 0.01113,
+      "oilPrice": 68.9,
+      "gasPrice": 2.79,
+      "productionVolume": 843,
+      "txHash": "0x789abcdef123456789abcdef123456789abcdef"
+    }
+  ],
+  "returns": {
+    "baseReturn": 7.8,
+    "bonusReturn": 2.2,
+    "totalExpectedReturn": 10,
+    "returnType": "annual"
+  },
+  "assetShare": {
+    "sharePercentage": 15,
+    "royaltyRate": 4.5,
+    "totalAssetValue": 28000000
+  },
+  "availability": {
+    "totalAvailable": "30000000000000000000000",
+    "currentlyAvailable": "0",
+    "percentageAvailable": 0
+  },
+  "metadata": {
+    "createdAt": "2024-04-18T13:45:00Z",
+    "updatedAt": "2024-12-01T17:10:00Z"
+  }
+}

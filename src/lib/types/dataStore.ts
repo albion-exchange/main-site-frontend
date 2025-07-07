@@ -41,15 +41,18 @@ export interface AssetProduction {
   current: string;
   expectedRemainingProduction: string;
   status: 'funding' | 'producing' | 'completed';
+  units?: {
+    production: string;
+    revenue: string;
+  };
 }
-
 
 export interface AssetTerms {
   interestType: string;
   amount: string;
+  amountTooltip?: string;
   paymentFrequency: string;
 }
-
 
 export interface MonthlyReport {
   month: string; // YYYY-MM format
@@ -57,7 +60,19 @@ export interface MonthlyReport {
   revenue: number; // USD
   expenses: number; // USD
   netIncome: number; // USD
-  payoutPerToken: number; // USD per token
+  payoutPerToken?: number; // USD per token (optional for royalty assets)
+}
+
+export interface PlannedProductionProjection {
+  month: string; // YYYY-MM format
+  production: number; // BOE
+  revenue: number; // USD
+}
+
+export interface PlannedProduction {
+  oilPriceAssumption: number;
+  oilPriceAssumptionCurrency: string;
+  projections: PlannedProductionProjection[];
 }
 
 export interface AssetMetadata {
@@ -80,6 +95,7 @@ export interface Asset {
   assetTerms: AssetTerms;
   tokenContracts: string[]; // Array of contract addresses
   monthlyReports: MonthlyReport[];
+  plannedProduction?: PlannedProduction;
   metadata: AssetMetadata;
 }
 
@@ -154,9 +170,7 @@ export interface Token {
   supply: TokenSupply;
   holders: TokenHolder[];
   payoutHistory: TokenPayoutRecord[];
-  returns?: TokenReturns; // Only for royalty tokens
-  assetShare?: TokenAssetShare; // Only for royalty tokens
-  availability?: TokenAvailability; // Only for royalty tokens
+  sharePercentage?: number; // Percentage of asset ownership (for royalty tokens)
   firstPaymentDate?: string; // YYYY-MM format or "Month YYYY" format
   metadata: TokenMetadata;
 }

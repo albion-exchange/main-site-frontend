@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import type { Asset } from '$lib/types/dataStore';
-	import { dataStoreService } from '$lib/services/DataStoreService';
+	import dataStoreService from '$lib/services/DataStoreService';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/ui';
 
 	export let asset: Asset;
@@ -22,7 +22,7 @@
 	});
 
 	// Extract token data with fallbacks
-	$: shareOfAsset = primaryToken?.assetShare?.sharePercentage ? `${primaryToken.assetShare.sharePercentage}%` : 'TBD';
+	$: shareOfAsset = primaryToken?.sharePercentage ? `${primaryToken.sharePercentage}%` : 'TBD';
 
 	function formatCurrency(amount: number): string {
 		return new Intl.NumberFormat('en-US', {
@@ -118,8 +118,9 @@
 				<h4 class="tokens-title">Available Token Releases</h4>
 				<div class="tokens-list" class:scrollable={availableTokens.length > 2}>
 					{#each availableTokens as token}
-						{@const baseReturn = (token as any).estimatedReturns?.baseCase || 15}
-						{@const bonusReturn = (token as any).estimatedReturns?.bonusCase || 10}
+						{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
+						{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn * 10) / 10 : 0}
+						{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn * 10) / 10 : 0}
 						{@const firstPaymentMonth = token.firstPaymentDate || 'TBD'}
 						<button 
 							class="token-button" 
