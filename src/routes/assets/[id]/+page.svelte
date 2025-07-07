@@ -8,7 +8,7 @@
 	let loading = true;
 	let error: string | null = null;
 	let activeTab = 'overview';
-	let unclaimedPayout = 1247.82;
+	let unclaimedPayout = 0; // Will be calculated from actual token holdings
 	let assetData: Asset | null = null;
 	let assetTokens: Token[] = [];
 	
@@ -743,6 +743,7 @@
 					{@const hasAvailableSupply = supply && supply.availableSupply > 0}
 					{@const tokenPayoutData = dataStoreService.getTokenPayoutHistory(token.contractAddress)}
 					{@const latestPayout = tokenPayoutData?.recentPayouts?.[0]}
+					{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
 					{@const isFlipped = flippedCards.has(token.contractAddress)}
 					<div class="token-card-container" class:flipped={isFlipped} id="token-{token.contractAddress}">
 						<Card hoverable clickable padding="0" on:click={() => handleCardClick(token.contractAddress)}>
@@ -779,7 +780,7 @@
 													role="button"
 													tabindex="0">ⓘ</span>
 											</span>
-											<span class="metric-value">0.008</span>
+											<span class="metric-value">{calculatedReturns?.impliedBarrelsPerToken?.toFixed(6) || '0.000000'}</span>
 											{#if showTooltip === 'barrels'}
 												<div class="tooltip">
 													Estimated barrels of oil equivalent per token based on reserves and token supply
@@ -795,7 +796,7 @@
 													role="button"
 													tabindex="0">ⓘ</span>
 											</span>
-											<span class="metric-value">$45</span>
+											<span class="metric-value">${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
 											{#if showTooltip === 'breakeven'}
 												<div class="tooltip">
 													Oil price required to cover operational costs and maintain profitability
@@ -816,7 +817,7 @@
 														role="button"
 														tabindex="0">ⓘ</span>
 												</span>
-												<span class="return-value">6-8%</span>
+												<span class="return-value">{calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</span>
 												{#if showTooltip === 'base'}
 													<div class="tooltip">
 														Conservative return estimate based on current production and oil prices
@@ -832,7 +833,7 @@
 														role="button"
 														tabindex="0">ⓘ</span>
 												</span>
-												<span class="return-value">+2-4%</span>
+												<span class="return-value">+{calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
 												{#if showTooltip === 'bonus'}
 													<div class="tooltip">
 														Additional potential return from improved oil prices or production efficiency
@@ -841,7 +842,7 @@
 											</div>
 											<div class="return-item total">
 												<span class="return-label">Total Expected</span>
-												<span class="return-value">8-12%</span>
+												<span class="return-value">{calculatedReturns ? Math.round(calculatedReturns.baseReturn + calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
 											</div>
 										</div>
 									</div>

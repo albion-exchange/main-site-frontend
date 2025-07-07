@@ -84,7 +84,7 @@
 		<!-- Highlighted Big Stats -->
 		<div class="highlighted-stats">
 			<div class="highlight-stat">
-				<span class="highlight-value">{asset.production.expectedRemainingProduction}</span>
+				<span class="highlight-value">{dataStoreService.getCalculatedRemainingProduction(asset.id)}</span>
 				<span class="highlight-label">Expected Remaining</span>
 			</div>
 			<div class="highlight-stat">
@@ -119,8 +119,8 @@
 				<div class="tokens-list" class:scrollable={availableTokens.length > 2}>
 					{#each availableTokens as token}
 						{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
-						{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn * 10) / 10 : 0}
-						{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn * 10) / 10 : 0}
+						{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) : 0}
+						{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) : 0}
 						{@const firstPaymentMonth = token.firstPaymentDate || 'TBD'}
 						<button 
 							class="token-button" 

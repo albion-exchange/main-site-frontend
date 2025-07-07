@@ -45,7 +45,6 @@
   },
   "production": {
     "current": "15 boe/day",
-    "expectedRemainingProduction": "45.2 mboe",
     "status": "producing",
     "units": {
       "production": "BOE (Barrels of Oil Equivalent)",

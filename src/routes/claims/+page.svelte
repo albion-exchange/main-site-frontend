@@ -4,10 +4,12 @@
 	import type { Asset } from '$lib/types/dataStore';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/WalletModal.svelte';
+	import marketData from '$lib/data/marketData.json';
+	import { getMockPortfolioHoldings, calculatePortfolioSummary } from '$lib/utils/portfolioCalculations';
 
-	let totalEarned = 8472.15;
-	let totalClaimed = 7224.33;
-	let unclaimedPayout = 1247.82;
+	let totalEarned = 0;
+	let totalClaimed = 0;
+	let unclaimedPayout = 0;
 	let loading = true;
 	let claiming = false;
 	let claimSuccess = false;
@@ -42,10 +44,19 @@
 		}
 		
 		try {
+			// Load portfolio holdings and calculate summary
+			const portfolioHoldings = getMockPortfolioHoldings();
+			const summary = calculatePortfolioSummary(portfolioHoldings);
+			
+			// Update summary values
+			totalEarned = summary.totalEarned;
+			totalClaimed = summary.totalClaimed;
+			unclaimedPayout = summary.unclaimedPayout;
+			
 			// Load real assets and create portfolio holdings
 			const allAssets = dataStoreService.getAllAssets();
 			
-			holdings = mockPortfolioBalances.map(balance => {
+			holdings = portfolioHoldings.map(balance => {
 				const asset = allAssets.find(a => a.id === balance.assetId);
 				if (!asset) return null;
 				
@@ -278,11 +289,11 @@
 					<div class="gas-info">
 						<div class="gas-row">
 							<span>Estimated Gas:</span>
-							<span>~$12.50</span>
+							<span>~${marketData.gasFeesEstimate.medium}</span>
 						</div>
 						<div class="gas-row">
 							<span>Net Amount:</span>
-							<span class="net-amount">{formatCurrency(unclaimedPayout - 12.50)}</span>
+							<span class="net-amount">{formatCurrency(unclaimedPayout - marketData.gasFeesEstimate.medium)}</span>
 						</div>
 					</div>
 				</div>

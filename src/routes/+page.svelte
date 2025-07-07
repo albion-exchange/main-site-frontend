@@ -6,6 +6,7 @@
 	import FeaturedTokenCarousel from '$lib/components/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import marketData from '$lib/data/marketData.json';
 
 	let platformStats = {
 		totalAssets: 0,
@@ -292,15 +293,15 @@
 				<div class="market-data">
 					<div class="data-row">
 						<span>WTI Crude Oil</span>
-						<span class="price">$73.45 <span class="change positive">+1.2%</span></span>
+						<span class="price">${marketData.oilPrices.wti.price} <span class="change {marketData.oilPrices.wti.change >= 0 ? 'positive' : 'negative'}">{marketData.oilPrices.wti.change >= 0 ? '+' : ''}{marketData.oilPrices.wti.change}%</span></span>
 					</div>
 					<div class="data-row">
 						<span>Brent Crude</span>
-						<span class="price">$78.20 <span class="change negative">-0.8%</span></span>
+						<span class="price">${marketData.oilPrices.brent.price} <span class="change {marketData.oilPrices.brent.change >= 0 ? 'positive' : 'negative'}">{marketData.oilPrices.brent.change >= 0 ? '+' : ''}{marketData.oilPrices.brent.change}%</span></span>
 					</div>
 					<div class="data-row">
 						<span>Natural Gas</span>
-						<span class="price">$2.84 <span class="change positive">+0.5%</span></span>
+						<span class="price">${marketData.oilPrices.naturalGas.price} <span class="change {marketData.oilPrices.naturalGas.change >= 0 ? 'positive' : 'negative'}">{marketData.oilPrices.naturalGas.change >= 0 ? '+' : ''}{marketData.oilPrices.naturalGas.change}%</span></span>
 					</div>
 				</div>
 			</div>

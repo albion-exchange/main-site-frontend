@@ -39,7 +39,7 @@ export interface AssetTechnical {
 
 export interface AssetProduction {
   current: string;
-  expectedRemainingProduction: string;
+  expectedRemainingProduction?: string; // Optional - calculated from planned production
   status: 'funding' | 'producing' | 'completed';
   units?: {
     production: string;

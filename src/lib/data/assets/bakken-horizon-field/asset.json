@@ -44,7 +44,6 @@
   },
   "production": {
     "current": "2,800 bbl/day",
-    "expectedRemainingProduction": "62.8 mboe",
     "status": "producing"
   },
   "tokenContracts": [

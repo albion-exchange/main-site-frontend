@@ -262,6 +262,34 @@ class DataStoreService {
   }
 
   /**
+   * Calculate expected remaining production from planned production data
+   * @param assetId Asset ID
+   * @returns Formatted string with calculated remaining production
+   */
+  getCalculatedRemainingProduction(assetId: string): string {
+    const asset = this.getAssetById(assetId);
+    if (!asset?.plannedProduction?.projections) {
+      return 'TBD';
+    }
+
+    // Sum all production from planned production projections
+    const totalProduction = asset.plannedProduction.projections.reduce(
+      (sum, projection) => sum + projection.production, 
+      0
+    );
+
+    // Convert to mboe (thousand barrels)
+    const productionInMboe = totalProduction / 1000;
+
+    // Format with appropriate precision
+    if (productionInMboe >= 10) {
+      return `${Math.round(productionInMboe * 10) / 10} mboe`;
+    } else {
+      return `${Math.round(productionInMboe * 100) / 100} mboe`;
+    }
+  }
+
+  /**
    * Calculate total portfolio value for given token balances
    */
   calculatePortfolioValue(balances: UserTokenBalance[]): number {
