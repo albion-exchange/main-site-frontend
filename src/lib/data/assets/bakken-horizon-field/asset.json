@@ -1,9 +1,9 @@
 {
   "id": "bakken-horizon-field",
   "name": "Bakken Horizon-2 Royalty Stream",
-  "description": "High-payout shale oil development in the heart of the Bakken formation with advanced horizontal drilling technology.",
+  "description": "High-production shale oil development in the heart of the Bakken formation with advanced horizontal drilling technology and multiple producing wells.",
   "images": [
-    "/images/assets/bakken-horizon-1.jpg",
+    "/images/assets/bakken-horizon-1.jpeg",
     "/images/assets/bakken-horizon-2.jpg"
   ],
   "location": {
@@ -25,12 +25,12 @@
     "fieldType": "Shale Oil",
     "depth": "3,200m",
     "license": "ND-2847",
-    "estimatedLife": "25+ years",
+    "estimatedLife": "3+ years",
     "firstOil": "2020-Q2",
     "infrastructure": "Rail and pipeline access",
     "environmental": "EPA compliant with reduced emissions technology",
-    "estimatedReserves": 62800000,
-    "expectedEndDate": "2049-08",
+    "estimatedReserves": 90400000,
+    "expectedEndDate": "2028-06",
     "crudeBenchmark": "WTI",
     "pricing": {
       "benchmarkPremium": "-$1.25",
@@ -40,11 +40,16 @@
   "assetTerms": {
     "interestType": "Royalty",
     "amount": "3.2% of gross",
+    "amountTooltip": "All numbers shown have already been adjusted for the royalty percentage and represent the net amounts payable to token holders",
     "paymentFrequency": "Monthly within 30 days"
   },
   "production": {
-    "current": "2,800 bbl/day",
-    "status": "producing"
+    "current": "30 boe/day",
+    "status": "producing",
+    "units": {
+      "production": "BOE (Barrels of Oil Equivalent)",
+      "revenue": "USD"
+    }
   },
   "tokenContracts": [
     "0x4567890123def0123456789012cdef045678901",
@@ -52,24 +57,222 @@
   ],
   "monthlyReports": [
     {
-      "month": "2024-11",
-      "production": 84000,
-      "revenue": 7560000,
-      "expenses": 1872000,
-      "netIncome": 5688000,
-      "payoutPerToken": 28.44
+      "month": "2025-06",
+      "production": 40.5,
+      "revenue": 2835.0,
+      "expenses": 0,
+      "netIncome": 2835.0
     },
     {
-      "month": "2024-10",
-      "production": 86800,
-      "revenue": 7812000,
-      "expenses": 1936400,
-      "netIncome": 5875600,
-      "payoutPerToken": 29.38
+      "month": "2025-05",
+      "production": 40.05,
+      "revenue": 2803.5,
+      "expenses": 0,
+      "netIncome": 2803.5
+    },
+    {
+      "month": "2025-04",
+      "production": 39.78,
+      "revenue": 2784.6,
+      "expenses": 0,
+      "netIncome": 2784.6
+    },
+    {
+      "month": "2025-03",
+      "production": 40.32,
+      "revenue": 2822.4,
+      "expenses": 0,
+      "netIncome": 2822.4
     }
   ],
+  "plannedProduction": {
+    "oilPriceAssumption": 70,
+    "oilPriceAssumptionCurrency": "USD",
+    "projections": [
+      {
+        "month": "2025-07",
+        "production": 30.67,
+        "revenue": 2146.9
+      },
+      {
+        "month": "2025-08",
+        "production": 29.184,
+        "revenue": 2042.88
+      },
+      {
+        "month": "2025-09",
+        "production": 29.654,
+        "revenue": 2075.78
+      },
+      {
+        "month": "2025-10",
+        "production": 29.16,
+        "revenue": 2041.2
+      },
+      {
+        "month": "2025-11",
+        "production": 27.75,
+        "revenue": 1942.5
+      },
+      {
+        "month": "2025-12",
+        "production": 28.2,
+        "revenue": 1974.0
+      },
+      {
+        "month": "2026-01",
+        "production": 26.836,
+        "revenue": 1878.52
+      },
+      {
+        "month": "2026-02",
+        "production": 26.71,
+        "revenue": 1869.7
+      },
+      {
+        "month": "2026-03",
+        "production": 26.26,
+        "revenue": 1838.2
+      },
+      {
+        "month": "2026-04",
+        "production": 22.288,
+        "revenue": 1560.16
+      },
+      {
+        "month": "2026-05",
+        "production": 24.7,
+        "revenue": 1729.0
+      },
+      {
+        "month": "2026-06",
+        "production": 12.016,
+        "revenue": 841.12
+      },
+      {
+        "month": "2026-07",
+        "production": 35.028,
+        "revenue": 2451.96
+      },
+      {
+        "month": "2026-08",
+        "production": 29.966,
+        "revenue": 2097.62
+      },
+      {
+        "month": "2026-09",
+        "production": 28.938,
+        "revenue": 2025.66
+      },
+      {
+        "month": "2026-10",
+        "production": 26.908,
+        "revenue": 1883.56
+      },
+      {
+        "month": "2026-11",
+        "production": 26.576,
+        "revenue": 1860.32
+      },
+      {
+        "month": "2026-12",
+        "production": 27.962,
+        "revenue": 1957.34
+      },
+      {
+        "month": "2027-01",
+        "production": 27.14,
+        "revenue": 1899.8
+      },
+      {
+        "month": "2027-02",
+        "production": 27.46,
+        "revenue": 1922.2
+      },
+      {
+        "month": "2027-03",
+        "production": 24.162,
+        "revenue": 1691.34
+      },
+      {
+        "month": "2027-04",
+        "production": 19.542,
+        "revenue": 1367.94
+      },
+      {
+        "month": "2027-05",
+        "production": 20.21,
+        "revenue": 1414.7
+      },
+      {
+        "month": "2027-06",
+        "production": 19.346,
+        "revenue": 1354.22
+      },
+      {
+        "month": "2027-07",
+        "production": 20.08,
+        "revenue": 1405.6
+      },
+      {
+        "month": "2027-08",
+        "production": 19.148,
+        "revenue": 1340.36
+      },
+      {
+        "month": "2027-09",
+        "production": 19.206,
+        "revenue": 1344.42
+      },
+      {
+        "month": "2027-10",
+        "production": 17.978,
+        "revenue": 1258.46
+      },
+      {
+        "month": "2027-11",
+        "production": 16.268,
+        "revenue": 1138.76
+      },
+      {
+        "month": "2027-12",
+        "production": 15.69,
+        "revenue": 1098.3
+      },
+      {
+        "month": "2028-01",
+        "production": 14.098,
+        "revenue": 986.86
+      },
+      {
+        "month": "2028-02",
+        "production": 13.32,
+        "revenue": 932.4
+      },
+      {
+        "month": "2028-03",
+        "production": 12.85,
+        "revenue": 899.5
+      },
+      {
+        "month": "2028-04",
+        "production": 11.94,
+        "revenue": 835.8
+      },
+      {
+        "month": "2028-05",
+        "production": 10.82,
+        "revenue": 757.4
+      },
+      {
+        "month": "2028-06",
+        "production": 9.45,
+        "revenue": 661.5
+      }
+    ]
+  },
   "metadata": {
-    "createdAt": "2024-02-10T09:15:00Z",
-    "updatedAt": "2024-12-01T16:45:00Z"
+    "createdAt": "2020-02-15T10:00:00Z",
+    "updatedAt": "2025-01-07T10:00:00Z"
   }
 }

@@ -1,6 +1,6 @@
 {
   "id": "gulf-mexico-deep-water",
-  "name": "Gulf of Mexico Deep Water",
+  "name": "Gulf of Mexico-4 Royalty Stream",
   "description": "Offshore deep-water oil development with state-of-the-art subsea production systems and enhanced recovery techniques.",
   "images": [
     "/images/assets/gulf-mexico-1.jpg",
@@ -25,12 +25,12 @@
     "fieldType": "Deep Water Oil",
     "depth": "4,500m",
     "license": "GOM-DW-7834",
-    "estimatedLife": "20+ years",
+    "estimatedLife": "3+ years",
     "firstOil": "2022-Q4",
     "infrastructure": "Floating production platform with subsea manifolds",
     "environmental": "Zero discharge policy with advanced spill prevention",
-    "estimatedReserves": 125000000,
-    "expectedEndDate": "2044-11",
+    "estimatedReserves": 180800000,
+    "expectedEndDate": "2028-02",
     "crudeBenchmark": "Brent",
     "pricing": {
       "benchmarkPremium": "+$1.80",
@@ -39,37 +39,219 @@
   },
   "assetTerms": {
     "interestType": "Royalty",
-    "amount": "6.25% of gross",
+    "amount": "1.8% of gross",
+    "amountTooltip": "All numbers shown have already been adjusted for the royalty percentage and represent the net amounts payable to token holders",
     "paymentFrequency": "Monthly within 30 days"
   },
   "production": {
-    "current": "6,200 bbl/day",
-    "status": "producing"
+    "current": "60 boe/day",
+    "status": "producing",
+    "units": {
+      "production": "BOE (Barrels of Oil Equivalent)",
+      "revenue": "USD"
+    }
   },
   "tokenContracts": [
-    "0x8901234567123456789012356f089012345",
-    "0x9012345678234567890123467f090123456"
+    "0x8901234567123456789012356f089012345"
   ],
   "monthlyReports": [
     {
-      "month": "2024-11",
-      "production": 186000,
-      "revenue": 16740000,
-      "expenses": 6540000,
-      "netIncome": 10200000,
-      "payoutPerToken": 25.5
+      "month": "2025-06",
+      "production": 81.0,
+      "revenue": 5670.0,
+      "expenses": 0,
+      "netIncome": 5670.0
     },
     {
-      "month": "2024-10",
-      "production": 192200,
-      "revenue": 17298000,
-      "expenses": 6764400,
-      "netIncome": 10533600,
-      "payoutPerToken": 26.33
+      "month": "2025-05",
+      "production": 80.1,
+      "revenue": 5607.0,
+      "expenses": 0,
+      "netIncome": 5607.0
+    },
+    {
+      "month": "2025-04",
+      "production": 79.56,
+      "revenue": 5569.2,
+      "expenses": 0,
+      "netIncome": 5569.2
+    },
+    {
+      "month": "2025-03",
+      "production": 80.64,
+      "revenue": 5644.8,
+      "expenses": 0,
+      "netIncome": 5644.8
     }
   ],
+  "plannedProduction": {
+    "oilPriceAssumption": 65,
+    "oilPriceAssumptionCurrency": "USD",
+    "projections": [
+      {
+        "month": "2025-07",
+        "production": 61.34,
+        "revenue": 3987.1
+      },
+      {
+        "month": "2025-08",
+        "production": 58.368,
+        "revenue": 3793.92
+      },
+      {
+        "month": "2025-09",
+        "production": 59.308,
+        "revenue": 3855.02
+      },
+      {
+        "month": "2025-10",
+        "production": 58.32,
+        "revenue": 3790.8
+      },
+      {
+        "month": "2025-11",
+        "production": 55.5,
+        "revenue": 3607.5
+      },
+      {
+        "month": "2025-12",
+        "production": 56.4,
+        "revenue": 3666.0
+      },
+      {
+        "month": "2026-01",
+        "production": 53.672,
+        "revenue": 3488.68
+      },
+      {
+        "month": "2026-02",
+        "production": 53.42,
+        "revenue": 3472.3
+      },
+      {
+        "month": "2026-03",
+        "production": 52.52,
+        "revenue": 3413.8
+      },
+      {
+        "month": "2026-04",
+        "production": 44.576,
+        "revenue": 2897.44
+      },
+      {
+        "month": "2026-05",
+        "production": 49.4,
+        "revenue": 3211.0
+      },
+      {
+        "month": "2026-06",
+        "production": 24.032,
+        "revenue": 1562.08
+      },
+      {
+        "month": "2026-07",
+        "production": 70.056,
+        "revenue": 4553.64
+      },
+      {
+        "month": "2026-08",
+        "production": 59.932,
+        "revenue": 3895.58
+      },
+      {
+        "month": "2026-09",
+        "production": 57.876,
+        "revenue": 3761.94
+      },
+      {
+        "month": "2026-10",
+        "production": 53.816,
+        "revenue": 3498.04
+      },
+      {
+        "month": "2026-11",
+        "production": 53.152,
+        "revenue": 3454.88
+      },
+      {
+        "month": "2026-12",
+        "production": 55.924,
+        "revenue": 3635.06
+      },
+      {
+        "month": "2027-01",
+        "production": 54.28,
+        "revenue": 3528.2
+      },
+      {
+        "month": "2027-02",
+        "production": 54.92,
+        "revenue": 3569.8
+      },
+      {
+        "month": "2027-03",
+        "production": 48.324,
+        "revenue": 3141.06
+      },
+      {
+        "month": "2027-04",
+        "production": 39.084,
+        "revenue": 2540.46
+      },
+      {
+        "month": "2027-05",
+        "production": 40.42,
+        "revenue": 2627.3
+      },
+      {
+        "month": "2027-06",
+        "production": 38.692,
+        "revenue": 2514.98
+      },
+      {
+        "month": "2027-07",
+        "production": 40.16,
+        "revenue": 2610.4
+      },
+      {
+        "month": "2027-08",
+        "production": 38.296,
+        "revenue": 2489.24
+      },
+      {
+        "month": "2027-09",
+        "production": 38.412,
+        "revenue": 2496.78
+      },
+      {
+        "month": "2027-10",
+        "production": 35.956,
+        "revenue": 2337.14
+      },
+      {
+        "month": "2027-11",
+        "production": 32.536,
+        "revenue": 2114.84
+      },
+      {
+        "month": "2027-12",
+        "production": 31.38,
+        "revenue": 2039.7
+      },
+      {
+        "month": "2028-01",
+        "production": 28.196,
+        "revenue": 1832.74
+      },
+      {
+        "month": "2028-02",
+        "production": 26.64,
+        "revenue": 1731.6
+      }
+    ]
+  },
   "metadata": {
-    "createdAt": "2024-04-18T13:45:00Z",
-    "updatedAt": "2024-12-01T17:10:00Z"
+    "createdAt": "2022-10-18T13:45:00Z",
+    "updatedAt": "2025-01-07T10:00:00Z"
   }
 }

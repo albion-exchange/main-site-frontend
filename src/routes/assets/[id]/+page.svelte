@@ -817,7 +817,7 @@
 														role="button"
 														tabindex="0">ⓘ</span>
 												</span>
-												<span class="return-value">{calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</span>
+												<span class="return-value">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</span>
 												{#if showTooltip === 'base'}
 													<div class="tooltip">
 														Conservative return estimate based on current production and oil prices
@@ -833,7 +833,7 @@
 														role="button"
 														tabindex="0">ⓘ</span>
 												</span>
-												<span class="return-value">+{calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
+												<span class="return-value">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
 												{#if showTooltip === 'bonus'}
 													<div class="tooltip">
 														Additional potential return from improved oil prices or production efficiency
