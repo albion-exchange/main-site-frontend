@@ -325,12 +325,6 @@
 		border-color: var(--color-primary-blue);
 	}
 
-	.token-button.unavailable {
-		background: var(--color-light-gray);
-		border-color: #e2e8f0;
-		cursor: not-allowed;
-		opacity: 0.6;
-	}
 
 	.token-button-left {
 		display: flex;

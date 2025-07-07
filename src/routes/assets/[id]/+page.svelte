@@ -730,7 +730,7 @@
 					{@const tokenPayoutData = dataStoreService.getTokenPayoutHistory(token.contractAddress)}
 					{@const latestPayout = tokenPayoutData?.recentPayouts?.[0]}
 					{@const isFlipped = flippedCards.has(token.contractAddress)}
-					<div class="token-card-container" class:flipped={isFlipped}>
+					<div class="token-card-container" class:flipped={isFlipped} id="token-{token.contractAddress}">
 						<Card hoverable clickable padding="0" on:click={() => handleCardClick(token.contractAddress)}>
 							<CardContent padding="0">
 								<div class="token-card-front">
@@ -931,8 +931,12 @@
 
 <!-- Email Notification Popup -->
 {#if showEmailPopup}
-	<div class="email-popup-overlay" on:click={handleCloseEmailPopup} on:keydown={(e) => { if (e.key === 'Escape') handleCloseEmailPopup(); }} role="dialog" aria-modal="true" tabindex="-1">
-		<div class="email-popup" on:click|stopPropagation on:keydown|stopPropagation role="document">
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
+	<div class="email-popup-overlay" on:click={handleCloseEmailPopup}>
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<div class="email-popup" on:click|stopPropagation role="dialog" aria-modal="true" tabindex="0">
 			<div class="email-popup-header">
 				<h3 class="email-popup-title">Get Notified</h3>
 				<button class="email-popup-close" on:click={handleCloseEmailPopup}>×</button>

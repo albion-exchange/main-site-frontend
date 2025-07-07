@@ -153,13 +153,20 @@
 			<!-- Header -->
 			<div class="widget-header">
 				<div class="widget-title">
-					<h2>
-						{#if tokenData}
-							{tokenData.name}
-						{:else}
-							Purchase Tokens
+					<div class="title-row">
+						<h2>
+							{#if tokenData}
+								{tokenData.name}
+							{:else}
+								Purchase Tokens
+							{/if}
+						</h2>
+						{#if tokenData && assetData}
+							<a href="/assets/{assetData.id}#token-{tokenData.contractAddress}" class="view-details-link">
+								View Details →
+							</a>
 						{/if}
-					</h2>
+					</div>
 					{#if assetData}
 						<p class="asset-name">{assetData.name}</p>
 					{/if}
@@ -329,11 +336,36 @@
 		border-bottom: 1px solid var(--color-light-gray);
 	}
 
+	.title-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 1rem;
+	}
+
 	.widget-title h2 {
 		margin: 0;
 		font-size: 1.5rem;
 		font-weight: var(--font-weight-bold);
 		color: var(--color-black);
+	}
+
+	.view-details-link {
+		color: var(--color-primary-blue);
+		text-decoration: none;
+		font-size: 0.875rem;
+		font-weight: var(--font-weight-medium);
+		padding: 0.5rem 0.75rem;
+		border: 1px solid var(--color-primary-blue);
+		border-radius: 4px;
+		transition: all 0.2s ease;
+		white-space: nowrap;
+	}
+
+	.view-details-link:hover {
+		font-weight: var(--font-weight-bold);
+		border-color: #283c84;
+		color: #283c84;
 	}
 
 	.asset-name {
@@ -571,6 +603,17 @@
 
 		.details-grid {
 			grid-template-columns: 1fr;
+		}
+
+		.title-row {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.5rem;
+		}
+
+		.view-details-link {
+			font-size: 0.75rem;
+			padding: 0.375rem 0.5rem;
 		}
 	}
 </style>
