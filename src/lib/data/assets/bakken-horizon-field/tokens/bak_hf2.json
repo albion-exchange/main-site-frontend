@@ -1,0 +1,74 @@
+{
+  "contractAddress": "0x5678901234ef01234567890123def056789012",
+  "name": "Bakken Horizon-2 Release 2",
+  "assetName": "Bakken Horizon Field",
+  "symbol": "BAK-HF2",
+  "decimals": 18,
+  "tokenType": "royalty",
+  "assetId": "bakken-horizon-field",
+  "isActive": true,
+  "firstPaymentDate": "July 2025",
+  "supply": {
+    "maxSupply": "770000000000000000000000",
+    "mintedSupply": "356000000000000000000000"
+  },
+  "holders": [
+    {
+      "address": "0xa1b2c3d4e5f6789012345678901234567890abcd",
+      "balance": "14000000000000000000000",
+      "joinedDate": "2024-03-15"
+    },
+    {
+      "address": "0xb2c3d4e5f6789012345678901234567890abcdef",
+      "balance": "28000000000000000000000",
+      "joinedDate": "2024-04-20"
+    }
+  ],
+  "payoutHistory": [
+    {
+      "month": "2025-06",
+      "date": "2025-06-15",
+      "totalPayout": 31158.4,
+      "payoutPerToken": 0.08752,
+      "oilPrice": 70.0,
+      "gasPrice": 3.1,
+      "productionVolume": 1112.8,
+      "txHash": "0x0000000000000000000000000a84d65a27d170a7"
+    },
+    {
+      "month": "2025-05",
+      "date": "2025-05-15",
+      "totalPayout": 33384.4,
+      "payoutPerToken": 0.09378,
+      "oilPrice": 70.0,
+      "gasPrice": 3.1,
+      "productionVolume": 1192.3,
+      "txHash": "0xffffffffffffffffffffffffaed39555d5e4f661"
+    },
+    {
+      "month": "2025-04",
+      "date": "2025-04-15",
+      "totalPayout": 30522.8,
+      "payoutPerToken": 0.08574,
+      "oilPrice": 70.0,
+      "gasPrice": 3.1,
+      "productionVolume": 1090.1,
+      "txHash": "0x000000000000000000000000581504950804a5d4"
+    },
+    {
+      "month": "2025-03",
+      "date": "2025-03-15",
+      "totalPayout": 32113.2,
+      "payoutPerToken": 0.09021,
+      "oilPrice": 70.0,
+      "gasPrice": 3.1,
+      "productionVolume": 1146.9,
+      "txHash": "0x0000000000000000000000004f15d965f77abe75"
+    }
+  ],
+  "sharePercentage": 40,
+  "metadata": {
+    "createdAt": "2024-03-15T11:30:00Z",
+    "updatedAt": "2025-01-07T10:00:00Z"
+  }
+}

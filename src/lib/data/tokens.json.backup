@@ -9,6 +9,7 @@
       "tokenType": "royalty",
       "assetId": "europa-wressle-release-1",
       "isActive": true,
+      "firstPaymentDate": "March 2025",
       "supply": {
         "maxSupply": "50000000000000000000000",
         "mintedSupply": "43750000000000000000000"
@@ -232,6 +233,7 @@
       "tokenType": "royalty",
       "assetId": "bakken-horizon-field",
       "isActive": true,
+      "firstPaymentDate": "April 2025",
       "supply": {
         "maxSupply": "75000000000000000000000",
         "mintedSupply": "56250000000000000000000"
@@ -430,6 +432,7 @@
       "tokenType": "royalty",
       "assetId": "permian-basin-venture",
       "isActive": true,
+      "firstPaymentDate": "May 2025",
       "supply": {
         "maxSupply": "25000000000000000000000",
         "mintedSupply": "18750000000000000000000"
@@ -568,9 +571,10 @@
       "tokenType": "royalty",
       "assetId": "gulf-mexico-deep-water",
       "isActive": true,
+      "firstPaymentDate": "June 2025",
       "supply": {
         "maxSupply": "30000000000000000000000",
-        "mintedSupply": "27000000000000000000000"
+        "mintedSupply": "30000000000000000000000"
       },
       "holders": [
         {
@@ -704,8 +708,8 @@
       },
       "availability": {
         "totalAvailable": "30000000000000000000000",
-        "currentlyAvailable": "3000000000000000000000",
-        "percentageAvailable": 10.0
+        "currentlyAvailable": "0",
+        "percentageAvailable": 0.0
       },
       "metadata": {
         "createdAt": "2024-04-18T13:45:00Z",
@@ -721,6 +725,7 @@
       "tokenType": "royalty",
       "assetId": "europa-wressle-release-1",
       "isActive": true,
+      "firstPaymentDate": "July 2025",
       "supply": {
         "maxSupply": "35000000000000000000000",
         "mintedSupply": "28000000000000000000000"
@@ -737,7 +742,38 @@
           "joinedDate": "2024-04-20"
         }
       ],
-      "payoutHistory": [],
+      "payoutHistory": [
+        {
+          "month": "2024-12",
+          "date": "2024-12-05",
+          "totalPayout": 350.10,
+          "payoutPerToken": 0.0125,
+          "oilPrice": 78.45,
+          "gasPrice": 3.24,
+          "productionVolume": 980,
+          "txHash": "0x23456789abcdef123456789abcdef123456789a"
+        },
+        {
+          "month": "2024-11",
+          "date": "2024-11-05",
+          "totalPayout": 338.40,
+          "payoutPerToken": 0.0121,
+          "oilPrice": 76.20,
+          "gasPrice": 3.15,
+          "productionVolume": 952,
+          "txHash": "0x3456789abcdef123456789abcdef123456789ab"
+        },
+        {
+          "month": "2024-10",
+          "date": "2024-10-05",
+          "totalPayout": 327.60,
+          "payoutPerToken": 0.0117,
+          "oilPrice": 74.80,
+          "gasPrice": 3.08,
+          "productionVolume": 925,
+          "txHash": "0x456789abcdef123456789abcdef123456789abc"
+        }
+      ],
       "returns": {
         "baseReturn": 11.2,
         "bonusReturn": 3.8,
@@ -768,6 +804,7 @@
       "tokenType": "royalty",
       "assetId": "europa-wressle-release-1",
       "isActive": true,
+      "firstPaymentDate": "August 2025",
       "supply": {
         "maxSupply": "42000000000000000000000",
         "mintedSupply": "42000000000000000000000"
@@ -784,7 +821,38 @@
           "joinedDate": "2024-05-15"
         }
       ],
-      "payoutHistory": [],
+      "payoutHistory": [
+        {
+          "month": "2024-12",
+          "date": "2024-12-05",
+          "totalPayout": 420.50,
+          "payoutPerToken": 0.0150,
+          "oilPrice": 78.45,
+          "gasPrice": 3.24,
+          "productionVolume": 980,
+          "txHash": "0x23456789abcdef123456789abcdef123456789a"
+        },
+        {
+          "month": "2024-11",
+          "date": "2024-11-05",
+          "totalPayout": 407.20,
+          "payoutPerToken": 0.0145,
+          "oilPrice": 76.20,
+          "gasPrice": 3.15,
+          "productionVolume": 952,
+          "txHash": "0x3456789abcdef123456789abcdef123456789ab"
+        },
+        {
+          "month": "2024-10",
+          "date": "2024-10-05",
+          "totalPayout": 395.00,
+          "payoutPerToken": 0.0141,
+          "oilPrice": 74.80,
+          "gasPrice": 3.08,
+          "productionVolume": 925,
+          "txHash": "0x456789abcdef123456789abcdef123456789abc"
+        }
+      ],
       "returns": {
         "baseReturn": 9.0,
         "bonusReturn": 2.5,
@@ -815,6 +883,7 @@
       "tokenType": "royalty",
       "assetId": "bakken-horizon-field",
       "isActive": true,
+      "firstPaymentDate": "September 2025",
       "supply": {
         "maxSupply": "55000000000000000000000",
         "mintedSupply": "33000000000000000000000"
@@ -831,7 +900,38 @@
           "joinedDate": "2024-04-12"
         }
       ],
-      "payoutHistory": [],
+      "payoutHistory": [
+        {
+          "month": "2024-12",
+          "date": "2024-12-05",
+          "totalPayout": 610.75,
+          "payoutPerToken": 0.0184,
+          "oilPrice": 78.45,
+          "gasPrice": 3.24,
+          "productionVolume": 980,
+          "txHash": "0x23456789abcdef123456789abcdef123456789a"
+        },
+        {
+          "month": "2024-11",
+          "date": "2024-11-05",
+          "totalPayout": 593.60,
+          "payoutPerToken": 0.0179,
+          "oilPrice": 76.20,
+          "gasPrice": 3.15,
+          "productionVolume": 952,
+          "txHash": "0x3456789abcdef123456789abcdef123456789ab"
+        },
+        {
+          "month": "2024-10",
+          "date": "2024-10-05",
+          "totalPayout": 577.30,
+          "payoutPerToken": 0.0174,
+          "oilPrice": 74.80,
+          "gasPrice": 3.08,
+          "productionVolume": 925,
+          "txHash": "0x456789abcdef123456789abcdef123456789abc"
+        }
+      ],
       "returns": {
         "baseReturn": 8.0,
         "bonusReturn": 3.5,

@@ -1,5 +1,19 @@
 <script lang="ts">
-	// About page logic can be added here
+	import { onMount } from 'svelte';
+	import dataStoreService from '$lib/services/DataStoreService';
+	
+	let platformStats: any = {};
+	let loading = true;
+
+	onMount(async () => {
+		try {
+			platformStats = dataStoreService.getPlatformStats();
+			loading = false;
+		} catch (error) {
+			console.error('Error loading platform stats:', error);
+			loading = false;
+		}
+	});
 </script>
 
 <svelte:head>
@@ -119,22 +133,26 @@
 		<h2>Platform Statistics</h2>
 		
 		<div class="stats-grid">
-			<div class="stat">
-				<div class="stat-value">$127.4M</div>
-				<div class="stat-label">Total Investment Volume</div>
-			</div>
-			<div class="stat">
-				<div class="stat-value">8,924</div>
-				<div class="stat-label">Active Investors</div>
-			</div>
-			<div class="stat">
-				<div class="stat-value">4</div>
-				<div class="stat-label">Active Assets</div>
-			</div>
-			<div class="stat">
-				<div class="stat-value">11.3%</div>
-				<div class="stat-label">Average Payout</div>
-			</div>
+			{#if loading}
+				<div class="loading">Loading statistics...</div>
+			{:else}
+				<div class="stat">
+					<div class="stat-value">{platformStats.totalInvestmentVolume?.formatted || 'N/A'}</div>
+					<div class="stat-label">Total Investment Volume</div>
+				</div>
+				<div class="stat">
+					<div class="stat-value">{platformStats.activeInvestors?.formatted || 'N/A'}</div>
+					<div class="stat-label">Active Investors</div>
+				</div>
+				<div class="stat">
+					<div class="stat-value">{platformStats.activeAssets?.formatted || 'N/A'}</div>
+					<div class="stat-label">Active Assets</div>
+				</div>
+				<div class="stat">
+					<div class="stat-value">{platformStats.averagePayout?.formatted || 'N/A'}</div>
+					<div class="stat-label">Average Payout</div>
+				</div>
+			{/if}
 		</div>
 	</section>
 
@@ -164,7 +182,7 @@
 	}
 
 	.hero-content {
-		max-width: 800px;
+		max-width: 1200px;
 		margin: 0 auto;
 	}
 
@@ -192,7 +210,7 @@
 	}
 
 	.mission-content {
-		max-width: 800px;
+		max-width: 1200px;
 		margin: 0 auto;
 	}
 
@@ -280,7 +298,7 @@
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
 		gap: 2rem;
-		max-width: 800px;
+		max-width: 1200px;
 		margin: 0 auto;
 	}
 
@@ -311,7 +329,7 @@
 
 	.team {
 		padding: 4rem 2rem;
-		max-width: 1000px;
+		max-width: 1200px;
 		margin: 0 auto;
 		text-align: center;
 	}
@@ -387,7 +405,7 @@
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
 		gap: 2rem;
-		max-width: 800px;
+		max-width: 1200px;
 		margin: 0 auto;
 	}
 
@@ -415,7 +433,7 @@
 	}
 
 	.cta-content {
-		max-width: 600px;
+		max-width: 1200px;
 		margin: 0 auto;
 	}
 

@@ -4,11 +4,12 @@
 	import type { Asset, Token } from '$lib/types/dataStore';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/WalletModal.svelte';
+	import { getMockPortfolioHoldings, calculatePortfolioSummary } from '$lib/utils/portfolioCalculations';
 
-	let totalPortfolioValue = 47250.00;
-	let totalInvested = 42000.00;
-	let unrealizedGains = 5250.00;
-	let unclaimedPayout = 1247.82;
+	let totalPortfolioValue = 0;
+	let totalInvested = 0;
+	let unrealizedGains = 0;
+	let unclaimedPayout = 0;
 	let activeTab = 'overview';
 	let timeframe = '1M';
 	let portfolioInterval: number;
@@ -49,19 +50,27 @@
 		}
 		
 		try {
+			// Load portfolio holdings and calculate summary
+			const portfolioHoldings = getMockPortfolioHoldings();
+			const summary = calculatePortfolioSummary(portfolioHoldings);
+			
+			// Update summary values
+			totalPortfolioValue = summary.totalPortfolioValue;
+			totalInvested = summary.totalInvested;
+			unrealizedGains = summary.unrealizedGains;
+			unclaimedPayout = summary.unclaimedPayout;
+			
 			// Load real assets and create portfolio holdings
 			const allAssets = dataStoreService.getAllAssets();
 			
-			holdings = mockPortfolioBalances.map(balance => {
+			holdings = portfolioHoldings.map(balance => {
 				const asset = allAssets.find(a => a.id === balance.assetId);
 				if (!asset) return null;
 				
-				// Calculate current value with some mock variation
-				const pricePerToken = 1.25; // Mock price per token
-				const currentValue = balance.tokensOwned * pricePerToken;
-				const unrealizedGain = currentValue - balance.investmentAmount;
+				// Use calculated values from portfolio holdings
+				const unrealizedGain = balance.currentValue - balance.investmentAmount;
 				const unrealizedGainPercent = (unrealizedGain / balance.investmentAmount) * 100;
-				const allocation = (currentValue / totalPortfolioValue) * 100;
+				const allocation = (balance.currentValue / totalPortfolioValue) * 100;
 				
 				return {
 					id: asset.id,
@@ -69,10 +78,10 @@
 					location: `${asset.location.state}, ${asset.location.country}`,
 					tokensOwned: balance.tokensOwned,
 					investmentAmount: balance.investmentAmount,
-					currentValue: currentValue,
+					currentValue: balance.currentValue,
 					unrealizedGain: unrealizedGain,
 					unrealizedGainPercent: unrealizedGainPercent,
-					currentPayout: asset.financial.currentPayout,
+					currentPayout: asset.monthlyReports.length > 0 ? asset.monthlyReports[asset.monthlyReports.length - 1].payoutPerToken : 0,
 					totalEarned: balance.totalEarned,
 					lastPayout: balance.lastPayout,
 					status: asset.production.status,
@@ -170,7 +179,7 @@
 						currentValue: currentValue,
 						unrealizedGain: unrealizedGain,
 						unrealizedGainPercent: unrealizedGainPercent,
-						currentPayout: asset.financial.currentPayout,
+						currentPayout: asset.monthlyReports.length > 0 ? asset.monthlyReports[asset.monthlyReports.length - 1].payoutPerToken : 0,
 						totalEarned: balance.totalEarned,
 						lastPayout: balance.lastPayout,
 						status: asset.production.status,
@@ -463,7 +472,7 @@
 								<div class="perf-note">Income only</div>
 							</div>
 							<div class="perf-stat">
-								<div class="perf-value">16.3%</div>
+								<div class="perf-value">{dataStoreService.getPlatformStats().averagePortfolioIRR?.formatted || '16.3%'}</div>
 								<div class="perf-label">Annualized IRR</div>
 								<div class="perf-note">12-month projection</div>
 							</div>

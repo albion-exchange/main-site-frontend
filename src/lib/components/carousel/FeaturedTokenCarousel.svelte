@@ -1,16 +1,19 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Token, Asset } from '$lib/types/dataStore';
+	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
 
 	export let autoPlay = true;
 	export let autoPlayInterval = 5000;
+	
+	const dispatch = createEventDispatcher();
 
 	let currentIndex = 0;
 	let featuredTokensWithAssets: Array<{ token: Token; asset: Asset }> = [];
 	let loading = true;
 	let error: string | null = null;
-	let autoPlayTimer: NodeJS.Timeout | null = null;
+	let autoPlayTimer: ReturnType<typeof setTimeout> | null = null;
 	let carouselContainer: HTMLElement;
 	let isTransitioning = false;
 	let touchStartX = 0;
@@ -34,8 +37,14 @@
 			loading = true;
 			error = null;
 
-			// Get first 3 royalty tokens as featured
-			const royaltyTokens = dataStoreService.getRoyaltyTokens().slice(0, 3);
+			// Get royalty tokens with sufficient available supply (>= 1000)
+			const royaltyTokens = dataStoreService.getRoyaltyTokens()
+				.filter(token => {
+					const availableSupply = BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply);
+					const availableSupplyFormatted = Number(availableSupply) / Math.pow(10, token.decimals);
+					return availableSupplyFormatted >= 1000;
+				})
+				.slice(0, 3);
 
 			featuredTokensWithAssets = royaltyTokens
 				.map(token => {
@@ -144,6 +153,10 @@
 			}
 		}
 	}
+	
+	function handleBuyTokens(tokenAddress: string) {
+		dispatch('buyTokens', { tokenAddress });
+	}
 
 	function formatCurrency(amount: number): string {
 		return new Intl.NumberFormat('en-US', {
@@ -191,6 +204,25 @@
 			<p>No featured tokens available</p>
 		</div>
 	{:else}
+		<!-- Navigation Controls (outside carousel wrapper) -->
+		{#if featuredTokensWithAssets.length > 1}
+			<button 
+				class="nav-button prev" 
+				on:click={prevSlide}
+				aria-label="Previous token"
+			>
+				‹
+			</button>
+			
+			<button 
+				class="nav-button next" 
+				on:click={nextSlide}
+				aria-label="Next token"
+			>
+				›
+			</button>
+		{/if}
+
 		<div 
 			class="carousel-wrapper"
 			on:mouseenter={handleMouseEnter}
@@ -198,8 +230,8 @@
 			on:keydown={handleKeydown}
 			on:touchstart={handleTouchStart}
 			on:touchend={handleTouchEnd}
-			role="region"
-			aria-label="Featured tokens carousel"
+			role="button"
+			aria-label="Featured tokens carousel - use arrow keys to navigate"
 			tabindex="0"
 		>
 			<!-- Carousel track -->
@@ -208,14 +240,12 @@
 				style="transform: translateX(-{currentIndex * 100}%)"
 			>
 				{#each featuredTokensWithAssets as item, index}
+					{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(item.token.contractAddress)}
 					<div class="carousel-slide" class:active={index === currentIndex}>
 						<div class="banner-card">
 							<!-- Token Section -->
 							<div class="token-section">
 								<div class="token-header">
-									<div class="token-type-badge">
-										{item.token.tokenType === 'royalty' ? 'Royalty Token' : 'Payment Token'}
-									</div>
 									<h3 class="token-name">{item.token.name}</h3>
 									<div class="token-contract">{item.token.contractAddress}</div>
 								</div>
@@ -234,25 +264,24 @@
 											{formatSupply((BigInt(item.token.supply.maxSupply) - BigInt(item.token.supply.mintedSupply)).toString(), item.token.decimals)}
 										</div>
 									</div>
-
 									<div class="stat-item">
 										<div class="stat-label">Estimated Base Payout</div>
-										<div class="stat-value">8.5%</div>
+										<div class="stat-value">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</div>
 									</div>
 									
 									<div class="stat-item">
 										<div class="stat-label">Estimated Bonus Payout</div>
-										<div class="stat-value">2.3%</div>
+										<div class="stat-value">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
 									</div>
 								</div>
 
 								<div class="token-actions">
-									<a href="/purchase-token?token={item.token.contractAddress}" class="action-button primary">
-										Mint Tokens
-									</a>
-									<a href="/assets/{item.asset.id}" class="action-button secondary">
+									<PrimaryButton on:click={() => handleBuyTokens(item.token.contractAddress)}>
+										Buy Tokens
+									</PrimaryButton>
+									<SecondaryButton href="/assets/{item.asset.id}">
 										View Asset
-									</a>
+									</SecondaryButton>
 								</div>
 							</div>
 
@@ -276,7 +305,7 @@
 								<div class="asset-stats">
 									<div class="stat-item">
 										<div class="stat-label">Expected Remaining Production</div>
-										<div class="stat-value">45.2 mboe</div>
+										<div class="stat-value">{dataStoreService.getCalculatedRemainingProduction(item.asset.id)}</div>
 									</div>
 								</div>
 
@@ -296,25 +325,8 @@
 				{/each}
 			</div>
 
-			<!-- Navigation Controls -->
+			<!-- Indicators (remain inside carousel wrapper) -->
 			{#if featuredTokensWithAssets.length > 1}
-				<button 
-					class="nav-button prev" 
-					on:click={prevSlide}
-					aria-label="Previous token"
-				>
-					‹
-				</button>
-				
-				<button 
-					class="nav-button next" 
-					on:click={nextSlide}
-					aria-label="Next token"
-				>
-					›
-				</button>
-
-				<!-- Indicators -->
 				<div class="indicators">
 					{#each featuredTokensWithAssets as _, index}
 						<button 
@@ -335,6 +347,7 @@
 		width: 100%;
 		max-width: 1200px;
 		margin: 0 auto;
+		padding: 0 2rem;
 	}
 
 	.loading-state, .error-state, .empty-state {
@@ -464,24 +477,11 @@
 		margin-bottom: 2rem;
 	}
 
-	.token-type-badge {
-		display: inline-block;
-		padding: 0.25rem 0.75rem;
-		background: var(--color-primary);
-		color: var(--color-white);
-		font-size: 0.75rem;
-		font-weight: var(--font-weight-semibold);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		border-radius: 12px;
-		margin-bottom: 1rem;
-	}
-
 	.token-name {
 		font-size: 1.5rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-black);
-		margin-bottom: 0.5rem;
+		margin-bottom: 0.75rem;
 		line-height: 1.2;
 	}
 
@@ -686,11 +686,11 @@
 	}
 
 	.nav-button.prev {
-		left: 1rem;
+		left: -4rem;
 	}
 
 	.nav-button.next {
-		right: 1rem;
+		right: -4rem;
 	}
 
 	.indicators {
@@ -759,11 +759,11 @@
 		}
 
 		.nav-button.prev {
-			left: 0.5rem;
+			left: -3rem;
 		}
 
 		.nav-button.next {
-			right: 0.5rem;
+			right: -3rem;
 		}
 
 		.indicators {
@@ -771,7 +771,17 @@
 		}
 	}
 
+	@media (max-width: 768px) {
+		.carousel-container {
+			padding: 0 1rem;
+		}
+	}
+
 	@media (max-width: 480px) {
+		.carousel-container {
+			padding: 0 1rem;
+		}
+
 		.token-section, .asset-section {
 			padding: 1.5rem;
 		}
@@ -793,6 +803,14 @@
 			width: 36px;
 			height: 36px;
 			font-size: 1.1rem;
+		}
+
+		.nav-button.prev {
+			left: -2rem;
+		}
+
+		.nav-button.next {
+			right: -2rem;
 		}
 
 		.carousel-wrapper:hover .banner-card {

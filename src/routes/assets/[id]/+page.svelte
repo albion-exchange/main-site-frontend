@@ -3,13 +3,29 @@
 	import { page } from '$app/stores';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Asset, Token } from '$lib/types/dataStore';
+	import { Card, CardContent, PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { getAssetCoverImage, getAssetGalleryImages } from '$lib/utils/assetImages';
 
 	let loading = true;
 	let error: string | null = null;
 	let activeTab = 'overview';
-	let unclaimedPayout = 1247.82;
+	let unclaimedPayout = 0; // Will be calculated from actual token holdings
 	let assetData: Asset | null = null;
 	let assetTokens: Token[] = [];
+	
+	// Tooltip state
+	let showTooltip = '';
+	let tooltipTimer: any = null;
+	
+	// Purchase widget state
+	let showPurchaseWidget = false;
+	let selectedTokenAddress: string | null = null;
+	
+	// Email notification popup state
+	let showEmailPopup = false;
+	let emailAddress = '';
+	let isSubmittingEmail = false;
+	let emailSubmitted = false;
 
 
 	function formatCurrency(amount: number): string {
@@ -40,7 +56,7 @@
 				report.revenue.toString(),
 				report.expenses.toString(),
 				report.netIncome.toString(),
-				report.payoutPerToken.toString()
+				(report.payoutPerToken ?? 0).toString()
 			])
 		].map(row => row.join(',')).join('\n');
 		
@@ -53,17 +69,37 @@
 		URL.revokeObjectURL(url);
 	}
 
-	function getAssetImage(assetId: string): string {
-		// Map each asset to specific oil & gas industry images
-		const imageMap: Record<string, string> = {
-			'europa-wressle-release-1': '/images/assets/europa-wressle-1.jpg', // Wressle oil field (UK onshore)
-			'bakken-horizon-field': '/images/assets/bakken-horizon-1.jpeg', // Bakken shale operations (ND)
-			'permian-basin-venture': '/images/assets/permian-basin-1.jpg', // Permian basin operations (TX)
-			'gulf-mexico-deep-water': '/images/assets/gom-deepwater-1.avif' // Gulf of Mexico offshore platform
-		};
+	function exportPaymentsData() {
+		if (assetTokens.length === 0) return;
 		
-		// Fallback to a generic oil industry image
-		return imageMap[assetId] || '/images/assets/europa-wressle-1.jpg';
+		const paymentData = dataStoreService.getTokenPayoutHistory(assetTokens[0].contractAddress);
+		if (!paymentData?.recentPayouts) return;
+		
+		const csvContent = [
+			['Month', 'Date', 'Total Payout (USD)', 'Payout Per Token (USD)', 'Oil Price (USD/bbl)', 'Gas Price (USD/MMBtu)', 'Production Volume (bbl)'],
+			...paymentData.recentPayouts.map(payout => [
+				payout.month,
+				payout.date,
+				payout.totalPayout.toString(),
+				payout.payoutPerToken.toString(),
+				payout.oilPrice.toString(),
+				payout.gasPrice.toString(),
+				payout.productionVolume.toString()
+			])
+		].map(row => row.join(',')).join('\n');
+		
+		const blob = new Blob([csvContent], { type: 'text/csv' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `${assetData?.id || 'asset'}-payments-data.csv`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+
+	function getAssetImage(assetData: Asset | null): string {
+		if (!assetData?.id) return getAssetCoverImage('europa-wressle-release-1');
+		return getAssetCoverImage(assetData.id);
 	}
 
 	function formatPricing(benchmarkPremium: string): string {
@@ -73,6 +109,84 @@
 			return `${benchmarkPremium.substring(1)} premium`;
 		} else {
 			return `${benchmarkPremium} premium`;
+		}
+	}
+
+	function handleBuyTokens(tokenAddress: string) {
+		selectedTokenAddress = tokenAddress;
+		showPurchaseWidget = true;
+	}
+	
+	function handlePurchaseSuccess() {
+		showPurchaseWidget = false;
+		selectedTokenAddress = null;
+		// Could refresh token data here
+	}
+	
+	function handleWidgetClose() {
+		showPurchaseWidget = false;
+		selectedTokenAddress = null;
+	}
+	
+	function handleGetNotified() {
+		showEmailPopup = true;
+	}
+	
+	function handleCloseEmailPopup() {
+		showEmailPopup = false;
+		emailAddress = '';
+		emailSubmitted = false;
+	}
+	
+	async function handleEmailSubmit() {
+		if (!emailAddress || isSubmittingEmail) return;
+		
+		isSubmittingEmail = true;
+		
+		// Simulate API call
+		setTimeout(() => {
+			isSubmittingEmail = false;
+			emailSubmitted = true;
+			
+			// Auto-close after 2 seconds
+			setTimeout(() => {
+				handleCloseEmailPopup();
+			}, 2000);
+		}, 1000);
+	}
+	
+	function showTooltipWithDelay(tooltipId: string) {
+		clearTimeout(tooltipTimer);
+		tooltipTimer = setTimeout(() => {
+			showTooltip = tooltipId;
+		}, 500);
+	}
+	
+	function hideTooltip() {
+		clearTimeout(tooltipTimer);
+		showTooltip = '';
+	}
+
+	// Track flipped state for each token card
+	let flippedCards = new Set();
+	
+	function toggleCardFlip(tokenAddress: string) {
+		if (flippedCards.has(tokenAddress)) {
+			flippedCards.delete(tokenAddress);
+		} else {
+			flippedCards.add(tokenAddress);
+		}
+		flippedCards = new Set(flippedCards); // Trigger reactivity
+	}
+
+	// Decide what to do when the card itself is clicked
+	function handleCardClick(tokenAddress: string) {
+		if (flippedCards.has(tokenAddress)) {
+			// If the card is showing the back, flip it back to the front
+			toggleCardFlip(tokenAddress);
+		} else {
+			// Otherwise open the purchase panel
+			handleBuyTokens(tokenAddress);
 		}
 	}
 
@@ -135,13 +249,46 @@
 				<div class="asset-title-section">
 					<div class="asset-icon">
 						<img 
-							src={getAssetImage(assetData?.id || '')} 
+							src={getAssetImage(assetData)} 
 							alt={assetData?.name || 'Asset'}
 							loading="lazy"
 						/>
 					</div>
 					<div class="title-info">
-						<h1>{assetData?.name}</h1>
+						<div class="title-row">
+							<h1>{assetData?.name}</h1>
+							<div class="social-sharing">
+								<div class="sharing-label">Share this investment:</div>
+								<div class="share-buttons">
+									<button class="share-btn" title="Share asset on Twitter" aria-label="Share asset on Twitter" on:click={() => window.open(`https://twitter.com/intent/tweet?text=Check out this energy investment opportunity: ${assetData?.name} on @Albion&url=${encodeURIComponent(window.location.href)}`, '_blank')}>
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+											<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+										</svg>
+									</button>
+									<button class="share-btn" title="Share asset on LinkedIn" aria-label="Share asset on LinkedIn" on:click={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank')}>
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+											<path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+										</svg>
+									</button>
+									<button class="share-btn" title="Share asset on Telegram" aria-label="Share asset on Telegram" on:click={() => window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=Check out this energy investment opportunity: ${assetData?.name}`, '_blank')}>
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+											<path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+										</svg>
+									</button>
+									<button class="share-btn" title="Share asset via email" aria-label="Share asset via email" on:click={() => window.open(`mailto:?subject=Investment Opportunity: ${assetData?.name}&body=I thought you might be interested in this energy investment opportunity:%0D%0A%0D%0A${assetData?.name}%0D%0A${window.location.href}%0D%0A%0D%0ACheck it out on Albion!`, '_blank')}>
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+											<path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+										</svg>
+									</button>
+									<button class="share-btn" title="Copy asset link" aria-label="Copy asset link" on:click={() => { navigator.clipboard.writeText(window.location.href); /* You could add a toast notification here */ }}>
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+											<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+											<path d="m14 11-7.54.54-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+										</svg>
+									</button>
+								</div>
+							</div>
+						</div>
 						<div class="asset-meta">
 							<span class="location">📍 {assetData?.location.state}, {assetData?.location.country}</span>
 						</div>
@@ -168,15 +315,17 @@
 						? formatEndDate(assetData.monthlyReports[0].month + '-01')
 						: 'May 2025'}</div>
 				</div>
-				<div class="metric">
-					<div class="metric-value">{assetData?.tokenContracts.length}</div>
-					<div class="metric-label">Token Contracts</div>
+				<div class="metric clickable-metric" on:click={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' }); } }} role="button" tabindex="0">
+					<div class="metric-value">{assetTokens.length}</div>
+					<div class="metric-label">Available Tokens</div>
+					<div class="metric-subtitle">👆 Click to view tokens</div>
 				</div>
 			</div>
+
 		</div>
 
 		<!-- Tabs Navigation -->
-		<div class="tabs-container">
+		<div class="tabs-container" id="asset-details-tabs">
 			<div class="tabs-nav">
 				<button 
 					class="tab-btn"
@@ -190,7 +339,21 @@
 					class:active={activeTab === 'production'}
 					on:click={() => activeTab = 'production'}
 				>
-					Operations Data
+					Production Data
+				</button>
+				<button 
+					class="tab-btn"
+					class:active={activeTab === 'payments'}
+					on:click={() => activeTab = 'payments'}
+				>
+					Past Payments
+				</button>
+				<button 
+					class="tab-btn"
+					class:active={activeTab === 'gallery'}
+					on:click={() => activeTab = 'gallery'}
+				>
+					Gallery
 				</button>
 				<button 
 					class="tab-btn"
@@ -244,7 +407,21 @@
 										<span>{assetData?.assetTerms?.interestType}</span>
 									</div>
 									<div class="detail-row">
-										<span>Amount</span>
+										<span class="tooltip-container">
+											Amount
+											{#if assetData?.assetTerms?.amountTooltip}
+												<span class="tooltip-trigger"
+													on:mouseenter={() => showTooltipWithDelay('amount')}
+													on:mouseleave={hideTooltip}
+													role="button"
+													tabindex="0">ⓘ</span>
+												{#if showTooltip === 'amount'}
+													<div class="tooltip">
+														{assetData.assetTerms.amountTooltip}
+													</div>
+												{/if}
+											{/if}
+										</span>
 										<span>{assetData?.assetTerms?.amount}</span>
 									</div>
 									<div class="detail-row">
@@ -259,156 +436,208 @@
 							</div>
 						</div>
 
-						<div class="investment-highlights">
-							<h4>Investment Highlights</h4>
-							<div class="highlights-grid">
-								<div class="highlight">
-									<div class="highlight-icon">⚡</div>
-									<h5>Proven Production</h5>
-									<p>5+ years of consistent production with established infrastructure</p>
-								</div>
-								<div class="highlight">
-									<div class="highlight-icon">🛡️</div>
-									<h5>Stable Operations</h5>
-									<p>Professional operators with proven track record and minimal downtime</p>
-								</div>
-								<div class="highlight">
-									<div class="highlight-icon">📈</div>
-									<h5>Premium Payouts</h5>
-									<p>14.8% current payout with potential upside from oil price recovery</p>
-								</div>
-							</div>
-						</div>
 					</div>
 				{:else if activeTab === 'production'}
+					{@const productionReports = assetData?.productionHistory || assetData?.monthlyReports || []}
+					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map(r => r.production)) : 100}
+					{@const defaults = dataStoreService.getDefaultValues()}
 					<div class="production-content">
-						<!-- Production History Chart -->
-						<div class="chart-section">
-							<div class="chart-header">
-								<h4>Production History</h4>
-								<button class="export-btn" on:click={exportProductionData}>
-									📊 Export Data
-								</button>
-							</div>
-							<div class="chart-container">
-								<svg class="production-chart" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
-									<!-- Chart background -->
-									<rect width="800" height="300" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
-									
-									<!-- Grid lines -->
-									{#each Array(6) as _, i}
-										<line x1="80" y1={50 + i * 40} x2="750" y2={50 + i * 40} stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.5"/>
-									{/each}
-									{#each Array(12) as _, i}
-										<line x1={80 + i * 55.8} y1="50" x2={80 + i * 55.8} y2="250" stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.5"/>
-									{/each}
-									
-									<!-- Y-axis labels (Production in bbl/day) -->
-									<text x="70" y="55" text-anchor="end" font-size="10" fill="var(--color-black)">3000</text>
-									<text x="70" y="95" text-anchor="end" font-size="10" fill="var(--color-black)">2500</text>
-									<text x="70" y="135" text-anchor="end" font-size="10" fill="var(--color-black)">2000</text>
-									<text x="70" y="175" text-anchor="end" font-size="10" fill="var(--color-black)">1500</text>
-									<text x="70" y="215" text-anchor="end" font-size="10" fill="var(--color-black)">1000</text>
-									<text x="70" y="255" text-anchor="end" font-size="10" fill="var(--color-black)">500</text>
-									
-									<!-- X-axis labels (Months) -->
-									<text x="108" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jan</text>
-									<text x="164" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Feb</text>
-									<text x="220" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Mar</text>
-									<text x="276" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Apr</text>
-									<text x="332" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">May</text>
-									<text x="388" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jun</text>
-									<text x="444" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jul</text>
-									<text x="500" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Aug</text>
-									<text x="556" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Sep</text>
-									<text x="612" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Oct</text>
-									<text x="668" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Nov</text>
-									<text x="724" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Dec</text>
-									
-									<!-- Production decline curve (simulated data) -->
-									<polyline 
-										points="108,80 164,85 220,92 276,100 332,110 388,122 444,136 500,152 556,170 612,190 668,212 724,236"
-										fill="none" 
-										stroke="var(--color-primary)" 
-										stroke-width="3"
-									/>
-									
-									<!-- Data points -->
-									{#each Array(12) as _, i}
-										<circle 
-											cx={108 + i * 55.8} 
-											cy={80 + i * 13 + Math.random() * 8} 
-											r="4" 
-											fill="var(--color-secondary)"
-											stroke="var(--color-white)"
-											stroke-width="2"
-										/>
-									{/each}
-									
-									<!-- Chart title -->
-									<text x="400" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="var(--color-black)">Production Decline Curve (bbl/day)</text>
-									
-									<!-- Legend -->
-									<rect x="580" y="60" width="150" height="40" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
-									<line x1="590" y1="70" x2="610" y2="70" stroke="var(--color-primary)" stroke-width="3"/>
-									<text x="615" y="75" font-size="9" fill="var(--color-black)">Production Rate</text>
-									<circle cx="600" cy="85" r="3" fill="var(--color-secondary)"/>
-									<text x="615" y="90" font-size="9" fill="var(--color-black)">Monthly Data</text>
-								</svg>
-							</div>
-						</div>
-
 						<div class="production-grid">
-							<div class="production-history">
-								<h4>Received Payments History</h4>
-								<div class="history-list">
-									{#each (assetData?.monthlyReports || []).slice(0, 6) as report}
-										<div class="history-item">
-											<div class="month-info">
-												<div class="month">{report.month}</div>
-												<div class="production">{(report.production / 30).toFixed(0)} bbl/day avg</div>
-											</div>
-											<div class="revenue-info">
-												<div class="revenue">{formatCurrency(report.netIncome)}</div>
-												<div class="price">${report.payoutPerToken.toFixed(2)}/token</div>
-											</div>
-										</div>
-									{/each}
+							<div class="chart-section chart-large">
+								<div class="chart-header">
+									<h4>Production History</h4>
+									<SecondaryButton on:click={exportProductionData}>
+										📊 Export Data
+									</SecondaryButton>
+								</div>
+								<div class="chart-container">
+									<svg class="production-chart" viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg">
+										<!-- Chart background -->
+										<rect width="800" height="320" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
+										
+										<!-- Grid lines -->
+										{#each Array(6) as _, i}
+											<line x1="80" y1={50 + i * 40} x2="750" y2={50 + i * 40} stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.5"/>
+										{/each}
+										{#each productionReports as _, i}
+											<line x1={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y1="50" x2={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y2="250" stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.3"/>
+										{/each}
+										
+										<!-- Y-axis labels (Production in BOE) -->
+										<text x="70" y="55" text-anchor="end" font-size="10" fill="var(--color-black)">{Math.round(maxProduction)}</text>
+										<text x="70" y="95" text-anchor="end" font-size="10" fill="var(--color-black)">{Math.round(maxProduction * 0.8)}</text>
+										<text x="70" y="135" text-anchor="end" font-size="10" fill="var(--color-black)">{Math.round(maxProduction * 0.6)}</text>
+										<text x="70" y="175" text-anchor="end" font-size="10" fill="var(--color-black)">{Math.round(maxProduction * 0.4)}</text>
+										<text x="70" y="215" text-anchor="end" font-size="10" fill="var(--color-black)">{Math.round(maxProduction * 0.2)}</text>
+										<text x="70" y="255" text-anchor="end" font-size="10" fill="var(--color-black)">0</text>
+										
+										<!-- X-axis labels (Months and years from real data) -->
+										{#each productionReports as report, i}
+											{@const date = new Date(report.month + '-01')}
+											{@const monthLabel = date.toLocaleDateString('en-US', { month: 'short' })}
+											{@const year = date.getFullYear()}
+											{@const showYear = i === 0 || date.getMonth() === 0 || (i > 0 && new Date(productionReports[i-1].month + '-01').getFullYear() !== year)}
+											<text x={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">{monthLabel}</text>
+											{#if showYear}
+												<text x={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y="285" text-anchor="middle" font-size="8" fill="#666666" font-weight="bold">{year}</text>
+											{/if}
+										{/each}
+										
+										<!-- Production line chart (from real data) -->
+										{#if productionReports.length > 1}
+											{@const points = productionReports.map((report, i) => {
+												const x = 80 + (i + 1) * (670 / Math.max(productionReports.length, 1));
+												const y = 250 - (report.production / maxProduction) * 200;
+												return `${x},${y}`;
+											}).join(' ')}
+											<polyline 
+												points={points}
+												fill="none" 
+												stroke="var(--color-primary)" 
+												stroke-width="3"
+											/>
+										{/if}
+										
+										<!-- Data points (from real data) -->
+										{#each productionReports as report, i}
+											{@const x = 80 + (i + 1) * (670 / Math.max(productionReports.length, 1))}
+											{@const y = 250 - (report.production / maxProduction) * 200}
+											<circle 
+												cx={x} 
+												cy={y} 
+												r="4" 
+												fill="var(--color-secondary)"
+												stroke="var(--color-white)"
+												stroke-width="2"
+											/>
+											<!-- Value label near point -->
+											<text x={x} y={y - 10} text-anchor="middle" font-size="8" fill="var(--color-black)" font-weight="semibold">
+												{Math.round(report.production)}
+											</text>
+										{/each}
+										
+										<!-- Chart title -->
+										<text x="400" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="var(--color-black)">Full Asset Production History ({assetData?.production?.units?.production || 'BOE'})</text>
+										
+										<!-- Legend -->
+										<rect x="580" y="60" width="150" height="40" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
+										<line x1="590" y1="70" x2="610" y2="70" stroke="var(--color-primary)" stroke-width="3"/>
+										<text x="615" y="75" font-size="9" fill="var(--color-black)">Production Rate</text>
+										<circle cx="600" cy="85" r="3" fill="var(--color-secondary)"/>
+										<text x="615" y="90" font-size="9" fill="var(--color-black)">Monthly Data</text>
+									</svg>
 								</div>
 							</div>
 
 							<div class="production-metrics">
 								<h4>Production Metrics</h4>
 								<div class="uptime-metric">
-									<div class="uptime-value">98.2%</div>
-									<div class="uptime-label">Uptime Last 12 Months</div>
+									<div class="uptime-value">{assetData?.operationalMetrics?.uptime?.percentage?.toFixed(1) || defaults.operationalMetrics.uptime.percentage.toFixed(1)}%</div>
+									<div class="uptime-label">Uptime {assetData?.operationalMetrics?.uptime?.period?.replace('_', ' ') || defaults.operationalMetrics.uptime.period}</div>
 								</div>
 								<div class="metrics-grid">
 									<div class="metric-item">
-										<div class="metric-value">2,387</div>
-										<div class="metric-label">Avg Daily (bbl)</div>
-									</div>
-									<div class="metric-item">
-										<div class="metric-value">15.2</div>
-										<div class="metric-label">Days Downtime</div>
+										<div class="metric-value">{assetData?.operationalMetrics?.dailyProduction?.current?.toFixed(1) || defaults.operationalMetrics.dailyProduction.current.toFixed(1)}</div>
+										<div class="metric-label">Current Daily Production ({assetData?.operationalMetrics?.dailyProduction?.unit || defaults.operationalMetrics.dailyProduction.unit})</div>
 									</div>
 								</div>
-								<div class="detail-rows">
-									<div class="detail-row">
-										<span>Well Count</span>
-										<span>4 active</span>
+								<div class="hse-metric">
+									<div class="hse-value">{assetData?.operationalMetrics?.hseMetrics?.incidentFreeDays || defaults.operationalMetrics.hseMetrics.incidentFreeDays}</div>
+									<div class="hse-label">Days Since Last HSE Incident</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				{:else if activeTab === 'payments'}
+					{@const monthlyReports = assetData?.monthlyReports || []}
+					{@const maxRevenue = monthlyReports.length > 0 ? Math.max(...monthlyReports.map(r => r.revenue)) : 1500}
+					{@const latestReport = monthlyReports[monthlyReports.length - 1]}
+					{@const nextMonth = latestReport ? new Date(new Date(latestReport.month + '-01').getTime() + 32 * 24 * 60 * 60 * 1000) : new Date()}
+					{@const avgRevenue = monthlyReports.length > 0 ? monthlyReports.reduce((sum, r) => sum + r.revenue, 0) / monthlyReports.length : dataStoreService.getDefaultValues().revenue.averageMonthly}
+					<div class="payments-content">
+						<div class="production-grid">
+							<div class="chart-section chart-large">
+								<div class="chart-header">
+									<h4>Revenue History</h4>
+									<SecondaryButton on:click={exportPaymentsData}>
+										📊 Export Data
+									</SecondaryButton>
+								</div>
+								<div class="chart-container">
+									<svg class="production-chart" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+										<!-- Chart background -->
+										<rect width="800" height="300" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
+										
+										<!-- Grid lines -->
+										{#each Array(6) as _, i}
+											<line x1="80" y1={50 + i * 40} x2="750" y2={50 + i * 40} stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.5"/>
+										{/each}
+										{#each monthlyReports as _, i}
+											<line x1={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y1="50" x2={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y2="250" stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.3"/>
+										{/each}
+										
+										<!-- Y-axis labels (Revenue amounts) -->
+										<text x="70" y="55" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxRevenue)}</text>
+										<text x="70" y="95" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxRevenue * 0.8)}</text>
+										<text x="70" y="135" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxRevenue * 0.6)}</text>
+										<text x="70" y="175" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxRevenue * 0.4)}</text>
+										<text x="70" y="215" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxRevenue * 0.2)}</text>
+										<text x="70" y="255" text-anchor="end" font-size="10" fill="var(--color-black)">$0</text>
+										
+										<!-- X-axis labels (Months and years from monthly reports) -->
+										{#each monthlyReports as report, i}
+											{@const date = new Date(report.month + '-01')}
+											{@const monthLabel = date.toLocaleDateString('en-US', { month: 'short' })}
+											{@const year = date.getFullYear()}
+											{@const showYear = i === 0 || date.getMonth() === 0 || (i > 0 && new Date(monthlyReports[i-1].month + '-01').getFullYear() !== year)}
+											<text x={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">{monthLabel}</text>
+											{#if showYear}
+												<text x={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y="285" text-anchor="middle" font-size="8" fill="#666666" font-weight="bold">{year}</text>
+											{/if}
+										{/each}
+										
+										<!-- Column chart bars (from monthly reports) -->
+										{#each monthlyReports as report, i}
+											{@const barWidth = 30}
+											{@const x = 80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1)) - barWidth / 2}
+											{@const barHeight = (report.revenue / maxRevenue) * 200}
+											{@const y = 250 - barHeight}
+											<rect 
+												x={x} 
+												y={y} 
+												width={barWidth} 
+												height={barHeight}
+												fill="var(--color-primary)"
+												stroke="var(--color-white)"
+												stroke-width="1"
+												rx="2"
+											/>
+											<!-- Value label on top of bar -->
+											<text x={x + barWidth / 2} y={y - 5} text-anchor="middle" font-size="8" fill="var(--color-black)" font-weight="semibold">
+												${Math.round(report.revenue)}
+											</text>
+										{/each}
+										
+										<!-- Chart title -->
+										<text x="400" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="var(--color-black)">Monthly Revenue History</text>
+									</svg>
+								</div>
+							</div>
+
+							<div class="production-metrics">
+								<h4>Revenue Metrics</h4>
+								<div class="uptime-metric">
+									<div class="uptime-value">{nextMonth.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</div>
+									<div class="uptime-label">Next Report Due</div>
+								</div>
+								<div class="metrics-grid">
+									<div class="metric-item">
+										<div class="metric-value">${latestReport?.revenue?.toFixed(0) || dataStoreService.getDefaultValues().revenue.latestMonthly.toLocaleString()}</div>
+										<div class="metric-label">Latest Monthly Revenue</div>
 									</div>
-									<div class="detail-row">
-										<span>Water Cut</span>
-										<span>12.5%</span>
-									</div>
-									<div class="detail-row">
-										<span>Gas-Oil Ratio</span>
-										<span>450 scf/bbl</span>
-									</div>
-									<div class="detail-row">
-										<span>Oil Gravity</span>
-										<span>38° API</span>
+									<div class="metric-item">
+										<div class="metric-value">${avgRevenue.toFixed(0)}</div>
+										<div class="metric-label">Avg Monthly Revenue</div>
 									</div>
 								</div>
 							</div>
@@ -428,7 +657,7 @@
 												<div class="doc-meta">PDF • 2.4 MB</div>
 											</div>
 										</div>
-										<button class="download-btn">Download</button>
+										<SecondaryButton>Download</SecondaryButton>
 									</div>
 									<div class="document-item">
 										<div class="doc-info">
@@ -438,7 +667,7 @@
 												<div class="doc-meta">PDF • 1.8 MB</div>
 											</div>
 										</div>
-										<button class="download-btn">Download</button>
+										<SecondaryButton>Download</SecondaryButton>
 									</div>
 									<div class="document-item">
 										<div class="doc-info">
@@ -448,7 +677,7 @@
 												<div class="doc-meta">PDF • 5.2 MB</div>
 											</div>
 										</div>
-										<button class="download-btn">Download</button>
+										<SecondaryButton>Download</SecondaryButton>
 									</div>
 									<div class="document-item">
 										<div class="doc-info">
@@ -458,7 +687,7 @@
 												<div class="doc-meta">PDF • 950 KB</div>
 											</div>
 										</div>
-										<button class="download-btn">Download</button>
+										<SecondaryButton>Download</SecondaryButton>
 									</div>
 								</div>
 							</div>
@@ -474,7 +703,7 @@
 												<div class="doc-meta">PDF • 12.1 MB</div>
 											</div>
 										</div>
-										<button class="download-btn">Download</button>
+										<SecondaryButton>Download</SecondaryButton>
 									</div>
 									<div class="document-item">
 										<div class="doc-info">
@@ -484,7 +713,7 @@
 												<div class="doc-meta">PDF • 3.7 MB</div>
 											</div>
 										</div>
-										<button class="download-btn">Download</button>
+										<SecondaryButton>Download</SecondaryButton>
 									</div>
 									<div class="document-item">
 										<div class="doc-info">
@@ -494,7 +723,7 @@
 												<div class="doc-meta">PDF • 2.1 MB</div>
 											</div>
 										</div>
-										<button class="download-btn">Download</button>
+										<SecondaryButton>Download</SecondaryButton>
 									</div>
 									<div class="document-item">
 										<div class="doc-info">
@@ -504,17 +733,314 @@
 												<div class="doc-meta">ZIP • 8.9 MB</div>
 											</div>
 										</div>
-										<button class="download-btn">Download</button>
+										<SecondaryButton>Download</SecondaryButton>
 									</div>
 								</div>
+							</div>
+						</div>
+					</div>
+				{:else if activeTab === 'gallery'}
+					{@const galleryImages = getAssetGalleryImages(assetData?.id || '')}
+					<div class="gallery-content">
+						<div class="gallery-grid">
+							<div class="gallery-section">
+								<h4>Asset Gallery</h4>
+								{#if galleryImages.length > 0}
+									<div class="gallery-images">
+										{#each galleryImages as image, index}
+											<div class="gallery-image">
+												<img src={image} alt={`${assetData?.name} - Image ${index + 1}`} />
+											</div>
+										{/each}
+									</div>
+								{:else}
+									<div class="gallery-empty">
+										<div class="empty-icon">📸</div>
+										<div class="empty-text">
+											<h5>No additional images available</h5>
+											<p>Additional photos and visual documentation will be displayed here when available.</p>
+										</div>
+									</div>
+								{/if}
 							</div>
 						</div>
 					</div>
 				{/if}
 			</div>
 		</div>
+
+		<!-- Token Information Section -->
+		<div class="token-info-section" id="token-section">
+			<h3>Token Information</h3>
+			<div class="tokens-grid">
+				{#each assetTokens as token}
+					{@const supply = dataStoreService.getTokenSupply(token.contractAddress)}
+					{@const hasAvailableSupply = supply && supply.availableSupply > 0}
+					{@const tokenPayoutData = dataStoreService.getTokenPayoutHistory(token.contractAddress)}
+					{@const latestPayout = tokenPayoutData?.recentPayouts?.[0]}
+					{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
+					{@const isFlipped = flippedCards.has(token.contractAddress)}
+					<div class="token-card-container" class:flipped={isFlipped} id="token-{token.contractAddress}">
+						<Card hoverable clickable padding="0" on:click={() => handleCardClick(token.contractAddress)}>
+							<CardContent padding="0">
+								<div class="token-card-front">
+									<div class="token-header">
+										<div class="token-title">
+											<h4>{token.name}</h4>
+											<p class="token-symbol">{token.contractAddress}</p>
+										</div>
+										<div class="token-share-badge">
+											{token.sharePercentage || 25}% of Asset
+										</div>
+									</div>
+									<div class="token-badge" class:sold-out={!hasAvailableSupply}>
+										{hasAvailableSupply ? 'Available' : 'Sold Out'}
+									</div>
+							
+									<div class="token-metrics">
+										<div class="token-metric">
+											<span class="metric-label">Minted Supply</span>
+											<span class="metric-value">{supply?.mintedSupply.toLocaleString() || '0'}</span>
+										</div>
+										<div class="token-metric">
+											<span class="metric-label">Max Supply</span>
+											<span class="metric-value">{supply?.maxSupply.toLocaleString() || '0'}</span>
+										</div>
+										<div class="token-metric tooltip-container">
+											<span class="metric-label">
+												Implied Barrels/Token
+												<span class="tooltip-trigger" 
+													on:mouseenter={() => showTooltipWithDelay('barrels')}
+													on:mouseleave={hideTooltip}
+													role="button"
+													tabindex="0">ⓘ</span>
+											</span>
+											<span class="metric-value">{calculatedReturns?.impliedBarrelsPerToken?.toFixed(6) || '0.000000'}</span>
+											{#if showTooltip === 'barrels'}
+												<div class="tooltip">
+													Estimated barrels of oil equivalent per token based on reserves and token supply
+												</div>
+											{/if}
+										</div>
+										<div class="token-metric tooltip-container">
+											<span class="metric-label">
+												Breakeven Oil Price
+												<span class="tooltip-trigger"
+													on:mouseenter={() => showTooltipWithDelay('breakeven')}
+													on:mouseleave={hideTooltip}
+													role="button"
+													tabindex="0">ⓘ</span>
+											</span>
+											<span class="metric-value">${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
+											{#if showTooltip === 'breakeven'}
+												<div class="tooltip">
+													Oil price required to cover operational costs and maintain profitability
+												</div>
+											{/if}
+										</div>
+									</div>
+
+									<div class="token-returns">
+										<h5>Estimated Returns</h5>
+										<div class="returns-grid">
+											<div class="return-item tooltip-container">
+												<span class="return-label">
+													Base
+													<span class="tooltip-trigger"
+														on:mouseenter={() => showTooltipWithDelay('base')}
+														on:mouseleave={hideTooltip}
+														role="button"
+														tabindex="0">ⓘ</span>
+												</span>
+												<span class="return-value">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</span>
+												{#if showTooltip === 'base'}
+													<div class="tooltip">
+														Conservative return estimate based on current production and oil prices
+													</div>
+												{/if}
+											</div>
+											<div class="return-item tooltip-container">
+												<span class="return-label">
+													Bonus
+													<span class="tooltip-trigger"
+														on:mouseenter={() => showTooltipWithDelay('bonus')}
+														on:mouseleave={hideTooltip}
+														role="button"
+														tabindex="0">ⓘ</span>
+												</span>
+												<span class="return-value">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
+												{#if showTooltip === 'bonus'}
+													<div class="tooltip">
+														Additional potential return from improved oil prices or production efficiency
+													</div>
+												{/if}
+											</div>
+											<div class="return-item total">
+												<span class="return-label">Total Expected</span>
+												<span class="return-value">{calculatedReturns ? Math.round(calculatedReturns.baseReturn + calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
+											</div>
+										</div>
+									</div>
+
+
+									<div class="token-actions">
+										<div class="action-buttons">
+											{#if hasAvailableSupply}
+												<PrimaryButton fullWidth on:click={(e) => { e.stopPropagation(); handleBuyTokens(token.contractAddress); }}>
+													Buy Tokens
+												</PrimaryButton>
+											{:else}
+												<PrimaryButton fullWidth disabled>
+													Sold Out
+												</PrimaryButton>
+											{/if}
+											<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCardFlip(token.contractAddress); }} role="button" tabindex="0" style="width:100%">
+												<SecondaryButton fullWidth>
+													Distributions History
+												</SecondaryButton>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								<div class="token-card-back">
+									<div class="back-header">
+										<h4>Distributions History</h4>
+										<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCardFlip(token.contractAddress); }} role="button" tabindex="0">
+											<SecondaryButton>
+												← Back
+											</SecondaryButton>
+										</div>
+									</div>
+									
+									{#if tokenPayoutData?.recentPayouts && tokenPayoutData.recentPayouts.length > 0}
+										<div class="distributions-content">
+											<div class="distributions-header">
+												<div class="header-month">Month</div>
+												<div class="header-total">Total Payments</div>
+												<div class="header-per-token">Per Token</div>
+											</div>
+											<div class="distributions-list">
+												{#each tokenPayoutData.recentPayouts.slice(-6) as payout}
+													<div class="distribution-row">
+														<div class="dist-month">{payout.month}</div>
+														<div class="dist-total">${payout.totalPayout.toLocaleString()}</div>
+														<div class="dist-per-token">${payout.payoutPerToken.toFixed(5)}</div>
+													</div>
+												{/each}
+											</div>
+											<div class="distributions-divider"></div>
+											<div class="distributions-summary">
+												<div class="summary-row">
+													<div class="summary-month">Total</div>
+													<div class="summary-total">${tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.totalPayout, 0).toLocaleString()}</div>
+													<div class="summary-per-token">${(tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.payoutPerToken, 0)).toFixed(5)}</div>
+												</div>
+											</div>
+										</div>
+									{:else}
+										{@const nextRelease = dataStoreService.getFutureReleaseByAsset(assetData?.id || '')}
+										<div class="no-history">
+											<p>No distributions available yet.</p>
+											<p>First payout expected in {nextRelease?.whenRelease || 'Q1 2025'}.</p>
+										</div>
+									{/if}
+								</div>
+							</CardContent>
+						</Card>
+					</div>
+				{/each}
+				<!-- Future Releases Cards -->
+				{#if assetData?.id}
+					{@const futureReleases = dataStoreService.getFutureReleasesByAsset(assetData.id)}
+					{#each futureReleases as release, index}
+				<Card hoverable>
+					<CardContent>
+						<div class="coming-soon-card">
+							<div class="coming-soon-icon">{release.emoji || '📅'}</div>
+							<h4>{index === 0 ? 'Next Release' : 'Future Release'} - {release.whenRelease}</h4>
+							<p>{release.description || 'Token release planned'}</p>
+							<SecondaryButton on:click={handleGetNotified}>
+								Get Notified
+							</SecondaryButton>
+						</div>
+					</CardContent>
+				</Card>
+					{/each}
+					
+					{#if futureReleases.length === 0}
+					<!-- Fallback Coming Soon Card -->
+					<Card hoverable>
+						<CardContent>
+							<div class="coming-soon-card">
+								<div class="coming-soon-icon">🚀</div>
+								<h4>New Release Coming Soon</h4>
+								<p>Next token release planned for Q1 2025</p>
+								<SecondaryButton on:click={handleGetNotified}>
+									Get Notified
+								</SecondaryButton>
+							</div>
+						</CardContent>
+					</Card>
+					{/if}
+				{/if}
+			</div>
+		</div>
 	{/if}
 </main>
+
+<!-- Token Purchase Widget -->
+{#if showPurchaseWidget}
+	{#await import('$lib/components/TokenPurchaseWidget.svelte') then { default: TokenPurchaseWidget }}
+		<TokenPurchaseWidget 
+			bind:isOpen={showPurchaseWidget}
+			tokenAddress={selectedTokenAddress}
+			on:purchaseSuccess={handlePurchaseSuccess}
+			on:close={handleWidgetClose}
+		/>
+	{/await}
+{/if}
+
+<!-- Email Notification Popup -->
+{#if showEmailPopup}
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
+	<div class="email-popup-overlay" on:click={handleCloseEmailPopup}>
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<div class="email-popup" on:click|stopPropagation role="dialog" aria-modal="true" tabindex="0">
+			<div class="email-popup-header">
+				<h3 class="email-popup-title">Get Notified</h3>
+				<button class="email-popup-close" on:click={handleCloseEmailPopup}>×</button>
+			</div>
+			<div class="email-popup-content">
+				{#if emailSubmitted}
+					<div class="success-message">
+						Thank you! We'll notify you when the new token release is available.
+					</div>
+				{:else}
+					<p>Enter your email address to be notified when the next token release becomes available.</p>
+					<form class="email-form" on:submit|preventDefault={handleEmailSubmit}>
+						<input
+							type="email"
+							class="email-input"
+							placeholder="Enter your email address"
+							bind:value={emailAddress}
+							required
+							disabled={isSubmittingEmail}
+						/>
+						<PrimaryButton 
+							type="submit" 
+							disabled={isSubmittingEmail || !emailAddress}
+						>
+							{isSubmittingEmail ? 'Submitting...' : 'Notify Me'}
+						</PrimaryButton>
+					</form>
+				{/if}
+			</div>
+		</div>
+	</div>
+{/if}
 
 <style>
 	.asset-details {
@@ -593,11 +1119,60 @@
 		flex: 1;
 	}
 
+	.title-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	.social-sharing {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.5rem;
+		flex-shrink: 0;
+	}
+
+	.sharing-label {
+		font-size: 0.75rem;
+		font-weight: var(--font-weight-medium);
+		color: var(--color-black);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.share-buttons {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.share-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2rem;
+		height: 2rem;
+		background: var(--color-white);
+		border: 1px solid var(--color-light-gray);
+		color: var(--color-black);
+		cursor: pointer;
+		transition: all 0.2s ease;
+		border-radius: 4px;
+	}
+
+	.share-btn:hover {
+		background: var(--color-light-gray);
+		border-color: var(--color-secondary);
+		color: var(--color-secondary);
+	}
+
 	.title-info h1 {
 		font-size: 2.5rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-black);
-		margin-bottom: 1rem;
+		margin: 0;
 		line-height: 1.1;
 	}
 
@@ -614,41 +1189,12 @@
 		font-size: 0.9rem;
 	}
 
-	.risk-badge {
-		background: var(--color-black);
-		color: var(--color-white);
-		padding: 0.25rem 0.75rem;
-		font-size: 0.75rem;
-		font-weight: var(--font-weight-bold);
-	}
-
-	.operator-info {
-		color: var(--color-black);
-		font-size: 0.85rem;
-		font-weight: var(--font-weight-medium);
-	}
-
-	.oil-price {
-		text-align: right;
-	}
-
-	.price {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.price-change {
-		color: var(--color-primary);
-		font-weight: var(--font-weight-bold);
-		font-size: 0.9rem;
-	}
 
 	.asset-metrics {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		gap: 2rem;
+		margin-bottom: 2rem;
 	}
 
 	.metric {
@@ -686,6 +1232,37 @@
 		margin-top: 0.25rem;
 	}
 
+	.clickable-metric {
+		cursor: pointer;
+		transition: all 0.2s ease;
+		border-radius: 4px;
+		padding: 1rem;
+		margin: -1rem 0;
+		border: 2px solid var(--color-light-gray);
+		background: var(--color-white);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+	}
+
+	.clickable-metric:hover {
+		background: var(--color-light-gray);
+		transform: translateY(-2px);
+		border-color: var(--color-primary);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	}
+
+	.clickable-metric:focus {
+		outline: none;
+		border-color: var(--color-primary);
+		background: var(--color-light-gray);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	}
+
+	.clickable-metric .metric-subtitle {
+		color: var(--color-secondary);
+		font-weight: var(--font-weight-semibold);
+	}
+
+
 
 	/* Tabs */
 	.tabs-container {
@@ -714,19 +1291,33 @@
 		opacity: 0.6;
 	}
 
-	.tab-btn:hover {
+	.tab-btn:hover:not(.active) {
 		opacity: 1;
-		background: var(--color-light-gray);
+		background: var(--color-primary);
+		color: var(--color-white);
 	}
 
 	.tab-btn.active {
-		background: var(--color-black);
+		background: var(--color-secondary);
 		color: var(--color-white);
 		opacity: 1;
 	}
 
 	.tab-content {
 		padding: 2rem;
+		min-height: 500px;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.overview-content,
+	.production-content,
+	.payments-content,
+	.gallery-content,
+	.documents-content {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
 	}
 
 	/* Tab Content Styles */
@@ -776,63 +1367,137 @@
 		color: var(--color-black);
 	}
 
-	.investment-highlights {
-		background: var(--color-light-gray);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-	}
 
-	.investment-highlights h4 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1.5rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.highlights-grid {
+	.production-grid {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 2rem;
+		grid-template-columns: 2fr 1fr;
+		gap: 3rem;
+		margin-bottom: 3rem;
 	}
 
-	.highlight {
-		text-align: center;
-	}
 
-	.highlight-icon {
-		width: 3rem;
-		height: 3rem;
-		background: var(--color-primary);
-		border-radius: 50%;
+	.production-metrics {
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		font-size: 1.5rem;
-		margin: 0 auto 1rem;
+		padding: 2rem;
+		background: var(--color-white);
+		border: 1px solid var(--color-light-gray);
+		height: 100%;
+		box-sizing: border-box;
 	}
 
-	.highlight h5 {
+	.production-metrics h4 {
+		font-size: 1.5rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin-bottom: 2rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		text-align: center;
+		width: 100%;
+	}
+
+
+
+
+
+
+
+
+	.uptime-metric {
+		background: var(--color-light-gray);
+		border: 1px solid var(--color-light-gray);
+		padding: 2rem 1.5rem;
+		text-align: center;
+		margin-bottom: 2rem;
+		width: 100%;
+		border-radius: 4px;
+	}
+
+	.uptime-value {
+		font-size: 2.5rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-black);
 		margin-bottom: 0.75rem;
-		text-transform: uppercase;
-		font-size: 0.9rem;
-		letter-spacing: 0.05em;
+		line-height: 1;
 	}
 
-	.highlight p {
-		font-size: 0.85rem;
+	.uptime-label {
+		font-size: 0.8rem;
+		font-weight: var(--font-weight-bold);
 		color: var(--color-black);
-		font-weight: var(--font-weight-medium);
-		line-height: 1.5;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		line-height: 1.2;
 	}
 
-	/* Production Content */
-	.chart-section {
-		margin-bottom: 3rem;
+	.metrics-grid {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 1.5rem;
+		margin-bottom: 2rem;
+		width: 100%;
 	}
+
+	.metric-item {
+		text-align: center;
+		padding: 1.5rem;
+		background: var(--color-white);
+		border: 1px solid var(--color-light-gray);
+		border-radius: 4px;
+	}
+
+	.metric-item .metric-value {
+		font-size: 1.75rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-primary);
+		margin-bottom: 0.5rem;
+		line-height: 1;
+	}
+
+	.metric-item .metric-label {
+		font-size: 0.8rem;
+		font-weight: var(--font-weight-bold);
+		color: var(--color-black);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		line-height: 1.2;
+	}
+
+	.hse-metric {
+		background: var(--color-light-gray);
+		border: 1px solid var(--color-light-gray);
+		padding: 2rem 1.5rem;
+		text-align: center;
+		width: 100%;
+		border-radius: 4px;
+	}
+
+	.hse-value {
+		font-size: 2.5rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-primary);
+		margin-bottom: 0.75rem;
+		line-height: 1;
+	}
+
+	.hse-label {
+		font-size: 0.8rem;
+		font-weight: var(--font-weight-bold);
+		color: var(--color-black);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		line-height: 1.2;
+	}
+
+	/* Payments Content */
+	.payments-content {
+		width: 100%;
+	}
+
+
 
 	.chart-header {
 		display: flex;
@@ -845,138 +1510,30 @@
 		font-size: 1.25rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
 		margin: 0;
-	}
-
-	.export-btn {
-		padding: 0.5rem 1rem;
-		border: 1px solid var(--color-black);
-		background: var(--color-white);
-		color: var(--color-black);
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-bold);
-		font-size: 0.75rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
-
-	.export-btn:hover {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	.production-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 3rem;
-		margin-bottom: 3rem;
-	}
-
-	.production-history h4,
-	.production-metrics h4 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1.5rem;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 	}
 
-	.history-list {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
+
+	/* Responsive layout for payments */
+	@media (max-width: 768px) {
+
+		.chart-header {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 1rem;
+		}
+
+		.chart-header h4 {
+			font-size: 1.1rem;
+		}
 	}
 
-	.history-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding-bottom: 1rem;
-		border-bottom: 1px solid var(--color-light-gray);
-	}
 
-	.history-item:last-child {
-		border-bottom: none;
-		padding-bottom: 0;
-	}
 
-	.month {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		font-size: 0.9rem;
-	}
 
-	.production {
-		font-size: 0.8rem;
-		color: var(--color-black);
-		font-weight: var(--font-weight-medium);
-	}
 
-	.revenue {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		font-size: 0.9rem;
-	}
-
-	.price {
-		font-size: 0.8rem;
-		color: var(--color-primary);
-		font-weight: var(--font-weight-medium);
-	}
-
-	.uptime-metric {
-		background: var(--color-light-gray);
-		border: 1px solid var(--color-light-gray);
-		padding: 1.5rem;
-		text-align: center;
-		margin-bottom: 1.5rem;
-	}
-
-	.uptime-value {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.uptime-label {
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.metrics-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 2rem;
-		margin-bottom: 1.5rem;
-	}
-
-	.metric-item {
-		text-align: center;
-	}
-
-	.metric-item .metric-value {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-primary);
-		margin-bottom: 0.25rem;
-	}
-
-	.metric-item .metric-label {
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
 
 	.chart-container {
 		height: 18rem;
@@ -985,7 +1542,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		padding: 1rem;
+		padding: 0.5rem;
 	}
 
 	.production-chart {
@@ -999,71 +1556,17 @@
 		font-family: var(--font-family);
 	}
 
-	/* Risk Content */
-	.risk-metrics-grid {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 2rem;
-	}
 
-	.risk-metric {
-		border: 1px solid var(--color-light-gray);
-		padding: 1.5rem;
-	}
 
-	.risk-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 1rem;
-	}
 
-	.risk-label {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		font-size: 0.9rem;
-	}
 
-	.risk-value-container {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
 
-	.risk-value {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		font-size: 0.9rem;
-	}
 
-	.risk-status {
-		width: 0.75rem;
-		height: 0.75rem;
-		border-radius: 50%;
-	}
 
-	.risk-status.excellent {
-		background: var(--color-primary);
-	}
 
-	.risk-status.good {
-		background: var(--color-secondary);
-	}
 
-	.risk-status.low {
-		background: #fbbf24;
-	}
 
-	.risk-status.minimal {
-		background: var(--color-primary);
-	}
 
-	.risk-description {
-		font-size: 0.85rem;
-		color: var(--color-black);
-		font-weight: var(--font-weight-medium);
-		line-height: 1.5;
-	}
 
 	/* Documents Content */
 	.documents-grid {
@@ -1119,24 +1622,6 @@
 		opacity: 0.7;
 	}
 
-	.download-btn {
-		padding: 0.5rem 1rem;
-		border: 1px solid var(--color-black);
-		background: var(--color-white);
-		color: var(--color-black);
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-bold);
-		font-size: 0.75rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
-
-	.download-btn:hover {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
 
 	.btn-primary {
 		padding: 1rem 2rem;
@@ -1153,6 +1638,688 @@
 
 	.btn-primary:hover {
 		background: var(--color-secondary);
+	}
+
+
+	/* Token Information Section */
+	.token-info-section {
+		background: var(--color-white);
+		border: 1px solid var(--color-light-gray);
+		padding: 2rem;
+		margin-bottom: 2rem;
+	}
+
+	.token-info-section h3 {
+		font-size: 1.5rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin-bottom: 2rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.tokens-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+		gap: 2rem;
+	}
+
+	.token-card-container {
+		perspective: 1000px;
+		height: 650px;
+		position: relative;
+		z-index: 1;
+	}
+
+	.token-card-container:hover {
+		z-index: 5;
+	}
+
+	.token-card-container.flipped {
+		z-index: 10;
+	}
+
+	.token-card-container :global(.card) {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		cursor: pointer;
+	}
+
+	.token-card-container :global(.card-content) {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		transition: transform 0.6s;
+		transform-style: preserve-3d;
+		padding: 0;
+	}
+
+	.token-card-container.flipped :global(.card-content) {
+		transform: rotateY(180deg);
+	}
+
+	.token-card-front,
+	.token-card-back {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		backface-visibility: hidden;
+		display: flex;
+		flex-direction: column;
+		padding: 1.5rem;
+		box-sizing: border-box;
+		overflow: hidden;
+	}
+
+	.token-card-back {
+		transform: rotateY(180deg);
+	}
+
+	.token-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		margin-bottom: 1rem;
+		gap: 1rem;
+	}
+
+	.token-title {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.token-title h4 {
+		font-size: 1.1rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin: 0 0 0.5rem 0;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+	}
+
+	.token-symbol {
+		font-size: 0.7rem;
+		color: var(--color-secondary);
+		font-weight: var(--font-weight-medium);
+		margin: 0;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+		line-height: 1.2;
+	}
+
+	.token-badge {
+		padding: 0.5rem 1rem;
+		background: var(--color-primary);
+		color: var(--color-white);
+		font-size: 0.75rem;
+		font-weight: var(--font-weight-bold);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin-bottom: 1.5rem;
+		text-align: center;
+		width: 100%;
+		display: block;
+	}
+
+	.token-badge.sold-out {
+		background: var(--color-light-gray);
+		color: var(--color-black);
+	}
+
+	.token-metrics {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1rem;
+		margin-bottom: 1.5rem;
+		padding-bottom: 1.5rem;
+		border-bottom: 1px solid var(--color-light-gray);
+	}
+
+	.token-share-badge {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.4rem 0.8rem;
+		background: var(--color-secondary);
+		color: var(--color-white);
+		font-size: 0.75rem;
+		font-weight: var(--font-weight-bold);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		border-radius: 4px;
+		white-space: nowrap;
+		flex-shrink: 0;
+	}
+
+	/* Back card styles */
+	.back-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1.5rem;
+		padding-bottom: 1rem;
+		border-bottom: 1px solid var(--color-light-gray);
+	}
+
+	.back-header h4 {
+		font-size: 1.1rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin: 0;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+	.no-history {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		height: 100%;
+		color: var(--color-black);
+	}
+
+	.no-history p {
+		margin: 0.5rem 0;
+		font-size: 0.9rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		line-height: 1;
+	}
+
+	/* New Distributions Styles */
+	.distributions-content {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		flex: 1;
+	}
+
+	.distributions-header {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 0.5rem;
+		margin-bottom: 1rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 1px solid var(--color-light-gray);
+	}
+
+	.header-month,
+	.header-total,
+	.header-per-token {
+		font-size: 0.75rem;
+		font-weight: var(--font-weight-bold);
+		color: var(--color-black);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		text-align: center;
+	}
+
+	.distributions-list {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		gap: 0.5rem;
+	}
+
+	.distribution-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 0.5rem;
+		padding: 0.75rem 0;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+	}
+
+	.distribution-row:last-child {
+		border-bottom: none;
+	}
+
+	.dist-month,
+	.dist-total,
+	.dist-per-token {
+		font-size: 0.85rem;
+		color: var(--color-black);
+		text-align: center;
+	}
+
+	.dist-month {
+		font-weight: var(--font-weight-medium);
+	}
+
+	.dist-total,
+	.dist-per-token {
+		font-weight: var(--font-weight-bold);
+		color: var(--color-secondary);
+	}
+
+	.distributions-divider {
+		height: 1px;
+		background: var(--color-black);
+		margin: 1rem 0;
+	}
+
+	.distributions-summary {
+		margin-top: auto;
+	}
+
+	.summary-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 0.5rem;
+		padding: 0.75rem 0;
+	}
+
+	.summary-month,
+	.summary-total,
+	.summary-per-token {
+		font-size: 0.9rem;
+		font-weight: var(--font-weight-bold);
+		color: var(--color-black);
+		text-align: center;
+	}
+
+	.summary-total,
+	.summary-per-token {
+		color: var(--color-secondary);
+	}
+
+	/* Token Actions Styles */
+	.token-actions {
+		margin-top: auto;
+		padding-top: 1.5rem;
+		padding-bottom: 2rem;
+	}
+
+	.action-buttons {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+
+	.token-metric {
+		text-align: center;
+	}
+
+	.token-metric .metric-label {
+		font-size: 0.75rem;
+		color: var(--color-black);
+		font-weight: var(--font-weight-medium);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		display: block;
+		margin-bottom: 0.5rem;
+	}
+
+	.token-metric .metric-value {
+		font-size: 1rem;
+		color: var(--color-black);
+		font-weight: var(--font-weight-extrabold);
+		display: block;
+	}
+
+	.token-returns h5 {
+		font-size: 1rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin: 0 0 1rem 0;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.returns-grid {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.return-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		font-size: 0.9rem;
+	}
+
+	.return-item.total {
+		padding-top: 0.75rem;
+		border-top: 1px solid var(--color-light-gray);
+		font-weight: var(--font-weight-extrabold);
+	}
+
+	.return-label {
+		color: var(--color-black);
+		font-weight: var(--font-weight-medium);
+	}
+
+	.return-value {
+		color: var(--color-primary);
+		font-weight: var(--font-weight-extrabold);
+	}
+
+	.token-actions {
+		margin-top: auto;
+	}
+
+	.action-buttons {
+		display: flex;
+		flex-direction: row;
+		gap: 0.75rem;
+	}
+
+
+
+
+
+	/* Recent Distribution Styles */
+
+
+
+
+
+
+
+
+	/* Coming Soon Card Styles */
+	.coming-soon-card {
+		text-align: center;
+		padding: 2rem 1rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	.coming-soon-icon {
+		font-size: 3rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.coming-soon-card h4 {
+		font-size: 1.1rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin: 0;
+	}
+
+	.coming-soon-card p {
+		font-size: 0.9rem;
+		color: var(--color-black);
+		margin: 0;
+		opacity: 0.8;
+	}
+
+
+
+	/* Email Popup Modal Styles */
+	.email-popup-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 1000;
+	}
+
+	.email-popup {
+		background: var(--color-white);
+		border: 2px solid var(--color-black);
+		padding: 2rem;
+		max-width: 400px;
+		width: 90%;
+		max-height: 90vh;
+		overflow-y: auto;
+		position: relative;
+	}
+
+	.email-popup-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1.5rem;
+	}
+
+	.email-popup-title {
+		font-size: 1.25rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin: 0;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.email-popup-close {
+		background: none;
+		border: none;
+		font-size: 1.5rem;
+		color: var(--color-black);
+		cursor: pointer;
+		padding: 0;
+		width: 2rem;
+		height: 2rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: opacity 0.2s ease;
+	}
+
+	.email-popup-close:hover {
+		opacity: 0.7;
+	}
+
+	.email-popup-content {
+		text-align: center;
+	}
+
+	.email-popup-content p {
+		color: var(--color-black);
+		margin-bottom: 1.5rem;
+		line-height: 1.5;
+	}
+
+	.email-form {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.email-input {
+		padding: 0.75rem;
+		border: 1px solid var(--color-light-gray);
+		background: var(--color-white);
+		font-family: var(--font-family);
+		font-size: 0.9rem;
+		color: var(--color-black);
+		width: 100%;
+		box-sizing: border-box;
+		border-radius: 0;
+	}
+
+	.email-input:focus {
+		outline: none;
+		border-color: var(--color-primary);
+	}
+
+
+
+
+	.success-message {
+		color: var(--color-primary);
+		font-weight: var(--font-weight-semibold);
+		text-align: center;
+		padding: 1rem;
+		background: var(--color-light-gray);
+		margin-bottom: 1rem;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/* Tooltip Styles */
+	.tooltip-container {
+		position: relative;
+	}
+
+	.tooltip-trigger {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 14px;
+		height: 14px;
+		border-radius: 50%;
+		background: var(--color-light-gray);
+		color: var(--color-black);
+		font-size: 10px;
+		font-weight: bold;
+		margin-left: 4px;
+		cursor: help;
+		opacity: 0.7;
+		transition: opacity 0.2s ease;
+	}
+
+	.tooltip-trigger:hover {
+		opacity: 1;
+	}
+
+	.tooltip {
+		position: absolute;
+		bottom: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		background: var(--color-black);
+		color: var(--color-white);
+		padding: 0.5rem;
+		border-radius: 4px;
+		font-size: 0.75rem;
+		white-space: nowrap;
+		z-index: 1000;
+		margin-bottom: 5px;
+		max-width: 200px;
+		white-space: normal;
+		text-align: left;
+	}
+
+	.tooltip::after {
+		content: '';
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		border: 5px solid transparent;
+		border-top-color: var(--color-black);
+	}
+
+
+
+
+
+
+
+
+
+
+	/* Gallery Styles */
+	.gallery-grid {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 2rem;
+	}
+
+	.gallery-section h4 {
+		font-size: 1.25rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin-bottom: 1.5rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.gallery-empty {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		padding: 4rem 2rem;
+		border: 2px dashed var(--color-light-gray);
+		border-radius: 8px;
+		color: var(--color-black);
+		opacity: 0.7;
+	}
+
+	.empty-icon {
+		font-size: 3rem;
+		margin-bottom: 1rem;
+	}
+
+	.empty-text h5 {
+		font-size: 1.1rem;
+		font-weight: var(--font-weight-bold);
+		margin: 0 0 0.5rem 0;
+		color: var(--color-black);
+	}
+
+	.empty-text p {
+		font-size: 0.9rem;
+		margin: 0;
+		color: var(--color-black);
+		opacity: 0.8;
+		line-height: 1.4;
+	}
+
+	.gallery-images {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+		gap: 1.5rem;
+	}
+
+	.gallery-image {
+		position: relative;
+		overflow: hidden;
+		border-radius: 8px;
+		background: var(--color-light-gray);
+		aspect-ratio: 4/3;
+	}
+
+	.gallery-image img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 0.3s ease;
+	}
+
+	.gallery-image:hover img {
+		transform: scale(1.05);
 	}
 
 	/* Mobile Responsive */
@@ -1198,13 +2365,18 @@
 
 		.fundamentals-grid,
 		.production-grid,
-		.risk-metrics-grid,
 		.documents-grid {
 			grid-template-columns: 1fr;
 		}
 
-		.highlights-grid {
+
+		.tokens-grid {
 			grid-template-columns: 1fr;
+			gap: 2rem;
+		}
+
+		.token-card-container {
+			height: 600px;
 		}
 	}
 </style>

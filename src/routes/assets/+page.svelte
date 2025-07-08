@@ -3,10 +3,17 @@
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Asset } from '$lib/types/dataStore';
 	import AssetCard from '$lib/components/assets/AssetCard.svelte';
+	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
+	import { SecondaryButton } from '$lib/components/ui';
 
-	let viewMode = 'grid'; // grid or list
+	let viewMode = 'grid';
 	let loading = true;
 	let allAssets: Asset[] = [];
+	let showSoldOutAssets = false;
+	
+	// Token purchase widget state
+	let showPurchaseWidget = false;
+	let selectedAssetId: string | null = null;
 
 	onMount(async () => {
 		try {
@@ -28,8 +35,37 @@
 		}).format(amount);
 	}
 
-	// Return all assets without sorting
-	$: filteredAssets = allAssets;
+	// Check if an asset has available tokens
+	function hasAvailableTokens(asset: Asset): boolean {
+		const tokens = dataStoreService.getTokensByAssetId(asset.id).filter(token => token.tokenType === 'royalty');
+		return tokens.some(token => {
+			const supply = dataStoreService.getTokenSupply(token.contractAddress);
+			return supply && supply.availableSupply > 0;
+		});
+	}
+	
+	// Filter assets based on availability
+	$: filteredAssets = showSoldOutAssets 
+		? allAssets 
+		: allAssets.filter(asset => hasAvailableTokens(asset));
+	
+	// Count sold out assets
+	$: soldOutCount = allAssets.filter(asset => !hasAvailableTokens(asset)).length;
+	
+	function handleBuyTokens(event: CustomEvent) {
+		selectedAssetId = event.detail.assetId;
+		showPurchaseWidget = true;
+	}
+	
+	function handlePurchaseSuccess(event: CustomEvent) {
+		console.log('Purchase successful:', event.detail);
+		showPurchaseWidget = false;
+	}
+	
+	function handleWidgetClose() {
+		showPurchaseWidget = false;
+		selectedAssetId = null;
+	}
 </script>
 
 <svelte:head>
@@ -49,71 +85,37 @@
 		</div>
 	{:else}
 
-		<!-- View Controls -->
-		<div class="controls-section">
-			<div class="asset-count-section">
-				<span class="asset-count">
-					{allAssets.length} assets
-				</span>
-			</div>
-			<div class="view-controls">
-				<span class="control-label">View:</span>
-				<button 
-					class="view-btn"
-					class:active={viewMode === 'grid'}
-					on:click={() => viewMode = 'grid'}
-				>
-					Grid
-				</button>
-				<button 
-					class="view-btn"
-					class:active={viewMode === 'list'}
-					on:click={() => viewMode = 'list'}
-				>
-					List
-				</button>
-			</div>
-		</div>
-
 		<!-- Assets Display -->
-		{#if filteredAssets.length === 0}
+		{#if filteredAssets.length === 0 && !showSoldOutAssets}
+			<div class="empty-state">
+				<h3>No Available Assets</h3>
+				<p>All assets are currently sold out.</p>
+			</div>
+		{:else if filteredAssets.length === 0}
 			<div class="empty-state">
 				<h3>No Assets Found</h3>
 				<p>Try adjusting your search criteria or filters to find assets.</p>
 			</div>
-		{:else if viewMode === 'grid'}
+		{:else}
 			<div class="assets-grid">
 				{#each filteredAssets as asset}
-					<AssetCard {asset} />
+					<AssetCard {asset} on:buyTokens={handleBuyTokens} />
 				{/each}
 			</div>
-		{:else}
-			<div class="assets-list">
-				{#each filteredAssets as asset}
-					<article class="asset-list-item">
-						<div class="list-asset-info">
-							<h4>{asset.name}</h4>
-							<p>{asset.location.state}, {asset.location.country}</p>
-						</div>
-						<div class="list-payout">
-							<div class="metric-value">{asset.production.capacity}</div>
-							<div class="metric-label">Production</div>
-						</div>
-						<div class="list-value">
-							<div class="metric-value">{asset.production.expectedRemainingProduction}</div>
-							<div class="metric-label">Expected Production</div>
-						</div>
-						<div class="list-status">
-							<span class="status-badge" class:producing={asset.production.status === 'producing'} class:funding={asset.production.status === 'funding'}>
-								{asset.production.status.toUpperCase()}
-							</span>
-						</div>
-						<div class="list-actions">
-							<a href="/buy-tokens?asset={asset.id}" class="btn-primary-small">Buy Tokens</a>
-							<a href="/assets/{asset.id}" class="btn-secondary-small">View</a>
-						</div>
-					</article>
-				{/each}
+		{/if}
+		
+		<!-- View Previous Assets Button -->
+		{#if soldOutCount > 0 && !showSoldOutAssets}
+			<div class="view-previous-section">
+				<SecondaryButton on:click={() => showSoldOutAssets = true}>
+					View Sold Out Assets ({soldOutCount})
+				</SecondaryButton>
+			</div>
+		{:else if showSoldOutAssets && soldOutCount > 0}
+			<div class="view-previous-section">
+				<SecondaryButton on:click={() => showSoldOutAssets = false}>
+					Hide Sold Out Assets
+				</SecondaryButton>
 			</div>
 		{/if}
 	{/if}
@@ -149,156 +151,6 @@
 		color: var(--color-black);
 	}
 
-	/* Filter Section Styles */
-	.filter-section {
-		margin-bottom: 3rem;
-		padding: 2rem;
-		background: var(--color-light-gray);
-	}
-
-	.filter-controls {
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
-	}
-
-	.search-group {
-		max-width: 100%;
-	}
-
-	.filter-row {
-		display: flex;
-		gap: 1rem;
-		flex-wrap: wrap;
-		align-items: flex-end;
-	}
-
-	.filter-group {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-		min-width: 150px;
-		flex: 1;
-	}
-
-	.filter-control-label {
-		font-size: 0.9rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-	}
-
-	.search-input {
-		width: 100%;
-		padding: 0.75rem 1rem;
-		border: 1px solid var(--color-secondary);
-		background: var(--color-white);
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-medium);
-		color: var(--color-black);
-		transition: border-color 0.2s ease;
-	}
-
-	.search-input:focus {
-		outline: none;
-		border-color: var(--color-primary);
-	}
-
-	.search-input:hover {
-		border-color: var(--color-primary);
-	}
-
-	.filter-select {
-		padding: 0.75rem 1rem;
-		border: 1px solid var(--color-secondary);
-		background: var(--color-white);
-		font-size: 0.9rem;
-		font-weight: var(--font-weight-medium);
-		color: var(--color-black);
-		font-family: var(--font-family);
-		cursor: pointer;
-		transition: border-color 0.2s ease;
-	}
-
-	.filter-select:focus {
-		outline: none;
-		border-color: var(--color-primary);
-	}
-
-	.filter-select:hover {
-		border-color: var(--color-primary);
-	}
-
-	.clear-filter-btn {
-		background: var(--color-white);
-		color: var(--color-secondary);
-		border: 1px solid var(--color-secondary);
-		padding: 0.75rem 1rem;
-		font-size: 0.9rem;
-		font-weight: var(--font-weight-semibold);
-		font-family: var(--font-family);
-		cursor: pointer;
-		transition: all 0.2s ease;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		white-space: nowrap;
-	}
-
-	.clear-filter-btn:hover {
-		background: var(--color-secondary);
-		color: var(--color-white);
-	}
-
-	.controls-section {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 1.5rem 2rem;
-		margin-bottom: 2rem;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
-
-	.asset-count-section,
-	.view-controls {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-	}
-
-	.control-label {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.asset-count {
-		color: var(--color-black);
-		font-weight: var(--font-weight-medium);
-		font-size: 0.9rem;
-	}
-
-	.view-btn {
-		padding: 0.5rem 1rem;
-		border: 1px solid var(--color-light-gray);
-		background: var(--color-white);
-		color: var(--color-black);
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-medium);
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
-
-	.view-btn:hover {
-		border-color: var(--color-black);
-	}
-
-	.view-btn.active {
-		background: var(--color-black);
-		color: var(--color-white);
-		border-color: var(--color-black);
-	}
 
 	.empty-state {
 		text-align: center;
@@ -325,259 +177,12 @@
 		gap: 2rem;
 	}
 
-	.asset-card {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-		transition: border-color 0.2s ease;
-	}
-
-	.asset-card:hover {
-		border-color: var(--color-primary);
-	}
-
-	.asset-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-start;
-		margin-bottom: 2rem;
-	}
-
-	.asset-info h3 {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.asset-location {
-		font-size: 0.8rem;
-		color: var(--color-secondary);
-		font-weight: var(--font-weight-medium);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin-bottom: 0.25rem;
-	}
-
-	.asset-operator {
-		font-size: 0.7rem;
-		color: var(--color-black);
-		font-weight: var(--font-weight-medium);
-	}
-
-	.asset-badges {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-		align-items: flex-end;
-	}
-
-	.status-badge {
-		background: var(--color-black);
-		color: var(--color-white);
-		padding: 0.25rem 0.5rem;
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-	}
-
-	.status-badge {
-		padding: 0.25rem 0.5rem;
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-	}
-
-	.status-badge.producing {
-		background: var(--color-light-gray);
-		color: var(--color-primary);
-	}
-
-	.status-badge.funding {
-		background: var(--color-light-gray);
-		color: var(--color-secondary);
-	}
-
-	.asset-metrics {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 1rem;
-		margin-bottom: 2rem;
-	}
-
-	.metric {
+	.view-previous-section {
 		text-align: center;
+		margin-top: 3rem;
+		padding: 2rem 0;
 	}
 
-	.metric-value {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-primary);
-		margin-bottom: 0.25rem;
-	}
-
-	.metric-label {
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.asset-details {
-		margin-bottom: 2rem;
-		padding-top: 2rem;
-		border-top: 1px solid var(--color-light-gray);
-	}
-
-	.detail-row {
-		display: flex;
-		justify-content: space-between;
-		margin-bottom: 0.75rem;
-		font-size: 0.8rem;
-	}
-
-	.detail-row span:first-child {
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-	}
-
-	.detail-row span:last-child {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-	}
-
-	.token-info {
-		margin-bottom: 2rem;
-	}
-
-	.info-header {
-		display: flex;
-		justify-content: space-between;
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.asset-actions {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 1rem;
-	}
-
-	.assets-list {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
-
-	.asset-list-item {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 1.5rem;
-		display: grid;
-		grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
-		gap: 2rem;
-		align-items: center;
-		transition: border-color 0.2s ease;
-	}
-
-	.asset-list-item:hover {
-		border-color: var(--color-primary);
-	}
-
-	.list-asset-info h4 {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.25rem;
-		font-size: 1rem;
-	}
-
-	.list-asset-info p {
-		font-size: 0.8rem;
-		color: var(--color-secondary);
-		font-weight: var(--font-weight-medium);
-	}
-
-	.list-payout,
-	.list-value {
-		text-align: center;
-	}
-
-	.list-status,
-	.list-status {
-		text-align: center;
-	}
-
-	.list-actions {
-		display: flex;
-		gap: 0.5rem;
-	}
-
-	.btn-primary,
-	.btn-secondary {
-		padding: 0.75rem 1rem;
-		text-align: center;
-		text-decoration: none;
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		transition: background-color 0.2s ease;
-		display: inline-block;
-	}
-
-	.btn-primary {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	.btn-primary:hover {
-		background: var(--color-secondary);
-	}
-
-	.btn-secondary {
-		background: var(--color-white);
-		color: var(--color-secondary);
-		border: 1px solid var(--color-secondary);
-	}
-
-	.btn-secondary:hover {
-		background: var(--color-secondary);
-		color: var(--color-white);
-	}
-
-	.btn-primary-small,
-	.btn-secondary-small {
-		padding: 0.5rem 1rem;
-		text-align: center;
-		text-decoration: none;
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.7rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		transition: background-color 0.2s ease;
-		display: inline-block;
-	}
-
-	.btn-primary-small {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	.btn-primary-small:hover {
-		background: var(--color-secondary);
-	}
-
-	.btn-secondary-small {
-		background: var(--color-white);
-		color: var(--color-secondary);
-		border: 1px solid var(--color-secondary);
-	}
-
-	.btn-secondary-small:hover {
-		background: var(--color-secondary);
-		color: var(--color-white);
-	}
 
 	@media (max-width: 768px) {
 		.assets-page {
@@ -588,43 +193,16 @@
 			font-size: 2rem;
 		}
 
-		.controls-section {
-			flex-direction: column;
-			gap: 1rem;
-			align-items: stretch;
-		}
-
-		.asset-count-section,
-		.view-controls {
-			justify-content: center;
-		}
-
-		.filter-row {
-			flex-direction: column;
-			align-items: stretch;
-		}
-
-		.filter-group {
-			min-width: auto;
-			flex: none;
-		}
-
-		.filter-section {
-			padding: 1rem;
-		}
-
 		.assets-grid {
 			grid-template-columns: 1fr;
 		}
-
-		.asset-list-item {
-			grid-template-columns: 1fr;
-			gap: 1rem;
-			text-align: center;
-		}
-
-		.list-actions {
-			justify-content: center;
-		}
 	}
 </style>
+
+<!-- Token Purchase Widget -->
+<TokenPurchaseWidget 
+	bind:isOpen={showPurchaseWidget}
+	assetId={selectedAssetId}
+	on:purchaseSuccess={handlePurchaseSuccess}
+	on:close={handleWidgetClose}
+/>

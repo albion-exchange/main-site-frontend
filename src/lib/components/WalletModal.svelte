@@ -21,10 +21,16 @@
 			handleClose();
 		}
 	}
+
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			handleClose();
+		}
+	}
 </script>
 
 {#if isOpen}
-	<div class="modal-backdrop" on:click={handleBackdropClick}>
+	<div class="modal-backdrop" on:click={handleBackdropClick} on:keydown={handleKeydown} role="dialog" aria-modal="true" tabindex="-1">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h2>Connect Your Wallet</h2>
