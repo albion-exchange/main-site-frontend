@@ -9,8 +9,8 @@
   "isActive": true,
   "firstPaymentDate": "August 2025",
   "supply": {
-    "maxSupply": "42000000000000000000000",
-    "mintedSupply": "42000000000000000000000"
+    "maxSupply": "200000000000000000000000",
+    "mintedSupply": "175000000000000000000000"
   },
   "holders": [
     {
@@ -28,42 +28,42 @@
     {
       "month": "2025-06",
       "date": "2025-06-15",
-      "totalPayout": 170.1,
-      "payoutPerToken": 0.00405,
+      "totalPayout": 2608.2,
+      "payoutPerToken": 0.0149,
       "oilPrice": 70.0,
-      "gasPrice": 3.10,
-      "productionVolume": 20.25,
-      "txHash": "0x7d8f9a2b3c4e5f6789012345678901234567890c"
+      "gasPrice": 3.1,
+      "productionVolume": 310.5,
+      "txHash": "0xffffffffffffffffffffffffe3f69f84bc1bbe85"
     },
     {
       "month": "2025-05",
       "date": "2025-05-15",
-      "totalPayout": 168.2,
-      "payoutPerToken": 0.00400,
-      "oilPrice": 68.5,
-      "gasPrice": 3.05,
-      "productionVolume": 20.025,
-      "txHash": "0x8e9f0a3b4c5d6e7890123456789012345678903d"
+      "totalPayout": 2731.7,
+      "payoutPerToken": 0.01561,
+      "oilPrice": 70.0,
+      "gasPrice": 3.1,
+      "productionVolume": 325.2,
+      "txHash": "0x00000000000000000000000073743d2ec162a90f"
     },
     {
       "month": "2025-04",
       "date": "2025-04-15",
-      "totalPayout": 167.1,
-      "payoutPerToken": 0.00398,
-      "oilPrice": 67.8,
-      "gasPrice": 3.00,
-      "productionVolume": 19.89,
-      "txHash": "0x9f0a1b4c5d6e7f90123456789012345678904e5f"
+      "totalPayout": 2509.1,
+      "payoutPerToken": 0.01434,
+      "oilPrice": 70.0,
+      "gasPrice": 3.1,
+      "productionVolume": 298.7,
+      "txHash": "0xffffffffffffffffffffffffe926257321c820a5"
     },
     {
       "month": "2025-03",
       "date": "2025-03-15",
-      "totalPayout": 169.3,
-      "payoutPerToken": 0.00403,
-      "oilPrice": 69.2,
-      "gasPrice": 3.08,
-      "productionVolume": 20.16,
-      "txHash": "0xa0b1c5d6e7f801234567890123456789015f6071"
+      "totalPayout": 2652.7,
+      "payoutPerToken": 0.01516,
+      "oilPrice": 70.0,
+      "gasPrice": 3.1,
+      "productionVolume": 315.8,
+      "txHash": "0x000000000000000000000000246327b97a60bbd4"
     }
   ],
   "sharePercentage": 12,

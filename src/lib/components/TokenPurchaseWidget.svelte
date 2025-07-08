@@ -29,8 +29,8 @@
 
 	$: order = {
 		investment: investmentAmount,
-		platformFee: 0, // Free for now
-		totalCost: investmentAmount,
+		platformFee: investmentAmount * dataStoreService.getPlatformFees().transactionFee,
+		totalCost: investmentAmount + (investmentAmount * dataStoreService.getPlatformFees().transactionFee),
 		tokens: investmentAmount // 1:1 ratio for simplicity
 	};
 

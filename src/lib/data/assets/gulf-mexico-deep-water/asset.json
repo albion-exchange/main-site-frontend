@@ -2,10 +2,6 @@
   "id": "gulf-mexico-deep-water",
   "name": "Gulf of Mexico-4 Royalty Stream",
   "description": "Offshore deep-water oil development with state-of-the-art subsea production systems and enhanced recovery techniques.",
-  "images": [
-    "/images/assets/gulf-mexico-1.jpg",
-    "/images/assets/gulf-mexico-2.jpg"
-  ],
   "location": {
     "state": "Louisiana",
     "county": "Offshore",
@@ -29,7 +25,6 @@
     "firstOil": "2022-Q4",
     "infrastructure": "Floating production platform with subsea manifolds",
     "environmental": "Zero discharge policy with advanced spill prevention",
-    "estimatedReserves": 180800000,
     "expectedEndDate": "2028-02",
     "crudeBenchmark": "Brent",
     "pricing": {
@@ -44,7 +39,7 @@
     "paymentFrequency": "Monthly within 30 days"
   },
   "production": {
-    "current": "60 boe/day",
+    "current": "4800 boe/day",
     "status": "producing",
     "units": {
       "production": "BOE (Barrels of Oil Equivalent)",
@@ -57,31 +52,31 @@
   "monthlyReports": [
     {
       "month": "2025-06",
-      "production": 81.0,
-      "revenue": 5670.0,
+      "production": 3339.9,
+      "revenue": 233793.0,
       "expenses": 0,
-      "netIncome": 5670.0
+      "netIncome": 233793.0
     },
     {
       "month": "2025-05",
-      "production": 80.1,
-      "revenue": 5607.0,
+      "production": 3578.4,
+      "revenue": 250488.0,
       "expenses": 0,
-      "netIncome": 5607.0
+      "netIncome": 250488.0
     },
     {
       "month": "2025-04",
-      "production": 79.56,
-      "revenue": 5569.2,
+      "production": 3271.7,
+      "revenue": 229019.0,
       "expenses": 0,
-      "netIncome": 5569.2
+      "netIncome": 229019.0
     },
     {
       "month": "2025-03",
-      "production": 80.64,
-      "revenue": 5644.8,
+      "production": 3442.1,
+      "revenue": 240947.0,
       "expenses": 0,
-      "netIncome": 5644.8
+      "netIncome": 240947.0
     }
   ],
   "plannedProduction": {
@@ -90,165 +85,256 @@
     "projections": [
       {
         "month": "2025-07",
-        "production": 61.34,
-        "revenue": 3987.1
+        "production": 4907.2
       },
       {
         "month": "2025-08",
-        "production": 58.368,
-        "revenue": 3793.92
+        "production": 4669.44
       },
       {
         "month": "2025-09",
-        "production": 59.308,
-        "revenue": 3855.02
+        "production": 4744.64
       },
       {
         "month": "2025-10",
-        "production": 58.32,
-        "revenue": 3790.8
+        "production": 4665.6
       },
       {
         "month": "2025-11",
-        "production": 55.5,
-        "revenue": 3607.5
+        "production": 4440.0
       },
       {
         "month": "2025-12",
-        "production": 56.4,
-        "revenue": 3666.0
+        "production": 4512.0
       },
       {
         "month": "2026-01",
-        "production": 53.672,
-        "revenue": 3488.68
+        "production": 4293.76
       },
       {
         "month": "2026-02",
-        "production": 53.42,
-        "revenue": 3472.3
+        "production": 4273.6
       },
       {
         "month": "2026-03",
-        "production": 52.52,
-        "revenue": 3413.8
+        "production": 4201.6
       },
       {
         "month": "2026-04",
-        "production": 44.576,
-        "revenue": 2897.44
+        "production": 3566.08
       },
       {
         "month": "2026-05",
-        "production": 49.4,
-        "revenue": 3211.0
+        "production": 3952.0
       },
       {
         "month": "2026-06",
-        "production": 24.032,
-        "revenue": 1562.08
+        "production": 1922.56
       },
       {
         "month": "2026-07",
-        "production": 70.056,
-        "revenue": 4553.64
+        "production": 5604.48
       },
       {
         "month": "2026-08",
-        "production": 59.932,
-        "revenue": 3895.58
+        "production": 4794.56
       },
       {
         "month": "2026-09",
-        "production": 57.876,
-        "revenue": 3761.94
+        "production": 4630.08
       },
       {
         "month": "2026-10",
-        "production": 53.816,
-        "revenue": 3498.04
+        "production": 4305.28
       },
       {
         "month": "2026-11",
-        "production": 53.152,
-        "revenue": 3454.88
+        "production": 4252.16
       },
       {
         "month": "2026-12",
-        "production": 55.924,
-        "revenue": 3635.06
+        "production": 4473.92
       },
       {
         "month": "2027-01",
-        "production": 54.28,
-        "revenue": 3528.2
+        "production": 4342.4
       },
       {
         "month": "2027-02",
-        "production": 54.92,
-        "revenue": 3569.8
+        "production": 4393.6
       },
       {
         "month": "2027-03",
-        "production": 48.324,
-        "revenue": 3141.06
+        "production": 3865.92
       },
       {
         "month": "2027-04",
-        "production": 39.084,
-        "revenue": 2540.46
+        "production": 3126.72
       },
       {
         "month": "2027-05",
-        "production": 40.42,
-        "revenue": 2627.3
+        "production": 3233.6
       },
       {
         "month": "2027-06",
-        "production": 38.692,
-        "revenue": 2514.98
+        "production": 3095.36
       },
       {
         "month": "2027-07",
-        "production": 40.16,
-        "revenue": 2610.4
+        "production": 3212.8
       },
       {
         "month": "2027-08",
-        "production": 38.296,
-        "revenue": 2489.24
+        "production": 3063.68
       },
       {
         "month": "2027-09",
-        "production": 38.412,
-        "revenue": 2496.78
+        "production": 3072.96
       },
       {
         "month": "2027-10",
-        "production": 35.956,
-        "revenue": 2337.14
+        "production": 2876.48
       },
       {
         "month": "2027-11",
-        "production": 32.536,
-        "revenue": 2114.84
+        "production": 2602.88
       },
       {
         "month": "2027-12",
-        "production": 31.38,
-        "revenue": 2039.7
+        "production": 2510.4
       },
       {
         "month": "2028-01",
-        "production": 28.196,
-        "revenue": 1832.74
+        "production": 2255.68
       },
       {
         "month": "2028-02",
-        "production": 26.64,
-        "revenue": 1731.6
+        "production": 2131.2
       }
     ]
+  },
+  "productionHistory": [
+    {
+      "month": "2022-10",
+      "production": 4224.96
+    },
+    {
+      "month": "2022-11",
+      "production": 3893.6
+    },
+    {
+      "month": "2022-12",
+      "production": 3907.44
+    },
+    {
+      "month": "2023-01",
+      "production": 3915.12
+    },
+    {
+      "month": "2023-02",
+      "production": 1978.72
+    },
+    {
+      "month": "2023-03",
+      "production": 4314.0
+    },
+    {
+      "month": "2023-04",
+      "production": 4557.88
+    },
+    {
+      "month": "2023-05",
+      "production": 4220.46
+    },
+    {
+      "month": "2023-06",
+      "production": 4215.12
+    },
+    {
+      "month": "2023-07",
+      "production": 4219.12
+    },
+    {
+      "month": "2023-08",
+      "production": 4262.6
+    },
+    {
+      "month": "2023-09",
+      "production": 4260.2
+    },
+    {
+      "month": "2023-10",
+      "production": 3388.88
+    },
+    {
+      "month": "2023-11",
+      "production": 1318.28
+    },
+    {
+      "month": "2023-12",
+      "production": 12.8
+    },
+    {
+      "month": "2024-01",
+      "production": 0.0
+    },
+    {
+      "month": "2024-02",
+      "production": 2508.84
+    },
+    {
+      "month": "2024-03",
+      "production": 2405.8
+    },
+    {
+      "month": "2024-04",
+      "production": 3333.72
+    },
+    {
+      "month": "2024-05",
+      "production": 2563.32
+    },
+    {
+      "month": "2024-06",
+      "production": 2796.72
+    },
+    {
+      "month": "2024-07",
+      "production": 2388.16
+    },
+    {
+      "month": "2024-08",
+      "production": 2098.48
+    },
+    {
+      "month": "2024-09",
+      "production": 1950.96
+    },
+    {
+      "month": "2024-10",
+      "production": 2135.32
+    },
+    {
+      "month": "2024-11",
+      "production": 2092.56
+    }
+  ],
+  "operationalMetrics": {
+    "uptime": {
+      "percentage": 98.7,
+      "unit": "percent",
+      "period": "last_30_days"
+    },
+    "dailyProduction": {
+      "current": 4872.0,
+      "target": 4960.0,
+      "unit": "boe"
+    },
+    "hseMetrics": {
+      "incidentFreeDays": 765,
+      "lastIncidentDate": "2022-12-03",
+      "safetyRating": "Outstanding"
+    }
   },
   "metadata": {
     "createdAt": "2022-10-18T13:45:00Z",

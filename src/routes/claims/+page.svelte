@@ -443,7 +443,7 @@
 					
 					<div class="stats-grid">
 						<div class="stat-item">
-							<div class="stat-value">13.2%</div>
+							<div class="stat-value">{dataStoreService.getPlatformStats().averagePortfolioIRR?.formatted || '13.2%'}</div>
 							<div class="stat-label">Avg Portfolio IRR</div>
 						</div>
 						<div class="stat-item">
@@ -455,11 +455,11 @@
 					<div class="stats-list">
 						<div class="stats-row">
 							<span>Total Payouts This Year:</span>
-							<span>24</span>
+							<span>{dataStoreService.getPlatformStats().totalPayoutsThisYear?.formatted || '24'}</span>
 						</div>
 						<div class="stats-row">
 							<span>Days Since Last Claim:</span>
-							<span>3</span>
+							<span>{dataStoreService.getPlatformStats().daysSinceLastClaim?.formatted || '3'}</span>
 						</div>
 					</div>
 				</div>

@@ -3,6 +3,7 @@
 	import type { Asset } from '$lib/types/dataStore';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { getAssetCoverImage } from '$lib/utils/assetImages';
 
 	export let asset: Asset;
 	
@@ -45,17 +46,8 @@
 		return `${monthNames[parseInt(month) - 1]} ${year}`;
 	}
 
-	function getAssetImage(assetId: string): string {
-		// Map each asset to specific oil & gas industry images
-		const imageMap: Record<string, string> = {
-			'europa-wressle-release-1': '/images/assets/europa-wressle-1.jpg', // Wressle oil field (UK onshore)
-			'bakken-horizon-field': '/images/assets/bakken-horizon-1.jpeg', // Bakken shale operations (ND)
-			'permian-basin-venture': '/images/assets/permian-basin-1.jpg', // Permian basin operations (TX)
-			'gulf-mexico-deep-water': '/images/assets/gom-deepwater-1.avif' // Gulf of Mexico offshore platform
-		};
-		
-		// Fallback to a generic oil industry image
-		return imageMap[assetId] || '/images/assets/europa-wressle-1.jpg';
+	function getAssetImage(asset: Asset): string {
+		return getAssetCoverImage(asset.id);
 	}
 	
 	function handleBuyTokens() {
@@ -65,7 +57,7 @@
 </script>
 
 <Card hoverable clickable on:click={() => window.location.href = `/assets/${asset.id}`}>
-	<CardImage src={getAssetImage(asset.id)} alt={asset.name} zoomOnHover />
+	<CardImage src={getAssetImage(asset)} alt={asset.name} zoomOnHover />
 	
 	<CardContent>
 		<header>

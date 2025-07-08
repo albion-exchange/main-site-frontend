@@ -34,19 +34,8 @@
 			const totalInvested = allTokens.reduce((sum, token) => {
 				const mintedTokens = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
 				
-				// Estimate token value based on asset type and performance
-				let estimatedTokenValue = 1; // Base $1 per token
-				
-				// Adjust based on asset location and performance
-				if (token.symbol.includes('BAK')) {
-					estimatedTokenValue = 12; // Bakken assets - higher value
-				} else if (token.symbol.includes('PER')) {
-					estimatedTokenValue = 15; // Permian Basin - premium assets
-				} else if (token.symbol.includes('GOM')) {
-					estimatedTokenValue = 18; // Gulf of Mexico - deepwater premium
-				} else if (token.symbol.includes('EUR')) {
-					estimatedTokenValue = 8; // European assets
-				}
+				// Estimate token value based on asset region
+				const estimatedTokenValue = dataStoreService.getEstimatedTokenValue(token.assetId);
 				
 				return sum + (mintedTokens * estimatedTokenValue);
 			}, 0);
@@ -83,7 +72,7 @@
 			
 			// If no valid growth rate data, use a reasonable default
 			if (monthlyGrowthRate === 0 || isNaN(monthlyGrowthRate)) {
-				monthlyGrowthRate = 2.8; // Default growth rate
+				monthlyGrowthRate = dataStoreService.getMarketData().defaultGrowthRate;
 			}
 			
 			platformStats = {

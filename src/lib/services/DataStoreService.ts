@@ -11,6 +11,12 @@ import type {
 } from '$lib/types/dataStore';
 import { getTokenReturns, type TokenReturns } from '$lib/utils/returnCalculations';
 
+// Import configuration data
+import marketData from '$lib/data/marketData.json';
+import platformStats from '$lib/data/platformStats.json';
+import companyInfo from '$lib/data/companyInfo.json';
+import defaultValues from '$lib/data/defaultValues.json';
+
 // Import all asset data
 import europaWressleAsset from '$lib/data/assets/europa-wressle-release-1/asset.json';
 import bakkenHorizonAsset from '$lib/data/assets/bakken-horizon-field/asset.json';
@@ -25,6 +31,12 @@ import bakHfToken from '$lib/data/assets/bakken-horizon-field/tokens/bak_hf.json
 import bakHf2Token from '$lib/data/assets/bakken-horizon-field/tokens/bak_hf2.json';
 import perBvToken from '$lib/data/assets/permian-basin-venture/tokens/per_bv.json';
 import gomDwToken from '$lib/data/assets/gulf-mexico-deep-water/tokens/gom_dw.json';
+
+// Import future release data
+import eurWr4Future from '$lib/data/assets/europa-wressle-release-1/tokens/eur_wr4_future.json';
+import bakHf3Future from '$lib/data/assets/bakken-horizon-field/tokens/bak_hf3_future.json';
+import perBv2Future from '$lib/data/assets/permian-basin-venture/tokens/per_bv2_future.json';
+import gomDw2Future from '$lib/data/assets/gulf-mexico-deep-water/tokens/gom_dw2_future.json';
 
 class DataStoreService {
   private assets: Record<string, Asset>;
@@ -430,32 +442,13 @@ class DataStoreService {
     const token = this.getTokenByAddress(contractAddress);
     if (!token) return null;
 
-    // Mock payout history for now
-    const recentPayouts = [
-      {
-        month: '2024-11',
-        date: '2024-11-15',
-        totalPayout: 18750,
-        payoutPerToken: 12.50,
-        oilPrice: 72.45,
-        gasPrice: 2.85,
-        productionVolume: 6000,
-        txHash: '0x1234567890abcdef1234567890abcdef12345678'
-      },
-      {
-        month: '2024-10',
-        date: '2024-10-15',
-        totalPayout: 20160,
-        payoutPerToken: 13.44,
-        oilPrice: 74.20,
-        gasPrice: 2.92,
-        productionVolume: 6150,
-        txHash: '0x2345678901bcdef01234567890abcdef23456789'
-      }
-    ];
+    // Use actual payout history from token data
+    const recentPayouts = token.payoutHistory || [];
 
     const totalPayouts = recentPayouts.length;
-    const averageMonthlyPayout = recentPayouts.reduce((sum, payout) => sum + payout.payoutPerToken, 0) / totalPayouts;
+    const averageMonthlyPayout = recentPayouts.length > 0 
+      ? recentPayouts.reduce((sum, payout) => sum + payout.payoutPerToken, 0) / totalPayouts 
+      : 0;
 
     return {
       recentPayouts,
@@ -463,6 +456,135 @@ class DataStoreService {
       averageMonthlyPayout,
       totalPaid: recentPayouts.reduce((sum, payout) => sum + payout.totalPayout, 0)
     };
+  }
+
+  /**
+   * Get market data configuration
+   */
+  getMarketData() {
+    return marketData;
+  }
+
+  /**
+   * Get platform statistics
+   */
+  getPlatformStats() {
+    return platformStats;
+  }
+
+  /**
+   * Get company information
+   */
+  getCompanyInfo() {
+    return companyInfo;
+  }
+
+  /**
+   * Get estimated token value based on region
+   */
+  getEstimatedTokenValue(assetId: string): number {
+    const asset = this.getAssetById(assetId);
+    if (!asset) return marketData.tokenPricing.defaultEstimatedValue;
+
+    // Determine region based on asset location or ID
+    let regionKey = 'europe'; // default
+    if (assetId.includes('bakken')) regionKey = 'bakken';
+    else if (assetId.includes('permian')) regionKey = 'permian';
+    else if (assetId.includes('gulf')) regionKey = 'gulf-mexico';
+
+    const multiplier = marketData.tokenPricing.regionMultipliers[regionKey] || 1.0;
+    return marketData.tokenPricing.defaultEstimatedValue * multiplier;
+  }
+
+  /**
+   * Get oil price scenarios
+   */
+  getOilPriceScenarios() {
+    return marketData.scenarios.oilPrice;
+  }
+
+  /**
+   * Get platform fees configuration
+   */
+  getPlatformFees() {
+    return marketData.platformFees;
+  }
+
+  /**
+   * Get default fallback values
+   */
+  getDefaultValues() {
+    return defaultValues;
+  }
+
+  /**
+   * Get future token releases (flattened from all assets)
+   */
+  getFutureReleases() {
+    const allReleases = [];
+    
+    // Add Europa Wressle releases
+    eurWr4Future.forEach(release => {
+      allReleases.push({ assetId: 'europa-wressle-release-1', tokenId: 'eur_wr4', ...release });
+    });
+    
+    // Add Bakken Horizon releases
+    bakHf3Future.forEach(release => {
+      allReleases.push({ assetId: 'bakken-horizon-field', tokenId: 'bak_hf3', ...release });
+    });
+    
+    // Add Permian Basin releases
+    perBv2Future.forEach(release => {
+      allReleases.push({ assetId: 'permian-basin-venture', tokenId: 'per_bv2', ...release });
+    });
+    
+    // Add Gulf of Mexico releases
+    gomDw2Future.forEach(release => {
+      allReleases.push({ assetId: 'gulf-mexico-deep-water', tokenId: 'gom_dw2', ...release });
+    });
+    
+    return allReleases;
+  }
+
+  /**
+   * Get future releases for a specific asset (sorted chronologically)
+   */
+  getFutureReleasesByAsset(assetId: string) {
+    const releases = this.getFutureReleases();
+    const assetReleases = releases.filter(release => release.assetId === assetId);
+    
+    // Sort by whenRelease chronologically
+    assetReleases.sort((a, b) => a.whenRelease.localeCompare(b.whenRelease));
+    
+    return assetReleases;
+  }
+
+  /**
+   * Get next future release for a specific asset (earliest chronologically)
+   */
+  getFutureReleaseByAsset(assetId: string) {
+    const releases = this.getFutureReleasesByAsset(assetId);
+    if (releases.length === 0) return null;
+    
+    // Sort by whenRelease and return first (next upcoming)
+    releases.sort((a, b) => {
+      // Simple string comparison should work for "Q1 2025" format
+      return a.whenRelease.localeCompare(b.whenRelease);
+    });
+    
+    return releases[0];
+  }
+
+  /**
+   * Get next upcoming release across all assets
+   */
+  getNextRelease() {
+    const releases = this.getFutureReleases();
+    if (releases.length === 0) return null;
+    
+    // Sort by whenRelease and return first
+    releases.sort((a, b) => a.whenRelease.localeCompare(b.whenRelease));
+    return releases[0];
   }
 }
 

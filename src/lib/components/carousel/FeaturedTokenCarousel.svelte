@@ -37,8 +37,14 @@
 			loading = true;
 			error = null;
 
-			// Get first 3 royalty tokens as featured
-			const royaltyTokens = dataStoreService.getRoyaltyTokens().slice(0, 3);
+			// Get royalty tokens with sufficient available supply (>= 1000)
+			const royaltyTokens = dataStoreService.getRoyaltyTokens()
+				.filter(token => {
+					const availableSupply = BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply);
+					const availableSupplyFormatted = Number(availableSupply) / Math.pow(10, token.decimals);
+					return availableSupplyFormatted >= 1000;
+				})
+				.slice(0, 3);
 
 			featuredTokensWithAssets = royaltyTokens
 				.map(token => {

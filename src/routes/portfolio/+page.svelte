@@ -472,7 +472,7 @@
 								<div class="perf-note">Income only</div>
 							</div>
 							<div class="perf-stat">
-								<div class="perf-value">16.3%</div>
+								<div class="perf-value">{dataStoreService.getPlatformStats().averagePortfolioIRR?.formatted || '16.3%'}</div>
 								<div class="perf-label">Annualized IRR</div>
 								<div class="perf-note">12-month projection</div>
 							</div>

@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import dataStoreService from '$lib/services/DataStoreService';
+	
 	let formData = {
 		name: '',
 		email: '',
@@ -9,6 +12,11 @@
 	
 	let isSubmitting = false;
 	let submitStatus: 'idle' | 'success' | 'error' = 'idle';
+	let companyInfo: any = {};
+	
+	onMount(() => {
+		companyInfo = dataStoreService.getCompanyInfo();
+	});
 
 	async function handleSubmit() {
 		isSubmitting = true;
@@ -161,7 +169,7 @@
 						<div class="method-icon">📞</div>
 						<div class="method-details">
 							<h3>Phone</h3>
-							<p>+1 (555) 123-4567</p>
+							<p>{companyInfo.contact?.phone || 'N/A'}</p>
 							<span>Mon-Fri, 9AM-6PM EST</span>
 						</div>
 					</div>
@@ -170,29 +178,12 @@
 						<div class="method-icon">📍</div>
 						<div class="method-details">
 							<h3>Office</h3>
-							<p>123 Energy Plaza<br>Houston, TX 77002</p>
+							<p>{companyInfo.contact?.address?.street || 'N/A'}<br>{companyInfo.contact?.address?.city || 'N/A'}, {companyInfo.contact?.address?.state || 'N/A'} {companyInfo.contact?.address?.zipCode || 'N/A'}</p>
 							<span>By appointment only</span>
 						</div>
 					</div>
 				</div>
 
-				<div class="office-hours">
-					<h3>Office Hours</h3>
-					<div class="hours-list">
-						<div class="hours-row">
-							<span>Monday - Friday</span>
-							<span>9:00 AM - 6:00 PM EST</span>
-						</div>
-						<div class="hours-row">
-							<span>Saturday</span>
-							<span>10:00 AM - 2:00 PM EST</span>
-						</div>
-						<div class="hours-row">
-							<span>Sunday</span>
-							<span>Closed</span>
-						</div>
-					</div>
-				</div>
 			</div>
 		</div>
 	</section>
@@ -456,41 +447,6 @@
 		font-size: 0.85rem;
 	}
 
-	.office-hours {
-		border-top: 1px solid var(--color-light-gray);
-		padding-top: 2rem;
-	}
-
-	.office-hours h3 {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1rem;
-		font-size: 1rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.hours-list {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-
-	.hours-row {
-		display: flex;
-		justify-content: space-between;
-		font-size: 0.9rem;
-	}
-
-	.hours-row span:first-child {
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-	}
-
-	.hours-row span:last-child {
-		color: var(--color-black);
-		opacity: 0.8;
-	}
 
 	.faq {
 		padding: 4rem 2rem;
