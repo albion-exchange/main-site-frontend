@@ -1,7 +1,6 @@
 {
   "contractAddress": "0x2a7e3f8b921a6c4e8d5f9c2b1a8e7d6c5b4a3f2e",
   "name": "Wressle-1 Release 1",
-  "assetName": "Europa Wressle Development",
   "symbol": "EUR-WR1",
   "decimals": 18,
   "tokenType": "royalty",

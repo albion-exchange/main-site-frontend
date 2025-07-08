@@ -1,7 +1,6 @@
 {
   "contractAddress": "0x8901234567123456789012356f089012345",
   "name": "Gulf of Mexico-4 Release 1",
-  "assetName": "Gulf of Mexico Deep Water",
   "symbol": "GOM-DW1",
   "decimals": 18,
   "tokenType": "royalty",

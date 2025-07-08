@@ -1,7 +1,6 @@
 {
   "contractAddress": "0x1234567890abcdef1234567890abcdef12345678",
   "name": "Example Asset Release 1",
-  "assetName": "Example Asset Development",
   "symbol": "EXA-R1",
   "decimals": 18,
   "tokenType": "royalty",
