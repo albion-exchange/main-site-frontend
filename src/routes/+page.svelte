@@ -606,25 +606,35 @@
 
 	@media (max-width: 768px) {
 		.hero {
-			padding: 4rem 0;
+			padding: 2rem 0;
 		}
 
 		.hero-content {
 			padding: 0 1rem;
+			margin-bottom: 2rem;
 		}
 
 		.hero h1 {
-			font-size: 2.5rem;
+			font-size: 2rem;
+			line-height: 1.2;
+			margin-bottom: 1rem;
+		}
+
+		.hero p {
+			font-size: 1rem;
+			line-height: 1.5;
 		}
 
 		.platform-stats {
 			grid-template-columns: 1fr;
-			gap: 2rem;
+			gap: 1.5rem;
+			padding: 1.5rem 1rem;
+			margin-bottom: 2rem;
 		}
 
 		.stat {
 			border-bottom: 1px solid var(--color-light-gray);
-			padding-bottom: 2rem;
+			padding-bottom: 1.5rem;
 		}
 
 		.stat:last-child {
@@ -632,35 +642,88 @@
 			padding-bottom: 0;
 		}
 
+		.stat-value {
+			font-size: 1.75rem;
+		}
+
 		.cta-buttons {
 			flex-direction: column;
 			align-items: center;
+			gap: 0.75rem;
+			padding: 0 1rem;
+		}
+
+		.featured-tokens {
+			padding: 2rem 0;
 		}
 
 		.featured-tokens .section-header {
 			padding: 0 1rem;
+			margin-bottom: 1.5rem;
+		}
+
+		.section-header h2 {
+			font-size: 1.5rem;
+		}
+
+		.how-it-works {
+			padding: 2rem 0;
 		}
 
 		.how-it-works-content {
 			padding: 0 1rem;
 		}
 
+		.how-it-works h2 {
+			font-size: 1.5rem;
+			margin-bottom: 2rem;
+		}
+
 		.steps {
 			grid-template-columns: 1fr;
+			gap: 2rem;
+		}
+
+		.step h3 {
+			font-size: 1.1rem;
+		}
+
+		.step p {
+			font-size: 0.875rem;
+		}
+
+		.trust-indicators {
+			padding: 2rem 0;
 		}
 
 		.trust-indicators-content {
 			padding: 0 1rem;
 		}
 
-		.indicators {
-			grid-template-columns: repeat(2, 1fr);
+		.trust-indicators h2 {
+			font-size: 1.5rem;
+			margin-bottom: 2rem;
 		}
 
-		.insights-content {
-			grid-template-columns: 1fr;
-			gap: 2rem;
-			padding: 0 1rem;
+		.indicators {
+			grid-template-columns: repeat(2, 1fr);
+			gap: 1.5rem;
+		}
+
+		.indicator h3 {
+			font-size: 0.9rem;
+		}
+
+		.indicator p {
+			font-size: 0.75rem;
+		}
+
+		.market-insights {
+			display: none;
+		}
+
+		.cta-box h4 {
+			font-size: 1.25rem;
 		}
 
 		.section-header {
@@ -668,7 +731,32 @@
 			gap: 1rem;
 			text-align: center;
 		}
+	}
 
+	@media (max-width: 480px) {
+		.hero h1 {
+			font-size: 1.75rem;
+		}
+
+		.hero p {
+			font-size: 0.9rem;
+		}
+
+		.platform-stats {
+			padding: 1rem;
+		}
+
+		.stat-value {
+			font-size: 1.5rem;
+		}
+
+		.indicators {
+			grid-template-columns: 1fr;
+		}
+
+		.cta-box {
+			padding: 1.5rem 1rem;
+		}
 	}
 </style>
 

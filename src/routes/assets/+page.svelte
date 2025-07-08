@@ -189,12 +189,46 @@
 			padding: 2rem 1rem;
 		}
 
+		.page-header {
+			margin-bottom: 2rem;
+		}
+
 		.page-header h1 {
 			font-size: 2rem;
+			margin-bottom: 0.75rem;
+		}
+
+		.page-header p {
+			font-size: 1rem;
 		}
 
 		.assets-grid {
 			grid-template-columns: 1fr;
+			gap: 1.5rem;
+		}
+
+		.loading-state,
+		.empty-state {
+			padding: 2rem 1rem;
+		}
+
+		.view-previous-section {
+			margin-top: 2rem;
+			padding: 1.5rem 0;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.assets-page {
+			padding: 1.5rem 0.75rem;
+		}
+
+		.page-header h1 {
+			font-size: 1.75rem;
+		}
+
+		.assets-grid {
+			gap: 1rem;
 		}
 	}
 </style>

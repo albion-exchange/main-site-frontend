@@ -398,19 +398,71 @@
 		letter-spacing: 0.05em;
 	}
 
-	@media (max-width: 400px) {
+	@media (max-width: 768px) {
 		.highlighted-stats {
 			grid-template-columns: repeat(2, 1fr);
 			gap: 0.75rem;
+			padding: 0.75rem;
+			margin: 0.75rem 0 1rem 0;
 		}
 		
 		.highlight-value {
 			font-size: 1.1rem;
 		}
+		
+		.highlight-label {
+			font-size: 0.7rem;
+		}
+
+		.asset-name {
+			font-size: 1.1rem;
+			min-height: 2.75rem;
+		}
+
+		.asset-description {
+			font-size: 0.8rem;
+			margin: 0 0 1rem 0;
+		}
+
+		.tokens-title {
+			font-size: 0.9rem;
+		}
+
+		.token-button {
+			padding: 0.75rem;
+		}
+
+		.token-symbol {
+			font-size: 0.8rem;
+		}
+
+		.token-name {
+			font-size: 0.7rem;
+		}
+
+		.token-payment-date {
+			font-size: 0.65rem;
+		}
+
+		.return-value {
+			font-size: 0.9rem;
+		}
+
+		.buy-cta {
+			font-size: 0.8rem;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.highlighted-stats {
+			grid-template-columns: 1fr;
+			gap: 0.5rem;
+		}
 
 		.header-main {
 			flex-direction: column;
 			align-items: flex-start;
+			gap: 0.5rem;
 		}
 
 		.operator {
@@ -422,6 +474,7 @@
 			flex-direction: column;
 			align-items: flex-start;
 			gap: 0.75rem;
+			padding: 0.625rem;
 		}
 
 		.token-button-right {
@@ -432,11 +485,19 @@
 		}
 
 		.returns-display {
-			font-size: 0.875rem;
+			gap: 0.25rem;
 		}
 
 		.return-value {
-			font-size: 0.875rem;
+			font-size: 0.8rem;
+		}
+
+		.return-label {
+			font-size: 0.55rem;
+		}
+
+		.buy-cta {
+			font-size: 0.75rem;
 		}
 	}
 

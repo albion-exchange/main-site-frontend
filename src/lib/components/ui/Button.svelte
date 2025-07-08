@@ -80,6 +80,24 @@
 		font-size: 1rem;
 	}
 	
+	/* Mobile responsiveness */
+	@media (max-width: 768px) {
+		.btn-small {
+			padding: 0.5rem 0.875rem;
+			font-size: 0.7rem;
+		}
+		
+		.btn-medium {
+			padding: 0.625rem 1.25rem;
+			font-size: 0.8rem;
+		}
+		
+		.btn-large {
+			padding: 0.875rem 1.75rem;
+			font-size: 0.9rem;
+		}
+	}
+	
 	/* Primary variant - black background, white text */
 	.btn-primary {
 		background: var(--color-black, #000000);

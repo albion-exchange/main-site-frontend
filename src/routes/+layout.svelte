@@ -5,6 +5,7 @@
 	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
 	
 	$: currentPath = $page.url.pathname;
+	let mobileMenuOpen = false;
 	
 	// Mock wallet connection
 	async function connectWallet() {
@@ -17,24 +18,64 @@
 		// Connect wallet
 		await walletActions.connect();
 	}
+	
+	function toggleMobileMenu() {
+		mobileMenuOpen = !mobileMenuOpen;
+	}
+	
+	function closeMobileMenu() {
+		mobileMenuOpen = false;
+	}
 </script>
 
 <div class="app">
 	<header class="main-header">
 		<nav class="main-nav">
 			<div class="nav-container">
-				<a href="/" class="logo">
+				<a href="/" class="logo" on:click={closeMobileMenu}>
 					<img src="/assets/logo.svg" alt="Albion Logo" class="logo-image" />
 				</a>
 				
-				<div class="nav-links">
+				<!-- Mobile menu button -->
+				<button class="mobile-menu-button" on:click={toggleMobileMenu} aria-label="Toggle menu">
+					<span class="hamburger" class:open={mobileMenuOpen}></span>
+				</button>
+				
+				<!-- Desktop navigation -->
+				<div class="nav-links desktop-nav">
 					<a href="/" class:active={currentPath === '/'}>Home</a>
 					<a href="/assets" class:active={currentPath.startsWith('/assets')}>Invest</a>
 					<a href="/portfolio" class:active={currentPath === '/portfolio'}>Portfolio</a>
 					<a href="/claims" class:active={currentPath === '/claims'}>Claims</a>
 				</div>
 				
-				<div class="nav-actions">
+				<div class="nav-actions desktop-nav">
+					<SecondaryButton 
+						on:click={connectWallet}
+						disabled={$walletStore.isConnecting}
+					>
+						{#if $walletStore.isConnecting}
+							Connecting...
+						{:else if $walletStore.isConnected}
+							<span class="wallet-icon">🔗</span>
+							{formatAddress($walletStore.address)}
+						{:else}
+							<span class="wallet-icon">🔌</span>
+							Connect Wallet
+						{/if}
+					</SecondaryButton>
+				</div>
+			</div>
+			
+			<!-- Mobile navigation menu -->
+			<div class="mobile-nav" class:open={mobileMenuOpen}>
+				<div class="mobile-nav-links">
+					<a href="/" class:active={currentPath === '/'} on:click={closeMobileMenu}>Home</a>
+					<a href="/assets" class:active={currentPath.startsWith('/assets')} on:click={closeMobileMenu}>Invest</a>
+					<a href="/portfolio" class:active={currentPath === '/portfolio'} on:click={closeMobileMenu}>Portfolio</a>
+					<a href="/claims" class:active={currentPath === '/claims'} on:click={closeMobileMenu}>Claims</a>
+				</div>
+				<div class="mobile-nav-actions">
 					<SecondaryButton 
 						on:click={connectWallet}
 						disabled={$walletStore.isConnecting}
@@ -310,29 +351,123 @@
 		color: #5865f2;
 	}
 
+	/* Mobile menu button */
+	.mobile-menu-button {
+		display: none;
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0.5rem;
+		z-index: 101;
+	}
+
+	.hamburger {
+		display: block;
+		width: 24px;
+		height: 2px;
+		background: var(--color-black);
+		transition: all 0.3s ease;
+		position: relative;
+	}
+
+	.hamburger::before,
+	.hamburger::after {
+		content: '';
+		position: absolute;
+		width: 24px;
+		height: 2px;
+		background: var(--color-black);
+		transition: all 0.3s ease;
+	}
+
+	.hamburger::before {
+		top: -8px;
+	}
+
+	.hamburger::after {
+		top: 8px;
+	}
+
+	.hamburger.open {
+		background: transparent;
+	}
+
+	.hamburger.open::before {
+		transform: rotate(45deg);
+		top: 0;
+	}
+
+	.hamburger.open::after {
+		transform: rotate(-45deg);
+		top: 0;
+	}
+
+	/* Mobile navigation */
+	.mobile-nav {
+		display: none;
+		position: fixed;
+		top: 100px;
+		left: 0;
+		right: 0;
+		background: var(--color-white);
+		border-bottom: 1px solid var(--color-light-gray);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		z-index: 100;
+		transform: translateY(-100%);
+		transition: transform 0.3s ease;
+	}
+
+	.mobile-nav.open {
+		transform: translateY(0);
+	}
+
+	.mobile-nav-links {
+		display: flex;
+		flex-direction: column;
+		padding: 1rem;
+		gap: 0;
+	}
+
+	.mobile-nav-links a {
+		color: var(--color-black);
+		text-decoration: none;
+		font-weight: var(--font-weight-medium);
+		padding: 1rem 0;
+		border-bottom: 1px solid var(--color-light-gray);
+		transition: color 0.2s ease;
+	}
+
+	.mobile-nav-links a:last-child {
+		border-bottom: none;
+	}
+
+	.mobile-nav-links a:hover,
+	.mobile-nav-links a.active {
+		color: var(--color-primary);
+	}
+
+	.mobile-nav-actions {
+		padding: 1rem;
+		border-top: 1px solid var(--color-light-gray);
+	}
+
 	@media (max-width: 768px) {
 		.nav-container {
 			padding: 0 1rem;
-			flex-wrap: wrap;
-			height: auto;
-			padding-top: 1rem;
-			padding-bottom: 1rem;
+			height: 100px;
 		}
 
-		.nav-links {
-			order: 3;
-			width: 100%;
-			justify-content: center;
-			margin-top: 1rem;
-			padding-top: 1rem;
-			border-top: 1px solid var(--color-light-gray);
+		.mobile-menu-button {
+			display: block;
 		}
 
-		.nav-actions {
-			flex-direction: column;
-			gap: 0.5rem;
+		.desktop-nav {
+			display: none;
 		}
 
+		.mobile-nav {
+			display: block;
+		}
 
 		.footer-content {
 			grid-template-columns: 1fr;

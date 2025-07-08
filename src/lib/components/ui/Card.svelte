@@ -68,4 +68,16 @@
 			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 		}
 	}
+	
+	/* Mobile responsiveness */
+	@media (max-width: 768px) {
+		.card {
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+		
+		.card.hoverable:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+		}
+	}
 </style>
