@@ -12,12 +12,12 @@
 	// Use asset data directly from the data store
 	$: latestReport = asset.monthlyReports[asset.monthlyReports.length - 1] || null;
 
-	// Get the primary royalty token for this asset (first royalty token found)
-	$: royaltyTokens = dataStoreService.getTokensByAssetId(asset.id).filter(token => token.tokenType === 'royalty');
-	$: primaryToken = royaltyTokens.length > 0 ? royaltyTokens[0] : null;
+	// Get the primary token for this asset (first active token found)
+	$: assetTokens = dataStoreService.getTokensByAssetId(asset.id);
+	$: primaryToken = assetTokens.length > 0 ? assetTokens[0] : null;
 	
 	// Check if any tokens are available
-	$: hasAvailableTokens = royaltyTokens.some(token => {
+	$: hasAvailableTokens = assetTokens.some(token => {
 		const supply = dataStoreService.getTokenSupply(token.contractAddress);
 		return supply && supply.availableSupply > 0;
 	});
@@ -102,7 +102,7 @@
 
 		<!-- Available Tokens Section -->
 		{#if hasAvailableTokens}
-			{@const availableTokens = royaltyTokens.filter(token => {
+			{@const availableTokens = assetTokens.filter(token => {
 				const supply = dataStoreService.getTokenSupply(token.contractAddress);
 				return supply && supply.availableSupply > 0;
 			})}

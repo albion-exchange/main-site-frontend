@@ -55,9 +55,9 @@
 				const assetWithTokens = dataStoreService.getAssetWithTokens(assetId);
 				if (assetWithTokens) {
 					assetData = assetWithTokens.asset;
-					// Get first available royalty token
+					// Get first available active token
 					const availableTokens = assetWithTokens.tokens.filter(
-						token => token.tokenType === 'royalty' && token.isActive
+						token => token.isActive
 					);
 					if (availableTokens.length > 0) {
 						tokenData = availableTokens[0];

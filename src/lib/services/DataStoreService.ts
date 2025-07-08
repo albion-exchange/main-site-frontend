@@ -170,7 +170,7 @@ class DataStoreService {
    */
   getSelectableTokens(): Token[] {
     return this.getAllTokens().filter(token => 
-      token.isActive && token.tokenType === 'royalty'
+      token.isActive
     );
   }
 
@@ -196,26 +196,24 @@ class DataStoreService {
     const marketData: MarketData[] = [];
     
     this.getActiveTokens().forEach(token => {
-      if (token.tokenType === 'royalty') {
-        // Generate mock market data based on token
-        const basePrice = 1.0;
-        const priceChange = (Math.random() - 0.5) * 0.1;
-        const volume = Math.random() * 1000000;
-        
-        marketData.push({
-          symbol: token.symbol,
-          price: basePrice + priceChange,
-          change: priceChange,
-          changePercent: (priceChange / basePrice) * 100,
-          volume: volume,
-          bid: basePrice + priceChange - 0.01,
-          ask: basePrice + priceChange + 0.01,
-          spread: 0.02,
-          high24h: basePrice + Math.abs(priceChange) + 0.05,
-          low24h: basePrice - Math.abs(priceChange) - 0.05,
-          marketCap: parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals) * (basePrice + priceChange)
-        });
-      }
+      // Generate mock market data based on token
+      const basePrice = 1.0;
+      const priceChange = (Math.random() - 0.5) * 0.1;
+      const volume = Math.random() * 1000000;
+      
+      marketData.push({
+        symbol: token.symbol,
+        price: basePrice + priceChange,
+        change: priceChange,
+        changePercent: (priceChange / basePrice) * 100,
+        volume: volume,
+        bid: basePrice + priceChange - 0.01,
+        ask: basePrice + priceChange + 0.01,
+        spread: 0.02,
+        high24h: basePrice + Math.abs(priceChange) + 0.05,
+        low24h: basePrice - Math.abs(priceChange) - 0.05,
+        marketCap: parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals) * (basePrice + priceChange)
+      });
     });
 
     return marketData;
@@ -407,12 +405,12 @@ class DataStoreService {
    */
   getPlatformStatistics() {
     const allAssets = this.getAllAssets();
-    const allTokens = this.getRoyaltyTokens();
+    const allTokens = this.getAllTokens();
     
     // Calculate total assets
     const totalAssets = allAssets.length;
     
-    // Calculate total invested from royalty tokens' minted supply
+    // Calculate total invested from all tokens' minted supply
     const totalInvested = allTokens.reduce((sum, token) => {
       const mintedTokens = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
       // Use $1 per token as base estimation

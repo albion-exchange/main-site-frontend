@@ -27,9 +27,9 @@
 			// Get platform statistics from real data
 			const stats = dataStoreService.getPlatformStatistics();
 			const allAssets = dataStoreService.getAllAssets();
-			const allTokens = dataStoreService.getRoyaltyTokens();
+			const allTokens = dataStoreService.getAllTokens();
 			
-			// Calculate total invested from royalty tokens' minted supply
+			// Calculate total invested from all tokens' minted supply
 			// Use different estimated values per token based on asset type and performance
 			const totalInvested = allTokens.reduce((sum, token) => {
 				const mintedTokens = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);

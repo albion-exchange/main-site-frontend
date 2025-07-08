@@ -37,8 +37,8 @@
 			loading = true;
 			error = null;
 
-			// Get royalty tokens with sufficient available supply (>= 1000)
-			const royaltyTokens = dataStoreService.getRoyaltyTokens()
+			// Get active tokens with sufficient available supply (>= 1000)
+			const activeTokens = dataStoreService.getActiveTokens()
 				.filter(token => {
 					const availableSupply = BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply);
 					const availableSupplyFormatted = Number(availableSupply) / Math.pow(10, token.decimals);
@@ -46,7 +46,7 @@
 				})
 				.slice(0, 3);
 
-			featuredTokensWithAssets = royaltyTokens
+			featuredTokensWithAssets = activeTokens
 				.map(token => {
 					const asset = dataStoreService.getAssetById(token.assetId);
 					return asset ? { token, asset } : null;

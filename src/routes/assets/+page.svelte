@@ -37,7 +37,7 @@
 
 	// Check if an asset has available tokens
 	function hasAvailableTokens(asset: Asset): boolean {
-		const tokens = dataStoreService.getTokensByAssetId(asset.id).filter(token => token.tokenType === 'royalty');
+		const tokens = dataStoreService.getTokensByAssetId(asset.id);
 		return tokens.some(token => {
 			const supply = dataStoreService.getTokenSupply(token.contractAddress);
 			return supply && supply.availableSupply > 0;

@@ -36,7 +36,7 @@
 	on:click={handleClick}
 	on:keydown={handleKeydown}
 	role={clickable ? 'button' : undefined}
-	tabindex={clickable ? 0 : -1}
+	tabindex={clickable ? 0 : undefined}
 >
 	<div class="metric-value" class:positive={variant === 'positive'} class:negative={variant === 'negative'} class:primary={variant === 'primary'} class:available={variant === 'available'} class:unclaimed={variant === 'unclaimed'} class:payout={variant === 'payout'}>
 		{value}
