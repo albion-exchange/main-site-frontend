@@ -1,0 +1,74 @@
+{
+  "contractAddress": "0x5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e",
+  "name": "Wressle-1 Release 2",
+  "assetName": "Europa Wressle Development",
+  "symbol": "EUR-WR2",
+  "decimals": 18,
+  "tokenType": "royalty",
+  "assetId": "europa-wressle-release-1",
+  "isActive": true,
+  "firstPaymentDate": "July 2025",
+  "supply": {
+    "maxSupply": "155000000000000000000000",
+    "mintedSupply": "128000000000000000000000"
+  },
+  "holders": [
+    {
+      "address": "0xa1b2c3d4e5f6789012345678901234567890abcd",
+      "balance": "7000000000000000000000",
+      "joinedDate": "2024-03-15"
+    },
+    {
+      "address": "0xb2c3d4e5f6789012345678901234567890abcdef",
+      "balance": "14000000000000000000000",
+      "joinedDate": "2024-04-20"
+    }
+  ],
+  "payoutHistory": [
+    {
+      "month": "2025-06",
+      "date": "2025-06-15",
+      "totalPayout": 4347.0,
+      "payoutPerToken": 0.03396,
+      "oilPrice": 70.0,
+      "gasPrice": 3.1,
+      "productionVolume": 310.5,
+      "txHash": "0xffffffffffffffffffffffff8164edcb70bbebae"
+    },
+    {
+      "month": "2025-05",
+      "date": "2025-05-15",
+      "totalPayout": 4552.8,
+      "payoutPerToken": 0.03557,
+      "oilPrice": 70.0,
+      "gasPrice": 3.1,
+      "productionVolume": 325.2,
+      "txHash": "0xffffffffffffffffffffffffced74aeb4b022672"
+    },
+    {
+      "month": "2025-04",
+      "date": "2025-04-15",
+      "totalPayout": 4181.8,
+      "payoutPerToken": 0.03267,
+      "oilPrice": 70.0,
+      "gasPrice": 3.1,
+      "productionVolume": 298.7,
+      "txHash": "0xffffffffffffffffffffffffa4945e18bc813b57"
+    },
+    {
+      "month": "2025-03",
+      "date": "2025-03-15",
+      "totalPayout": 4421.2,
+      "payoutPerToken": 0.03454,
+      "oilPrice": 70.0,
+      "gasPrice": 3.1,
+      "productionVolume": 315.8,
+      "txHash": "0xffffffffffffffffffffffffbe216dfc5fedde41"
+    }
+  ],
+  "sharePercentage": 20,
+  "metadata": {
+    "createdAt": "2024-03-15T11:30:00Z",
+    "updatedAt": "2024-12-01T18:00:00Z"
+  }
+}

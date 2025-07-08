@@ -29,8 +29,8 @@
 
 	$: order = {
 		investment: investmentAmount,
-		platformFee: 0, // Free for now
-		totalCost: investmentAmount,
+		platformFee: investmentAmount * dataStoreService.getPlatformFees().transactionFee,
+		totalCost: investmentAmount + (investmentAmount * dataStoreService.getPlatformFees().transactionFee),
 		tokens: investmentAmount // 1:1 ratio for simplicity
 	};
 
@@ -202,7 +202,7 @@
 								<div class="details-grid">
 									<div class="detail-item">
 										<span class="detail-label">Share of Asset</span>
-										<span class="detail-value">{tokenData.assetShare?.sharePercentage || 0}%</span>
+										<span class="detail-value">{tokenData.sharePercentage || 0}%</span>
 									</div>
 									<div class="detail-item">
 										<span class="detail-label">Maximum Supply</span>

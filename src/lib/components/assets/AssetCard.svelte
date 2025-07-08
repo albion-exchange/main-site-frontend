@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import type { Asset } from '$lib/types/dataStore';
-	import { dataStoreService } from '$lib/services/DataStoreService';
+	import dataStoreService from '$lib/services/DataStoreService';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { getAssetCoverImage } from '$lib/utils/assetImages';
 
 	export let asset: Asset;
 	
@@ -22,7 +23,7 @@
 	});
 
 	// Extract token data with fallbacks
-	$: shareOfAsset = primaryToken?.assetShare?.sharePercentage ? `${primaryToken.assetShare.sharePercentage}%` : 'TBD';
+	$: shareOfAsset = primaryToken?.sharePercentage ? `${primaryToken.sharePercentage}%` : 'TBD';
 
 	function formatCurrency(amount: number): string {
 		return new Intl.NumberFormat('en-US', {
@@ -45,17 +46,8 @@
 		return `${monthNames[parseInt(month) - 1]} ${year}`;
 	}
 
-	function getAssetImage(assetId: string): string {
-		// Map each asset to specific oil & gas industry images
-		const imageMap: Record<string, string> = {
-			'europa-wressle-release-1': '/images/assets/europa-wressle-1.jpg', // Wressle oil field (UK onshore)
-			'bakken-horizon-field': '/images/assets/bakken-horizon-1.jpeg', // Bakken shale operations (ND)
-			'permian-basin-venture': '/images/assets/permian-basin-1.jpg', // Permian basin operations (TX)
-			'gulf-mexico-deep-water': '/images/assets/gom-deepwater-1.avif' // Gulf of Mexico offshore platform
-		};
-		
-		// Fallback to a generic oil industry image
-		return imageMap[assetId] || '/images/assets/europa-wressle-1.jpg';
+	function getAssetImage(asset: Asset): string {
+		return getAssetCoverImage(asset.id);
 	}
 	
 	function handleBuyTokens() {
@@ -65,7 +57,7 @@
 </script>
 
 <Card hoverable clickable on:click={() => window.location.href = `/assets/${asset.id}`}>
-	<CardImage src={getAssetImage(asset.id)} alt={asset.name} zoomOnHover />
+	<CardImage src={getAssetImage(asset)} alt={asset.name} zoomOnHover />
 	
 	<CardContent>
 		<header>
@@ -84,7 +76,7 @@
 		<!-- Highlighted Big Stats -->
 		<div class="highlighted-stats">
 			<div class="highlight-stat">
-				<span class="highlight-value">{asset.production.expectedRemainingProduction}</span>
+				<span class="highlight-value">{dataStoreService.getCalculatedRemainingProduction(asset.id)}</span>
 				<span class="highlight-label">Expected Remaining</span>
 			</div>
 			<div class="highlight-stat">
@@ -118,8 +110,9 @@
 				<h4 class="tokens-title">Available Token Releases</h4>
 				<div class="tokens-list" class:scrollable={availableTokens.length > 2}>
 					{#each availableTokens as token}
-						{@const baseReturn = (token as any).estimatedReturns?.baseCase || 15}
-						{@const bonusReturn = (token as any).estimatedReturns?.bonusCase || 10}
+						{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
+						{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) : 0}
+						{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) : 0}
 						{@const firstPaymentMonth = token.firstPaymentDate || 'TBD'}
 						<button 
 							class="token-button" 

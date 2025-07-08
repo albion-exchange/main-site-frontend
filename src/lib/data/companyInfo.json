@@ -1,0 +1,13 @@
+{
+  "contact": {
+    "phone": "+1 (555) 123-4567",
+    "email": "contact@albion.com",
+    "address": {
+      "street": "123 Energy Plaza",
+      "city": "Houston",
+      "state": "TX",
+      "zipCode": "77002",
+      "country": "United States"
+    }
+  }
+}

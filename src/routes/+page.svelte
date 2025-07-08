@@ -6,6 +6,7 @@
 	import FeaturedTokenCarousel from '$lib/components/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import marketData from '$lib/data/marketData.json';
 
 	let platformStats = {
 		totalAssets: 0,
@@ -33,19 +34,8 @@
 			const totalInvested = allTokens.reduce((sum, token) => {
 				const mintedTokens = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
 				
-				// Estimate token value based on asset type and performance
-				let estimatedTokenValue = 1; // Base $1 per token
-				
-				// Adjust based on asset location and performance
-				if (token.symbol.includes('BAK')) {
-					estimatedTokenValue = 12; // Bakken assets - higher value
-				} else if (token.symbol.includes('PER')) {
-					estimatedTokenValue = 15; // Permian Basin - premium assets
-				} else if (token.symbol.includes('GOM')) {
-					estimatedTokenValue = 18; // Gulf of Mexico - deepwater premium
-				} else if (token.symbol.includes('EUR')) {
-					estimatedTokenValue = 8; // European assets
-				}
+				// Estimate token value based on asset region
+				const estimatedTokenValue = dataStoreService.getEstimatedTokenValue(token.assetId);
 				
 				return sum + (mintedTokens * estimatedTokenValue);
 			}, 0);
@@ -82,7 +72,7 @@
 			
 			// If no valid growth rate data, use a reasonable default
 			if (monthlyGrowthRate === 0 || isNaN(monthlyGrowthRate)) {
-				monthlyGrowthRate = 2.8; // Default growth rate
+				monthlyGrowthRate = dataStoreService.getMarketData().defaultGrowthRate;
 			}
 			
 			platformStats = {
@@ -292,15 +282,15 @@
 				<div class="market-data">
 					<div class="data-row">
 						<span>WTI Crude Oil</span>
-						<span class="price">$73.45 <span class="change positive">+1.2%</span></span>
+						<span class="price">${marketData.oilPrices.wti.price} <span class="change {marketData.oilPrices.wti.change >= 0 ? 'positive' : 'negative'}">{marketData.oilPrices.wti.change >= 0 ? '+' : ''}{marketData.oilPrices.wti.change}%</span></span>
 					</div>
 					<div class="data-row">
 						<span>Brent Crude</span>
-						<span class="price">$78.20 <span class="change negative">-0.8%</span></span>
+						<span class="price">${marketData.oilPrices.brent.price} <span class="change {marketData.oilPrices.brent.change >= 0 ? 'positive' : 'negative'}">{marketData.oilPrices.brent.change >= 0 ? '+' : ''}{marketData.oilPrices.brent.change}%</span></span>
 					</div>
 					<div class="data-row">
 						<span>Natural Gas</span>
-						<span class="price">$2.84 <span class="change positive">+0.5%</span></span>
+						<span class="price">${marketData.oilPrices.naturalGas.price} <span class="change {marketData.oilPrices.naturalGas.change >= 0 ? 'positive' : 'negative'}">{marketData.oilPrices.naturalGas.change >= 0 ? '+' : ''}{marketData.oilPrices.naturalGas.change}%</span></span>
 					</div>
 				</div>
 			</div>

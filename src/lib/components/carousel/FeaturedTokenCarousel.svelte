@@ -37,8 +37,14 @@
 			loading = true;
 			error = null;
 
-			// Get first 3 royalty tokens as featured
-			const royaltyTokens = dataStoreService.getRoyaltyTokens().slice(0, 3);
+			// Get royalty tokens with sufficient available supply (>= 1000)
+			const royaltyTokens = dataStoreService.getRoyaltyTokens()
+				.filter(token => {
+					const availableSupply = BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply);
+					const availableSupplyFormatted = Number(availableSupply) / Math.pow(10, token.decimals);
+					return availableSupplyFormatted >= 1000;
+				})
+				.slice(0, 3);
 
 			featuredTokensWithAssets = royaltyTokens
 				.map(token => {
@@ -234,6 +240,7 @@
 				style="transform: translateX(-{currentIndex * 100}%)"
 			>
 				{#each featuredTokensWithAssets as item, index}
+					{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(item.token.contractAddress)}
 					<div class="carousel-slide" class:active={index === currentIndex}>
 						<div class="banner-card">
 							<!-- Token Section -->
@@ -257,15 +264,14 @@
 											{formatSupply((BigInt(item.token.supply.maxSupply) - BigInt(item.token.supply.mintedSupply)).toString(), item.token.decimals)}
 										</div>
 									</div>
-
 									<div class="stat-item">
 										<div class="stat-label">Estimated Base Payout</div>
-										<div class="stat-value">8.5%</div>
+										<div class="stat-value">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</div>
 									</div>
 									
 									<div class="stat-item">
 										<div class="stat-label">Estimated Bonus Payout</div>
-										<div class="stat-value">2.3%</div>
+										<div class="stat-value">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
 									</div>
 								</div>
 
@@ -299,7 +305,7 @@
 								<div class="asset-stats">
 									<div class="stat-item">
 										<div class="stat-label">Expected Remaining Production</div>
-										<div class="stat-value">45.2 mboe</div>
+										<div class="stat-value">{dataStoreService.getCalculatedRemainingProduction(item.asset.id)}</div>
 									</div>
 								</div>
 

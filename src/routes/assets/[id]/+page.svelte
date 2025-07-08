@@ -4,11 +4,12 @@
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Asset, Token } from '$lib/types/dataStore';
 	import { Card, CardContent, PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { getAssetCoverImage, getAssetGalleryImages } from '$lib/utils/assetImages';
 
 	let loading = true;
 	let error: string | null = null;
 	let activeTab = 'overview';
-	let unclaimedPayout = 1247.82;
+	let unclaimedPayout = 0; // Will be calculated from actual token holdings
 	let assetData: Asset | null = null;
 	let assetTokens: Token[] = [];
 	
@@ -55,7 +56,7 @@
 				report.revenue.toString(),
 				report.expenses.toString(),
 				report.netIncome.toString(),
-				report.payoutPerToken.toString()
+				(report.payoutPerToken ?? 0).toString()
 			])
 		].map(row => row.join(',')).join('\n');
 		
@@ -96,17 +97,9 @@
 		URL.revokeObjectURL(url);
 	}
 
-	function getAssetImage(assetId: string): string {
-		// Map each asset to specific oil & gas industry images
-		const imageMap: Record<string, string> = {
-			'europa-wressle-release-1': '/images/assets/europa-wressle-1.jpg', // Wressle oil field (UK onshore)
-			'bakken-horizon-field': '/images/assets/bakken-horizon-1.jpeg', // Bakken shale operations (ND)
-			'permian-basin-venture': '/images/assets/permian-basin-1.jpg', // Permian basin operations (TX)
-			'gulf-mexico-deep-water': '/images/assets/gom-deepwater-1.avif' // Gulf of Mexico offshore platform
-		};
-		
-		// Fallback to a generic oil industry image
-		return imageMap[assetId] || '/images/assets/europa-wressle-1.jpg';
+	function getAssetImage(assetData: Asset | null): string {
+		if (!assetData?.id) return getAssetCoverImage('europa-wressle-release-1');
+		return getAssetCoverImage(assetData.id);
 	}
 
 	function formatPricing(benchmarkPremium: string): string {
@@ -256,7 +249,7 @@
 				<div class="asset-title-section">
 					<div class="asset-icon">
 						<img 
-							src={getAssetImage(assetData?.id || '')} 
+							src={getAssetImage(assetData)} 
 							alt={assetData?.name || 'Asset'}
 							loading="lazy"
 						/>
@@ -357,6 +350,13 @@
 				</button>
 				<button 
 					class="tab-btn"
+					class:active={activeTab === 'gallery'}
+					on:click={() => activeTab = 'gallery'}
+				>
+					Gallery
+				</button>
+				<button 
+					class="tab-btn"
 					class:active={activeTab === 'documents'}
 					on:click={() => activeTab = 'documents'}
 				>
@@ -407,7 +407,21 @@
 										<span>{assetData?.assetTerms?.interestType}</span>
 									</div>
 									<div class="detail-row">
-										<span>Amount</span>
+										<span class="tooltip-container">
+											Amount
+											{#if assetData?.assetTerms?.amountTooltip}
+												<span class="tooltip-trigger"
+													on:mouseenter={() => showTooltipWithDelay('amount')}
+													on:mouseleave={hideTooltip}
+													role="button"
+													tabindex="0">ⓘ</span>
+												{#if showTooltip === 'amount'}
+													<div class="tooltip">
+														{assetData.assetTerms.amountTooltip}
+													</div>
+												{/if}
+											{/if}
+										</span>
 										<span>{assetData?.assetTerms?.amount}</span>
 									</div>
 									<div class="detail-row">
@@ -424,6 +438,9 @@
 
 					</div>
 				{:else if activeTab === 'production'}
+					{@const productionReports = assetData?.productionHistory || assetData?.monthlyReports || []}
+					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map(r => r.production)) : 100}
+					{@const defaults = dataStoreService.getDefaultValues()}
 					<div class="production-content">
 						<div class="production-grid">
 							<div class="chart-section chart-large">
@@ -434,62 +451,73 @@
 									</SecondaryButton>
 								</div>
 								<div class="chart-container">
-									<svg class="production-chart" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+									<svg class="production-chart" viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg">
 										<!-- Chart background -->
-										<rect width="800" height="300" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
+										<rect width="800" height="320" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
 										
 										<!-- Grid lines -->
 										{#each Array(6) as _, i}
 											<line x1="80" y1={50 + i * 40} x2="750" y2={50 + i * 40} stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.5"/>
 										{/each}
-										{#each Array(12) as _, i}
-											<line x1={80 + i * 55.8} y1="50" x2={80 + i * 55.8} y2="250" stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.5"/>
+										{#each productionReports as _, i}
+											<line x1={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y1="50" x2={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y2="250" stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.3"/>
 										{/each}
 										
-										<!-- Y-axis labels (Production in bbl/day) -->
-										<text x="70" y="55" text-anchor="end" font-size="10" fill="var(--color-black)">3000</text>
-										<text x="70" y="95" text-anchor="end" font-size="10" fill="var(--color-black)">2500</text>
-										<text x="70" y="135" text-anchor="end" font-size="10" fill="var(--color-black)">2000</text>
-										<text x="70" y="175" text-anchor="end" font-size="10" fill="var(--color-black)">1500</text>
-										<text x="70" y="215" text-anchor="end" font-size="10" fill="var(--color-black)">1000</text>
-										<text x="70" y="255" text-anchor="end" font-size="10" fill="var(--color-black)">500</text>
+										<!-- Y-axis labels (Production in BOE) -->
+										<text x="70" y="55" text-anchor="end" font-size="10" fill="var(--color-black)">{Math.round(maxProduction)}</text>
+										<text x="70" y="95" text-anchor="end" font-size="10" fill="var(--color-black)">{Math.round(maxProduction * 0.8)}</text>
+										<text x="70" y="135" text-anchor="end" font-size="10" fill="var(--color-black)">{Math.round(maxProduction * 0.6)}</text>
+										<text x="70" y="175" text-anchor="end" font-size="10" fill="var(--color-black)">{Math.round(maxProduction * 0.4)}</text>
+										<text x="70" y="215" text-anchor="end" font-size="10" fill="var(--color-black)">{Math.round(maxProduction * 0.2)}</text>
+										<text x="70" y="255" text-anchor="end" font-size="10" fill="var(--color-black)">0</text>
 										
-										<!-- X-axis labels (Months) -->
-										<text x="108" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jan</text>
-										<text x="164" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Feb</text>
-										<text x="220" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Mar</text>
-										<text x="276" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Apr</text>
-										<text x="332" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">May</text>
-										<text x="388" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jun</text>
-										<text x="444" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Jul</text>
-										<text x="500" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Aug</text>
-										<text x="556" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Sep</text>
-										<text x="612" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Oct</text>
-										<text x="668" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Nov</text>
-										<text x="724" y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">Dec</text>
+										<!-- X-axis labels (Months and years from real data) -->
+										{#each productionReports as report, i}
+											{@const date = new Date(report.month + '-01')}
+											{@const monthLabel = date.toLocaleDateString('en-US', { month: 'short' })}
+											{@const year = date.getFullYear()}
+											{@const showYear = i === 0 || date.getMonth() === 0 || (i > 0 && new Date(productionReports[i-1].month + '-01').getFullYear() !== year)}
+											<text x={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">{monthLabel}</text>
+											{#if showYear}
+												<text x={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y="285" text-anchor="middle" font-size="8" fill="#666666" font-weight="bold">{year}</text>
+											{/if}
+										{/each}
 										
-										<!-- Production decline curve (simulated data) -->
-										<polyline 
-											points="108,80 164,85 220,92 276,100 332,110 388,122 444,136 500,152 556,170 612,190 668,212 724,236"
-											fill="none" 
-											stroke="var(--color-primary)" 
-											stroke-width="3"
-										/>
+										<!-- Production line chart (from real data) -->
+										{#if productionReports.length > 1}
+											{@const points = productionReports.map((report, i) => {
+												const x = 80 + (i + 1) * (670 / Math.max(productionReports.length, 1));
+												const y = 250 - (report.production / maxProduction) * 200;
+												return `${x},${y}`;
+											}).join(' ')}
+											<polyline 
+												points={points}
+												fill="none" 
+												stroke="var(--color-primary)" 
+												stroke-width="3"
+											/>
+										{/if}
 										
-										<!-- Data points -->
-										{#each Array(12) as _, i}
+										<!-- Data points (from real data) -->
+										{#each productionReports as report, i}
+											{@const x = 80 + (i + 1) * (670 / Math.max(productionReports.length, 1))}
+											{@const y = 250 - (report.production / maxProduction) * 200}
 											<circle 
-												cx={108 + i * 55.8} 
-												cy={80 + i * 13 + Math.random() * 8} 
+												cx={x} 
+												cy={y} 
 												r="4" 
 												fill="var(--color-secondary)"
 												stroke="var(--color-white)"
 												stroke-width="2"
 											/>
+											<!-- Value label near point -->
+											<text x={x} y={y - 10} text-anchor="middle" font-size="8" fill="var(--color-black)" font-weight="semibold">
+												{Math.round(report.production)}
+											</text>
 										{/each}
 										
 										<!-- Chart title -->
-										<text x="400" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="var(--color-black)">Production Decline Curve (bbl/day)</text>
+										<text x="400" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="var(--color-black)">Full Asset Production History ({assetData?.production?.units?.production || 'BOE'})</text>
 										
 										<!-- Legend -->
 										<rect x="580" y="60" width="150" height="40" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
@@ -504,35 +532,33 @@
 							<div class="production-metrics">
 								<h4>Production Metrics</h4>
 								<div class="uptime-metric">
-									<div class="uptime-value">98.2%</div>
-									<div class="uptime-label">Uptime Last 12 Months</div>
+									<div class="uptime-value">{assetData?.operationalMetrics?.uptime?.percentage?.toFixed(1) || defaults.operationalMetrics.uptime.percentage.toFixed(1)}%</div>
+									<div class="uptime-label">Uptime {assetData?.operationalMetrics?.uptime?.period?.replace('_', ' ') || defaults.operationalMetrics.uptime.period}</div>
 								</div>
 								<div class="metrics-grid">
 									<div class="metric-item">
-										<div class="metric-value">2,387</div>
-										<div class="metric-label">Avg Daily Production (bbl)</div>
-									</div>
-									<div class="metric-item">
-										<div class="metric-value">15.2</div>
-										<div class="metric-label">Days Downtime</div>
+										<div class="metric-value">{assetData?.operationalMetrics?.dailyProduction?.current?.toFixed(1) || defaults.operationalMetrics.dailyProduction.current.toFixed(1)}</div>
+										<div class="metric-label">Current Daily Production ({assetData?.operationalMetrics?.dailyProduction?.unit || defaults.operationalMetrics.dailyProduction.unit})</div>
 									</div>
 								</div>
 								<div class="hse-metric">
-									<div class="hse-value">365</div>
+									<div class="hse-value">{assetData?.operationalMetrics?.hseMetrics?.incidentFreeDays || defaults.operationalMetrics.hseMetrics.incidentFreeDays}</div>
 									<div class="hse-label">Days Since Last HSE Incident</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				{:else if activeTab === 'payments'}
-					{@const paymentData = assetTokens.length > 0 ? dataStoreService.getTokenPayoutHistory(assetTokens[0].contractAddress) : null}
-					{@const payouts = paymentData?.recentPayouts || []}
-					{@const maxPayout = payouts.length > 0 ? Math.max(...payouts.map(p => p.totalPayout)) : 600}
+					{@const monthlyReports = assetData?.monthlyReports || []}
+					{@const maxRevenue = monthlyReports.length > 0 ? Math.max(...monthlyReports.map(r => r.revenue)) : 1500}
+					{@const latestReport = monthlyReports[monthlyReports.length - 1]}
+					{@const nextMonth = latestReport ? new Date(new Date(latestReport.month + '-01').getTime() + 32 * 24 * 60 * 60 * 1000) : new Date()}
+					{@const avgRevenue = monthlyReports.length > 0 ? monthlyReports.reduce((sum, r) => sum + r.revenue, 0) / monthlyReports.length : dataStoreService.getDefaultValues().revenue.averageMonthly}
 					<div class="payments-content">
 						<div class="production-grid">
 							<div class="chart-section chart-large">
 								<div class="chart-header">
-									<h4>Payment History</h4>
+									<h4>Revenue History</h4>
 									<SecondaryButton on:click={exportPaymentsData}>
 										📊 Export Data
 									</SecondaryButton>
@@ -546,29 +572,35 @@
 										{#each Array(6) as _, i}
 											<line x1="80" y1={50 + i * 40} x2="750" y2={50 + i * 40} stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.5"/>
 										{/each}
-										{#each payouts as _, i}
-											<line x1={80 + (i + 1) * (670 / Math.max(payouts.length, 1))} y1="50" x2={80 + (i + 1) * (670 / Math.max(payouts.length, 1))} y2="250" stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.3"/>
+										{#each monthlyReports as _, i}
+											<line x1={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y1="50" x2={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y2="250" stroke="var(--color-light-gray)" stroke-width="0.5" opacity="0.3"/>
 										{/each}
 										
-										<!-- Y-axis labels (Payment amounts) -->
-										<text x="70" y="55" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxPayout)}</text>
-										<text x="70" y="95" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxPayout * 0.8)}</text>
-										<text x="70" y="135" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxPayout * 0.6)}</text>
-										<text x="70" y="175" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxPayout * 0.4)}</text>
-										<text x="70" y="215" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxPayout * 0.2)}</text>
+										<!-- Y-axis labels (Revenue amounts) -->
+										<text x="70" y="55" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxRevenue)}</text>
+										<text x="70" y="95" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxRevenue * 0.8)}</text>
+										<text x="70" y="135" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxRevenue * 0.6)}</text>
+										<text x="70" y="175" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxRevenue * 0.4)}</text>
+										<text x="70" y="215" text-anchor="end" font-size="10" fill="var(--color-black)">${Math.round(maxRevenue * 0.2)}</text>
 										<text x="70" y="255" text-anchor="end" font-size="10" fill="var(--color-black)">$0</text>
 										
-										<!-- X-axis labels (Months from real data) -->
-										{#each payouts as payout, i}
-											{@const monthLabel = new Date(payout.date).toLocaleDateString('en-US', { month: 'short' })}
-											<text x={80 + (i + 1) * (670 / Math.max(payouts.length, 1))} y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">{monthLabel}</text>
+										<!-- X-axis labels (Months and years from monthly reports) -->
+										{#each monthlyReports as report, i}
+											{@const date = new Date(report.month + '-01')}
+											{@const monthLabel = date.toLocaleDateString('en-US', { month: 'short' })}
+											{@const year = date.getFullYear()}
+											{@const showYear = i === 0 || date.getMonth() === 0 || (i > 0 && new Date(monthlyReports[i-1].month + '-01').getFullYear() !== year)}
+											<text x={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y="270" text-anchor="middle" font-size="9" fill="var(--color-black)">{monthLabel}</text>
+											{#if showYear}
+												<text x={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y="285" text-anchor="middle" font-size="8" fill="#666666" font-weight="bold">{year}</text>
+											{/if}
 										{/each}
 										
-										<!-- Column chart bars (from real data) -->
-										{#each payouts as payout, i}
+										<!-- Column chart bars (from monthly reports) -->
+										{#each monthlyReports as report, i}
 											{@const barWidth = 30}
-											{@const x = 80 + (i + 1) * (670 / Math.max(payouts.length, 1)) - barWidth / 2}
-											{@const barHeight = (payout.totalPayout / maxPayout) * 200}
+											{@const x = 80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1)) - barWidth / 2}
+											{@const barHeight = (report.revenue / maxRevenue) * 200}
 											{@const y = 250 - barHeight}
 											<rect 
 												x={x} 
@@ -582,40 +614,31 @@
 											/>
 											<!-- Value label on top of bar -->
 											<text x={x + barWidth / 2} y={y - 5} text-anchor="middle" font-size="8" fill="var(--color-black)" font-weight="semibold">
-												${Math.round(payout.totalPayout)}
+												${Math.round(report.revenue)}
 											</text>
 										{/each}
 										
 										<!-- Chart title -->
-										<text x="400" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="var(--color-black)">Monthly Payment History</text>
-										
-										<!-- Legend -->
-										<rect x="580" y="60" width="150" height="40" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
-										<rect x="590" y="70" width="15" height="10" fill="var(--color-primary)"/>
-										<text x="615" y="80" font-size="9" fill="var(--color-black)">Total Payout ($)</text>
+										<text x="400" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="var(--color-black)">Monthly Revenue History</text>
 									</svg>
 								</div>
 							</div>
 
 							<div class="production-metrics">
-								<h4>Payment Metrics</h4>
+								<h4>Revenue Metrics</h4>
 								<div class="uptime-metric">
-									<div class="uptime-value">15 Jan</div>
-									<div class="uptime-label">Next Payment Due</div>
+									<div class="uptime-value">{nextMonth.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</div>
+									<div class="uptime-label">Next Report Due</div>
 								</div>
 								<div class="metrics-grid">
 									<div class="metric-item">
-										<div class="metric-value">${paymentData?.recentPayouts?.[0]?.oilPrice?.toFixed(2) || '72.45'}</div>
-										<div class="metric-label">Latest Oil Price</div>
+										<div class="metric-value">${latestReport?.revenue?.toFixed(0) || dataStoreService.getDefaultValues().revenue.latestMonthly.toLocaleString()}</div>
+										<div class="metric-label">Latest Monthly Revenue</div>
 									</div>
 									<div class="metric-item">
-										<div class="metric-value">${paymentData?.averageMonthlyPayout?.toFixed(0) || '500'}</div>
-										<div class="metric-label">Avg Monthly Payout</div>
+										<div class="metric-value">${avgRevenue.toFixed(0)}</div>
+										<div class="metric-label">Avg Monthly Revenue</div>
 									</div>
-								</div>
-								<div class="hse-metric">
-									<div class="hse-value">{paymentData?.totalPayouts || 12}</div>
-									<div class="hse-label">Months of Payouts</div>
 								</div>
 							</div>
 						</div>
@@ -716,6 +739,32 @@
 							</div>
 						</div>
 					</div>
+				{:else if activeTab === 'gallery'}
+					{@const galleryImages = getAssetGalleryImages(assetData?.id || '')}
+					<div class="gallery-content">
+						<div class="gallery-grid">
+							<div class="gallery-section">
+								<h4>Asset Gallery</h4>
+								{#if galleryImages.length > 0}
+									<div class="gallery-images">
+										{#each galleryImages as image, index}
+											<div class="gallery-image">
+												<img src={image} alt={`${assetData?.name} - Image ${index + 1}`} />
+											</div>
+										{/each}
+									</div>
+								{:else}
+									<div class="gallery-empty">
+										<div class="empty-icon">📸</div>
+										<div class="empty-text">
+											<h5>No additional images available</h5>
+											<p>Additional photos and visual documentation will be displayed here when available.</p>
+										</div>
+									</div>
+								{/if}
+							</div>
+						</div>
+					</div>
 				{/if}
 			</div>
 		</div>
@@ -729,6 +778,7 @@
 					{@const hasAvailableSupply = supply && supply.availableSupply > 0}
 					{@const tokenPayoutData = dataStoreService.getTokenPayoutHistory(token.contractAddress)}
 					{@const latestPayout = tokenPayoutData?.recentPayouts?.[0]}
+					{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
 					{@const isFlipped = flippedCards.has(token.contractAddress)}
 					<div class="token-card-container" class:flipped={isFlipped} id="token-{token.contractAddress}">
 						<Card hoverable clickable padding="0" on:click={() => handleCardClick(token.contractAddress)}>
@@ -740,7 +790,7 @@
 											<p class="token-symbol">{token.contractAddress}</p>
 										</div>
 										<div class="token-share-badge">
-											{token.assetShare?.sharePercentage || 25}% of Asset
+											{token.sharePercentage || 25}% of Asset
 										</div>
 									</div>
 									<div class="token-badge" class:sold-out={!hasAvailableSupply}>
@@ -765,7 +815,7 @@
 													role="button"
 													tabindex="0">ⓘ</span>
 											</span>
-											<span class="metric-value">0.008</span>
+											<span class="metric-value">{calculatedReturns?.impliedBarrelsPerToken?.toFixed(6) || '0.000000'}</span>
 											{#if showTooltip === 'barrels'}
 												<div class="tooltip">
 													Estimated barrels of oil equivalent per token based on reserves and token supply
@@ -781,7 +831,7 @@
 													role="button"
 													tabindex="0">ⓘ</span>
 											</span>
-											<span class="metric-value">$45</span>
+											<span class="metric-value">${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
 											{#if showTooltip === 'breakeven'}
 												<div class="tooltip">
 													Oil price required to cover operational costs and maintain profitability
@@ -802,7 +852,7 @@
 														role="button"
 														tabindex="0">ⓘ</span>
 												</span>
-												<span class="return-value">6-8%</span>
+												<span class="return-value">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</span>
 												{#if showTooltip === 'base'}
 													<div class="tooltip">
 														Conservative return estimate based on current production and oil prices
@@ -818,7 +868,7 @@
 														role="button"
 														tabindex="0">ⓘ</span>
 												</span>
-												<span class="return-value">+2-4%</span>
+												<span class="return-value">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
 												{#if showTooltip === 'bonus'}
 													<div class="tooltip">
 														Additional potential return from improved oil prices or production efficiency
@@ -827,7 +877,7 @@
 											</div>
 											<div class="return-item total">
 												<span class="return-label">Total Expected</span>
-												<span class="return-value">8-12%</span>
+												<span class="return-value">{calculatedReturns ? Math.round(calculatedReturns.baseReturn + calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
 											</div>
 										</div>
 									</div>
@@ -874,8 +924,8 @@
 												{#each tokenPayoutData.recentPayouts.slice(-6) as payout}
 													<div class="distribution-row">
 														<div class="dist-month">{payout.month}</div>
-														<div class="dist-total">${(payout.totalPayout * 1000).toLocaleString()}</div>
-														<div class="dist-per-token">${(payout.payoutPerToken * 100).toFixed(2)}</div>
+														<div class="dist-total">${payout.totalPayout.toLocaleString()}</div>
+														<div class="dist-per-token">${payout.payoutPerToken.toFixed(5)}</div>
 													</div>
 												{/each}
 											</div>
@@ -883,15 +933,16 @@
 											<div class="distributions-summary">
 												<div class="summary-row">
 													<div class="summary-month">Total</div>
-													<div class="summary-total">${(tokenPayoutData.totalPaid * 1000).toLocaleString()}</div>
-													<div class="summary-per-token">${(tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.payoutPerToken, 0) * 100).toFixed(2)}</div>
+													<div class="summary-total">${tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.totalPayout, 0).toLocaleString()}</div>
+													<div class="summary-per-token">${(tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.payoutPerToken, 0)).toFixed(5)}</div>
 												</div>
 											</div>
 										</div>
 									{:else}
+										{@const nextRelease = dataStoreService.getFutureReleaseByAsset(assetData?.id || '')}
 										<div class="no-history">
 											<p>No distributions available yet.</p>
-											<p>First payout expected in Q1 2025.</p>
+											<p>First payout expected in {nextRelease?.whenRelease || 'Q1 2025'}.</p>
 										</div>
 									{/if}
 								</div>
@@ -899,19 +950,40 @@
 						</Card>
 					</div>
 				{/each}
-				<!-- Coming Soon Card -->
+				<!-- Future Releases Cards -->
+				{#if assetData?.id}
+					{@const futureReleases = dataStoreService.getFutureReleasesByAsset(assetData.id)}
+					{#each futureReleases as release, index}
 				<Card hoverable>
 					<CardContent>
 						<div class="coming-soon-card">
-							<div class="coming-soon-icon">🚀</div>
-							<h4>New Release Coming Soon</h4>
-							<p>Next token release planned for Q1 2025</p>
+							<div class="coming-soon-icon">{release.emoji || '📅'}</div>
+							<h4>{index === 0 ? 'Next Release' : 'Future Release'} - {release.whenRelease}</h4>
+							<p>{release.description || 'Token release planned'}</p>
 							<SecondaryButton on:click={handleGetNotified}>
 								Get Notified
 							</SecondaryButton>
 						</div>
 					</CardContent>
 				</Card>
+					{/each}
+					
+					{#if futureReleases.length === 0}
+					<!-- Fallback Coming Soon Card -->
+					<Card hoverable>
+						<CardContent>
+							<div class="coming-soon-card">
+								<div class="coming-soon-icon">🚀</div>
+								<h4>New Release Coming Soon</h4>
+								<p>Next token release planned for Q1 2025</p>
+								<SecondaryButton on:click={handleGetNotified}>
+									Get Notified
+								</SecondaryButton>
+							</div>
+						</CardContent>
+					</Card>
+					{/if}
+				{/if}
 			</div>
 		</div>
 	{/if}
@@ -1241,6 +1313,7 @@
 	.overview-content,
 	.production-content,
 	.payments-content,
+	.gallery-content,
 	.documents-content {
 		flex: 1;
 		display: flex;
@@ -1303,13 +1376,27 @@
 	}
 
 
+	.production-metrics {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 2rem;
+		background: var(--color-white);
+		border: 1px solid var(--color-light-gray);
+		height: 100%;
+		box-sizing: border-box;
+	}
+
 	.production-metrics h4 {
-		font-size: 1.25rem;
+		font-size: 1.5rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-black);
-		margin-bottom: 1.5rem;
+		margin-bottom: 2rem;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+		text-align: center;
+		width: 100%;
 	}
 
 
@@ -1322,73 +1409,87 @@
 	.uptime-metric {
 		background: var(--color-light-gray);
 		border: 1px solid var(--color-light-gray);
-		padding: 1.5rem;
+		padding: 2rem 1.5rem;
 		text-align: center;
-		margin-bottom: 1.5rem;
+		margin-bottom: 2rem;
+		width: 100%;
+		border-radius: 4px;
 	}
 
 	.uptime-value {
-		font-size: 2rem;
+		font-size: 2.5rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-black);
-		margin-bottom: 0.5rem;
+		margin-bottom: 0.75rem;
+		line-height: 1;
 	}
 
 	.uptime-label {
-		font-size: 0.7rem;
+		font-size: 0.8rem;
 		font-weight: var(--font-weight-bold);
 		color: var(--color-black);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+		line-height: 1.2;
 	}
 
 	.metrics-grid {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 2rem;
-		margin-bottom: 1.5rem;
+		grid-template-columns: 1fr;
+		gap: 1.5rem;
+		margin-bottom: 2rem;
+		width: 100%;
 	}
 
 	.metric-item {
 		text-align: center;
+		padding: 1.5rem;
+		background: var(--color-white);
+		border: 1px solid var(--color-light-gray);
+		border-radius: 4px;
 	}
 
 	.metric-item .metric-value {
-		font-size: 1.25rem;
+		font-size: 1.75rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-primary);
-		margin-bottom: 0.25rem;
+		margin-bottom: 0.5rem;
+		line-height: 1;
 	}
 
 	.metric-item .metric-label {
-		font-size: 0.7rem;
+		font-size: 0.8rem;
 		font-weight: var(--font-weight-bold);
 		color: var(--color-black);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+		line-height: 1.2;
 	}
 
 	.hse-metric {
 		background: var(--color-light-gray);
 		border: 1px solid var(--color-light-gray);
-		padding: 1.5rem;
+		padding: 2rem 1.5rem;
 		text-align: center;
-		margin-top: 1.5rem;
+		width: 100%;
+		border-radius: 4px;
 	}
 
 	.hse-value {
-		font-size: 2rem;
+		font-size: 2.5rem;
 		font-weight: var(--font-weight-extrabold);
 		color: var(--color-primary);
-		margin-bottom: 0.5rem;
+		margin-bottom: 0.75rem;
+		line-height: 1;
 	}
 
 	.hse-label {
-		font-size: 0.7rem;
+		font-size: 0.8rem;
 		font-weight: var(--font-weight-bold);
 		color: var(--color-black);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+		line-height: 1.2;
 	}
 
 	/* Payments Content */
@@ -2146,6 +2247,80 @@
 
 
 
+
+	/* Gallery Styles */
+	.gallery-grid {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 2rem;
+	}
+
+	.gallery-section h4 {
+		font-size: 1.25rem;
+		font-weight: var(--font-weight-extrabold);
+		color: var(--color-black);
+		margin-bottom: 1.5rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.gallery-empty {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		padding: 4rem 2rem;
+		border: 2px dashed var(--color-light-gray);
+		border-radius: 8px;
+		color: var(--color-black);
+		opacity: 0.7;
+	}
+
+	.empty-icon {
+		font-size: 3rem;
+		margin-bottom: 1rem;
+	}
+
+	.empty-text h5 {
+		font-size: 1.1rem;
+		font-weight: var(--font-weight-bold);
+		margin: 0 0 0.5rem 0;
+		color: var(--color-black);
+	}
+
+	.empty-text p {
+		font-size: 0.9rem;
+		margin: 0;
+		color: var(--color-black);
+		opacity: 0.8;
+		line-height: 1.4;
+	}
+
+	.gallery-images {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+		gap: 1.5rem;
+	}
+
+	.gallery-image {
+		position: relative;
+		overflow: hidden;
+		border-radius: 8px;
+		background: var(--color-light-gray);
+		aspect-ratio: 4/3;
+	}
+
+	.gallery-image img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 0.3s ease;
+	}
+
+	.gallery-image:hover img {
+		transform: scale(1.05);
+	}
 
 	/* Mobile Responsive */
 	@media (max-width: 768px) {
