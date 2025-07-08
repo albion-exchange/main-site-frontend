@@ -439,7 +439,7 @@
 					</div>
 				{:else if activeTab === 'production'}
 					{@const productionReports = assetData?.productionHistory || assetData?.monthlyReports || []}
-					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map(r => r.production)) : 100}
+					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map((r: any) => r.production)) : 100}
 					{@const defaults = dataStoreService.getDefaultValues()}
 					<div class="production-content">
 						<div class="production-grid">
@@ -485,7 +485,7 @@
 										
 										<!-- Production line chart (from real data) -->
 										{#if productionReports.length > 1}
-											{@const points = productionReports.map((report, i) => {
+											{@const points = productionReports.map((report: any, i: number) => {
 												const x = 80 + (i + 1) * (670 / Math.max(productionReports.length, 1));
 												const y = 250 - (report.production / maxProduction) * 200;
 												return `${x},${y}`;

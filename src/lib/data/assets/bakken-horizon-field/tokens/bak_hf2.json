@@ -1,7 +1,6 @@
 {
   "contractAddress": "0x5678901234ef01234567890123def056789012",
   "name": "Bakken Horizon-2 Release 2",
-  "assetName": "Bakken Horizon Field",
   "symbol": "BAK-HF2",
   "decimals": 18,
   "tokenType": "royalty",

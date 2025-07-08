@@ -28,7 +28,6 @@ export interface AssetTechnical {
   firstOil: string;
   infrastructure: string;
   environmental: string;
-  estimatedReserves: number;
   expectedEndDate: string;
   crudeBenchmark: string;
   pricing: {
@@ -75,6 +74,20 @@ export interface PlannedProduction {
   projections: PlannedProductionProjection[];
 }
 
+export interface OperationalMetrics {
+  dailyProduction: {
+    current: number;
+    unit: string;
+  };
+  uptime: {
+    percentage: number;
+    period: string;
+  };
+  hseMetrics: {
+    incidentFreeDays: number;
+  };
+}
+
 export interface AssetMetadata {
   createdAt: string; // ISO date
   updatedAt: string; // ISO date
@@ -95,7 +108,9 @@ export interface Asset {
   assetTerms: AssetTerms;
   tokenContracts: string[]; // Array of contract addresses
   monthlyReports: MonthlyReport[];
+  productionHistory?: MonthlyReport[]; // Alternative to monthlyReports for historical data
   plannedProduction?: PlannedProduction;
+  operationalMetrics?: OperationalMetrics;
   metadata: AssetMetadata;
 }
 
@@ -117,7 +132,6 @@ export interface TokenSupply {
 export interface TokenHolder {
   address: string;
   balance: string; // BigInt as string
-  joinedDate: string; // YYYY-MM-DD format
 }
 
 export interface TokenPayoutRecord {
@@ -139,21 +153,9 @@ export interface TokenMetadata {
 export interface TokenReturns {
   baseReturn: number; // Base return percentage
   bonusReturn: number; // Bonus return percentage
-  totalExpectedReturn: number; // Sum of base + bonus
-  returnType: string; // e.g., "annual"
 }
 
-export interface TokenAssetShare {
-  sharePercentage: number; // Percentage of asset ownership
-  royaltyRate: number; // Royalty rate percentage
-  totalAssetValue: number; // Total value of the underlying asset
-}
 
-export interface TokenAvailability {
-  totalAvailable: string; // BigInt as string - total tokens available
-  currentlyAvailable: string; // BigInt as string - tokens currently available
-  percentageAvailable: number; // Percentage of tokens still available
-}
 
 /**
  * Complete Token data structure for the static data store
@@ -165,7 +167,6 @@ export interface Token {
   decimals: number;
   tokenType: 'royalty' | 'payment';
   assetId: string; // Links to Asset.id
-  assetName?: string; // Asset name for convenience
   isActive: boolean;
   supply: TokenSupply;
   holders: TokenHolder[];
@@ -262,7 +263,6 @@ export interface AssetTemplate {
   id: string; // Unique identifier (kebab-case)
   name: string; // Display name
   description: string; // Detailed description
-  images: string[]; // Array of image URLs
   location: {
     state: string;
     county: string;
@@ -283,19 +283,30 @@ export interface AssetTemplate {
     firstOil: string; // e.g., "2019-Q3"
     infrastructure: string;
     environmental: string;
-    estimatedReserves: number; // In barrels
     expectedEndDate: string; // YYYY-MM format
+    crudeBenchmark: string;
+    pricing: {
+      benchmarkPremium: string;
+      transportCosts: string;
+    };
+  };
+  assetTerms: {
+    interestType: string;
+    amount: string;
+    amountTooltip?: string;
+    paymentFrequency: string;
   };
   production: {
-    capacity: string; // e.g., "2,400 bbl/day"
     current: string;
-    peak: string;
-    expectedRemainingProduction: string; // Formatted display
-    drillingDate: string; // ISO date
     status: 'funding' | 'producing' | 'completed';
+    units?: {
+      production: string;
+      revenue: string;
+    };
   };
   tokenContracts: string[]; // Contract addresses of associated tokens
   monthlyReports: MonthlyReport[]; // Historical performance data
+  plannedProduction?: PlannedProduction;
   metadata: {
     createdAt: string; // ISO date
     updatedAt: string; // ISO date
@@ -309,32 +320,31 @@ export interface AssetTemplate {
 export interface TokenTemplate {
   contractAddress: string; // Unique contract address (the key)
   name: string; // Full token name
-  symbol: string; // Trading symbol (e.g., "EUR-WR1-A")
+  symbol: string; // Trading symbol (e.g., "EUR-WR1")
   decimals: number; // Token decimals (usually 18 for royalty, 6 for payment)
-  totalSupply: string; // Total supply as string (BigInt)
   tokenType: 'royalty' | 'payment';
-  tranche: {
-    id: string; // "A", "B", "C", etc.
-    name: string; // "Tranche A - Priority"
-    payout: number; // Expected payout percentage
-    minInvestment: number; // Minimum investment USD
-    available: number; // Total tokens available
-    sold: number; // Tokens already sold
-    terms: string; // Investment terms description
-    description: string;
-    selectable: boolean; // Whether currently available for purchase
-  } | null; // null for payment tokens
-  pricing: {
-    currentPrice: number; // Current market price
-    priceChange: number; // 24h price change
-    priceChangePercent: number; // 24h change percentage
-    bid: number; // Current bid price
-    ask: number; // Current ask price
-    volume24h: number; // 24h trading volume
-    marketCap: number; // Market capitalization
-  };
   assetId: string; // Links to Asset.id
   isActive: boolean; // Whether token is actively trading
+  firstPaymentDate?: string; // YYYY-MM format or "Month YYYY" format
+  supply: {
+    maxSupply: string; // BigInt as string
+    mintedSupply: string; // BigInt as string
+  };
+  holders: {
+    address: string;
+    balance: string; // BigInt as string
+  }[];
+  payoutHistory: {
+    month: string; // YYYY-MM format
+    date: string; // YYYY-MM-DD format
+    totalPayout: number; // USD
+    payoutPerToken: number; // USD per token
+    oilPrice: number; // USD per barrel
+    gasPrice: number; // USD per MMBtu
+    productionVolume: number; // barrels or MCF
+    txHash: string; // Transaction hash
+  }[];
+  sharePercentage?: number; // Percentage of asset ownership (for royalty tokens)
   metadata: {
     createdAt: string; // ISO date
     updatedAt: string; // ISO date

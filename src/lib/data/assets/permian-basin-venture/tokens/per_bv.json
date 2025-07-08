@@ -1,7 +1,6 @@
 {
   "contractAddress": "0x6789012345f012345678901234ef067890123",
   "name": "Permian Basin-3 Release 1",
-  "assetName": "Permian Basin Venture",
   "symbol": "PER-BV1",
   "decimals": 18,
   "tokenType": "royalty",
