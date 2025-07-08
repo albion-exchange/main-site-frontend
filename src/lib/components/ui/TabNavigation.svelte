@@ -49,7 +49,7 @@
 	}
 </script>
 
-<nav 
+<div 
 	class="tab-navigation" 
 	class:minimal={variant === 'minimal'}
 	class:pills={variant === 'pills'}
@@ -79,7 +79,7 @@
 			{/if}
 		</button>
 	{/each}
-</nav>
+</div>
 
 <style>
 	.tab-navigation {

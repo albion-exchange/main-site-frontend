@@ -74,6 +74,20 @@ export interface PlannedProduction {
   projections: PlannedProductionProjection[];
 }
 
+export interface OperationalMetrics {
+  dailyProduction: {
+    current: number;
+    unit: string;
+  };
+  uptime: {
+    percentage: number;
+    period: string;
+  };
+  hseMetrics: {
+    incidentFreeDays: number;
+  };
+}
+
 export interface AssetMetadata {
   createdAt: string; // ISO date
   updatedAt: string; // ISO date
@@ -94,7 +108,9 @@ export interface Asset {
   assetTerms: AssetTerms;
   tokenContracts: string[]; // Array of contract addresses
   monthlyReports: MonthlyReport[];
+  productionHistory?: MonthlyReport[]; // Alternative to monthlyReports for historical data
   plannedProduction?: PlannedProduction;
+  operationalMetrics?: OperationalMetrics;
   metadata: AssetMetadata;
 }
 
