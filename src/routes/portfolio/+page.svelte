@@ -817,8 +817,7 @@
 		transition: all 0.2s ease;
 	}
 
-	.view-btn:hover,
-	.view-btn.active {
+	.view-btn:hover {
 		background: var(--color-black);
 		color: var(--color-white);
 	}
@@ -829,15 +828,6 @@
 		gap: 1.5rem;
 	}
 
-	.holding-card {
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-		transition: box-shadow 0.2s ease;
-	}
-
-	.holding-card:hover {
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-	}
 
 	.holding-main {
 		display: grid;
@@ -883,32 +873,13 @@
 		gap: 0.5rem;
 	}
 
-	.status-badge {
-		background: var(--color-light-gray);
-		color: var(--color-secondary);
-		padding: 0.125rem 0.5rem;
-		font-size: 0.65rem;
-		font-weight: var(--font-weight-bold);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		border-radius: 0.25rem;
-	}
-
-	.status-badge.producing {
-		background: var(--color-light-gray);
-		color: var(--color-primary);
-	}
 
 	.holding-tokens,
-	.holding-value,
-	.holding-pnl,
 	.holding-payout {
 		text-align: center;
 	}
 
 	.tokens-value,
-	.value-amount,
-	.pnl-amount,
 	.payout-value {
 		font-size: 1.1rem;
 		font-weight: var(--font-weight-extrabold);
@@ -916,21 +887,11 @@
 		margin-bottom: 0.25rem;
 	}
 
-	.pnl-amount.positive {
-		color: var(--color-primary);
-	}
-
-	.pnl-amount.negative {
-		color: #dc2626;
-	}
-
 	.payout-value {
 		color: var(--color-primary);
 	}
 
 	.tokens-label,
-	.value-label,
-	.pnl-label,
 	.payout-label {
 		font-size: 0.65rem;
 		font-weight: var(--font-weight-bold);
@@ -941,40 +902,12 @@
 		margin-bottom: 0.25rem;
 	}
 
-	.allocation-info,
-	.cost-basis,
-	.pnl-percent {
+	.allocation-info {
 		font-size: 0.65rem;
 		color: var(--color-secondary);
 		font-weight: var(--font-weight-medium);
 	}
 
-	.pnl-percent.positive {
-		color: var(--color-primary);
-	}
-
-	.pnl-percent.negative {
-		color: #dc2626;
-	}
-
-	.manage-btn {
-		background: var(--color-black);
-		color: var(--color-white);
-		border: none;
-		padding: 0.5rem 1rem;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-bold);
-		font-size: 0.75rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: background-color 0.2s ease;
-		width: 100%;
-	}
-
-	.manage-btn:hover {
-		background: var(--color-secondary);
-	}
 
 	.holding-footer {
 		display: grid;
@@ -1283,128 +1216,7 @@
 		line-height: 1.4;
 	}
 
-	/* Analytics Tab */
-	.analytics-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 2rem;
-		margin-bottom: 2rem;
-	}
-
-	.performance-metrics,
-	.payout-analytics {
-		background: var(--color-light-gray);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-	}
-
-	.performance-metrics h4,
-	.payout-analytics h4 {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1.5rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.metrics-list {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-	}
-
-	.metric-row {
-		display: flex;
-		justify-content: space-between;
-		font-size: 0.85rem;
-	}
-
-	.metric-row span:first-child {
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		opacity: 0.8;
-	}
-
-	.metric-row span:last-child {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-	}
-
-	.metric-row .positive {
-		color: var(--color-primary);
-	}
-
-	.metric-row .negative {
-		color: #dc2626;
-	}
-
-	.scenario-analysis {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-	}
-
-	.scenario-analysis h4 {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1.5rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.scenario-table {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.table-header {
-		display: grid;
-		grid-template-columns: 2fr 1fr 1fr 1fr;
-		gap: 1rem;
-		padding: 1rem;
-		border-bottom: 1px solid var(--color-light-gray);
-	}
-
-	.table-row {
-		display: grid;
-		grid-template-columns: 2fr 1fr 1fr 1fr;
-		gap: 1rem;
-		padding: 1rem;
-		border-bottom: 1px solid var(--color-light-gray);
-	}
-
-	.table-row:last-child {
-		border-bottom: none;
-	}
-
-	.table-row.current {
-		background: var(--color-light-gray);
-	}
-
-	.table-cell {
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		font-size: 0.85rem;
-	}
-
-	.table-header .table-cell {
-		font-weight: var(--font-weight-extrabold);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		font-size: 0.75rem;
-	}
-
-	.table-cell.positive {
-		color: var(--color-primary);
-		font-weight: var(--font-weight-extrabold);
-	}
-
-	.table-cell.negative {
-		color: #dc2626;
-		font-weight: var(--font-weight-extrabold);
-	}
+	/* Analytics Tab - unused styles removed */
 
 	/* Quick Actions */
 	.quick-actions {
@@ -1501,17 +1313,6 @@
 			grid-template-columns: 1fr;
 		}
 
-		.metric {
-			border-right: none;
-			border-bottom: 1px solid var(--color-light-gray);
-			padding-right: 0;
-			padding-bottom: 1rem;
-		}
-
-		.metric:last-child {
-			border-bottom: none;
-			padding-bottom: 0;
-		}
 
 		.portfolio-info {
 			flex-direction: column;
@@ -1541,8 +1342,7 @@
 		}
 
 		.performance-grid,
-		.allocation-grid,
-		.analytics-grid {
+		.allocation-grid {
 			grid-template-columns: 1fr;
 		}
 
@@ -1554,15 +1354,5 @@
 			grid-template-columns: 1fr;
 		}
 
-		.table-header,
-		.table-row {
-			grid-template-columns: 1fr;
-			gap: 0.5rem;
-		}
-
-		.table-cell {
-			text-align: center;
-			padding: 0.5rem 0;
-		}
 	}
 </style>
