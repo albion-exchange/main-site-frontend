@@ -6,6 +6,7 @@
 	import WalletModal from '$lib/components/WalletModal.svelte';
 	import marketData from '$lib/data/marketData.json';
 	import { getMockPortfolioHoldings, calculatePortfolioSummary } from '$lib/utils/portfolioCalculations';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge } from '$lib/components/ui';
 
 	let totalEarned = 0;
 	let totalClaimed = 0;
@@ -215,9 +216,9 @@
 			<div class="wallet-required-content">
 				<h1>Wallet Connection Required</h1>
 				<p>Please connect your wallet to view and claim your payouts.</p>
-				<button class="connect-btn" on:click={() => showWalletModal = true}>
+				<PrimaryButton on:click={() => showWalletModal = true}>
 					Connect Wallet
-				</button>
+				</PrimaryButton>
 			</div>
 		</div>
 	</main>
@@ -517,8 +518,8 @@
 
 <style>
 	.claims-page {
-		padding: 0;
-		max-width: 1200px;
+		padding: 2rem;
+		max-width: 1024px;
 		margin: 0 auto;
 	}
 

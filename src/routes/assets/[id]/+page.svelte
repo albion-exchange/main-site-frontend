@@ -53,9 +53,9 @@
 			...assetData.monthlyReports.map(report => [
 				report.month,
 				report.production.toString(),
-				report.revenue.toString(),
-				report.expenses.toString(),
-				report.netIncome.toString(),
+				(report.revenue ?? 0).toString(),
+				(report.expenses ?? 0).toString(),
+				(report.netIncome ?? 0).toString(),
 				(report.payoutPerToken ?? 0).toString()
 			])
 		].map(row => row.join(',')).join('\n');
@@ -416,7 +416,7 @@
 													role="button"
 													tabindex="0">ⓘ</span>
 												{#if showTooltip === 'amount'}
-													<div class="tooltip">
+													<div class="tooltip tooltip-wide">
 														{assetData.assetTerms.amountTooltip}
 													</div>
 												{/if}
@@ -517,7 +517,8 @@
 										{/each}
 										
 										<!-- Chart title -->
-										<text x="400" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="var(--color-black)">Full Asset Production History ({assetData?.production?.units?.production || 'BOE'})</text>
+										<text x="400" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="var(--color-black)">Full Asset Production History ({assetData?.production?.units?.production || 'BOE*'})</text>
+										<text x="400" y="390" text-anchor="middle" font-size="10" fill="var(--color-secondary)">* BOE = Thousand Barrels of Oil Equivalent</text>
 										
 										<!-- Legend -->
 										<rect x="580" y="60" width="150" height="40" fill="var(--color-white)" stroke="var(--color-light-gray)" stroke-width="1"/>
@@ -550,10 +551,10 @@
 					</div>
 				{:else if activeTab === 'payments'}
 					{@const monthlyReports = assetData?.monthlyReports || []}
-					{@const maxRevenue = monthlyReports.length > 0 ? Math.max(...monthlyReports.map(r => r.revenue)) : 1500}
+					{@const maxRevenue = monthlyReports.length > 0 ? Math.max(...monthlyReports.map(r => r.revenue ?? 0)) : 1500}
 					{@const latestReport = monthlyReports[monthlyReports.length - 1]}
 					{@const nextMonth = latestReport ? new Date(new Date(latestReport.month + '-01').getTime() + 32 * 24 * 60 * 60 * 1000) : new Date()}
-					{@const avgRevenue = monthlyReports.length > 0 ? monthlyReports.reduce((sum, r) => sum + r.revenue, 0) / monthlyReports.length : dataStoreService.getDefaultValues().revenue.averageMonthly}
+					{@const avgRevenue = monthlyReports.length > 0 ? monthlyReports.reduce((sum, r) => sum + (r.revenue ?? 0), 0) / monthlyReports.length : dataStoreService.getDefaultValues().revenue.averageMonthly}
 					<div class="payments-content">
 						<div class="production-grid">
 							<div class="chart-section chart-large">
@@ -600,7 +601,7 @@
 										{#each monthlyReports as report, i}
 											{@const barWidth = 30}
 											{@const x = 80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1)) - barWidth / 2}
-											{@const barHeight = (report.revenue / maxRevenue) * 200}
+											{@const barHeight = ((report.revenue ?? 0) / maxRevenue) * 200}
 											{@const y = 250 - barHeight}
 											<rect 
 												x={x} 
@@ -614,7 +615,7 @@
 											/>
 											<!-- Value label on top of bar -->
 											<text x={x + barWidth / 2} y={y - 5} text-anchor="middle" font-size="8" fill="var(--color-black)" font-weight="semibold">
-												${Math.round(report.revenue)}
+												${Math.round(report.revenue ?? 0)}
 											</text>
 										{/each}
 										
@@ -773,7 +774,7 @@
 		<div class="token-info-section" id="token-section">
 			<h3>Token Information</h3>
 			<div class="tokens-grid">
-				{#each assetTokens as token}
+				{#each assetTokens as token, index}
 					{@const supply = dataStoreService.getTokenSupply(token.contractAddress)}
 					{@const hasAvailableSupply = supply && supply.availableSupply > 0}
 					{@const tokenPayoutData = dataStoreService.getTokenPayoutHistory(token.contractAddress)}
@@ -810,14 +811,14 @@
 											<span class="metric-label">
 												Implied Barrels/Token
 												<span class="tooltip-trigger" 
-													on:mouseenter={() => showTooltipWithDelay('barrels')}
+													on:mouseenter={() => showTooltipWithDelay(`barrels-${index}`)}
 													on:mouseleave={hideTooltip}
 													role="button"
 													tabindex="0">ⓘ</span>
 											</span>
 											<span class="metric-value">{calculatedReturns?.impliedBarrelsPerToken?.toFixed(6) || '0.000000'}</span>
-											{#if showTooltip === 'barrels'}
-												<div class="tooltip">
+											{#if showTooltip === `barrels-${index}`}
+												<div class="tooltip tooltip-aligned">
 													Estimated barrels of oil equivalent per token based on reserves and token supply
 												</div>
 											{/if}
@@ -826,14 +827,14 @@
 											<span class="metric-label">
 												Breakeven Oil Price
 												<span class="tooltip-trigger"
-													on:mouseenter={() => showTooltipWithDelay('breakeven')}
+													on:mouseenter={() => showTooltipWithDelay(`breakeven-${index}`)}
 													on:mouseleave={hideTooltip}
 													role="button"
 													tabindex="0">ⓘ</span>
 											</span>
 											<span class="metric-value">${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
-											{#if showTooltip === 'breakeven'}
-												<div class="tooltip">
+											{#if showTooltip === `breakeven-${index}`}
+												<div class="tooltip tooltip-aligned">
 													Oil price required to cover operational costs and maintain profitability
 												</div>
 											{/if}
@@ -847,14 +848,14 @@
 												<span class="return-label">
 													Base
 													<span class="tooltip-trigger"
-														on:mouseenter={() => showTooltipWithDelay('base')}
+														on:mouseenter={() => showTooltipWithDelay(`base-${index}`)}
 														on:mouseleave={hideTooltip}
 														role="button"
 														tabindex="0">ⓘ</span>
 												</span>
 												<span class="return-value">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</span>
-												{#if showTooltip === 'base'}
-													<div class="tooltip">
+												{#if showTooltip === `base-${index}`}
+													<div class="tooltip tooltip-aligned">
 														Conservative return estimate based on current production and oil prices
 													</div>
 												{/if}
@@ -863,14 +864,14 @@
 												<span class="return-label">
 													Bonus
 													<span class="tooltip-trigger"
-														on:mouseenter={() => showTooltipWithDelay('bonus')}
+														on:mouseenter={() => showTooltipWithDelay(`bonus-${index}`)}
 														on:mouseleave={hideTooltip}
 														role="button"
 														tabindex="0">ⓘ</span>
 												</span>
 												<span class="return-value">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
-												{#if showTooltip === 'bonus'}
-													<div class="tooltip">
+												{#if showTooltip === `bonus-${index}`}
+													<div class="tooltip tooltip-aligned">
 														Additional potential return from improved oil prices or production efficiency
 													</div>
 												{/if}
@@ -2229,6 +2230,16 @@
 		text-align: left;
 	}
 
+	.tooltip-wide {
+		max-width: 300px;
+		width: max-content;
+	}
+
+	.tooltip-aligned {
+		left: 0;
+		transform: translateX(-10px);
+	}
+
 	.tooltip::after {
 		content: '';
 		position: absolute;
@@ -2237,6 +2248,11 @@
 		transform: translateX(-50%);
 		border: 5px solid transparent;
 		border-top-color: var(--color-black);
+	}
+
+	.tooltip-aligned::after {
+		left: 20px;
+		transform: translateX(0);
 	}
 
 

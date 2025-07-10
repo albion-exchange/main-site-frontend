@@ -5,6 +5,7 @@
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/WalletModal.svelte';
 	import { getMockPortfolioHoldings, calculatePortfolioSummary } from '$lib/utils/portfolioCalculations';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, TabNavigation } from '$lib/components/ui';
 
 	let totalPortfolioValue = 0;
 	let totalInvested = 0;
@@ -222,45 +223,32 @@
 			<div class="wallet-required-content">
 				<h1>Wallet Connection Required</h1>
 				<p>Please connect your wallet to view your portfolio.</p>
-				<button class="connect-btn" on:click={() => showWalletModal = true}>
+				<PrimaryButton on:click={() => showWalletModal = true}>
 					Connect Wallet
-				</button>
+				</PrimaryButton>
 			</div>
 		</div>
 	</main>
 {:else if $walletStore.isConnected}
 <main class="portfolio-page">
 	<!-- Portfolio Overview Header -->
-	<div class="portfolio-overview">
+	<Card padding="3rem">
 		<div class="overview-content">
 			<div class="overview-main">
 				<h1>Portfolio Overview</h1>
 				
 				<div class="portfolio-metrics">
-					<div class="metric">
-						<div class="metric-value">{formatCurrency(totalPortfolioValue)}</div>
-						<div class="metric-label">Total Value</div>
-						<div class="metric-note">Real-time</div>
-					</div>
-					<div class="metric">
-						<div class="metric-value">{formatCurrency(totalInvested)}</div>
-						<div class="metric-label">Invested</div>
-						<div class="metric-note">Principal</div>
-					</div>
-					<div class="metric">
-						<div class="metric-value" class:positive={unrealizedGains >= 0} class:negative={unrealizedGains < 0}>
-							{formatCurrency(unrealizedGains)}
-						</div>
-						<div class="metric-label">Unrealized P&L</div>
-						<div class="metric-note" class:positive={unrealizedGains >= 0} class:negative={unrealizedGains < 0}>
-							{formatPercent(portfolioMetrics.totalReturn)}
-						</div>
-					</div>
-					<div class="metric">
-						<div class="metric-value payout">{formatCurrency(portfolioMetrics.totalPayoutEarned)}</div>
-						<div class="metric-label">Payout Earned</div>
-						<div class="metric-note positive">{formatPercent(portfolioMetrics.payoutReturn)}</div>
-					</div>
+					<Metric 
+						value={formatCurrency(totalInvested)} 
+						label="Invested" 
+						note="Principal" 
+					/>
+					<Metric 
+						value={formatCurrency(portfolioMetrics.totalPayoutEarned)} 
+						label="Payout Earned" 
+						note={formatPercent(portfolioMetrics.payoutReturn)}
+						variant="positive"
+					/>
 				</div>
 
 				<div class="portfolio-info">
@@ -274,7 +262,7 @@
 			</div>
 
 			<!-- Quick Stats Panel -->
-			<div class="quick-stats">
+			<Card padding="2rem">
 				<h3>Quick Stats</h3>
 				
 				<div class="stats-list">
@@ -296,71 +284,27 @@
 					</div>
 				</div>
 
-				<div class="performance-summary">
-					{#if portfolioMetrics.bestPerformer && portfolioMetrics.worstPerformer}
-						<div class="performer">
-							<div class="performer-header">
-								<span>Best Performer</span>
-								<span class="positive">{formatPercent(portfolioMetrics.bestPerformer.unrealizedGainPercent)}</span>
-							</div>
-							<div class="performer-name">{portfolioMetrics.bestPerformer.name}</div>
-						</div>
-						<div class="performer">
-							<div class="performer-header">
-								<span>Worst Performer</span>
-								<span class="negative">{formatPercent(portfolioMetrics.worstPerformer.unrealizedGainPercent)}</span>
-							</div>
-							<div class="performer-name">{portfolioMetrics.worstPerformer.name}</div>
-						</div>
-					{/if}
-				</div>
-			</div>
+			</Card>
 		</div>
-	</div>
+	</Card>
 
 	<!-- Portfolio Tabs -->
-	<div class="tabs-container">
-		<div class="tabs-nav">
-			<button 
-				class="tab-btn"
-				class:active={activeTab === 'overview'}
-				on:click={() => activeTab = 'overview'}
-			>
-				Holdings
-			</button>
-			<button 
-				class="tab-btn"
-				class:active={activeTab === 'performance'}
-				on:click={() => activeTab = 'performance'}
-			>
-				Performance
-			</button>
-			<button 
-				class="tab-btn"
-				class:active={activeTab === 'allocation'}
-				on:click={() => activeTab = 'allocation'}
-			>
-				Allocation
-			</button>
-			<button 
-				class="tab-btn"
-				class:active={activeTab === 'analytics'}
-				on:click={() => activeTab = 'analytics'}
-			>
-				Analytics
-			</button>
-		</div>
+	<Card>
+		<TabNavigation 
+			tabs={[
+				{ id: 'overview', label: 'Holdings' },
+				{ id: 'performance', label: 'Performance' },
+				{ id: 'allocation', label: 'Allocation' }
+			]}
+			bind:activeTab
+			on:tabChange={(e) => activeTab = e.detail.tabId}
+		/>
 
 		<div class="tab-content">
 			{#if activeTab === 'overview'}
 				<div class="holdings-content">
 					<div class="holdings-header">
 						<h3>My Holdings</h3>
-						<div class="view-controls">
-							<button class="view-btn active">Value</button>
-							<button class="view-btn">Payout</button>
-							<button class="view-btn">Performance</button>
-						</div>
 					</div>
 
 					<div class="holdings-list">
@@ -368,66 +312,56 @@
 							<div class="loading-message">Loading portfolio holdings...</div>
 						{:else}
 							{#each holdings as holding}
-								<div class="holding-card">
-								<div class="holding-main">
-									<div class="holding-info">
-										<div class="holding-icon">{holding.icon}</div>
-										<div class="holding-details">
-											<h4>{holding.name}</h4>
-											<div class="holding-location">{holding.location}</div>
-											<div class="holding-badges">
-												<span class="status-badge" class:producing={holding.status === 'producing'}>{holding.status.toUpperCase()}</span>
+								<Card padding="2rem" hoverable>
+									<div class="holding-main">
+										<div class="holding-info">
+											<div class="holding-icon">{holding.icon}</div>
+											<div class="holding-details">
+												<h4>{holding.name}</h4>
+												<div class="holding-location">{holding.location}</div>
+												<div class="holding-badges">
+													<StatusBadge 
+														status={holding.status} 
+														variant={holding.status === 'producing' ? 'available' : 'default'}
+													>
+														{holding.status.toUpperCase()}
+													</StatusBadge>
+												</div>
 											</div>
 										</div>
-									</div>
 
-									<div class="holding-tokens">
-										<div class="tokens-value">{holding.tokensOwned.toLocaleString()}</div>
-										<div class="tokens-label">Tokens</div>
-										<div class="allocation-info">{holding.allocation}% allocation</div>
-									</div>
-
-									<div class="holding-value">
-										<div class="value-amount">{formatCurrency(holding.currentValue)}</div>
-										<div class="value-label">Current Value</div>
-										<div class="cost-basis">Cost: {formatCurrency(holding.investmentAmount)}</div>
-									</div>
-
-									<div class="holding-pnl">
-										<div class="pnl-amount" class:positive={holding.unrealizedGain >= 0} class:negative={holding.unrealizedGain < 0}>
-											{formatCurrency(holding.unrealizedGain)}
+										<div class="holding-tokens">
+											<div class="tokens-value">{holding.tokensOwned.toLocaleString()}</div>
+											<div class="tokens-label">Tokens</div>
+											<div class="allocation-info">{holding.allocation}% allocation</div>
 										</div>
-										<div class="pnl-label">Unrealized P&L</div>
-										<div class="pnl-percent" class:positive={holding.unrealizedGain >= 0} class:negative={holding.unrealizedGain < 0}>
-											{formatPercent(holding.unrealizedGainPercent)}
+
+
+										<div class="holding-payout">
+											<div class="payout-value">{holding.currentPayout}%</div>
+											<div class="payout-label">Payout</div>
+										</div>
+
+										<div class="holding-actions">
+											<SecondaryButton size="small">Manage</SecondaryButton>
 										</div>
 									</div>
 
-									<div class="holding-payout">
-										<div class="payout-value">{holding.currentPayout}%</div>
-										<div class="payout-label">Payout</div>
+									<div class="holding-footer">
+										<div class="footer-item">
+											<span>Total Earned:</span>
+											<span class="payout">{formatCurrency(holding.totalEarned)}</span>
+										</div>
+										<div class="footer-item">
+											<span>Last Payout:</span>
+											<span>{holding.lastPayout}</span>
+										</div>
+										<div class="footer-item">
+											<span>Status:</span>
+											<span class="positive">Active</span>
+										</div>
 									</div>
-
-									<div class="holding-actions">
-										<button class="manage-btn">Manage</button>
-									</div>
-								</div>
-
-								<div class="holding-footer">
-									<div class="footer-item">
-										<span>Total Earned:</span>
-										<span class="payout">{formatCurrency(holding.totalEarned)}</span>
-									</div>
-									<div class="footer-item">
-										<span>Last Payout:</span>
-										<span>{holding.lastPayout}</span>
-									</div>
-									<div class="footer-item">
-										<span>Status:</span>
-										<span class="positive">Active</span>
-									</div>
-								</div>
-								</div>
+								</Card>
 							{/each}
 						{/if}
 					</div>
@@ -462,19 +396,19 @@
 
 						<div class="performance-stats">
 							<div class="perf-stat">
-								<div class="perf-value positive">{formatPercent(portfolioMetrics.totalReturn)}</div>
-								<div class="perf-label">Total Return</div>
-								<div class="perf-note">Since inception</div>
-							</div>
-							<div class="perf-stat">
 								<div class="perf-value positive">{formatPercent(portfolioMetrics.payoutReturn)}</div>
 								<div class="perf-label">Payout Return</div>
 								<div class="perf-note">Income only</div>
 							</div>
 							<div class="perf-stat">
-								<div class="perf-value">{dataStoreService.getPlatformStats().averagePortfolioIRR?.formatted || '16.3%'}</div>
-								<div class="perf-label">Annualized IRR</div>
-								<div class="perf-note">12-month projection</div>
+								<div class="perf-value">{portfolioMetrics.averagePayout.toFixed(1)}%</div>
+								<div class="perf-label">Average Payout</div>
+								<div class="perf-note">Monthly</div>
+							</div>
+							<div class="perf-stat">
+								<div class="perf-value positive">{formatCurrency(portfolioMetrics.totalPayoutEarned)}</div>
+								<div class="perf-label">Total Earned</div>
+								<div class="perf-note">All time</div>
 							</div>
 						</div>
 					</div>
@@ -538,95 +472,9 @@
 						</div>
 					</div>
 				</div>
-			{:else if activeTab === 'analytics'}
-				<div class="analytics-content">
-					<div class="analytics-grid">
-						<div class="performance-metrics">
-							<h4>Performance Metrics</h4>
-							<div class="metrics-list">
-								<div class="metric-row">
-									<span>Portfolio Beta</span>
-									<span>0.87</span>
-								</div>
-								<div class="metric-row">
-									<span>Volatility (30d)</span>
-									<span>3.2%</span>
-								</div>
-								<div class="metric-row">
-									<span>Sharpe Ratio</span>
-									<span class="positive">2.14</span>
-								</div>
-								<div class="metric-row">
-									<span>Max Drawdown</span>
-									<span class="negative">-2.1%</span>
-								</div>
-								<div class="metric-row">
-									<span>Correlation to Oil</span>
-									<span>0.72</span>
-								</div>
-							</div>
-						</div>
-
-						<div class="payout-analytics">
-							<h4>Payout Analytics</h4>
-							<div class="metrics-list">
-								<div class="metric-row">
-									<span>Weighted Avg Payout</span>
-									<span class="positive">{portfolioMetrics.averagePayout.toFixed(1)}%</span>
-								</div>
-								<div class="metric-row">
-									<span>Monthly Income</span>
-									<span class="positive">{formatCurrency(portfolioMetrics.totalPayoutEarned / 6)}</span>
-								</div>
-								<div class="metric-row">
-									<span>Payout Consistency</span>
-									<span class="positive">94.2%</span>
-								</div>
-								<div class="metric-row">
-									<span>Payout Frequency</span>
-									<span>Monthly</span>
-								</div>
-								<div class="metric-row">
-									<span>Reinvestment Rate</span>
-									<span>0%</span>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="scenario-analysis">
-						<h4>Scenario Analysis</h4>
-						<div class="scenario-table">
-							<div class="table-header">
-								<div class="table-cell">Oil Price Scenario</div>
-								<div class="table-cell">Portfolio Value</div>
-								<div class="table-cell">Annual Payout</div>
-								<div class="table-cell">Total Return</div>
-							</div>
-							<div class="table-row">
-								<div class="table-cell">Bear Case ($60/bbl)</div>
-								<div class="table-cell negative">{formatCurrency(39500)}</div>
-								<div class="table-cell negative">9.2%</div>
-								<div class="table-cell negative">-6.0%</div>
-							</div>
-							<div class="table-row current">
-								<div class="table-cell">Current ($78/bbl)</div>
-								<div class="table-cell">{formatCurrency(totalPortfolioValue)}</div>
-								<div class="table-cell positive">{portfolioMetrics.averagePayout.toFixed(1)}%</div>
-								<div class="table-cell positive">{formatPercent(portfolioMetrics.totalReturn)}</div>
-							</div>
-							<div class="table-row">
-								<div class="table-cell">Bull Case ($95/bbl)</div>
-								<div class="table-cell positive">{formatCurrency(58200)}</div>
-								<div class="table-cell positive">17.8%</div>
-								<div class="table-cell positive">+38.6%</div>
-							</div>
-						</div>
-					</div>
-				</div>
 			{/if}
 		</div>
-	</div>
+	</Card>
 
 	<!-- Quick Actions -->
 	<div class="quick-actions">
@@ -666,7 +514,7 @@
 <style>
 	.portfolio-page {
 		padding: 2rem;
-		max-width: 1200px;
+		max-width: 1024px;
 		margin: 0 auto;
 	}
 
@@ -738,7 +586,7 @@
 
 	.portfolio-metrics {
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
+		grid-template-columns: repeat(2, 1fr);
 		gap: 2rem;
 		margin-bottom: 2rem;
 	}
@@ -993,7 +841,7 @@
 
 	.holding-main {
 		display: grid;
-		grid-template-columns: 2fr 1fr 1fr 1fr 1fr 0.5fr;
+		grid-template-columns: 2fr 1fr 1fr 0.5fr;
 		gap: 2rem;
 		align-items: center;
 		margin-bottom: 1.5rem;

@@ -265,12 +265,12 @@
 										</div>
 									</div>
 									<div class="stat-item">
-										<div class="stat-label">Estimated Base Payout</div>
+										<div class="stat-label">Estimated Base Returns</div>
 										<div class="stat-value">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</div>
 									</div>
 									
 									<div class="stat-item">
-										<div class="stat-label">Estimated Bonus Payout</div>
+										<div class="stat-label">Estimated Bonus Returns</div>
 										<div class="stat-value">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
 									</div>
 								</div>

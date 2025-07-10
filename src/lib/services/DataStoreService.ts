@@ -45,10 +45,10 @@ class DataStoreService {
   constructor() {
     // Initialize assets
     this.assets = {
-      'europa-wressle-release-1': europaWressleAsset as Asset,
-      'bakken-horizon-field': bakkenHorizonAsset as Asset,
-      'permian-basin-venture': permianBasinAsset as Asset,
-      'gulf-mexico-deep-water': gulfMexicoAsset as Asset,
+      'europa-wressle-release-1': europaWressleAsset as any as Asset,
+      'bakken-horizon-field': bakkenHorizonAsset as any as Asset,
+      'permian-basin-venture': permianBasinAsset as any as Asset,
+      'gulf-mexico-deep-water': gulfMexicoAsset as any as Asset,
     };
 
     // Initialize tokens
@@ -321,16 +321,16 @@ class DataStoreService {
 
     return {
       latestProduction: latest.production,
-      latestNetIncome: latest.netIncome,
+      latestNetIncome: latest.netIncome || 0,
       latestPayoutPerToken: latest.payoutPerToken,
       monthOverMonthProductionChange: previous 
         ? ((latest.production - previous.production) / previous.production) * 100 
         : 0,
-      monthOverMonthIncomeChange: previous 
+      monthOverMonthIncomeChange: previous && latest.netIncome && previous.netIncome
         ? ((latest.netIncome - previous.netIncome) / previous.netIncome) * 100 
         : 0,
       totalProductionLast12Months: reports.slice(-12).reduce((sum, report) => sum + report.production, 0),
-      totalIncomeLast12Months: reports.slice(-12).reduce((sum, report) => sum + report.netIncome, 0)
+      totalIncomeLast12Months: reports.slice(-12).reduce((sum, report) => sum + (report.netIncome || 0), 0)
     };
   }
 
@@ -485,7 +485,7 @@ class DataStoreService {
     if (!asset) return marketData.tokenPricing.defaultEstimatedValue;
 
     // Determine region based on asset location or ID
-    let regionKey = 'europe'; // default
+    let regionKey: keyof typeof marketData.tokenPricing.regionMultipliers = 'europe'; // default
     if (assetId.includes('bakken')) regionKey = 'bakken';
     else if (assetId.includes('permian')) regionKey = 'permian';
     else if (assetId.includes('gulf')) regionKey = 'gulf-mexico';
@@ -519,7 +519,7 @@ class DataStoreService {
    * Get future token releases (flattened from all assets)
    */
   getFutureReleases() {
-    const allReleases = [];
+    const allReleases: any[] = [];
     
     // Add Europa Wressle releases
     eurWr4Future.forEach(release => {

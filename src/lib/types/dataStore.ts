@@ -56,9 +56,9 @@ export interface AssetTerms {
 export interface MonthlyReport {
   month: string; // YYYY-MM format
   production: number; // barrels
-  revenue: number; // USD
-  expenses: number; // USD
-  netIncome: number; // USD
+  revenue?: number; // USD
+  expenses?: number; // USD
+  netIncome?: number; // USD
   payoutPerToken?: number; // USD per token (optional for royalty assets)
 }
 
@@ -100,7 +100,7 @@ export interface Asset {
   id: string;
   name: string;
   description: string;
-  images: string[];
+  images?: string[];
   location: AssetLocation;
   operator: AssetOperator;
   technical: AssetTechnical;
