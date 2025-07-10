@@ -339,12 +339,12 @@
 										</div>
 									</div>
 									<div class={statItemClasses}>
-										<div class={statLabelClasses}>Estimated Base Payout</div>
+										<div class={statLabelClasses}>Estimated Base Returns</div>
 										<div class="text-xl font-extrabold text-primary">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</div>
 									</div>
 									
 									<div class={statItemClasses}>
-										<div class={statLabelClasses}>Estimated Bonus Payout</div>
+										<div class={statLabelClasses}>Estimated Bonus Returns</div>
 										<div class="text-xl font-extrabold text-primary">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
 									</div>
 								</div>

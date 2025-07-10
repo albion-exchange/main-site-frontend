@@ -542,16 +542,16 @@ class DataStoreService {
 
     return {
       latestProduction: latest.production,
-      latestNetIncome: latest.netIncome,
+      latestNetIncome: latest.netIncome || 0,
       latestPayoutPerToken: latest.payoutPerToken,
       monthOverMonthProductionChange: previous 
         ? ((latest.production - previous.production) / previous.production) * 100 
         : 0,
-      monthOverMonthIncomeChange: previous 
+      monthOverMonthIncomeChange: previous && latest.netIncome && previous.netIncome
         ? ((latest.netIncome - previous.netIncome) / previous.netIncome) * 100 
         : 0,
       totalProductionLast12Months: reports.slice(-12).reduce((sum, report) => sum + report.production, 0),
-      totalIncomeLast12Months: reports.slice(-12).reduce((sum, report) => sum + report.netIncome, 0)
+      totalIncomeLast12Months: reports.slice(-12).reduce((sum, report) => sum + (report.netIncome || 0), 0)
     };
   }
 
@@ -690,7 +690,7 @@ class DataStoreService {
     if (!asset) return marketData.tokenPricing.defaultEstimatedValue;
 
     // Determine region based on asset location or ID
-    let regionKey: 'europe' | 'bakken' | 'permian' | 'gulf-mexico' = 'europe'; // default
+    let regionKey: keyof typeof marketData.tokenPricing.regionMultipliers = 'europe'; // default
     if (assetId.includes('bakken')) regionKey = 'bakken';
     else if (assetId.includes('permian')) regionKey = 'permian';
     else if (assetId.includes('gulf')) regionKey = 'gulf-mexico';
