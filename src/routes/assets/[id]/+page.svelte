@@ -1037,8 +1037,8 @@
 					{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
 					{@const isFlipped = flippedCards.has(token.contractAddress)}
 					<div class="{mobileTokenCardContainerClasses} {tokenCardContainerClasses} {isFlipped ? tokenCardContainerFlippedClasses : ''}" id="token-{token.contractAddress}">
-						<Card hoverable clickable padding="0" on:click={() => handleCardClick(token.contractAddress)}>
-							<CardContent padding="0">
+						<Card hoverable clickable paddingClass="p-0" on:click={() => handleCardClick(token.contractAddress)}>
+							<CardContent paddingClass="p-0">
 								<div class={tokenCardFrontClasses}>
 									<div class={tokenHeaderClasses}>
 										<div class={tokenTitleClasses}>
