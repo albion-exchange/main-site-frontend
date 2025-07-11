@@ -202,6 +202,112 @@
 			window.location.href = '/';
 		}
 	}
+	
+	// Tailwind class mappings
+	$: claimsPageClasses = 'p-0 max-w-6xl mx-auto';
+	$: walletRequiredClasses = 'flex items-center justify-center min-h-[60vh] text-center p-8';
+	$: walletRequiredTitleClasses = 'text-3xl font-extrabold text-black mb-4 uppercase tracking-wider';
+	$: walletRequiredTextClasses = 'text-lg text-black mb-8 opacity-80';
+	$: connectBtnClasses = 'bg-primary text-white border-none px-8 py-4 font-figtree font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary';
+	$: heroClasses = 'py-16 px-8 text-center bg-white border-b border-light-gray';
+	$: heroContentClasses = 'max-w-3xl mx-auto';
+	$: heroTitleClasses = 'text-4xl font-extrabold mb-4 text-black uppercase tracking-tight';
+	$: heroPClasses = 'text-lg text-black mb-8';
+	$: liveIndicatorClasses = 'inline-flex items-center gap-2 text-sm font-semibold text-black uppercase tracking-wider';
+	$: pulseDotClasses = 'w-2 h-2 bg-primary rounded-full animate-pulse';
+	$: loadingStateClasses = 'text-center py-16 px-8 text-black';
+	$: successMessageClasses = 'bg-light-gray border border-primary text-primary p-6 mx-8 my-8 text-center';
+	$: successTitleClasses = 'font-extrabold mb-2';
+	$: payoutOverviewClasses = 'py-12 px-8';
+	$: overviewGridClasses = 'grid grid-cols-3 gap-8';
+	$: overviewCardClasses = 'bg-white border border-light-gray p-8 text-center';
+	$: metricValueClasses = 'text-3xl font-extrabold text-black mb-2';
+	$: metricValueAvailableClasses = 'text-primary';
+	$: metricLabelClasses = 'text-xs font-bold text-black uppercase tracking-wider mb-1';
+	$: metricNoteClasses = 'text-xs text-secondary font-medium';
+	$: quickClaimClasses = 'px-8 pb-12';
+	$: claimGridClasses = 'grid grid-cols-2 gap-12 bg-light-gray border border-light-gray p-12';
+	$: claimInfoTitleClasses = 'text-xl font-extrabold text-black mb-8 uppercase tracking-wider';
+	$: amountDisplayClasses = 'text-4xl font-extrabold text-primary mb-2';
+	$: amountLabelClasses = 'text-sm text-black font-semibold mb-8';
+	$: gasInfoClasses = 'flex flex-col gap-2 text-sm';
+	$: gasRowClasses = 'flex justify-between';
+	$: gasLabelClasses = 'text-black font-semibold';
+	$: gasValueClasses = 'text-black font-extrabold';
+	$: netAmountClasses = 'text-primary font-extrabold';
+	$: claimActionsClasses = 'flex flex-col gap-4 justify-center';
+	$: claimBtnClasses = 'px-8 py-4 border-none font-figtree font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-all duration-200';
+	$: claimBtnPrimaryClasses = 'bg-black text-white hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed';
+	$: claimBtnSecondaryClasses = 'bg-white text-black border border-black hover:bg-black hover:text-white';
+	$: assetClaimsClasses = 'py-12 px-8 bg-white';
+	$: sectionHeaderClasses = 'flex justify-between items-center mb-8';
+	$: sectionTitleClasses = 'text-[1.75rem] font-extrabold text-black uppercase tracking-wider';
+	$: controlsClasses = 'flex gap-4';
+	$: controlBtnClasses = 'px-6 py-3 bg-white border border-black text-black font-figtree font-semibold text-xs uppercase tracking-wider cursor-pointer transition-all duration-200 hover:bg-black hover:text-white';
+	$: controlBtnActiveClasses = 'bg-black text-white';
+	$: controlBtnPrimaryClasses = 'bg-primary border-primary text-white hover:opacity-90';
+	$: assetsListClasses = 'flex flex-col gap-4';
+	$: assetCardClasses = 'bg-white border border-light-gray p-8 transition-all duration-200';
+	$: assetCardSelectedClasses = 'border-primary bg-light-gray';
+	$: assetMainClasses = 'grid grid-cols-[auto_2fr_3fr_auto] gap-8 items-center mb-4';
+	$: assetSelectClasses = 'w-5 h-5';
+	$: assetInfoH3Classes = 'font-extrabold text-black mb-2 text-base';
+	$: assetLocationClasses = 'text-black opacity-70 text-sm mb-2';
+	$: statusBadgeClasses = 'bg-light-gray text-secondary px-2 py-1 text-xs font-bold uppercase tracking-wider';
+	$: statusBadgeProducingClasses = 'text-primary';
+	$: assetMetricsClasses = 'grid grid-cols-3 gap-4 text-center';
+	$: metricClasses = 'text-center';
+	$: assetMetricValueClasses = 'text-lg font-extrabold text-black mb-1';
+	$: assetMetricValueUnclaimedClasses = 'text-primary';
+	$: assetMetricLabelClasses = 'text-xs font-bold text-black opacity-70 uppercase tracking-wider';
+	$: assetClaimBtnClasses = 'bg-black text-white border-none px-6 py-3 font-figtree font-semibold text-xs uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary';
+	$: assetFooterClasses = 'border-t border-light-gray pt-4';
+	$: footerInfoClasses = 'text-sm text-black opacity-70';
+	$: bottomSectionClasses = 'py-12 px-8 bg-light-gray';
+	$: bottomGridClasses = 'grid grid-cols-2 gap-12';
+	$: settingsCardClasses = 'bg-white border border-light-gray p-8';
+	$: cardTitleClasses = 'text-xl font-extrabold text-black mb-6 uppercase tracking-wider';
+	$: settingGroupClasses = 'mb-8';
+	$: settingLabelClasses = 'text-xs font-bold text-black uppercase tracking-wider mb-4';
+	$: radioGroupClasses = 'flex flex-col gap-4';
+	$: radioOptionClasses = 'flex items-center gap-3 cursor-pointer';
+	$: radioContentClasses = 'flex-1';
+	$: radioTitleClasses = 'font-extrabold text-black text-sm mb-1';
+	$: radioDescClasses = 'text-xs text-black opacity-70';
+	$: statsGridClasses = 'grid grid-cols-2 gap-4 mb-6';
+	$: statItemClasses = 'text-center p-4 bg-light-gray border border-light-gray';
+	$: statValueClasses = 'text-xl font-extrabold text-primary mb-1';
+	$: statLabelClasses = 'text-xs font-bold text-black opacity-70 uppercase tracking-wider';
+	$: statsListClasses = 'flex flex-col gap-3';
+	$: statsRowClasses = 'flex justify-between text-sm';
+	$: claimHistoryClasses = 'py-12 px-8 bg-white';
+	$: historyHeaderClasses = 'flex justify-between items-center mb-8';
+	$: historyControlsClasses = 'flex gap-2';
+	$: historyTableClasses = 'border border-light-gray';
+	$: tableHeaderClasses = 'grid grid-cols-[1fr_2fr_1fr_1.5fr_1fr] gap-4 p-4 bg-light-gray border-b border-light-gray';
+	$: headerCellClasses = 'font-extrabold text-black text-xs uppercase tracking-wider';
+	$: tableRowClasses = 'grid grid-cols-[1fr_2fr_1fr_1.5fr_1fr] gap-4 p-4 border-b border-light-gray items-center hover:bg-light-gray';
+	$: tableCellClasses = 'text-sm text-black';
+	$: assetNameClasses = 'font-extrabold';
+	$: tableCellAmountClasses = 'font-extrabold text-primary';
+	$: txHashClasses = 'font-mono text-xs text-black opacity-70';
+	$: statusCompletedClasses = 'text-primary font-semibold text-xs';
+	$: statsListLabelClasses = 'text-black opacity-70';
+	$: statsListValueClasses = 'font-extrabold text-black';
+	
+	// Mobile responsive classes
+	$: mobileHeroTitleClasses = 'md:text-4xl text-3xl font-extrabold mb-4 text-black uppercase tracking-tight';
+	$: mobileOverviewGridClasses = 'grid grid-cols-1 md:grid-cols-3 gap-8';
+	$: mobileClaimGridClasses = 'grid grid-cols-1 md:grid-cols-2 md:gap-12 gap-8 bg-light-gray border border-light-gray md:p-12 p-8';
+	$: mobileAssetMainClasses = 'grid grid-cols-1 md:grid-cols-[auto_2fr_3fr_auto] md:gap-8 gap-4 items-center mb-4';
+	$: mobileAssetMetricsClasses = 'grid grid-cols-1 md:grid-cols-3 gap-4 text-center';
+	$: mobileControlsClasses = 'flex md:flex-row flex-col gap-4';
+	$: mobileBottomGridClasses = 'grid grid-cols-1 md:grid-cols-2 md:gap-12 gap-8';
+	$: mobileStatsGridClasses = 'grid grid-cols-1 md:grid-cols-2 gap-4 mb-6';
+	$: mobileTableHeaderClasses = 'grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr_1.5fr_1fr] md:gap-4 gap-2 p-4 bg-light-gray border-b border-light-gray';
+	$: mobileTableRowClasses = 'grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr_1.5fr_1fr] md:gap-4 gap-2 p-4 border-b border-light-gray items-center hover:bg-light-gray';
+	$: mobileHeaderCellClasses = 'font-extrabold text-black text-xs uppercase tracking-wider md:text-left text-center md:py-0 py-2';
+	$: mobileTableCellClasses = 'text-sm text-black md:text-left text-center md:py-0 py-2';
 </script>
 
 <svelte:head>
@@ -210,97 +316,91 @@
 </svelte:head>
 
 {#if !$walletStore.isConnected && !showWalletModal}
-	<main class="claims-page">
-		<div class="wallet-required">
-			<div class="wallet-required-content">
-				<h1>Wallet Connection Required</h1>
-				<p>Please connect your wallet to view and claim your payouts.</p>
-				<button class="connect-btn" on:click={() => showWalletModal = true}>
+	<main class={claimsPageClasses}>
+		<div class={walletRequiredClasses}>
+			<div>
+				<h1 class={walletRequiredTitleClasses}>Wallet Connection Required</h1>
+				<p class={walletRequiredTextClasses}>Please connect your wallet to view and claim your payouts.</p>
+				<button class={connectBtnClasses} on:click={() => showWalletModal = true}>
 					Connect Wallet
 				</button>
 			</div>
 		</div>
 	</main>
 {:else if $walletStore.isConnected}
-<main class="claims-page">
+<main class={claimsPageClasses}>
 	<!-- Hero Section -->
-	<section class="hero">
-		<div class="hero-content">
-			<h1>Claim Payouts</h1>
-			<p>Claim your earnings from oil & gas investments and track your payout history.</p>
-			<div class="live-indicator">
-				<div class="pulse-dot"></div>
+	<section class={heroClasses}>
+		<div class={heroContentClasses}>
+			<h1 class={mobileHeroTitleClasses}>Claim Payouts</h1>
+			<p class={heroPClasses}>Claim your earnings from oil & gas investments and track your payout history.</p>
+			<div class={liveIndicatorClasses}>
+				<div class={pulseDotClasses}></div>
 				<span>Live Tracking: {isAccruing ? 'Active' : 'Paused'}</span>
 			</div>
 		</div>
 	</section>
 
 	{#if loading}
-		<div class="loading-state">
+		<div class={loadingStateClasses}>
 			<p>Loading payout information...</p>
 		</div>
 	{:else}
 		<!-- Success Message -->
 		{#if claimSuccess}
-			<div class="success-message">
-				<h3>✅ Claim Successful!</h3>
+			<div class={successMessageClasses}>
+				<h3 class={successTitleClasses}>✅ Claim Successful!</h3>
 				<p>Your payouts have been successfully transferred to your wallet.</p>
 			</div>
 		{/if}
 
 		<!-- Payout Overview -->
-		<section class="payout-overview">
-			<div class="overview-grid">
-				<div class="overview-card total">
-					<div class="card-content">
-						<div class="metric-value">{formatCurrency(totalEarned)}</div>
-						<div class="metric-label">Total Earned</div>
-						<div class="metric-note">All time from investments</div>
-					</div>
+		<section class={payoutOverviewClasses}>
+			<div class={mobileOverviewGridClasses}>
+				<div class={overviewCardClasses}>
+					<div class={metricValueClasses}>{formatCurrency(totalEarned)}</div>
+					<div class={metricLabelClasses}>Total Earned</div>
+					<div class={metricNoteClasses}>All time from investments</div>
 				</div>
 				
-				<div class="overview-card claimed">
-					<div class="card-content">
-						<div class="metric-value">{formatCurrency(totalClaimed)}</div>
-						<div class="metric-label">Total Claimed</div>
-						<div class="metric-note">Successfully withdrawn</div>
-					</div>
+				<div class={overviewCardClasses}>
+					<div class={metricValueClasses}>{formatCurrency(totalClaimed)}</div>
+					<div class={metricLabelClasses}>Total Claimed</div>
+					<div class={metricNoteClasses}>Successfully withdrawn</div>
 				</div>
 				
-				<div class="overview-card unclaimed">
-					<div class="card-content">
-						<div class="metric-value available">{formatCurrency(unclaimedPayout)}</div>
-						<div class="metric-label">Available to Claim</div>
-						<div class="metric-note">Ready for withdrawal</div>
-					</div>
+				<div class={overviewCardClasses}>
+					<div class="{metricValueClasses} {metricValueAvailableClasses}">{formatCurrency(unclaimedPayout)}</div>
+					<div class={metricLabelClasses}>Available to Claim</div>
+					<div class={metricNoteClasses}>Ready for withdrawal</div>
 				</div>
 			</div>
 		</section>
 
 		<!-- Quick Claim Section -->
-		<section class="quick-claim">
-			<div class="claim-grid">
-				<div class="claim-info">
-					<h2>Quick Claim All</h2>
-					<div class="claim-amount">
-						<div class="amount-display">{formatCurrency(unclaimedPayout)}</div>
-						<div class="amount-label">Total Available</div>
+		<section class={quickClaimClasses}>
+			<div class={mobileClaimGridClasses}>
+				<div>
+					<h2 class={claimInfoTitleClasses}>Quick Claim All</h2>
+					<div>
+						<div class={amountDisplayClasses}>{formatCurrency(unclaimedPayout)}</div>
+						<div class={amountLabelClasses}>Total Available</div>
 					</div>
-					<div class="gas-info">
-						<div class="gas-row">
-							<span>Estimated Gas:</span>
-							<span>~${marketData.gasFeesEstimate.medium}</span>
+					<div class={gasInfoClasses}>
+						<div class={gasRowClasses}>
+							<span class={gasLabelClasses}>Estimated Gas:</span>
+							<span class={gasValueClasses}>~${marketData.gasFeesEstimate.medium}</span>
 						</div>
-						<div class="gas-row">
-							<span>Net Amount:</span>
-							<span class="net-amount">{formatCurrency(unclaimedPayout - marketData.gasFeesEstimate.medium)}</span>
+						<div class={gasRowClasses}>
+							<span class={gasLabelClasses}>Net Amount:</span>
+							<span class={netAmountClasses}>{formatCurrency(unclaimedPayout - marketData.gasFeesEstimate.medium)}</span>
 						</div>
 					</div>
 				</div>
 				
-				<div class="claim-actions">
+				<div class={claimActionsClasses}>
 					<button 
-						class="claim-btn primary"
+						class="{claimBtnClasses} {claimBtnPrimaryClasses}"
 						on:click={handleClaim}
 						disabled={claiming || unclaimedPayout <= 0}
 					>
@@ -310,7 +410,7 @@
 							Claim All {formatCurrency(unclaimedPayout)}
 						{/if}
 					</button>
-					<button class="claim-btn secondary">
+					<button class="{claimBtnClasses} {claimBtnSecondaryClasses}">
 						Claim & Reinvest
 					</button>
 				</div>
@@ -318,19 +418,19 @@
 		</section>
 
 		<!-- Asset-by-Asset Claiming -->
-		<section class="asset-claims">
-			<div class="section-header">
-				<h2>Claim by Asset</h2>
-				<div class="controls">
+		<section class={assetClaimsClasses}>
+			<div class={sectionHeaderClasses}>
+				<h2 class={sectionTitleClasses}>Claim by Asset</h2>
+				<div class={mobileControlsClasses}>
 					<button 
-						class="control-btn"
+						class={controlBtnClasses}
 						on:click={handleSelectAll}
 					>
 						{selectedAssets.length === holdings.length ? 'Deselect All' : 'Select All'}
 					</button>
 					{#if selectedAssets.length > 0}
 						<button 
-							class="control-btn primary"
+							class="{controlBtnClasses} {controlBtnPrimaryClasses}"
 							on:click={handleClaim}
 							disabled={claiming}
 						>
@@ -344,44 +444,45 @@
 				</div>
 			</div>
 
-			<div class="assets-list">
+			<div class={assetsListClasses}>
 				{#each holdings as holding}
-					<div class="asset-card" class:selected={selectedAssets.includes(holding.id)}>
-						<div class="asset-main">
-							<div class="asset-select">
+					<div class="{assetCardClasses} {selectedAssets.includes(holding.id) ? assetCardSelectedClasses : ''}">
+						<div class={mobileAssetMainClasses}>
+							<div>
 								<input 
 									type="checkbox" 
+									class={assetSelectClasses}
 									checked={selectedAssets.includes(holding.id)}
 									on:change={() => handleAssetSelect(holding.id)}
 								/>
 							</div>
 							
-							<div class="asset-info">
-								<h3>{holding.name}</h3>
-								<p class="asset-location">{holding.location}</p>
-								<span class="status-badge" class:producing={holding.status === 'producing'}>
+							<div>
+								<h3 class={assetInfoH3Classes}>{holding.name}</h3>
+								<p class={assetLocationClasses}>{holding.location}</p>
+								<span class="{statusBadgeClasses} {holding.status === 'producing' ? statusBadgeProducingClasses : ''}">
 									{holding.status.toUpperCase()}
 								</span>
 							</div>
 							
-							<div class="asset-metrics">
-								<div class="metric">
-									<div class="metric-value unclaimed">{formatCurrency(holding.unclaimedAmount)}</div>
-									<div class="metric-label">Unclaimed</div>
+							<div class={mobileAssetMetricsClasses}>
+								<div class={metricClasses}>
+									<div class="{assetMetricValueClasses} {assetMetricValueUnclaimedClasses}">{formatCurrency(holding.unclaimedAmount)}</div>
+									<div class={assetMetricLabelClasses}>Unclaimed</div>
 								</div>
-								<div class="metric">
-									<div class="metric-value">{formatCurrency(holding.totalEarned)}</div>
-									<div class="metric-label">Total Earned</div>
+								<div class={metricClasses}>
+									<div class={assetMetricValueClasses}>{formatCurrency(holding.totalEarned)}</div>
+									<div class={assetMetricLabelClasses}>Total Earned</div>
 								</div>
-								<div class="metric">
-									<div class="metric-value">{holding.currentPayout}%</div>
-									<div class="metric-label">Current Payout</div>
+								<div class={metricClasses}>
+									<div class={assetMetricValueClasses}>{holding.currentPayout}%</div>
+									<div class={assetMetricLabelClasses}>Current Payout</div>
 								</div>
 							</div>
 							
-							<div class="asset-actions">
+							<div>
 								<button 
-									class="asset-claim-btn"
+									class={assetClaimBtnClasses}
 									on:click={() => handleAssetSelect(holding.id)}
 								>
 									Claim
@@ -389,8 +490,8 @@
 							</div>
 						</div>
 						
-						<div class="asset-footer">
-							<div class="footer-info">
+						<div class={assetFooterClasses}>
+							<div class={footerInfoClasses}>
 								<span>Last Payout: {formatDate(holding.lastPayout)}</span>
 							</div>
 						</div>
@@ -400,37 +501,37 @@
 		</section>
 
 		<!-- Claim Settings & History -->
-		<section class="bottom-section">
-			<div class="bottom-grid">
+		<section class={bottomSectionClasses}>
+			<div class={mobileBottomGridClasses}>
 				<!-- Claim Settings -->
-				<div class="settings-card">
-					<h3>Claim Settings</h3>
+				<div class={settingsCardClasses}>
+					<h3 class={cardTitleClasses}>Claim Settings</h3>
 					
-					<div class="setting-group">
-						<div class="setting-label">Claim Method</div>
-						<div class="radio-group">
-							<label class="radio-option">
+					<div class={settingGroupClasses}>
+						<div class={settingLabelClasses}>Claim Method</div>
+						<div class={radioGroupClasses}>
+							<label class={radioOptionClasses}>
 								<input 
 									type="radio" 
 									name="claimMethod" 
 									value="wallet"
 									bind:group={claimMethod}
 								/>
-								<div class="radio-content">
-									<div class="radio-title">Direct to Wallet</div>
-									<div class="radio-desc">Instant transfer to connected wallet</div>
+								<div class={radioContentClasses}>
+									<div class={radioTitleClasses}>Direct to Wallet</div>
+									<div class={radioDescClasses}>Instant transfer to connected wallet</div>
 								</div>
 							</label>
-							<label class="radio-option">
+							<label class={radioOptionClasses}>
 								<input 
 									type="radio" 
 									name="claimMethod" 
 									value="reinvest"
 									bind:group={claimMethod}
 								/>
-								<div class="radio-content">
-									<div class="radio-title">Auto-Reinvest</div>
-									<div class="radio-desc">Automatically purchase more tokens</div>
+								<div class={radioContentClasses}>
+									<div class={radioTitleClasses}>Auto-Reinvest</div>
+									<div class={radioDescClasses}>Automatically purchase more tokens</div>
 								</div>
 							</label>
 						</div>
@@ -438,28 +539,28 @@
 				</div>
 
 				<!-- Statistics -->
-				<div class="stats-card">
-					<h3>Payout Statistics</h3>
+				<div class={settingsCardClasses}>
+					<h3 class={cardTitleClasses}>Payout Statistics</h3>
 					
-					<div class="stats-grid">
-						<div class="stat-item">
-							<div class="stat-value">{dataStoreService.getPlatformStats().averagePortfolioIRR?.formatted || '13.2%'}</div>
-							<div class="stat-label">Avg Portfolio IRR</div>
+					<div class={mobileStatsGridClasses}>
+						<div class={statItemClasses}>
+							<div class={statValueClasses}>{dataStoreService.getPlatformStats().averagePortfolioIRR?.formatted || '13.2%'}</div>
+							<div class={statLabelClasses}>Avg Portfolio IRR</div>
 						</div>
-						<div class="stat-item">
-							<div class="stat-value">{formatCurrency(totalEarned / 12)}</div>
-							<div class="stat-label">Avg Monthly Income</div>
+						<div class={statItemClasses}>
+							<div class={statValueClasses}>{formatCurrency(totalEarned / 12)}</div>
+							<div class={statLabelClasses}>Avg Monthly Income</div>
 						</div>
 					</div>
 					
-					<div class="stats-list">
-						<div class="stats-row">
-							<span>Total Payouts This Year:</span>
-							<span>{dataStoreService.getPlatformStats().totalPayoutsThisYear?.formatted || '24'}</span>
+					<div class={statsListClasses}>
+						<div class={statsRowClasses}>
+							<span class={statsListLabelClasses}>Total Payouts This Year:</span>
+							<span class={statsListValueClasses}>{dataStoreService.getPlatformStats().totalPayoutsThisYear?.formatted || '24'}</span>
 						</div>
-						<div class="stats-row">
-							<span>Days Since Last Claim:</span>
-							<span>{dataStoreService.getPlatformStats().daysSinceLastClaim?.formatted || '3'}</span>
+						<div class={statsRowClasses}>
+							<span class={statsListLabelClasses}>Days Since Last Claim:</span>
+							<span class={statsListValueClasses}>{dataStoreService.getPlatformStats().daysSinceLastClaim?.formatted || '3'}</span>
 						</div>
 					</div>
 				</div>
@@ -467,37 +568,37 @@
 		</section>
 
 		<!-- Claim History -->
-		<section class="claim-history">
-			<div class="history-header">
-				<h2>Claim History</h2>
-				<div class="history-controls">
-					<button class="control-btn active">Recent</button>
-					<button class="control-btn">All Time</button>
-					<button class="control-btn">Export</button>
+		<section class={claimHistoryClasses}>
+			<div class={historyHeaderClasses}>
+				<h2 class={sectionTitleClasses}>Claim History</h2>
+				<div class={historyControlsClasses}>
+					<button class="{controlBtnClasses} {controlBtnActiveClasses}">Recent</button>
+					<button class={controlBtnClasses}>All Time</button>
+					<button class={controlBtnClasses}>Export</button>
 				</div>
 			</div>
 			
-			<div class="history-table">
-				<div class="table-header">
-					<div class="header-cell">Date</div>
-					<div class="header-cell">Asset</div>
-					<div class="header-cell">Amount</div>
-					<div class="header-cell">Transaction</div>
-					<div class="header-cell">Status</div>
+			<div class={historyTableClasses}>
+				<div class={mobileTableHeaderClasses}>
+					<div class={mobileHeaderCellClasses}>Date</div>
+					<div class={mobileHeaderCellClasses}>Asset</div>
+					<div class={mobileHeaderCellClasses}>Amount</div>
+					<div class={mobileHeaderCellClasses}>Transaction</div>
+					<div class={mobileHeaderCellClasses}>Status</div>
 				</div>
 				
 				{#each claimHistory as claim}
-					<div class="table-row">
-						<div class="table-cell">{formatDate(claim.date)}</div>
-						<div class="table-cell">
-							<div class="asset-name">{claim.asset}</div>
+					<div class={mobileTableRowClasses}>
+						<div class={mobileTableCellClasses}>{formatDate(claim.date)}</div>
+						<div class={mobileTableCellClasses}>
+							<div class={assetNameClasses}>{claim.asset}</div>
 						</div>
-						<div class="table-cell amount">{formatCurrency(claim.amount)}</div>
-						<div class="table-cell">
-							<div class="tx-hash">{claim.txHash}</div>
+						<div class="{mobileTableCellClasses} {tableCellAmountClasses}">{formatCurrency(claim.amount)}</div>
+						<div class={mobileTableCellClasses}>
+							<div class={txHashClasses}>{claim.txHash}</div>
 						</div>
-						<div class="table-cell">
-							<span class="status-completed">✓ Completed</span>
+						<div class={mobileTableCellClasses}>
+							<span class={statusCompletedClasses}>✓ Completed</span>
 						</div>
 					</div>
 				{/each}
@@ -515,707 +616,3 @@
 	on:close={handleWalletModalClose}
 />
 
-<style>
-	.claims-page {
-		padding: 0;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	/* Wallet Required Screen */
-	.wallet-required {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		min-height: 60vh;
-		text-align: center;
-		padding: 2rem;
-	}
-
-	.wallet-required-content h1 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.wallet-required-content p {
-		font-size: 1.1rem;
-		color: var(--color-black);
-		margin-bottom: 2rem;
-		opacity: 0.8;
-	}
-
-	.wallet-required .connect-btn {
-		background: var(--color-primary);
-		color: var(--color-white);
-		border: none;
-		padding: 1rem 2rem;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-extrabold);
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: background-color 0.2s ease;
-	}
-
-	.wallet-required .connect-btn:hover {
-		background: var(--color-secondary);
-	}
-
-	/* Hero Section */
-	.hero {
-		padding: 4rem 2rem;
-		text-align: center;
-		background: var(--color-white);
-		border-bottom: 1px solid var(--color-light-gray);
-	}
-
-	.hero-content {
-		max-width: 800px;
-		margin: 0 auto;
-	}
-
-	.hero h1 {
-		font-size: 2.5rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 1rem;
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.02em;
-	}
-
-	.hero p {
-		font-size: 1.1rem;
-		color: var(--color-black);
-		margin-bottom: 2rem;
-	}
-
-	.live-indicator {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: 0.9rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.pulse-dot {
-		width: 8px;
-		height: 8px;
-		background: var(--color-primary);
-		border-radius: 50%;
-		animation: pulse 2s infinite;
-	}
-
-	@keyframes pulse {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0.5; }
-	}
-
-	.loading-state {
-		text-align: center;
-		padding: 4rem 2rem;
-		color: var(--color-black);
-	}
-
-	.success-message {
-		background: var(--color-light-gray);
-		border: 1px solid var(--color-primary);
-		color: var(--color-primary);
-		padding: 1.5rem;
-		margin: 2rem;
-		text-align: center;
-	}
-
-	.success-message h3 {
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 0.5rem;
-	}
-
-	/* Payout Overview */
-	.payout-overview {
-		padding: 3rem 2rem;
-	}
-
-	.overview-grid {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 2rem;
-	}
-
-	.overview-card {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-		text-align: center;
-	}
-
-	.metric-value {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.metric-value.available {
-		color: var(--color-primary);
-	}
-
-	.metric-label {
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin-bottom: 0.25rem;
-	}
-
-	.metric-note {
-		font-size: 0.75rem;
-		color: var(--color-secondary);
-		font-weight: var(--font-weight-medium);
-	}
-
-	/* Quick Claim */
-	.quick-claim {
-		padding: 0 2rem 3rem;
-	}
-
-	.claim-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 3rem;
-		background: var(--color-light-gray);
-		border: 1px solid var(--color-light-gray);
-		padding: 3rem;
-	}
-
-	.claim-info h2 {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 2rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.amount-display {
-		font-size: 2.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-primary);
-		margin-bottom: 0.5rem;
-	}
-
-	.amount-label {
-		font-size: 0.9rem;
-		color: var(--color-black);
-		font-weight: var(--font-weight-semibold);
-		margin-bottom: 2rem;
-	}
-
-	.gas-info {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-		font-size: 0.9rem;
-	}
-
-	.gas-row {
-		display: flex;
-		justify-content: space-between;
-	}
-
-	.gas-row span:first-child {
-		color: var(--color-black);
-		font-weight: var(--font-weight-semibold);
-	}
-
-	.gas-row span:last-child {
-		color: var(--color-black);
-		font-weight: var(--font-weight-extrabold);
-	}
-
-	.net-amount {
-		color: var(--color-primary) !important;
-	}
-
-	.claim-actions {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		justify-content: center;
-	}
-
-	.claim-btn {
-		padding: 1rem 2rem;
-		border: none;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-extrabold);
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
-
-	.claim-btn.primary {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	.claim-btn.primary:hover:not(:disabled) {
-		background: var(--color-secondary);
-	}
-
-	.claim-btn.secondary {
-		background: var(--color-white);
-		color: var(--color-black);
-		border: 1px solid var(--color-black);
-	}
-
-	.claim-btn.secondary:hover {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	.claim-btn:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-
-	/* Asset Claims */
-	.asset-claims {
-		padding: 3rem 2rem;
-		background: var(--color-white);
-	}
-
-	.section-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 2rem;
-	}
-
-	.section-header h2 {
-		font-size: 1.75rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.controls {
-		display: flex;
-		gap: 1rem;
-	}
-
-	.control-btn {
-		padding: 0.75rem 1.5rem;
-		background: var(--color-white);
-		border: 1px solid var(--color-black);
-		color: var(--color-black);
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
-
-	.control-btn:hover,
-	.control-btn.active {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	.control-btn.primary {
-		background: var(--color-primary);
-		border-color: var(--color-primary);
-		color: var(--color-white);
-	}
-
-	.control-btn.primary:hover {
-		opacity: 0.9;
-	}
-
-	.assets-list {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
-
-	.asset-card {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-		transition: all 0.2s ease;
-	}
-
-	.asset-card.selected {
-		border-color: var(--color-primary);
-		background: var(--color-light-gray);
-	}
-
-	.asset-main {
-		display: grid;
-		grid-template-columns: auto 2fr 3fr auto;
-		gap: 2rem;
-		align-items: center;
-		margin-bottom: 1rem;
-	}
-
-	.asset-select input {
-		width: 1.25rem;
-		height: 1.25rem;
-	}
-
-	.asset-info h3 {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-		font-size: 1rem;
-	}
-
-	.asset-location {
-		color: var(--color-black);
-		opacity: 0.7;
-		font-size: 0.85rem;
-		margin-bottom: 0.5rem;
-	}
-
-	.status-badge {
-		background: var(--color-light-gray);
-		color: var(--color-secondary);
-		padding: 0.25rem 0.5rem;
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.status-badge.producing {
-		color: var(--color-primary);
-	}
-
-	.asset-metrics {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 1rem;
-		text-align: center;
-	}
-
-	.metric .metric-value {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.25rem;
-	}
-
-	.metric .metric-value.unclaimed {
-		color: var(--color-primary);
-	}
-
-	.metric .metric-label {
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		opacity: 0.7;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.asset-claim-btn {
-		background: var(--color-black);
-		color: var(--color-white);
-		border: none;
-		padding: 0.75rem 1.5rem;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: background-color 0.2s ease;
-	}
-
-	.asset-claim-btn:hover {
-		background: var(--color-secondary);
-	}
-
-	.asset-footer {
-		border-top: 1px solid var(--color-light-gray);
-		padding-top: 1rem;
-	}
-
-	.footer-info {
-		font-size: 0.85rem;
-		color: var(--color-black);
-		opacity: 0.7;
-	}
-
-	/* Bottom Section */
-	.bottom-section {
-		padding: 3rem 2rem;
-		background: var(--color-light-gray);
-	}
-
-	.bottom-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 3rem;
-	}
-
-	.settings-card,
-	.stats-card {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-	}
-
-	.settings-card h3,
-	.stats-card h3 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1.5rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.setting-group {
-		margin-bottom: 2rem;
-	}
-
-	.setting-label {
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin-bottom: 1rem;
-	}
-
-	.radio-group {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
-
-	.radio-option {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		cursor: pointer;
-	}
-
-	.radio-content {
-		flex: 1;
-	}
-
-	.radio-title {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		font-size: 0.9rem;
-		margin-bottom: 0.25rem;
-	}
-
-	.radio-desc {
-		font-size: 0.8rem;
-		color: var(--color-black);
-		opacity: 0.7;
-	}
-
-	.stats-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 1rem;
-		margin-bottom: 1.5rem;
-	}
-
-	.stat-item {
-		text-align: center;
-		padding: 1rem;
-		background: var(--color-light-gray);
-		border: 1px solid var(--color-light-gray);
-	}
-
-	.stat-value {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-primary);
-		margin-bottom: 0.25rem;
-	}
-
-	.stat-label {
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		opacity: 0.7;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.stats-list {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-	}
-
-	.stats-row {
-		display: flex;
-		justify-content: space-between;
-		font-size: 0.85rem;
-	}
-
-	.stats-row span:first-child {
-		color: var(--color-black);
-		opacity: 0.7;
-	}
-
-	.stats-row span:last-child {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-	}
-
-	/* Claim History */
-	.claim-history {
-		padding: 3rem 2rem;
-		background: var(--color-white);
-	}
-
-	.history-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 2rem;
-	}
-
-	.history-header h2 {
-		font-size: 1.75rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.history-controls {
-		display: flex;
-		gap: 0.5rem;
-	}
-
-	.history-table {
-		border: 1px solid var(--color-light-gray);
-	}
-
-	.table-header {
-		display: grid;
-		grid-template-columns: 1fr 2fr 1fr 1.5fr 1fr;
-		gap: 1rem;
-		padding: 1rem;
-		background: var(--color-light-gray);
-		border-bottom: 1px solid var(--color-light-gray);
-	}
-
-	.header-cell {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.table-row {
-		display: grid;
-		grid-template-columns: 1fr 2fr 1fr 1.5fr 1fr;
-		gap: 1rem;
-		padding: 1rem;
-		border-bottom: 1px solid var(--color-light-gray);
-		align-items: center;
-	}
-
-	.table-row:hover {
-		background: var(--color-light-gray);
-	}
-
-	.table-cell {
-		font-size: 0.85rem;
-		color: var(--color-black);
-	}
-
-	.asset-name {
-		font-weight: var(--font-weight-extrabold);
-	}
-
-	.table-cell.amount {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-primary);
-	}
-
-	.tx-hash {
-		font-family: monospace;
-		font-size: 0.8rem;
-		color: var(--color-black);
-		opacity: 0.7;
-	}
-
-	.status-completed {
-		color: var(--color-primary);
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.8rem;
-	}
-
-	@media (max-width: 768px) {
-		.hero h1 {
-			font-size: 2rem;
-		}
-
-		.overview-grid {
-			grid-template-columns: 1fr;
-		}
-
-		.claim-grid {
-			grid-template-columns: 1fr;
-		}
-
-		.asset-main {
-			grid-template-columns: 1fr;
-			gap: 1rem;
-			text-align: center;
-		}
-
-		.asset-metrics {
-			grid-template-columns: 1fr;
-		}
-
-		.controls {
-			flex-direction: column;
-		}
-
-		.bottom-grid {
-			grid-template-columns: 1fr;
-		}
-
-		.stats-grid {
-			grid-template-columns: 1fr;
-		}
-
-		.table-header,
-		.table-row {
-			grid-template-columns: 1fr;
-			gap: 0.5rem;
-			text-align: center;
-		}
-
-		.header-cell,
-		.table-cell {
-			padding: 0.5rem 0;
-		}
-	}
-</style>

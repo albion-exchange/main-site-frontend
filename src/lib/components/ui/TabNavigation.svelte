@@ -47,24 +47,52 @@
 			}
 		}
 	}
+	
+	// Tailwind class mappings
+	const sizeClasses = {
+		small: 'px-4 py-2 text-xs',
+		medium: 'px-6 py-3 text-sm',
+		large: 'px-8 py-4 text-base'
+	};
+	
+	const variantClasses = {
+		default: {
+			container: 'bg-white border-b border-light-gray overflow-x-auto',
+			tab: 'border-b-[3px] border-transparent hover:opacity-100 hover:bg-primary hover:text-white',
+			active: 'opacity-100 border-black text-black',
+			inactive: 'text-black opacity-60'
+		},
+		minimal: {
+			container: 'bg-transparent',
+			tab: 'rounded hover:bg-light-gray',
+			active: 'bg-black text-white',
+			inactive: 'text-black opacity-70 hover:opacity-100'
+		},
+		pills: {
+			container: 'bg-light-gray rounded-lg p-1',
+			tab: 'rounded-md hover:bg-white',
+			active: 'bg-white text-black shadow-sm',
+			inactive: 'text-black opacity-70 hover:opacity-100'
+		}
+	};
+	
+	// Badge class mapping
+	$: badgeClasses = 'inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold text-white bg-primary rounded-full min-w-[1.25rem] h-5';
+	
+	$: containerClasses = `flex items-center gap-1 scroll-smooth ${fullWidth ? 'w-full' : ''} ${centered ? 'justify-center' : ''} ${variantClasses[variant].container}`;
+	$: getTabClasses = (tab: any) => {
+		const isActive = activeTab === tab.id;
+		const baseClasses = `bg-transparent border-none font-bold cursor-pointer transition-all duration-200 whitespace-nowrap flex items-center gap-2 uppercase tracking-wide relative font-figtree ${sizeClasses[size]} ${variantClasses[variant].tab}`;
+		const stateClasses = isActive ? variantClasses[variant].active : variantClasses[variant].inactive;
+		const disabledClasses = tab.disabled ? 'opacity-40 cursor-not-allowed' : '';
+		return `${baseClasses} ${stateClasses} ${disabledClasses}`.trim();
+	};
 </script>
 
-<div 
-	class="tab-navigation" 
-	class:minimal={variant === 'minimal'}
-	class:pills={variant === 'pills'}
-	class:small={size === 'small'}
-	class:medium={size === 'medium'}
-	class:large={size === 'large'}
-	class:full-width={fullWidth}
-	class:centered
-	role="tablist"
->
+<div class={containerClasses} role="tablist">
 	{#each tabs as tab (tab.id)}
 		<button
-			class="tab-btn"
-			class:active={activeTab === tab.id}
-			class:disabled={tab.disabled}
+			class={getTabClasses(tab)}
 			disabled={tab.disabled}
 			role="tab"
 			aria-selected={activeTab === tab.id}
@@ -75,222 +103,9 @@
 		>
 			{tab.label}
 			{#if tab.badge}
-				<span class="tab-badge">{tab.badge}</span>
+				<span class={badgeClasses}>{tab.badge}</span>
 			{/if}
 		</button>
 	{/each}
 </div>
 
-<style>
-	.tab-navigation {
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
-		background: var(--color-white);
-		border-bottom: 1px solid var(--color-light-gray);
-		overflow-x: auto;
-		scroll-behavior: smooth;
-	}
-
-	.tab-navigation.full-width {
-		width: 100%;
-	}
-
-	.tab-navigation.centered {
-		justify-content: center;
-	}
-
-	.tab-navigation.minimal {
-		border-bottom: none;
-		background: transparent;
-	}
-
-	.tab-navigation.pills {
-		background: var(--color-light-gray);
-		border-radius: 8px;
-		padding: 0.25rem;
-		border-bottom: none;
-	}
-
-	.tab-btn {
-		background: transparent;
-		border: none;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-bold);
-		cursor: pointer;
-		transition: all 0.2s ease;
-		white-space: nowrap;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		position: relative;
-	}
-
-	/* Size variants */
-	.tab-navigation.small .tab-btn {
-		padding: 0.5rem 1rem;
-		font-size: 0.7rem;
-	}
-
-	.tab-navigation.medium .tab-btn {
-		padding: 0.75rem 1.5rem;
-		font-size: 0.8rem;
-	}
-
-	.tab-navigation.large .tab-btn {
-		padding: 1rem 2rem;
-		font-size: 0.9rem;
-	}
-
-	/* Default variant */
-	.tab-navigation:not(.minimal):not(.pills) .tab-btn {
-		color: var(--color-black);
-		opacity: 0.6;
-		border-bottom: 3px solid transparent;
-	}
-
-	.tab-navigation:not(.minimal):not(.pills) .tab-btn:hover:not(.active):not(.disabled) {
-		opacity: 1;
-		background: var(--color-primary);
-		color: var(--color-white);
-	}
-
-	.tab-navigation:not(.minimal):not(.pills) .tab-btn.active {
-		background: var(--color-secondary);
-		color: var(--color-white);
-		opacity: 1;
-		border-bottom-color: var(--color-secondary);
-	}
-
-	/* Minimal variant */
-	.tab-navigation.minimal .tab-btn {
-		color: var(--color-secondary);
-		border-bottom: 2px solid transparent;
-	}
-
-	.tab-navigation.minimal .tab-btn:hover:not(.active):not(.disabled) {
-		color: var(--color-black);
-	}
-
-	.tab-navigation.minimal .tab-btn.active {
-		color: var(--color-black);
-		border-bottom-color: var(--color-primary);
-	}
-
-	/* Pills variant */
-	.tab-navigation.pills .tab-btn {
-		color: var(--color-secondary);
-		border-radius: 6px;
-	}
-
-	.tab-navigation.pills .tab-btn:hover:not(.active):not(.disabled) {
-		background: rgba(255, 255, 255, 0.7);
-		color: var(--color-black);
-	}
-
-	.tab-navigation.pills .tab-btn.active {
-		background: var(--color-white);
-		color: var(--color-black);
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	}
-
-	/* Disabled state */
-	.tab-btn.disabled {
-		opacity: 0.3;
-		cursor: not-allowed;
-		pointer-events: none;
-	}
-
-	/* Focus styles */
-	.tab-btn:focus {
-		outline: 2px solid var(--color-primary);
-		outline-offset: 2px;
-	}
-
-	/* Badge */
-	.tab-badge {
-		background: var(--color-primary);
-		color: var(--color-white);
-		border-radius: 50%;
-		font-size: 0.6em;
-		font-weight: var(--font-weight-extrabold);
-		min-width: 1.2em;
-		height: 1.2em;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		text-transform: none;
-		letter-spacing: 0;
-	}
-
-	.tab-btn.active .tab-badge {
-		background: var(--color-white);
-		color: var(--color-secondary);
-	}
-
-	.tab-navigation.minimal .tab-btn.active .tab-badge {
-		background: var(--color-primary);
-		color: var(--color-white);
-	}
-
-	.tab-navigation.pills .tab-btn.active .tab-badge {
-		background: var(--color-primary);
-		color: var(--color-white);
-	}
-
-	/* Full width tabs */
-	.tab-navigation.full-width .tab-btn {
-		flex: 1;
-		text-align: center;
-		justify-content: center;
-	}
-
-	/* Responsive design */
-	@media (max-width: 768px) {
-		.tab-navigation {
-			gap: 0;
-		}
-
-		.tab-navigation:not(.pills) .tab-btn {
-			font-size: 0.7rem;
-			padding: 0.75rem 1rem;
-		}
-
-		.tab-navigation.pills .tab-btn {
-			font-size: 0.7rem;
-			padding: 0.5rem 0.75rem;
-		}
-
-		/* Hide badges on small screens if they make tabs too cramped */
-		.tab-badge {
-			display: none;
-		}
-	}
-
-	@media (max-width: 480px) {
-		.tab-navigation .tab-btn {
-			font-size: 0.65rem;
-			padding: 0.5rem 0.75rem;
-		}
-	}
-
-	/* Scrollbar styling for overflow */
-	.tab-navigation::-webkit-scrollbar {
-		height: 4px;
-	}
-
-	.tab-navigation::-webkit-scrollbar-track {
-		background: transparent;
-	}
-
-	.tab-navigation::-webkit-scrollbar-thumb {
-		background: var(--color-light-gray);
-		border-radius: 2px;
-	}
-
-	.tab-navigation::-webkit-scrollbar-thumb:hover {
-		background: var(--color-secondary);
-	}
-</style>

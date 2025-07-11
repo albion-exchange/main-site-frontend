@@ -1,13 +1,10 @@
 <script lang="ts">
-	export let padding = '2rem';
+	export let paddingClass = 'p-8';
+	
+	// Tailwind class mapping
+	$: contentClasses = `relative ${paddingClass}`;
 </script>
 
-<div class="card-content" style:padding={padding}>
+<div class={contentClasses}>
 	<slot />
 </div>
-
-<style>
-	.card-content {
-		position: relative;
-	}
-</style>

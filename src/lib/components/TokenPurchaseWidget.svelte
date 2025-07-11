@@ -144,17 +144,59 @@
 			closeWidget();
 		}
 	}
+	
+	// Tailwind class mappings
+	$: overlayClasses = 'fixed inset-0 bg-black/50 flex items-center justify-end z-[1000] p-8';
+	$: containerClasses = 'bg-white w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl animate-slide-in-right';
+	$: headerClasses = 'flex justify-between items-center p-8 border-b border-light-gray';
+	$: titleClasses = 'flex-1';
+	$: titleRowClasses = 'flex justify-between items-center gap-4';
+	$: mainTitleClasses = 'text-2xl font-bold text-black m-0';
+	$: assetNameClasses = 'text-secondary text-sm mt-2 m-0';
+	$: viewDetailsClasses = 'text-primary border border-primary px-3 py-2 text-sm font-medium rounded hover:bg-primary hover:text-white transition-all duration-200 no-underline whitespace-nowrap';
+	$: closeClasses = 'bg-transparent border-none text-2xl cursor-pointer text-black p-0 w-8 h-8 flex items-center justify-center rounded transition-colors duration-200 hover:bg-light-gray';
+	$: contentClasses = 'flex-1 p-8 overflow-y-auto min-h-0';
+	$: formClasses = 'flex flex-col gap-8';
+	$: tokenDetailsClasses = 'bg-light-gray p-6';
+	$: detailsGridClasses = 'grid grid-cols-1 md:grid-cols-3 gap-4';
+	$: detailItemClasses = 'flex flex-col gap-1';
+	$: detailLabelClasses = 'text-xs text-gray-500 uppercase tracking-wider';
+	$: detailValueClasses = 'text-lg font-bold text-secondary';
+	$: formSectionClasses = 'flex flex-col gap-2';
+	$: formLabelClasses = 'font-medium text-black text-sm';
+	$: amountInputClasses = 'p-4 border-2 border-light-gray text-lg transition-colors duration-200 focus:outline-none focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed';
+	$: availableTokensClasses = 'mt-2 text-sm text-secondary font-medium';
+	$: soldOutClasses = 'text-red-600';
+	$: warningNoteClasses = 'text-sm text-orange-600 bg-orange-50 p-2 mt-2';
+	$: orderSummaryClasses = 'border border-light-gray p-6';
+	$: summaryDetailsClasses = 'flex flex-col gap-3';
+	$: summaryRowClasses = 'flex justify-between items-center';
+	$: summaryTotalClasses = 'flex justify-between items-center pt-3 border-t border-light-gray font-medium';
+	$: strikethroughClasses = 'line-through text-gray-500';
+	$: freeTextClasses = 'text-primary font-medium';
+	$: termsCheckboxClasses = 'flex items-start gap-3 text-sm leading-relaxed cursor-pointer';
+	$: checkboxInputClasses = 'mt-1';
+	$: formActionsClasses = 'flex gap-4 mt-4';
+	$: successStateClasses = 'text-center p-8';
+	$: successIconClasses = 'w-16 h-16 bg-green-500 text-white rounded-full flex items-center justify-center text-2xl mx-auto mb-4';
+	$: errorStateClasses = 'text-center p-8';
+	$: successTitleClasses = 'text-xl font-bold text-black mb-4 m-0';
+	$: successTextClasses = 'text-gray-600 m-0';
+	$: errorTitleClasses = 'text-xl font-bold text-black mb-4 m-0';
+	$: errorTextClasses = 'text-gray-600 mb-4 m-0';
+	$: tokenDetailsTitleClasses = 'text-base font-medium text-black mb-4 m-0';
+	$: orderSummaryTitleClasses = 'font-medium text-black mb-4 m-0';
 </script>
 
 <!-- Widget Overlay -->
 {#if isOpen}
-	<div class="widget-overlay" on:click={handleBackdropClick} on:keydown={handleKeydown} role="dialog" aria-modal="true" tabindex="-1">
-		<div class="widget-container">
+	<div class={overlayClasses} on:click={handleBackdropClick} on:keydown={handleKeydown} role="dialog" aria-modal="true" tabindex="-1">
+		<div class={containerClasses}>
 			<!-- Header -->
-			<div class="widget-header">
-				<div class="widget-title">
-					<div class="title-row">
-						<h2>
+			<div class={headerClasses}>
+				<div class={titleClasses}>
+					<div class={titleRowClasses}>
+						<h2 class={mainTitleClasses}>
 							{#if tokenData}
 								{tokenData.name}
 							{:else}
@@ -162,99 +204,99 @@
 							{/if}
 						</h2>
 						{#if tokenData && assetData}
-							<a href="/assets/{assetData.id}#token-{tokenData.contractAddress}" class="view-details-link">
+							<a href="/assets/{assetData.id}#token-{tokenData.contractAddress}" class={viewDetailsClasses}>
 								View Details →
 							</a>
 						{/if}
 					</div>
 					{#if assetData}
-						<p class="asset-name">{assetData.name}</p>
+						<p class={assetNameClasses}>{assetData.name}</p>
 					{/if}
 				</div>
-				<button class="close-btn" on:click={closeWidget}>×</button>
+				<button class={closeClasses} on:click={closeWidget}>×</button>
 			</div>
 
 			<!-- Content -->
-			<div class="widget-content">
+			<div class={contentClasses}>
 				{#if purchaseSuccess}
 					<!-- Success State -->
-					<div class="success-state">
-						<div class="success-icon">✓</div>
-						<h3>Purchase Successful!</h3>
-						<p>You have successfully purchased {order.tokens.toLocaleString()} tokens.</p>
+					<div class={successStateClasses}>
+						<div class={successIconClasses}>✓</div>
+						<h3 class={successTitleClasses}>Purchase Successful!</h3>
+						<p class={successTextClasses}>You have successfully purchased {order.tokens.toLocaleString()} tokens.</p>
 					</div>
 				{:else if purchaseError}
 					<!-- Error State -->
-					<div class="error-state">
-						<h3>Purchase Failed</h3>
-						<p>{purchaseError}</p>
+					<div class={errorStateClasses}>
+						<h3 class={errorTitleClasses}>Purchase Failed</h3>
+						<p class={errorTextClasses}>{purchaseError}</p>
 						<SecondaryButton on:click={() => purchaseError = null}>
 							Try Again
 						</SecondaryButton>
 					</div>
 				{:else}
 					<!-- Purchase Form -->
-					<div class="purchase-form">
+					<div class={formClasses}>
 						<!-- Token Details -->
 						{#if tokenData}
-							<div class="token-details">
-								<h4>Token Details</h4>
-								<div class="details-grid">
-									<div class="detail-item">
-										<span class="detail-label">Share of Asset</span>
-										<span class="detail-value">{tokenData.sharePercentage || 0}%</span>
+							<div class={tokenDetailsClasses}>
+								<h4 class={tokenDetailsTitleClasses}>Token Details</h4>
+								<div class={detailsGridClasses}>
+									<div class={detailItemClasses}>
+										<span class={detailLabelClasses}>Share of Asset</span>
+										<span class={detailValueClasses}>{tokenData.sharePercentage || 0}%</span>
 									</div>
-									<div class="detail-item">
-										<span class="detail-label">Maximum Supply</span>
-										<span class="detail-value">{(supply?.maxSupply || 0).toLocaleString()}</span>
+									<div class={detailItemClasses}>
+										<span class={detailLabelClasses}>Maximum Supply</span>
+										<span class={detailValueClasses}>{(supply?.maxSupply || 0).toLocaleString()}</span>
 									</div>
-									<div class="detail-item">
-										<span class="detail-label">Current Supply</span>
-										<span class="detail-value">{(supply?.mintedSupply || 0).toLocaleString()}</span>
+									<div class={detailItemClasses}>
+										<span class={detailLabelClasses}>Current Supply</span>
+										<span class={detailValueClasses}>{(supply?.mintedSupply || 0).toLocaleString()}</span>
 									</div>
 								</div>
 							</div>
 						{/if}
 
 						<!-- Investment Amount -->
-						<div class="form-section">
-							<label class="form-label" for="amount">Investment Amount</label>
+						<div class={formSectionClasses}>
+							<label class={formLabelClasses} for="amount">Investment Amount</label>
 							<input 
 								id="amount"
 								type="number" 
 								bind:value={investmentAmount}
 								min={1}
 								max={supply?.availableSupply || 999999}
-								class="amount-input"
+								class={amountInputClasses}
 								disabled={isSoldOut()}
 							/>
-							<div class="available-tokens">
+							<div class={availableTokensClasses}>
 								{#if isSoldOut()}
-									<span class="sold-out">Sold Out</span>
+									<span class={soldOutClasses}>Sold Out</span>
 								{:else}
 									<span>Available: {(supply?.availableSupply || 0).toLocaleString()} tokens</span>
 								{/if}
 							</div>
 							{#if !isSoldOut() && supply?.availableSupply && investmentAmount > supply.availableSupply}
-								<div class="input-note warning-note">
+								<div class={warningNoteClasses}>
 									Investment amount exceeds available supply.
 								</div>
 							{/if}
 						</div>
 
 						<!-- Order Summary -->
-						<div class="order-summary">
-							<h4>Order Summary</h4>
-							<div class="summary-details">
-								<div class="summary-row">
+						<div class={orderSummaryClasses}>
+							<h4 class={orderSummaryTitleClasses}>Order Summary</h4>
+							<div class={summaryDetailsClasses}>
+								<div class={summaryRowClasses}>
 									<span>Investment Amount</span>
 									<span>{formatCurrency(investmentAmount)}</span>
 								</div>
-								<div class="summary-row">
-									<span>Platform Fee <span class="strikethrough">(0.5%)</span></span>
-									<span class="free-text">FREE</span>
+								<div class={summaryRowClasses}>
+									<span>Platform Fee <span class={strikethroughClasses}>(0.5%)</span></span>
+									<span class={freeTextClasses}>FREE</span>
 								</div>
-								<div class="summary-row total">
+								<div class={summaryTotalClasses}>
 									<span>Total Cost</span>
 									<span>{formatCurrency(order.totalCost)}</span>
 								</div>
@@ -262,15 +304,15 @@
 						</div>
 
 						<!-- Terms Agreement -->
-						<div class="form-section">
-							<label class="terms-checkbox">
-								<input type="checkbox" bind:checked={agreedToTerms} />
+						<div class={formSectionClasses}>
+							<label class={termsCheckboxClasses}>
+								<input type="checkbox" bind:checked={agreedToTerms} class={checkboxInputClasses} />
 								<span>I agree to the terms and conditions and understand the risks involved in this investment.</span>
 							</label>
 						</div>
 
 						<!-- Action Buttons -->
-						<div class="form-actions">
+						<div class={formActionsClasses}>
 							<SecondaryButton on:click={closeWidget}>
 								Cancel
 							</SecondaryButton>
@@ -293,327 +335,3 @@
 	</div>
 {/if}
 
-<style>
-	.widget-overlay {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background: rgba(0, 0, 0, 0.5);
-		display: flex;
-		align-items: center;
-		justify-content: flex-end;
-		z-index: 1000;
-		padding: 2rem;
-	}
-
-	.widget-container {
-		background: white;
-		width: 100%;
-		max-width: 500px;
-		height: auto;
-		max-height: 90vh;
-		border-radius: 0;
-		display: flex;
-		flex-direction: column;
-		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-		transform: translateX(100%);
-		animation: slideIn 0.3s ease-out forwards;
-	}
-
-	@keyframes slideIn {
-		to {
-			transform: translateX(0);
-		}
-	}
-
-	.widget-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 2rem;
-		border-bottom: 1px solid var(--color-light-gray);
-	}
-
-	.title-row {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: 1rem;
-	}
-
-	.widget-title h2 {
-		margin: 0;
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-	}
-
-	.view-details-link {
-		color: var(--color-primary-blue);
-		text-decoration: none;
-		font-size: 0.875rem;
-		font-weight: var(--font-weight-medium);
-		padding: 0.5rem 0.75rem;
-		border: 1px solid var(--color-primary-blue);
-		border-radius: 4px;
-		transition: all 0.2s ease;
-		white-space: nowrap;
-	}
-
-	.view-details-link:hover {
-		font-weight: var(--font-weight-bold);
-		border-color: #283c84;
-		color: #283c84;
-	}
-
-	.asset-name {
-		margin: 0.5rem 0 0;
-		color: var(--color-secondary-blue);
-		font-size: 0.9rem;
-	}
-
-	.close-btn {
-		background: none;
-		border: none;
-		font-size: 2rem;
-		cursor: pointer;
-		color: var(--color-black);
-		padding: 0;
-		width: 2rem;
-		height: 2rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border-radius: 0;
-		transition: background-color 0.2s;
-	}
-
-	.close-btn:hover {
-		background-color: var(--color-light-gray);
-	}
-
-	.widget-content {
-		flex: 1;
-		padding: 2rem;
-		overflow-y: auto;
-		min-height: 0;
-	}
-
-	.purchase-form {
-		display: flex;
-		flex-direction: column;
-		gap: 2rem;
-	}
-
-	.form-section {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-
-	.form-label {
-		font-weight: var(--font-weight-medium);
-		color: var(--color-black);
-		font-size: 0.9rem;
-	}
-
-	.amount-input {
-		padding: 1rem;
-		border: 2px solid var(--color-light-gray);
-		border-radius: 0;
-		font-size: 1.1rem;
-		transition: border-color 0.2s;
-	}
-
-	.amount-input:focus {
-		outline: none;
-		border-color: var(--color-primary-blue);
-	}
-
-	.token-details {
-		background: var(--color-light-gray);
-		padding: 1.5rem;
-		border-radius: 0;
-	}
-
-	.token-details h4 {
-		margin: 0 0 1rem 0;
-		font-size: 1rem;
-		font-weight: var(--font-weight-medium);
-		color: var(--color-black);
-	}
-
-	.details-grid {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 1rem;
-	}
-
-	.detail-item {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-	}
-
-	.detail-label {
-		font-size: 0.75rem;
-		color: #6b7280;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.detail-value {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-secondary-blue);
-	}
-
-	.available-tokens {
-		margin-top: 0.5rem;
-		font-size: 0.875rem;
-		color: var(--color-secondary-blue);
-		font-weight: var(--font-weight-medium);
-	}
-
-	.available-tokens .sold-out {
-		color: #dc2626;
-	}
-
-	.input-note {
-		font-size: 0.8rem;
-		padding: 0.5rem;
-		border-radius: 0;
-		margin-top: 0.5rem;
-	}
-
-	.warning-note {
-		color: #d97706;
-		background: #fef3c7;
-	}
-
-	.order-summary {
-		border: 1px solid var(--color-light-gray);
-		border-radius: 0;
-		padding: 1.5rem;
-	}
-
-	.order-summary h4 {
-		margin: 0 0 1rem;
-		font-weight: var(--font-weight-medium);
-		color: var(--color-black);
-	}
-
-	.summary-details {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-	}
-
-	.summary-row {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
-
-	.summary-row.total {
-		padding-top: 0.75rem;
-		border-top: 1px solid var(--color-light-gray);
-		font-weight: var(--font-weight-medium);
-	}
-
-	.strikethrough {
-		text-decoration: line-through;
-		color: #6b7280;
-	}
-
-	.free-text {
-		color: var(--color-primary-blue);
-		font-weight: var(--font-weight-medium);
-	}
-
-	.terms-checkbox {
-		display: flex;
-		align-items: flex-start;
-		gap: 0.75rem;
-		font-size: 0.9rem;
-		line-height: 1.4;
-		cursor: pointer;
-	}
-
-	.terms-checkbox input[type="checkbox"] {
-		margin-top: 0.125rem;
-	}
-
-	.form-actions {
-		display: flex;
-		gap: 1rem;
-		margin-top: 1rem;
-	}
-
-
-	.success-state, .error-state {
-		text-align: center;
-		padding: 2rem;
-	}
-
-	.success-icon {
-		width: 4rem;
-		height: 4rem;
-		background: #10b981;
-		color: white;
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 2rem;
-		margin: 0 auto 1rem;
-	}
-
-	.success-state h3, .error-state h3 {
-		margin: 0 0 1rem;
-		color: var(--color-black);
-	}
-
-	.success-state p, .error-state p {
-		margin: 0;
-		color: #6b7280;
-	}
-
-	@media (max-width: 768px) {
-		.widget-overlay {
-			padding: 0;
-		}
-
-		.widget-container {
-			width: 100%;
-			height: 100%;
-			max-height: none;
-			border-radius: 0;
-			transform: translateY(100%);
-			animation: slideUp 0.3s ease-out forwards;
-		}
-
-		@keyframes slideUp {
-			to {
-				transform: translateY(0);
-			}
-		}
-
-		.details-grid {
-			grid-template-columns: 1fr;
-		}
-
-		.title-row {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 0.5rem;
-		}
-
-		.view-details-link {
-			font-size: 0.75rem;
-			padding: 0.375rem 0.5rem;
-		}
-	}
-</style>

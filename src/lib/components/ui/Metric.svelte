@@ -24,165 +24,59 @@
 			dispatch('click');
 		}
 	}
+	
+	// Size and variant mappings
+	const sizeClasses = {
+		small: {
+			value: 'text-base md:text-sm',
+			label: 'text-[0.65rem]'
+		},
+		medium: {
+			value: 'text-2xl md:text-xl',
+			label: 'text-[0.7rem]'
+		},
+		large: {
+			value: 'text-3xl md:text-2xl',
+			label: 'text-xs',
+			note: 'text-xs'
+		}
+	};
+	
+	const variantClasses = {
+		default: 'text-black',
+		positive: 'text-primary',
+		negative: 'text-red-600',
+		primary: 'text-primary',
+		available: 'text-primary',
+		unclaimed: 'text-primary',
+		payout: 'text-primary'
+	};
+	
+	$: containerClasses = `flex flex-col gap-1 ${centered ? 'items-center text-center' : 'items-start'} ${clickable ? 'cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:bg-light-gray hover:p-2 hover:rounded-lg focus:outline-primary focus:outline-2 focus:outline-offset-2 focus:rounded-lg' : ''}`;
+	$: valueClasses = `font-extrabold leading-none mb-2 ${sizeClasses[size].value} ${variantClasses[variant]}`;
+	$: labelClasses = `font-semibold text-black uppercase tracking-wide mb-1 ${sizeClasses[size].label}`;
+	$: noteClasses = `text-[0.65rem] text-secondary font-medium ${size === 'large' ? 'text-xs' : ''} ${variant === 'positive' ? 'text-primary' : variant === 'negative' ? 'text-red-600' : ''}`;
+	$: subtitleClasses = `text-[0.7rem] text-secondary font-medium mt-1 ${size === 'large' ? 'text-xs' : ''}`;
 </script>
 
 <div 
-	class="metric" 
-	class:clickable
-	class:centered
-	class:small={size === 'small'}
-	class:medium={size === 'medium'}
-	class:large={size === 'large'}
+	class={containerClasses}
 	on:click={handleClick}
 	on:keydown={handleKeydown}
 	role={clickable ? 'button' : undefined}
-	tabindex={clickable ? 0 : undefined}
+	{...(clickable ? { tabindex: 0 } : {})}
 >
-	<div class="metric-value" class:positive={variant === 'positive'} class:negative={variant === 'negative'} class:primary={variant === 'primary'} class:available={variant === 'available'} class:unclaimed={variant === 'unclaimed'} class:payout={variant === 'payout'}>
+	<div class={valueClasses}>
 		{value}
 	</div>
-	<div class="metric-label">{label}</div>
+	<div class={labelClasses}>{label}</div>
 	{#if note}
-		<div class="metric-note" class:positive={variant === 'positive'} class:negative={variant === 'negative'}>
+		<div class={noteClasses}>
 			{note}
 		</div>
 	{/if}
 	{#if subtitle}
-		<div class="metric-subtitle">{subtitle}</div>
+		<div class={subtitleClasses}>{subtitle}</div>
 	{/if}
 </div>
 
-<style>
-	.metric {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 0.25rem;
-	}
-
-	.metric.centered {
-		align-items: center;
-		text-align: center;
-	}
-
-	.metric.clickable {
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
-
-	.metric.clickable:hover {
-		transform: translateY(-2px);
-		background-color: var(--color-light-gray);
-		padding: 0.5rem;
-		border-radius: 8px;
-	}
-
-	.metric.clickable:focus {
-		outline: 2px solid var(--color-primary);
-		outline-offset: 2px;
-		border-radius: 8px;
-	}
-
-	.metric-value {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-		line-height: 1;
-	}
-
-	/* Size variants */
-	.metric.small .metric-value {
-		font-size: 1rem;
-	}
-
-	.metric.medium .metric-value {
-		font-size: 1.5rem;
-	}
-
-	.metric.large .metric-value {
-		font-size: 2rem;
-	}
-
-	/* Color variants */
-	.metric-value.positive {
-		color: var(--color-primary);
-	}
-
-	.metric-value.negative {
-		color: #dc2626;
-	}
-
-	.metric-value.primary {
-		color: var(--color-primary);
-	}
-
-	.metric-value.available {
-		color: var(--color-primary);
-	}
-
-	.metric-value.unclaimed {
-		color: var(--color-primary);
-	}
-
-	.metric-value.payout {
-		color: var(--color-primary);
-	}
-
-	.metric-label {
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin-bottom: 0.25rem;
-	}
-
-	.metric.small .metric-label {
-		font-size: 0.65rem;
-	}
-
-	.metric.medium .metric-label {
-		font-size: 0.7rem;
-	}
-
-	.metric.large .metric-label {
-		font-size: 0.8rem;
-	}
-
-	.metric-note {
-		font-size: 0.65rem;
-		color: var(--color-secondary);
-		font-weight: var(--font-weight-medium);
-	}
-
-	.metric-note.positive {
-		color: var(--color-primary);
-	}
-
-	.metric-note.negative {
-		color: #dc2626;
-	}
-
-	.metric-subtitle {
-		font-size: 0.7rem;
-		color: var(--color-secondary);
-		font-weight: var(--font-weight-medium);
-		margin-top: 0.25rem;
-	}
-
-	.metric.large .metric-note,
-	.metric.large .metric-subtitle {
-		font-size: 0.75rem;
-	}
-
-	/* Responsive design */
-	@media (max-width: 768px) {
-		.metric.large .metric-value {
-			font-size: 1.5rem;
-		}
-		
-		.metric.medium .metric-value {
-			font-size: 1.25rem;
-		}
-	}
-</style>

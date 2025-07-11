@@ -66,6 +66,31 @@
 		showPurchaseWidget = false;
 		selectedAssetId = null;
 	}
+	
+	// Tailwind class mappings
+	$: pageClasses = 'py-16 px-8 max-w-6xl mx-auto';
+	$: headerClasses = 'text-center mb-16';
+	$: mainTitleClasses = 'text-5xl font-extrabold mb-4 text-black';
+	$: subtitleClasses = 'text-xl text-black';
+	$: loadingStateClasses = 'text-center py-16 px-8 text-black';
+	$: emptyStateClasses = 'text-center py-16 px-8 border border-light-gray bg-white';
+	$: emptyTitleClasses = 'text-2xl font-extrabold mb-4 text-black';
+	$: emptyDescriptionClasses = 'mb-8 text-black';
+	$: assetsGridClasses = 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8';
+	$: viewPreviousSectionClasses = 'text-center mt-12 py-8';
+	
+	// Mobile responsive classes
+	$: mobilePageClasses = 'md:py-16 py-8 md:px-8 px-4 max-w-6xl mx-auto';
+	$: mobileHeaderClasses = 'text-center md:mb-16 mb-8';
+	$: mobileTitleClasses = 'md:text-5xl text-3xl font-extrabold md:mb-4 mb-3 text-black';
+	$: mobileSubtitleClasses = 'md:text-xl text-base text-black';
+	$: mobileAssetsGridClasses = 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 md:gap-8 gap-6';
+	$: mobileLoadingStateClasses = 'text-center md:py-16 py-8 md:px-8 px-4 text-black';
+	$: mobileEmptyStateClasses = 'text-center md:py-16 py-8 md:px-8 px-4 border border-light-gray bg-white';
+	$: mobileViewPreviousSectionClasses = 'text-center md:mt-12 mt-8 md:py-8 py-6';
+	$: smallMobilePageClasses = 'sm:py-8 py-6 sm:px-4 px-3 max-w-6xl mx-auto';
+	$: smallMobileTitleClasses = 'sm:text-3xl text-[1.75rem] font-extrabold md:mb-4 mb-3 text-black';
+	$: smallMobileAssetsGridClasses = 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 sm:gap-6 gap-4';
 </script>
 
 <svelte:head>
@@ -73,31 +98,31 @@
 	<meta name="description" content="Browse available oil field assets for investment" />
 </svelte:head>
 
-<main class="assets-page">
-	<header class="page-header">
-		<h1>Available Assets</h1>
-		<p>Discover tokenized oil field investments</p>
+<main class={smallMobilePageClasses}>
+	<header class={mobileHeaderClasses}>
+		<h1 class={smallMobileTitleClasses}>Available Assets</h1>
+		<p class={mobileSubtitleClasses}>Discover tokenized oil field investments</p>
 	</header>
 
 	{#if loading}
-		<div class="loading-state">
+		<div class={mobileLoadingStateClasses}>
 			<p>Loading assets...</p>
 		</div>
 	{:else}
 
 		<!-- Assets Display -->
 		{#if filteredAssets.length === 0 && !showSoldOutAssets}
-			<div class="empty-state">
-				<h3>No Available Assets</h3>
-				<p>All assets are currently sold out.</p>
+			<div class={mobileEmptyStateClasses}>
+				<h3 class={emptyTitleClasses}>No Available Assets</h3>
+				<p class={emptyDescriptionClasses}>All assets are currently sold out.</p>
 			</div>
 		{:else if filteredAssets.length === 0}
-			<div class="empty-state">
-				<h3>No Assets Found</h3>
-				<p>Try adjusting your search criteria or filters to find assets.</p>
+			<div class={mobileEmptyStateClasses}>
+				<h3 class={emptyTitleClasses}>No Assets Found</h3>
+				<p class={emptyDescriptionClasses}>Try adjusting your search criteria or filters to find assets.</p>
 			</div>
 		{:else}
-			<div class="assets-grid">
+			<div class={smallMobileAssetsGridClasses}>
 				{#each filteredAssets as asset}
 					<AssetCard {asset} on:buyTokens={handleBuyTokens} />
 				{/each}
@@ -106,13 +131,13 @@
 		
 		<!-- View Previous Assets Button -->
 		{#if soldOutCount > 0 && !showSoldOutAssets}
-			<div class="view-previous-section">
+			<div class={mobileViewPreviousSectionClasses}>
 				<SecondaryButton on:click={() => showSoldOutAssets = true}>
 					View Sold Out Assets ({soldOutCount})
 				</SecondaryButton>
 			</div>
 		{:else if showSoldOutAssets && soldOutCount > 0}
-			<div class="view-previous-section">
+			<div class={mobileViewPreviousSectionClasses}>
 				<SecondaryButton on:click={() => showSoldOutAssets = false}>
 					Hide Sold Out Assets
 				</SecondaryButton>
@@ -121,117 +146,6 @@
 	{/if}
 </main>
 
-<style>
-	.assets-page {
-		padding: 4rem 2rem;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.page-header {
-		text-align: center;
-		margin-bottom: 4rem;
-	}
-
-	.page-header h1 {
-		font-size: 3rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 1rem;
-		color: var(--color-black);
-	}
-
-	.page-header p {
-		font-size: 1.25rem;
-		color: var(--color-black);
-	}
-
-	.loading-state {
-		text-align: center;
-		padding: 4rem 2rem;
-		color: var(--color-black);
-	}
-
-
-	.empty-state {
-		text-align: center;
-		padding: 4rem 2rem;
-		border: 1px solid var(--color-light-gray);
-		background: var(--color-white);
-	}
-
-	.empty-state h3 {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 1rem;
-		color: var(--color-black);
-	}
-
-	.empty-state p {
-		margin-bottom: 2rem;
-		color: var(--color-black);
-	}
-
-	.assets-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-		gap: 2rem;
-	}
-
-	.view-previous-section {
-		text-align: center;
-		margin-top: 3rem;
-		padding: 2rem 0;
-	}
-
-
-	@media (max-width: 768px) {
-		.assets-page {
-			padding: 2rem 1rem;
-		}
-
-		.page-header {
-			margin-bottom: 2rem;
-		}
-
-		.page-header h1 {
-			font-size: 2rem;
-			margin-bottom: 0.75rem;
-		}
-
-		.page-header p {
-			font-size: 1rem;
-		}
-
-		.assets-grid {
-			grid-template-columns: 1fr;
-			gap: 1.5rem;
-		}
-
-		.loading-state,
-		.empty-state {
-			padding: 2rem 1rem;
-		}
-
-		.view-previous-section {
-			margin-top: 2rem;
-			padding: 1.5rem 0;
-		}
-	}
-
-	@media (max-width: 480px) {
-		.assets-page {
-			padding: 1.5rem 0.75rem;
-		}
-
-		.page-header h1 {
-			font-size: 1.75rem;
-		}
-
-		.assets-grid {
-			gap: 1rem;
-		}
-	}
-</style>
 
 <!-- Token Purchase Widget -->
 <TokenPurchaseWidget 

@@ -17,6 +17,57 @@
 	onMount(() => {
 		companyInfo = dataStoreService.getCompanyInfo();
 	});
+	
+	// Tailwind class mappings
+	$: pageClasses = 'pt-0';
+	$: heroClasses = 'py-24 px-8 text-center bg-white border-b border-light-gray';
+	$: heroContentClasses = 'max-w-6xl mx-auto';
+	$: heroTitleClasses = 'text-5xl font-extrabold mb-8 text-black tracking-tight leading-tight';
+	$: heroDescriptionClasses = 'text-xl leading-relaxed text-black max-w-2xl mx-auto';
+	$: contactSectionClasses = 'py-16 px-8 max-w-6xl mx-auto';
+	$: contactGridClasses = 'grid grid-cols-1 lg:grid-cols-2 gap-16';
+	$: contactFormClasses = 'bg-white border border-light-gray p-12';
+	$: contactFormTitleClasses = 'text-2xl font-extrabold text-black mb-8 uppercase tracking-wider';
+	$: formRowClasses = 'grid grid-cols-1 md:grid-cols-2 gap-4 mb-6';
+	$: formGroupClasses = 'flex flex-col mb-6';
+	$: formRowGroupClasses = 'flex flex-col';
+	$: labelClasses = 'font-semibold text-black mb-2 text-sm uppercase tracking-wider';
+	$: inputClasses = 'px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black transition-colors duration-200 focus:outline-none focus:border-black';
+	$: textareaClasses = 'px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black resize-vertical min-h-[120px] transition-colors duration-200 focus:outline-none focus:border-black';
+	$: submitBtnClasses = 'w-full px-4 py-4 bg-black text-white border-none font-figtree font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary disabled:opacity-70 disabled:cursor-not-allowed';
+	$: successMessageClasses = 'bg-light-gray border border-primary text-primary px-4 py-4 mt-4 font-semibold text-center';
+	$: contactInfoClasses = 'bg-light-gray border border-light-gray p-12';
+	$: contactInfoTitleClasses = 'text-2xl font-extrabold text-black mb-8 uppercase tracking-wider';
+	$: contactMethodsClasses = 'flex flex-col gap-8 mb-12';
+	$: contactMethodClasses = 'flex items-start gap-4';
+	$: methodIconClasses = 'w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-xl flex-shrink-0';
+	$: methodDetailsClasses = 'flex-1';
+	$: methodTitleClasses = 'font-extrabold text-black mb-2 text-base';
+	$: methodTextClasses = 'text-black font-semibold mb-1';
+	$: methodSubtextClasses = 'text-black opacity-70 text-sm';
+	$: faqClasses = 'py-16 px-8 bg-white text-center';
+	$: faqTitleClasses = 'text-3xl font-extrabold text-black mb-12';
+	$: faqGridClasses = 'grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto';
+	$: faqItemClasses = 'bg-light-gray border border-light-gray p-8 text-left';
+	$: faqItemTitleClasses = 'font-extrabold text-black mb-4 text-base';
+	$: faqItemTextClasses = 'text-black leading-normal text-sm';
+	$: supportClasses = 'py-16 px-8 bg-secondary text-white text-center';
+	$: supportTitleClasses = 'text-3xl font-extrabold mb-12';
+	$: resourcesGridClasses = 'grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto';
+	$: resourceClasses = 'bg-white/10 border border-white/20 p-8 text-center';
+	$: resourceIconClasses = 'text-5xl mb-4';
+	$: resourceTitleClasses = 'font-extrabold mb-4 text-lg';
+	$: resourceTextClasses = 'mb-6 opacity-90 text-sm';
+	$: resourceLinkClasses = 'text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200';
+	
+	// Mobile responsive classes
+	$: mobileHeroTitleClasses = 'md:text-5xl text-4xl font-extrabold mb-8 text-black tracking-tight leading-tight';
+	$: mobileContactGridClasses = 'grid grid-cols-1 lg:grid-cols-2 md:gap-16 gap-8';
+	$: mobileFormRowClasses = 'grid grid-cols-1 md:grid-cols-2 gap-4 mb-6';
+	$: mobileContactFormClasses = 'bg-white border border-light-gray md:p-12 p-8';
+	$: mobileContactInfoClasses = 'bg-light-gray border border-light-gray md:p-12 p-8';
+	$: mobileFaqGridClasses = 'grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto';
+	$: mobileResourcesGridClasses = 'grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto';
 
 	async function handleSubmit() {
 		isSubmitting = true;
@@ -48,61 +99,64 @@
 	<meta name="description" content="Get in touch with the Albion team for investment inquiries and support" />
 </svelte:head>
 
-<main class="contact-page">
+<main class={pageClasses}>
 	<!-- Hero Section -->
-	<section class="hero">
-		<div class="hero-content">
-			<h1>Contact Us</h1>
-			<p>Get in touch with our team for investment inquiries, platform support, or partnership opportunities.</p>
+	<section class={heroClasses}>
+		<div class={heroContentClasses}>
+			<h1 class={mobileHeroTitleClasses}>Contact Us</h1>
+			<p class={heroDescriptionClasses}>Get in touch with our team for investment inquiries, platform support, or partnership opportunities.</p>
 		</div>
 	</section>
 
 	<!-- Contact Form & Info -->
-	<section class="contact-section">
-		<div class="contact-grid">
+	<section class={contactSectionClasses}>
+		<div class={mobileContactGridClasses}>
 			<!-- Contact Form -->
-			<div class="contact-form">
-				<h2>Send us a Message</h2>
+			<div class={mobileContactFormClasses}>
+				<h2 class={contactFormTitleClasses}>Send us a Message</h2>
 				
 				<form on:submit|preventDefault={handleSubmit}>
-					<div class="form-row">
-						<div class="form-group">
-							<label for="name">Full Name</label>
+					<div class={mobileFormRowClasses}>
+						<div class={formRowGroupClasses}>
+							<label for="name" class={labelClasses}>Full Name</label>
 							<input 
 								id="name"
 								type="text" 
 								bind:value={formData.name}
 								required
 								placeholder="John Doe"
+								class={inputClasses}
 							/>
 						</div>
 						
-						<div class="form-group">
-							<label for="email">Email Address</label>
+						<div class={formRowGroupClasses}>
+							<label for="email" class={labelClasses}>Email Address</label>
 							<input 
 								id="email"
 								type="email" 
 								bind:value={formData.email}
 								required
 								placeholder="john@example.com"
+								class={inputClasses}
 							/>
 						</div>
 					</div>
 					
-					<div class="form-row">
-						<div class="form-group">
-							<label for="company">Company (Optional)</label>
+					<div class={mobileFormRowClasses}>
+						<div class={formRowGroupClasses}>
+							<label for="company" class={labelClasses}>Company (Optional)</label>
 							<input 
 								id="company"
 								type="text" 
 								bind:value={formData.company}
 								placeholder="Acme Corp"
+								class={inputClasses}
 							/>
 						</div>
 						
-						<div class="form-group">
-							<label for="subject">Subject</label>
-							<select id="subject" bind:value={formData.subject} required>
+						<div class={formRowGroupClasses}>
+							<label for="subject" class={labelClasses}>Subject</label>
+							<select id="subject" bind:value={formData.subject} required class={inputClasses}>
 								<option value="">Select a topic</option>
 								<option value="investment">Investment Inquiry</option>
 								<option value="support">Platform Support</option>
@@ -113,18 +167,19 @@
 						</div>
 					</div>
 					
-					<div class="form-group">
-						<label for="message">Message</label>
+					<div class={formGroupClasses}>
+						<label for="message" class={labelClasses}>Message</label>
 						<textarea 
 							id="message"
 							bind:value={formData.message}
 							required
 							rows="6"
 							placeholder="Tell us about your inquiry..."
+							class={textareaClasses}
 						></textarea>
 					</div>
 					
-					<button type="submit" class="submit-btn" disabled={isSubmitting}>
+					<button type="submit" class={submitBtnClasses} disabled={isSubmitting}>
 						{#if isSubmitting}
 							Sending...
 						{:else if submitStatus === 'success'}
@@ -135,7 +190,7 @@
 					</button>
 					
 					{#if submitStatus === 'success'}
-						<div class="success-message">
+						<div class={successMessageClasses}>
 							Thank you for your message. We'll get back to you within 24 hours.
 						</div>
 					{/if}
@@ -143,43 +198,43 @@
 			</div>
 
 			<!-- Contact Information -->
-			<div class="contact-info">
-				<h2>Get in Touch</h2>
+			<div class={mobileContactInfoClasses}>
+				<h2 class={contactInfoTitleClasses}>Get in Touch</h2>
 				
-				<div class="contact-methods">
-					<div class="contact-method">
-						<div class="method-icon">📧</div>
-						<div class="method-details">
-							<h3>Email</h3>
-							<p>contact@albion.com</p>
-							<span>We respond within 24 hours</span>
+				<div class={contactMethodsClasses}>
+					<div class={contactMethodClasses}>
+						<div class={methodIconClasses}>📧</div>
+						<div class={methodDetailsClasses}>
+							<h3 class={methodTitleClasses}>Email</h3>
+							<p class={methodTextClasses}>contact@albion.com</p>
+							<span class={methodSubtextClasses}>We respond within 24 hours</span>
 						</div>
 					</div>
 					
-					<div class="contact-method">
-						<div class="method-icon">💬</div>
-						<div class="method-details">
-							<h3>Live Chat</h3>
-							<p>Available 24/7</p>
-							<span>Instant support for platform users</span>
+					<div class={contactMethodClasses}>
+						<div class={methodIconClasses}>💬</div>
+						<div class={methodDetailsClasses}>
+							<h3 class={methodTitleClasses}>Live Chat</h3>
+							<p class={methodTextClasses}>Available 24/7</p>
+							<span class={methodSubtextClasses}>Instant support for platform users</span>
 						</div>
 					</div>
 					
-					<div class="contact-method">
-						<div class="method-icon">📞</div>
-						<div class="method-details">
-							<h3>Phone</h3>
-							<p>{companyInfo.contact?.phone || 'N/A'}</p>
-							<span>Mon-Fri, 9AM-6PM EST</span>
+					<div class={contactMethodClasses}>
+						<div class={methodIconClasses}>📞</div>
+						<div class={methodDetailsClasses}>
+							<h3 class={methodTitleClasses}>Phone</h3>
+							<p class={methodTextClasses}>{companyInfo.contact?.phone || 'N/A'}</p>
+							<span class={methodSubtextClasses}>Mon-Fri, 9AM-6PM EST</span>
 						</div>
 					</div>
 					
-					<div class="contact-method">
-						<div class="method-icon">📍</div>
-						<div class="method-details">
-							<h3>Office</h3>
-							<p>{companyInfo.contact?.address?.street || 'N/A'}<br>{companyInfo.contact?.address?.city || 'N/A'}, {companyInfo.contact?.address?.state || 'N/A'} {companyInfo.contact?.address?.zipCode || 'N/A'}</p>
-							<span>By appointment only</span>
+					<div class={contactMethodClasses}>
+						<div class={methodIconClasses}>📍</div>
+						<div class={methodDetailsClasses}>
+							<h3 class={methodTitleClasses}>Office</h3>
+							<p class={methodTextClasses}>{companyInfo.contact?.address?.street || 'N/A'}<br>{companyInfo.contact?.address?.city || 'N/A'}, {companyInfo.contact?.address?.state || 'N/A'} {companyInfo.contact?.address?.zipCode || 'N/A'}</p>
+							<span class={methodSubtextClasses}>By appointment only</span>
 						</div>
 					</div>
 				</div>
@@ -189,389 +244,58 @@
 	</section>
 
 	<!-- FAQ Section -->
-	<section class="faq">
-		<h2>Frequently Asked Questions</h2>
+	<section class={faqClasses}>
+		<h2 class={faqTitleClasses}>Frequently Asked Questions</h2>
 		
-		<div class="faq-grid">
-			<div class="faq-item">
-				<h3>How do I start investing?</h3>
-				<p>Create an account, complete KYC verification, connect your wallet, and browse available assets to make your first investment.</p>
+		<div class={mobileFaqGridClasses}>
+			<div class={faqItemClasses}>
+				<h3 class={faqItemTitleClasses}>How do I start investing?</h3>
+				<p class={faqItemTextClasses}>Create an account, complete KYC verification, connect your wallet, and browse available assets to make your first investment.</p>
 			</div>
 			
-			<div class="faq-item">
-				<h3>What is the minimum investment?</h3>
-				<p>Minimum investments vary by asset, typically ranging from $1,000 to $5,000 depending on the tranche selected.</p>
+			<div class={faqItemClasses}>
+				<h3 class={faqItemTitleClasses}>What is the minimum investment?</h3>
+				<p class={faqItemTextClasses}>Minimum investments vary by asset, typically ranging from $1,000 to $5,000 depending on the tranche selected.</p>
 			</div>
 			
-			<div class="faq-item">
-				<h3>How often are payouts distributed?</h3>
-				<p>Payouts are distributed monthly based on actual production revenue from the underlying oil & gas assets.</p>
+			<div class={faqItemClasses}>
+				<h3 class={faqItemTitleClasses}>How often are payouts distributed?</h3>
+				<p class={faqItemTextClasses}>Payouts are distributed monthly based on actual production revenue from the underlying oil & gas assets.</p>
 			</div>
 			
-			<div class="faq-item">
-				<h3>Can I sell my tokens?</h3>
-				<p>Secondary market trading will be available in Q2 2024. Currently, tokens can be held until asset maturity.</p>
+			<div class={faqItemClasses}>
+				<h3 class={faqItemTitleClasses}>Can I sell my tokens?</h3>
+				<p class={faqItemTextClasses}>Secondary market trading will be available in Q2 2024. Currently, tokens can be held until asset maturity.</p>
 			</div>
 		</div>
 	</section>
 
 	<!-- Support Resources -->
-	<section class="support">
-		<h2>Support Resources</h2>
+	<section class={supportClasses}>
+		<h2 class={supportTitleClasses}>Support Resources</h2>
 		
-		<div class="resources-grid">
-			<div class="resource">
-				<div class="resource-icon">📚</div>
-				<h3>Knowledge Base</h3>
-				<p>Comprehensive guides and tutorials</p>
-				<a href="/help" class="resource-link">Browse Articles</a>
+		<div class={mobileResourcesGridClasses}>
+			<div class={resourceClasses}>
+				<div class={resourceIconClasses}>📚</div>
+				<h3 class={resourceTitleClasses}>Knowledge Base</h3>
+				<p class={resourceTextClasses}>Comprehensive guides and tutorials</p>
+				<a href="/help" class={resourceLinkClasses}>Browse Articles</a>
 			</div>
 			
-			<div class="resource">
-				<div class="resource-icon">🎥</div>
-				<h3>Video Tutorials</h3>
-				<p>Step-by-step platform walkthroughs</p>
-				<a href="/tutorials" class="resource-link">Watch Videos</a>
+			<div class={resourceClasses}>
+				<div class={resourceIconClasses}>🎥</div>
+				<h3 class={resourceTitleClasses}>Video Tutorials</h3>
+				<p class={resourceTextClasses}>Step-by-step platform walkthroughs</p>
+				<a href="/tutorials" class={resourceLinkClasses}>Watch Videos</a>
 			</div>
 			
-			<div class="resource">
-				<div class="resource-icon">💬</div>
-				<h3>Community Forum</h3>
-				<p>Connect with other investors</p>
-				<a href="/community" class="resource-link">Join Discussion</a>
+			<div class={resourceClasses}>
+				<div class={resourceIconClasses}>💬</div>
+				<h3 class={resourceTitleClasses}>Community Forum</h3>
+				<p class={resourceTextClasses}>Connect with other investors</p>
+				<a href="/community" class={resourceLinkClasses}>Join Discussion</a>
 			</div>
 		</div>
 	</section>
 </main>
 
-<style>
-	.contact-page {
-		padding-top: 0;
-	}
-
-	.hero {
-		padding: 6rem 2rem;
-		text-align: center;
-		background: var(--color-white);
-		border-bottom: 1px solid var(--color-light-gray);
-	}
-
-	.hero-content {
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.hero h1 {
-		font-size: 3rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 2rem;
-		color: var(--color-black);
-		letter-spacing: -0.02em;
-		line-height: 1.1;
-	}
-
-	.hero p {
-		font-size: 1.25rem;
-		line-height: 1.6;
-		color: var(--color-black);
-		max-width: 600px;
-		margin: 0 auto;
-	}
-
-	.contact-section {
-		padding: 4rem 2rem;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.contact-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 4rem;
-	}
-
-	.contact-form {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 3rem;
-	}
-
-	.contact-form h2 {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 2rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.form-row {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 1rem;
-		margin-bottom: 1.5rem;
-	}
-
-	.form-group {
-		display: flex;
-		flex-direction: column;
-		margin-bottom: 1.5rem;
-	}
-
-	.form-row .form-group {
-		margin-bottom: 0;
-	}
-
-	label {
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	input,
-	select,
-	textarea {
-		padding: 0.75rem;
-		border: 1px solid var(--color-light-gray);
-		font-family: var(--font-family);
-		font-size: 0.9rem;
-		background: var(--color-white);
-		color: var(--color-black);
-	}
-
-	input:focus,
-	select:focus,
-	textarea:focus {
-		outline: none;
-		border-color: var(--color-black);
-	}
-
-	textarea {
-		resize: vertical;
-		min-height: 120px;
-	}
-
-	.submit-btn {
-		width: 100%;
-		padding: 1rem;
-		background: var(--color-black);
-		color: var(--color-white);
-		border: none;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-extrabold);
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: background-color 0.2s ease;
-	}
-
-	.submit-btn:hover:not(:disabled) {
-		background: var(--color-secondary);
-	}
-
-	.submit-btn:disabled {
-		opacity: 0.7;
-		cursor: not-allowed;
-	}
-
-	.success-message {
-		background: var(--color-light-gray);
-		border: 1px solid var(--color-primary);
-		color: var(--color-primary);
-		padding: 1rem;
-		margin-top: 1rem;
-		font-weight: var(--font-weight-semibold);
-		text-align: center;
-	}
-
-	.contact-info {
-		background: var(--color-light-gray);
-		border: 1px solid var(--color-light-gray);
-		padding: 3rem;
-	}
-
-	.contact-info h2 {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 2rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.contact-methods {
-		display: flex;
-		flex-direction: column;
-		gap: 2rem;
-		margin-bottom: 3rem;
-	}
-
-	.contact-method {
-		display: flex;
-		align-items: flex-start;
-		gap: 1rem;
-	}
-
-	.method-icon {
-		width: 3rem;
-		height: 3rem;
-		background: var(--color-primary);
-		border-radius: 0.5rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 1.25rem;
-		flex-shrink: 0;
-	}
-
-	.method-details h3 {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-		font-size: 1rem;
-	}
-
-	.method-details p {
-		color: var(--color-black);
-		font-weight: var(--font-weight-semibold);
-		margin-bottom: 0.25rem;
-	}
-
-	.method-details span {
-		color: var(--color-black);
-		opacity: 0.7;
-		font-size: 0.85rem;
-	}
-
-
-	.faq {
-		padding: 4rem 2rem;
-		background: var(--color-white);
-		text-align: center;
-	}
-
-	.faq h2 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 3rem;
-	}
-
-	.faq-grid {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 2rem;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.faq-item {
-		background: var(--color-light-gray);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-		text-align: left;
-	}
-
-	.faq-item h3 {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1rem;
-		font-size: 1rem;
-	}
-
-	.faq-item p {
-		color: var(--color-black);
-		line-height: 1.5;
-		font-size: 0.9rem;
-	}
-
-	.support {
-		padding: 4rem 2rem;
-		background: var(--color-secondary);
-		color: var(--color-white);
-		text-align: center;
-	}
-
-	.support h2 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 3rem;
-	}
-
-	.resources-grid {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 2rem;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.resource {
-		background: rgba(255, 255, 255, 0.1);
-		border: 1px solid rgba(255, 255, 255, 0.2);
-		padding: 2rem;
-		text-align: center;
-	}
-
-	.resource-icon {
-		font-size: 3rem;
-		margin-bottom: 1rem;
-	}
-
-	.resource h3 {
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 1rem;
-		font-size: 1.1rem;
-	}
-
-	.resource p {
-		margin-bottom: 1.5rem;
-		opacity: 0.9;
-		font-size: 0.9rem;
-	}
-
-	.resource-link {
-		color: var(--color-primary);
-		text-decoration: none;
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.resource-link:hover {
-		opacity: 0.8;
-	}
-
-	@media (max-width: 768px) {
-		.hero h1 {
-			font-size: 2.5rem;
-		}
-
-		.contact-grid {
-			grid-template-columns: 1fr;
-			gap: 2rem;
-		}
-
-		.form-row {
-			grid-template-columns: 1fr;
-		}
-
-		.faq-grid {
-			grid-template-columns: 1fr;
-		}
-
-		.resources-grid {
-			grid-template-columns: 1fr;
-		}
-
-		.contact-form,
-		.contact-info {
-			padding: 2rem;
-		}
-	}
-</style>

@@ -186,28 +186,100 @@
 	}
 
 	$: currentItem = featuredTokensWithAssets[currentIndex];
+	
+	// Tailwind class mappings
+	$: containerClasses = 'relative w-full max-w-6xl mx-auto px-8';
+	$: loadingStateClasses = 'flex flex-col items-center justify-center p-16 text-center text-black bg-white border border-light-gray rounded-lg';
+	$: errorStateClasses = 'flex flex-col items-center justify-center p-16 text-center text-black bg-white border border-light-gray rounded-lg';
+	$: emptyStateClasses = 'flex flex-col items-center justify-center p-16 text-center text-black bg-white border border-light-gray rounded-lg';
+	$: spinnerClasses = 'w-8 h-8 border-4 border-light-gray border-t-primary rounded-full animate-spin mb-4';
+	$: retryButtonClasses = 'mt-4 px-6 py-3 bg-primary text-white border-none rounded cursor-pointer font-semibold transition-colors duration-200 hover:bg-secondary';
+	$: carouselWrapperClasses = 'relative overflow-hidden rounded-xl shadow-xl outline-none focus:shadow-2xl focus:ring-4 focus:ring-primary/50 touch-pan-y';
+	$: carouselTrackClasses = 'flex w-full transition-transform duration-700 ease-in-out will-change-transform';
+	$: carouselSlideClasses = 'flex-shrink-0 w-full relative transition-all duration-700 ease-in-out';
+	$: activeSlideClasses = 'opacity-100 scale-100';
+	$: inactiveSlideClasses = 'opacity-70 scale-95';
+	$: bannerCardClasses = 'grid grid-cols-1 md:grid-cols-2 min-h-96 bg-white border border-light-gray transition-all duration-300 ease-in-out hover:transform hover:-translate-y-1 hover:shadow-2xl animate-fade-in';
+	$: tokenSectionClasses = 'p-12 bg-white border-b md:border-b-0 md:border-r border-light-gray flex flex-col justify-between';
+	$: assetSectionClasses = 'p-12 bg-light-gray flex flex-col justify-between';
+	$: tokenHeaderClasses = 'mb-8';
+	$: tokenNameClasses = 'text-2xl font-extrabold text-black mb-3 leading-tight';
+	$: tokenContractClasses = 'text-sm font-medium text-secondary font-mono break-all leading-relaxed py-1 opacity-80';
+	$: assetHeaderClasses = 'mb-6';
+	$: assetStatusClasses = 'flex items-center gap-2 mb-4';
+	$: statusIndicatorClasses = 'w-2 h-2 rounded-full bg-secondary';
+	$: statusIndicatorProducingClasses = 'w-2 h-2 rounded-full bg-green-500 animate-pulse-status';
+	$: statusIndicatorFundingClasses = 'w-2 h-2 rounded-full bg-yellow-500';
+	$: statusIndicatorCompletedClasses = 'w-2 h-2 rounded-full bg-secondary';
+	$: statusTextClasses = 'text-xs font-semibold text-secondary uppercase tracking-wider';
+	$: assetNameClasses = 'text-2xl font-extrabold text-black mb-2 leading-tight';
+	$: assetLocationClasses = 'text-sm text-secondary font-semibold';
+	$: assetDescriptionClasses = 'text-base leading-relaxed text-black mb-8';
+	$: tokenStatsClasses = 'grid grid-cols-2 gap-4 mb-8';
+	$: assetStatsClasses = 'grid grid-cols-1 gap-4 mb-8';
+	$: statItemClasses = 'text-left';
+	$: statLabelClasses = 'text-xs font-semibold text-black uppercase tracking-wider mb-1';
+	$: statValueClasses = 'text-xl font-extrabold text-black';
+	$: tokenActionsClasses = 'flex gap-4';
+	$: assetMetaClasses = 'flex flex-col gap-2';
+	$: assetMetaItemClasses = 'flex gap-2';
+	$: assetMetaLabelClasses = 'text-sm font-semibold text-black';
+	$: assetMetaValueClasses = 'text-sm text-secondary';
+	$: navButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none rounded-full text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg';
+	$: prevButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none rounded-full text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg -left-16';
+	$: nextButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none rounded-full text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg -right-16';
+	$: indicatorsClasses = 'absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
+	$: indicatorClasses = 'w-3 h-3 rounded-full border-none bg-white/50 cursor-pointer transition-all duration-200 hover:bg-white/80';
+	$: indicatorActiveClasses = 'w-3 h-3 rounded-full border-none bg-white cursor-pointer transition-all duration-200 scale-125 shadow-lg';
+	
+	// Responsive classes
+	$: mobileTokenSectionClasses = 'md:p-12 p-8 bg-white border-b md:border-b-0 md:border-r border-light-gray flex flex-col justify-between';
+	$: mobileAssetSectionClasses = 'md:p-12 p-8 bg-light-gray flex flex-col justify-between';
+	$: mobileTokenStatsClasses = 'grid md:grid-cols-2 grid-cols-1 gap-4 mb-8';
+	$: mobileNavButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none rounded-full md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg';
+	$: mobilePrevButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none rounded-full md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:-left-16 -left-12';
+	$: mobileNextButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none rounded-full md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:-right-16 -right-12';
+	$: mobileIndicatorsClasses = 'absolute md:bottom-6 bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
+	$: mobileContainerClasses = 'relative w-full max-w-6xl mx-auto md:px-8 px-4';
+	$: mobileBannerCardClasses = 'grid grid-cols-1 md:grid-cols-2 min-h-96 bg-white border border-light-gray transition-all duration-300 ease-in-out md:hover:transform md:hover:-translate-y-1 md:hover:shadow-2xl animate-fade-in';
+	$: mobileCarouselSlideClasses = 'flex-shrink-0 w-full relative transition-all duration-700 ease-in-out sm:opacity-100 sm:scale-100';
+	$: mobileCarouselTrackClasses = 'flex w-full sm:transition-transform sm:duration-500 transition-transform duration-700 ease-in-out will-change-transform';
+	
+	// Get status-specific classes
+	function getStatusIndicatorClasses(status: string) {
+		switch (status) {
+			case 'producing':
+				return statusIndicatorProducingClasses;
+			case 'funding':
+				return statusIndicatorFundingClasses;
+			case 'completed':
+				return statusIndicatorCompletedClasses;
+			default:
+				return statusIndicatorClasses;
+		}
+	}
 </script>
 
-<div class="carousel-container" bind:this={carouselContainer}>
+<div class={mobileContainerClasses} bind:this={carouselContainer}>
 	{#if loading}
-		<div class="loading-state">
-			<div class="spinner"></div>
+		<div class={loadingStateClasses}>
+			<div class={spinnerClasses}></div>
 			<p>Loading featured tokens...</p>
 		</div>
 	{:else if error}
-		<div class="error-state">
+		<div class={errorStateClasses}>
 			<p>Error: {error}</p>
-			<button on:click={loadFeaturedTokens} class="retry-button">Retry</button>
+			<button on:click={loadFeaturedTokens} class={retryButtonClasses}>Retry</button>
 		</div>
 	{:else if featuredTokensWithAssets.length === 0}
-		<div class="empty-state">
+		<div class={emptyStateClasses}>
 			<p>No featured tokens available</p>
 		</div>
 	{:else}
 		<!-- Navigation Controls (outside carousel wrapper) -->
 		{#if featuredTokensWithAssets.length > 1}
 			<button 
-				class="nav-button prev" 
+				class={mobilePrevButtonClasses} 
 				on:click={prevSlide}
 				aria-label="Previous token"
 			>
@@ -215,7 +287,7 @@
 			</button>
 			
 			<button 
-				class="nav-button next" 
+				class={mobileNextButtonClasses} 
 				on:click={nextSlide}
 				aria-label="Next token"
 			>
@@ -224,7 +296,7 @@
 		{/if}
 
 		<div 
-			class="carousel-wrapper"
+			class={carouselWrapperClasses}
 			on:mouseenter={handleMouseEnter}
 			on:mouseleave={handleMouseLeave}
 			on:keydown={handleKeydown}
@@ -236,46 +308,46 @@
 		>
 			<!-- Carousel track -->
 			<div 
-				class="carousel-track"
+				class={mobileCarouselTrackClasses}
 				style="transform: translateX(-{currentIndex * 100}%)"
 			>
 				{#each featuredTokensWithAssets as item, index}
 					{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(item.token.contractAddress)}
-					<div class="carousel-slide" class:active={index === currentIndex}>
-						<div class="banner-card">
+					<div class="{mobileCarouselSlideClasses} {index === currentIndex ? activeSlideClasses : inactiveSlideClasses}">
+						<div class={mobileBannerCardClasses}>
 							<!-- Token Section -->
-							<div class="token-section">
-								<div class="token-header">
-									<h3 class="token-name">{item.token.name}</h3>
-									<div class="token-contract">{item.token.contractAddress}</div>
+							<div class={mobileTokenSectionClasses}>
+								<div class={tokenHeaderClasses}>
+									<h3 class={tokenNameClasses}>{item.token.name}</h3>
+									<div class={tokenContractClasses}>{item.token.contractAddress}</div>
 								</div>
 
-								<div class="token-stats">
-									<div class="stat-item">
-										<div class="stat-label">Total Supply</div>
-										<div class="stat-value">
+								<div class={mobileTokenStatsClasses}>
+									<div class={statItemClasses}>
+										<div class={statLabelClasses}>Total Supply</div>
+										<div class={statValueClasses}>
 											{formatSupply(item.token.supply.maxSupply, item.token.decimals)}
 										</div>
 									</div>
 									
-									<div class="stat-item">
-										<div class="stat-label">Available Supply</div>
-										<div class="stat-value">
+									<div class={statItemClasses}>
+										<div class={statLabelClasses}>Available Supply</div>
+										<div class={statValueClasses}>
 											{formatSupply((BigInt(item.token.supply.maxSupply) - BigInt(item.token.supply.mintedSupply)).toString(), item.token.decimals)}
 										</div>
 									</div>
-									<div class="stat-item">
-										<div class="stat-label">Estimated Base Payout</div>
-										<div class="stat-value">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</div>
+									<div class={statItemClasses}>
+										<div class={statLabelClasses}>Estimated Base Payout</div>
+										<div class={statValueClasses}>{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</div>
 									</div>
 									
-									<div class="stat-item">
-										<div class="stat-label">Estimated Bonus Payout</div>
-										<div class="stat-value">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
+									<div class={statItemClasses}>
+										<div class={statLabelClasses}>Estimated Bonus Payout</div>
+										<div class={statValueClasses}>+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
 									</div>
 								</div>
 
-								<div class="token-actions">
+								<div class={tokenActionsClasses}>
 									<PrimaryButton on:click={() => handleBuyTokens(item.token.contractAddress)}>
 										Buy Tokens
 									</PrimaryButton>
@@ -286,37 +358,37 @@
 							</div>
 
 							<!-- Asset Section -->
-							<div class="asset-section">
-								<div class="asset-header">
-									<div class="asset-status">
-										<div class="status-indicator {item.asset.production.status}"></div>
-										<span class="status-text">{item.asset.production.status.toUpperCase()}</span>
+							<div class={mobileAssetSectionClasses}>
+								<div class={assetHeaderClasses}>
+									<div class={assetStatusClasses}>
+										<div class={getStatusIndicatorClasses(item.asset.production.status)}></div>
+										<span class={statusTextClasses}>{item.asset.production.status.toUpperCase()}</span>
 									</div>
-									<h3 class="asset-name">{item.asset.name}</h3>
-									<div class="asset-location">
+									<h3 class={assetNameClasses}>{item.asset.name}</h3>
+									<div class={assetLocationClasses}>
 										{item.asset.location.state}, {item.asset.location.country}
 									</div>
 								</div>
 
-								<div class="asset-description">
+								<div class={assetDescriptionClasses}>
 									{item.asset.description}
 								</div>
 
-								<div class="asset-stats">
-									<div class="stat-item">
-										<div class="stat-label">Expected Remaining Production</div>
-										<div class="stat-value">{dataStoreService.getCalculatedRemainingProduction(item.asset.id)}</div>
+								<div class={assetStatsClasses}>
+									<div class={statItemClasses}>
+										<div class={statLabelClasses}>Expected Remaining Production</div>
+										<div class={statValueClasses}>{dataStoreService.getCalculatedRemainingProduction(item.asset.id)}</div>
 									</div>
 								</div>
 
-								<div class="asset-meta">
-									<div class="operator">
-										<span class="label">Operator:</span>
-										<span class="value">{item.asset.operator.name}</span>
+								<div class={assetMetaClasses}>
+									<div class={assetMetaItemClasses}>
+										<span class={assetMetaLabelClasses}>Operator:</span>
+										<span class={assetMetaValueClasses}>{item.asset.operator.name}</span>
 									</div>
-									<div class="field-type">
-										<span class="label">Type:</span>
-										<span class="value">{item.asset.technical.fieldType}</span>
+									<div class={assetMetaItemClasses}>
+										<span class={assetMetaLabelClasses}>Type:</span>
+										<span class={assetMetaValueClasses}>{item.asset.technical.fieldType}</span>
 									</div>
 								</div>
 							</div>
@@ -327,10 +399,10 @@
 
 			<!-- Indicators (remain inside carousel wrapper) -->
 			{#if featuredTokensWithAssets.length > 1}
-				<div class="indicators">
+				<div class={mobileIndicatorsClasses}>
 					{#each featuredTokensWithAssets as _, index}
 						<button 
-							class="indicator {index === currentIndex ? 'active' : ''}"
+							class="{index === currentIndex ? indicatorActiveClasses : indicatorClasses}"
 							on:click={() => goToSlide(index)}
 							aria-label="Go to slide {index + 1}"
 						></button>
@@ -341,489 +413,3 @@
 	{/if}
 </div>
 
-<style>
-	.carousel-container {
-		position: relative;
-		width: 100%;
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 0 2rem;
-	}
-
-	.loading-state, .error-state, .empty-state {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 4rem 2rem;
-		text-align: center;
-		color: var(--color-black);
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		border-radius: 8px;
-	}
-
-	.spinner {
-		width: 32px;
-		height: 32px;
-		border: 3px solid var(--color-light-gray);
-		border-top: 3px solid var(--color-primary);
-		border-radius: 50%;
-		animation: spin 1s linear infinite;
-		margin-bottom: 1rem;
-	}
-
-	@keyframes spin {
-		0% { transform: rotate(0deg); }
-		100% { transform: rotate(360deg); }
-	}
-
-	.retry-button {
-		margin-top: 1rem;
-		padding: 0.75rem 1.5rem;
-		background: var(--color-primary);
-		color: var(--color-white);
-		border: none;
-		border-radius: 4px;
-		cursor: pointer;
-		font-weight: var(--font-weight-semibold);
-		transition: background-color 0.2s ease;
-	}
-
-	.retry-button:hover {
-		background: var(--color-secondary);
-	}
-
-	.carousel-wrapper {
-		position: relative;
-		overflow: hidden;
-		border-radius: 12px;
-		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-		outline: none;
-		touch-action: pan-y;
-	}
-
-	.carousel-wrapper:focus {
-		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), 0 0 0 3px var(--color-primary);
-	}
-
-	.carousel-track {
-		display: flex;
-		width: 100%;
-		transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
-		will-change: transform;
-		transform: translateZ(0);
-		backface-visibility: hidden;
-	}
-
-	.carousel-slide {
-		flex: 0 0 100%;
-		width: 100%;
-		position: relative;
-		transition: opacity 0.6s ease, transform 0.6s ease;
-		transform: scale(0.95);
-		opacity: 0.7;
-	}
-
-	.carousel-slide.active {
-		transform: scale(1);
-		opacity: 1;
-	}
-
-	.banner-card {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		min-height: 400px;
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		transition: transform 0.3s ease, box-shadow 0.3s ease;
-		animation: slideIn 0.6s ease-out;
-	}
-
-	@keyframes slideIn {
-		from {
-			opacity: 0;
-			transform: translateY(20px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-
-	.carousel-wrapper:hover .banner-card {
-		transform: translateY(-2px);
-		box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-	}
-
-	.token-section {
-		padding: 3rem;
-		background: var(--color-white);
-		border-right: 1px solid var(--color-light-gray);
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-	}
-
-	.asset-section {
-		padding: 3rem;
-		background: var(--color-light-gray);
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-	}
-
-	.token-header {
-		margin-bottom: 2rem;
-	}
-
-	.token-name {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.75rem;
-		line-height: 1.2;
-	}
-
-	.token-symbol {
-		font-size: 1rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-secondary);
-		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	}
-
-	.token-contract {
-		font-size: 0.85rem;
-		font-weight: var(--font-weight-medium);
-		color: var(--color-secondary);
-		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-		word-break: break-all;
-		line-height: 1.4;
-		padding: 0.25rem 0;
-		opacity: 0.8;
-	}
-
-	.asset-header {
-		margin-bottom: 1.5rem;
-	}
-
-	.asset-status {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		margin-bottom: 1rem;
-	}
-
-	.status-indicator {
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		background: var(--color-secondary);
-	}
-
-	.status-indicator.producing {
-		background: #22c55e;
-		animation: pulse-status 2s infinite;
-	}
-
-	.status-indicator.funding {
-		background: #f59e0b;
-	}
-
-	.status-indicator.completed {
-		background: var(--color-secondary);
-	}
-
-	@keyframes pulse-status {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0.6; }
-	}
-
-	.status-text {
-		font-size: 0.75rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-secondary);
-		letter-spacing: 0.05em;
-	}
-
-	.asset-name {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-		line-height: 1.2;
-	}
-
-	.asset-location {
-		font-size: 0.9rem;
-		color: var(--color-secondary);
-		font-weight: var(--font-weight-semibold);
-	}
-
-	.asset-description {
-		font-size: 0.95rem;
-		line-height: 1.6;
-		color: var(--color-black);
-		margin-bottom: 2rem;
-	}
-
-	.token-stats {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		grid-template-rows: repeat(2, 1fr);
-		gap: 1rem;
-		margin-bottom: 2rem;
-	}
-
-	.asset-stats {
-		display: grid;
-		grid-template-columns: 1fr;
-		gap: 1rem;
-		margin-bottom: 2rem;
-	}
-
-	.stat-item {
-		text-align: left;
-	}
-
-	.stat-label {
-		font-size: 0.75rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin-bottom: 0.25rem;
-	}
-
-	.stat-value {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-	}
-
-	.token-actions {
-		display: flex;
-		gap: 1rem;
-	}
-
-	.action-button {
-		flex: 1;
-		padding: 0.75rem 1rem;
-		text-decoration: none;
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.85rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		border-radius: 4px;
-		transition: all 0.2s ease;
-		text-align: center;
-		border: 1px solid transparent;
-	}
-
-	.action-button.primary {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	.action-button.primary:hover {
-		background: var(--color-secondary);
-	}
-
-	.action-button.secondary {
-		background: var(--color-white);
-		color: var(--color-black);
-		border-color: var(--color-black);
-	}
-
-	.action-button.secondary:hover {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	.asset-meta {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-
-	.asset-meta > div {
-		display: flex;
-		gap: 0.5rem;
-	}
-
-	.asset-meta .label {
-		font-size: 0.85rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-	}
-
-	.asset-meta .value {
-		font-size: 0.85rem;
-		color: var(--color-secondary);
-	}
-
-	.nav-button {
-		position: absolute;
-		top: 50%;
-		transform: translateY(-50%);
-		width: 48px;
-		height: 48px;
-		background: rgba(0, 0, 0, 0.7);
-		color: var(--color-white);
-		border: none;
-		border-radius: 50%;
-		font-size: 1.5rem;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		z-index: 10;
-	}
-
-	.nav-button:hover {
-		background: var(--color-black);
-		transform: translateY(-50%) scale(1.1);
-		backdrop-filter: blur(10px);
-		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-	}
-
-	.nav-button.prev {
-		left: -4rem;
-	}
-
-	.nav-button.next {
-		right: -4rem;
-	}
-
-	.indicators {
-		position: absolute;
-		bottom: 1.5rem;
-		left: 50%;
-		transform: translateX(-50%);
-		display: flex;
-		gap: 0.5rem;
-		z-index: 10;
-	}
-
-	.indicator {
-		width: 12px;
-		height: 12px;
-		border-radius: 50%;
-		border: none;
-		background: rgba(255, 255, 255, 0.5);
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
-
-	.indicator.active {
-		background: var(--color-white);
-		transform: scale(1.2);
-		box-shadow: 0 2px 8px rgba(255, 255, 255, 0.4);
-	}
-
-	.indicator:hover {
-		background: rgba(255, 255, 255, 0.8);
-	}
-
-	@media (max-width: 768px) {
-		.banner-card {
-			grid-template-columns: 1fr;
-			min-height: auto;
-		}
-
-		.token-section, .asset-section {
-			padding: 2rem;
-		}
-
-		.token-section {
-			border-right: none;
-			border-bottom: 1px solid var(--color-light-gray);
-		}
-
-		.token-contract {
-			font-size: 0.75rem;
-		}
-
-		.token-stats, .asset-stats {
-			grid-template-columns: 1fr;
-			gap: 1rem;
-		}
-
-		.action-button {
-			font-size: 0.8rem;
-			padding: 0.65rem 0.85rem;
-		}
-
-		.nav-button {
-			width: 40px;
-			height: 40px;
-			font-size: 1.25rem;
-		}
-
-		.nav-button.prev {
-			left: -3rem;
-		}
-
-		.nav-button.next {
-			right: -3rem;
-		}
-
-		.indicators {
-			bottom: 1rem;
-		}
-	}
-
-	@media (max-width: 768px) {
-		.carousel-container {
-			padding: 0 1rem;
-		}
-	}
-
-	@media (max-width: 480px) {
-		.carousel-container {
-			padding: 0 1rem;
-		}
-
-		.token-section, .asset-section {
-			padding: 1.5rem;
-		}
-
-		.token-name, .asset-name {
-			font-size: 1.25rem;
-		}
-
-		.token-contract {
-			font-size: 0.7rem;
-		}
-
-		.action-button {
-			font-size: 0.75rem;
-			padding: 0.6rem 0.8rem;
-		}
-
-		.nav-button {
-			width: 36px;
-			height: 36px;
-			font-size: 1.1rem;
-		}
-
-		.nav-button.prev {
-			left: -2rem;
-		}
-
-		.nav-button.next {
-			right: -2rem;
-		}
-
-		.carousel-wrapper:hover .banner-card {
-			transform: none;
-		}
-
-		.carousel-slide {
-			transform: scale(1);
-			opacity: 1;
-		}
-
-		.carousel-track {
-			transition: transform 0.4s ease;
-		}
-	}
-</style>

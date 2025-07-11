@@ -121,6 +121,79 @@
 		selectedTokenAddress = null;
 		selectedAssetId = null;
 	}
+	
+	// Tailwind class mappings
+	$: pageClasses = 'pt-0';
+	$: heroClasses = 'py-24 text-center bg-white border-b border-light-gray';
+	$: heroContentClasses = 'max-w-6xl mx-auto mb-16 px-8';
+	$: heroTitleClasses = 'text-6xl font-extrabold mb-8 text-black tracking-tight leading-tight';
+	$: heroDescriptionClasses = 'text-xl leading-relaxed text-black max-w-3xl mx-auto';
+	$: platformStatsClasses = 'grid grid-cols-3 gap-8 max-w-3xl mx-auto mb-16 p-8 border border-light-gray';
+	$: statClasses = 'text-center';
+	$: statValueClasses = 'text-3xl font-extrabold text-black mb-2';
+	$: statLabelClasses = 'text-xs font-semibold text-black uppercase tracking-wider mb-1';
+	$: statNoteClasses = 'text-xs text-primary font-medium';
+	$: ctaButtonsClasses = 'flex gap-4 justify-center';
+	$: featuredTokensClasses = 'py-16 w-full overflow-hidden';
+	$: sectionHeaderClasses = 'max-w-6xl mx-auto mb-12 px-8';
+	$: sectionTitleClasses = 'text-3xl font-extrabold text-black';
+	$: howItWorksClasses = 'py-16 bg-light-gray text-center';
+	$: howItWorksContentClasses = 'max-w-6xl mx-auto px-8';
+	$: howItWorksTitleClasses = 'text-3xl font-extrabold text-black mb-12';
+	$: stepsClasses = 'grid grid-cols-1 md:grid-cols-3 gap-12';
+	$: stepClasses = 'text-center';
+	$: stepNumberClasses = 'w-15 h-15 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6';
+	$: stepTitleClasses = 'text-xl font-extrabold text-black mb-4';
+	$: stepTextClasses = 'text-sm leading-relaxed text-black';
+	$: trustIndicatorsClasses = 'py-16 text-center max-w-6xl mx-auto';
+	$: trustIndicatorsContentClasses = 'px-8';
+	$: trustIndicatorsTitleClasses = 'text-3xl font-extrabold text-black mb-12';
+	$: indicatorsClasses = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8';
+	$: indicatorClasses = 'flex flex-col items-center';
+	$: indicatorIconClasses = 'mb-6 text-black flex items-center justify-center w-16 h-16 relative';
+	$: indicatorTitleClasses = 'text-base font-extrabold text-black mb-2';
+	$: indicatorTextClasses = 'text-xs text-black font-medium';
+	$: marketInsightsClasses = 'py-16 bg-secondary text-white';
+	$: insightsContentClasses = 'grid grid-cols-1 lg:grid-cols-2 gap-16 max-w-6xl mx-auto items-center px-8';
+	$: insightsTextClasses = 'space-y-6';
+	$: insightsTitleClasses = 'text-3xl font-extrabold mb-6 text-white';
+	$: marketDataClasses = 'flex flex-col gap-4';
+	$: dataRowClasses = 'flex justify-between font-semibold';
+	$: priceClasses = 'text-primary font-extrabold';
+	$: changeClasses = 'text-xs font-semibold ml-2';
+	$: changePositiveClasses = 'text-primary';
+	$: changeNegativeClasses = 'text-red-500';
+	$: ctaBoxClasses = 'text-center p-12 bg-white/10 border border-white/20';
+	$: ctaBoxTitleClasses = 'text-2xl font-extrabold mb-4 text-white';
+	$: ctaBoxTextClasses = 'mb-8 opacity-90';
+	
+	// Mobile responsive classes
+	$: mobileHeroClasses = 'md:py-24 py-8 text-center bg-white border-b border-light-gray';
+	$: mobileHeroContentClasses = 'max-w-6xl mx-auto md:mb-16 mb-8 md:px-8 px-4';
+	$: mobileHeroTitleClasses = 'md:text-6xl text-3xl font-extrabold md:mb-8 mb-4 text-black tracking-tight leading-tight';
+	$: mobileHeroDescriptionClasses = 'md:text-xl text-base leading-relaxed text-black max-w-3xl mx-auto';
+	$: mobilePlatformStatsClasses = 'grid md:grid-cols-3 grid-cols-1 md:gap-8 gap-6 max-w-3xl mx-auto md:mb-16 mb-8 md:p-8 p-6 border border-light-gray';
+	$: mobileStatClasses = 'text-center md:border-b-0 border-b border-light-gray md:pb-0 pb-6 last:border-b-0 last:pb-0';
+	$: mobileStatValueClasses = 'md:text-3xl text-2xl font-extrabold text-black mb-2';
+	$: mobileCtaButtonsClasses = 'flex md:flex-row flex-col md:gap-4 gap-3 justify-center items-center md:px-0 px-4';
+	$: mobileFeaturedTokensClasses = 'md:py-16 py-8 w-full overflow-hidden';
+	$: mobileSectionHeaderClasses = 'max-w-6xl mx-auto md:mb-12 mb-6 md:px-8 px-4';
+	$: mobileSectionTitleClasses = 'md:text-3xl text-2xl font-extrabold text-black';
+	$: mobileHowItWorksClasses = 'md:py-16 py-8 bg-light-gray text-center';
+	$: mobileHowItWorksContentClasses = 'max-w-6xl mx-auto md:px-8 px-4';
+	$: mobileHowItWorksTitleClasses = 'md:text-3xl text-2xl font-extrabold text-black md:mb-12 mb-8';
+	$: mobileStepsClasses = 'grid grid-cols-1 md:grid-cols-3 md:gap-12 gap-8';
+	$: mobileStepTitleClasses = 'md:text-xl text-lg font-extrabold text-black mb-4';
+	$: mobileStepTextClasses = 'md:text-sm text-sm leading-relaxed text-black';
+	$: mobileTrustIndicatorsClasses = 'md:py-16 py-8 text-center max-w-6xl mx-auto';
+	$: mobileTrustIndicatorsContentClasses = 'md:px-8 px-4';
+	$: mobileTrustIndicatorsTitleClasses = 'md:text-3xl text-2xl font-extrabold text-black md:mb-12 mb-8';
+	$: mobileIndicatorsClasses = 'grid grid-cols-2 lg:grid-cols-4 md:gap-8 gap-6';
+	$: mobileIndicatorTitleClasses = 'md:text-base text-sm font-extrabold text-black mb-2';
+	$: mobileIndicatorTextClasses = 'md:text-xs text-xs text-black font-medium';
+	$: mobileMarketInsightsClasses = 'md:py-16 py-8 bg-secondary text-white md:block hidden';
+	$: smallMobileIndicatorsClasses = 'grid sm:grid-cols-2 grid-cols-1 lg:grid-cols-4 md:gap-8 gap-6';
+	$: smallMobilePlatformStatsClasses = 'grid md:grid-cols-3 grid-cols-1 md:gap-8 gap-6 max-w-3xl mx-auto md:mb-16 mb-8 md:p-8 p-4 border border-light-gray';
 </script>
 
 <svelte:head>
@@ -128,125 +201,125 @@
 	<meta name="description" content="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality oil & gas investments through blockchain technology." />
 </svelte:head>
 
-<main class="homepage">
+<main class={pageClasses}>
 	<!-- Hero Section -->
-	<section class="hero">
-		<div class="hero-content">
-			<h1>Institutional Grade Oil & Gas DeFi</h1>
-			<p>Real-world energy assets. Tokenized ownership. Transparent operations.<br>
+	<section class={mobileHeroClasses}>
+		<div class={mobileHeroContentClasses}>
+			<h1 class={mobileHeroTitleClasses}>Institutional Grade Oil & Gas DeFi</h1>
+			<p class={mobileHeroDescriptionClasses}>Real-world energy assets. Tokenized ownership. Transparent operations.<br>
 			Access institutional-quality oil & gas investments through blockchain technology.</p>
 		</div>
 		
 		<!-- Platform Stats -->
-		<div class="platform-stats">
+		<div class={smallMobilePlatformStatsClasses}>
 			{#if loading}
-				<div class="stat">
-					<div class="stat-value">--</div>
-					<div class="stat-label">Total Invested</div>
-					<div class="stat-note">Loading...</div>
+				<div class={mobileStatClasses}>
+					<div class={mobileStatValueClasses}>--</div>
+					<div class={statLabelClasses}>Total Invested</div>
+					<div class={statNoteClasses}>Loading...</div>
 				</div>
-				<div class="stat">
-					<div class="stat-value">--</div>
-					<div class="stat-label">Assets</div>
-					<div class="stat-note">Loading...</div>
+				<div class={mobileStatClasses}>
+					<div class={mobileStatValueClasses}>--</div>
+					<div class={statLabelClasses}>Assets</div>
+					<div class={statNoteClasses}>Loading...</div>
 				</div>
-				<div class="stat">
-					<div class="stat-value">--</div>
-					<div class="stat-label">Active Investors</div>
-					<div class="stat-note">Loading...</div>
+				<div class={mobileStatClasses}>
+					<div class={mobileStatValueClasses}>--</div>
+					<div class={statLabelClasses}>Active Investors</div>
+					<div class={statNoteClasses}>Loading...</div>
 				</div>
 			{:else}
-				<div class="stat">
-					<div class="stat-value">${platformStats.totalInvested.toFixed(1)}M</div>
-					<div class="stat-label">Total Invested</div>
-					<div class="stat-note">{platformStats.monthlyGrowthRate >= 0 ? '+' : ''}{platformStats.monthlyGrowthRate.toFixed(1)}% this month</div>
+				<div class={mobileStatClasses}>
+					<div class={mobileStatValueClasses}>${platformStats.totalInvested.toFixed(1)}M</div>
+					<div class={statLabelClasses}>Total Invested</div>
+					<div class={statNoteClasses}>{platformStats.monthlyGrowthRate >= 0 ? '+' : ''}{platformStats.monthlyGrowthRate.toFixed(1)}% this month</div>
 				</div>
-				<div class="stat">
-					<div class="stat-value">{platformStats.totalAssets}</div>
-					<div class="stat-label">Assets</div>
-					<div class="stat-note">Across {platformStats.totalRegions} regions</div>
+				<div class={mobileStatClasses}>
+					<div class={mobileStatValueClasses}>{platformStats.totalAssets}</div>
+					<div class={statLabelClasses}>Assets</div>
+					<div class={statNoteClasses}>Across {platformStats.totalRegions} regions</div>
 				</div>
-				<div class="stat">
-					<div class="stat-value">{platformStats.activeInvestors.toLocaleString()}</div>
-					<div class="stat-label">Active Investors</div>
-					<div class="stat-note">Token holders</div>
+				<div class={mobileStatClasses}>
+					<div class={mobileStatValueClasses}>{platformStats.activeInvestors.toLocaleString()}</div>
+					<div class={statLabelClasses}>Active Investors</div>
+					<div class={statNoteClasses}>Token holders</div>
 				</div>
 			{/if}
 		</div>
 
 		<!-- CTA Buttons -->
-		<div class="cta-buttons">
+		<div class={mobileCtaButtonsClasses}>
 			<PrimaryButton href="/assets">Explore Investments</PrimaryButton>
 			<SecondaryButton href="/about">Learn How It Works</SecondaryButton>
 		</div>
 	</section>
 
 	<!-- Featured Tokens Carousel -->
-	<section class="featured-tokens">
-		<div class="section-header">
-			<h2>Featured Token Releases</h2>
+	<section class={mobileFeaturedTokensClasses}>
+		<div class={mobileSectionHeaderClasses}>
+			<h2 class={mobileSectionTitleClasses}>Featured Token Releases</h2>
 		</div>
 		
 		<FeaturedTokenCarousel autoPlay={true} autoPlayInterval={6000} on:buyTokens={handleBuyTokensFromCarousel} />
 	</section>
 
 	<!-- How It Works -->
-	<section class="how-it-works">
-		<div class="how-it-works-content">
-			<h2>How It Works</h2>
+	<section class={mobileHowItWorksClasses}>
+		<div class={mobileHowItWorksContentClasses}>
+			<h2 class={mobileHowItWorksTitleClasses}>How It Works</h2>
 			
-			<div class="steps">
-				<div class="step">
-					<div class="step-number">1</div>
-					<h3>Browse Assets</h3>
-					<p>Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
+			<div class={mobileStepsClasses}>
+				<div class={stepClasses}>
+					<div class={stepNumberClasses}>1</div>
+					<h3 class={mobileStepTitleClasses}>Browse Assets</h3>
+					<p class={mobileStepTextClasses}>Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
 				</div>
 				
-				<div class="step">
-					<div class="step-number">2</div>
-					<h3>Buy Tokens</h3>
-					<p>Purchase royalty tokens using our smart payment system with automatic collateral management and instant settlement.</p>
+				<div class={stepClasses}>
+					<div class={stepNumberClasses}>2</div>
+					<h3 class={mobileStepTitleClasses}>Buy Tokens</h3>
+					<p class={mobileStepTextClasses}>Purchase royalty tokens using our smart payment system with automatic collateral management and instant settlement.</p>
 				</div>
 				
-				<div class="step">
-					<div class="step-number">3</div>
-					<h3>Earn Payout</h3>
-					<p>Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
+				<div class={stepClasses}>
+					<div class={stepNumberClasses}>3</div>
+					<h3 class={mobileStepTitleClasses}>Earn Payout</h3>
+					<p class={mobileStepTextClasses}>Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
 				</div>
 			</div>
 		</div>
 	</section>
 
 	<!-- Trust Indicators -->
-	<section class="trust-indicators">
-		<div class="trust-indicators-content">
-			<h2>Why Choose Albion</h2>
-			<div class="indicators">
-			<div class="indicator">
-				<div class="indicator-icon">
+	<section class={mobileTrustIndicatorsClasses}>
+		<div class={mobileTrustIndicatorsContentClasses}>
+			<h2 class={mobileTrustIndicatorsTitleClasses}>Why Choose Albion</h2>
+			<div class={smallMobileIndicatorsClasses}>
+			<div class={indicatorClasses}>
+				<div class={indicatorIconClasses}>
 					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M24 2L30 14H42L32 22L36 34L24 26L12 34L16 22L6 14H18L24 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
 						<circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="2"/>
 					</svg>
 				</div>
-				<h3>SEC Compliant</h3>
-				<p>Full regulatory compliance</p>
+				<h3 class={mobileIndicatorTitleClasses}>SEC Compliant</h3>
+				<p class={mobileIndicatorTextClasses}>Full regulatory compliance</p>
 			</div>
 			
-			<div class="indicator">
-				<div class="indicator-icon">
+			<div class={indicatorClasses}>
+				<div class={indicatorIconClasses}>
 					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M20 28L28 20M20 28L16 32L20 28ZM28 20L32 16L28 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
 						<path d="M15 24C15 24 18 30 24 30C30 30 33 24 33 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 					</svg>
 				</div>
-				<h3>Audited Assets</h3>
-				<p>Third-party verified</p>
+				<h3 class={mobileIndicatorTitleClasses}>Audited Assets</h3>
+				<p class={mobileIndicatorTextClasses}>Third-party verified</p>
 			</div>
 			
-			<div class="indicator">
-				<div class="indicator-icon">
+			<div class={indicatorClasses}>
+				<div class={indicatorIconClasses}>
 					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<rect x="8" y="12" width="32" height="28" stroke="currentColor" stroke-width="2"/>
 						<path d="M8 20H40" stroke="currentColor" stroke-width="2"/>
@@ -254,12 +327,12 @@
 						<path d="M16 28H24M16 32H32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 					</svg>
 				</div>
-				<h3>Institutional Grade</h3>
-				<p>Professional operators</p>
+				<h3 class={mobileIndicatorTitleClasses}>Institutional Grade</h3>
+				<p class={mobileIndicatorTextClasses}>Professional operators</p>
 			</div>
 			
-			<div class="indicator">
-				<div class="indicator-icon">
+			<div class={indicatorClasses}>
+				<div class={indicatorIconClasses}>
 					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
 						<path d="M24 24L32 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -267,37 +340,37 @@
 						<path d="M12 28L16 24L20 26L28 20L36 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
 				</div>
-				<h3>Transparent</h3>
-				<p>Real-time reporting</p>
+				<h3 class={mobileIndicatorTitleClasses}>Transparent</h3>
+				<p class={mobileIndicatorTextClasses}>Real-time reporting</p>
 			</div>
 		</div>
 		</div>
 	</section>
 
 	<!-- Market Insights -->
-	<section class="market-insights">
-		<div class="insights-content">
-			<div class="insights-text">
-				<h3>Market Indicators</h3>
-				<div class="market-data">
-					<div class="data-row">
+	<section class={mobileMarketInsightsClasses}>
+		<div class={insightsContentClasses}>
+			<div class={insightsTextClasses}>
+				<h3 class={insightsTitleClasses}>Market Indicators</h3>
+				<div class={marketDataClasses}>
+					<div class={dataRowClasses}>
 						<span>WTI Crude Oil</span>
-						<span class="price">${marketData.oilPrices.wti.price} <span class="change {marketData.oilPrices.wti.change >= 0 ? 'positive' : 'negative'}">{marketData.oilPrices.wti.change >= 0 ? '+' : ''}{marketData.oilPrices.wti.change}%</span></span>
+						<span class={priceClasses}>${marketData.oilPrices.wti.price} <span class="{changeClasses} {marketData.oilPrices.wti.change >= 0 ? changePositiveClasses : changeNegativeClasses}">{marketData.oilPrices.wti.change >= 0 ? '+' : ''}{marketData.oilPrices.wti.change}%</span></span>
 					</div>
-					<div class="data-row">
+					<div class={dataRowClasses}>
 						<span>Brent Crude</span>
-						<span class="price">${marketData.oilPrices.brent.price} <span class="change {marketData.oilPrices.brent.change >= 0 ? 'positive' : 'negative'}">{marketData.oilPrices.brent.change >= 0 ? '+' : ''}{marketData.oilPrices.brent.change}%</span></span>
+						<span class={priceClasses}>${marketData.oilPrices.brent.price} <span class="{changeClasses} {marketData.oilPrices.brent.change >= 0 ? changePositiveClasses : changeNegativeClasses}">{marketData.oilPrices.brent.change >= 0 ? '+' : ''}{marketData.oilPrices.brent.change}%</span></span>
 					</div>
-					<div class="data-row">
+					<div class={dataRowClasses}>
 						<span>Natural Gas</span>
-						<span class="price">${marketData.oilPrices.naturalGas.price} <span class="change {marketData.oilPrices.naturalGas.change >= 0 ? 'positive' : 'negative'}">{marketData.oilPrices.naturalGas.change >= 0 ? '+' : ''}{marketData.oilPrices.naturalGas.change}%</span></span>
+						<span class={priceClasses}>${marketData.oilPrices.naturalGas.price} <span class="{changeClasses} {marketData.oilPrices.naturalGas.change >= 0 ? changePositiveClasses : changeNegativeClasses}">{marketData.oilPrices.naturalGas.change >= 0 ? '+' : ''}{marketData.oilPrices.naturalGas.change}%</span></span>
 					</div>
 				</div>
 			</div>
 			
-			<div class="cta-box">
-				<h4>Start Investing Today</h4>
-				<p>Join {platformStats.activeInvestors.toLocaleString()} investors earning from energy assets</p>
+			<div class={ctaBoxClasses}>
+				<h4 class={ctaBoxTitleClasses}>Start Investing Today</h4>
+				<p class={ctaBoxTextClasses}>Join {platformStats.activeInvestors.toLocaleString()} investors earning from energy assets</p>
 				<SecondaryButton href="/assets">Get Started Now</SecondaryButton>
 			</div>
 		</div>
@@ -305,460 +378,6 @@
 
 </main>
 
-<style>
-	.homepage {
-		padding-top: 0;
-	}
-
-	.hero {
-		padding: 6rem 0;
-		text-align: center;
-		background: var(--color-white);
-		border-bottom: 1px solid var(--color-light-gray);
-	}
-
-	.hero-content {
-		max-width: 1200px;
-		margin: 0 auto 4rem;
-		padding: 0 2rem;
-	}
-
-	.hero h1 {
-		font-size: 3.5rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 2rem;
-		color: var(--color-black);
-		letter-spacing: -0.02em;
-		line-height: 1.1;
-	}
-
-	.hero p {
-		font-size: 1.25rem;
-		line-height: 1.6;
-		color: var(--color-black);
-		max-width: 700px;
-		margin: 0 auto;
-	}
-
-	.platform-stats {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 2rem;
-		max-width: 700px;
-		margin: 0 auto 4rem;
-		padding: 2rem;
-		border: 1px solid var(--color-light-gray);
-	}
-
-	.stat {
-		text-align: center;
-	}
-
-	.stat-value {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.stat-label {
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin-bottom: 0.25rem;
-	}
-
-	.stat-note {
-		font-size: 0.7rem;
-		color: var(--color-primary);
-		font-weight: var(--font-weight-medium);
-	}
-
-	.cta-buttons {
-		display: flex;
-		gap: 1rem;
-		justify-content: center;
-	}
-
-	.featured-tokens {
-		padding: 4rem 0;
-		width: 100%;
-		overflow: hidden;
-	}
-
-	.featured-tokens .section-header {
-		max-width: 1200px;
-		margin: 0 auto 3rem;
-		padding: 0 2rem;
-	}
-
-	.section-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 3rem;
-	}
-
-	.section-header h2 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-	}
-
-
-
-	.how-it-works {
-		padding: 4rem 0;
-		background: var(--color-light-gray);
-		text-align: center;
-	}
-
-	.how-it-works-content {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 0 2rem;
-	}
-
-	.how-it-works h2 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 3rem;
-	}
-
-	.steps {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 3rem;
-	}
-
-	.step {
-		text-align: center;
-	}
-
-	.step-number {
-		width: 60px;
-		height: 60px;
-		background: var(--color-black);
-		color: var(--color-white);
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		margin: 0 auto 1.5rem;
-	}
-
-	.step h3 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1rem;
-	}
-
-	.step p {
-		font-size: 0.9rem;
-		line-height: 1.6;
-		color: var(--color-black);
-	}
-
-	.trust-indicators {
-		padding: 4rem 0;
-		text-align: center;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.trust-indicators-content {
-		padding: 0 2rem;
-	}
-
-	.trust-indicators h2 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 3rem;
-	}
-
-	.indicators {
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: 2rem;
-	}
-
-	.indicator {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-
-	.indicator-icon {
-		margin-bottom: 1.5rem;
-		color: var(--color-black);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 64px;
-		height: 64px;
-		position: relative;
-	}
-
-	.indicator-icon svg {
-		width: 48px;
-		height: 48px;
-		transition: transform 0.2s ease;
-	}
-
-	.indicator:hover .indicator-icon svg {
-		transform: scale(1.1);
-	}
-
-	.indicator h3 {
-		font-size: 1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.indicator p {
-		font-size: 0.8rem;
-		color: var(--color-black);
-		font-weight: var(--font-weight-medium);
-	}
-
-	.market-insights {
-		padding: 4rem 0;
-		background: var(--color-secondary);
-		color: var(--color-white);
-	}
-
-	.insights-content {
-		display: grid;
-		grid-template-columns: 1fr 400px;
-		gap: 4rem;
-		max-width: 1200px;
-		margin: 0 auto;
-		align-items: center;
-		padding: 0 2rem;
-	}
-
-	.insights-text h3 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 1.5rem;
-		color: #ffffff;
-	}
-
-
-	.market-data {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
-
-	.data-row {
-		display: flex;
-		justify-content: space-between;
-		font-weight: var(--font-weight-semibold);
-	}
-
-	.price {
-		color: var(--color-primary);
-		font-weight: var(--font-weight-extrabold);
-	}
-
-	.change {
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-semibold);
-		margin-left: 0.5rem;
-	}
-
-	.change.positive {
-		color: var(--color-primary);
-	}
-
-	.change.negative {
-		color: #ff4444;
-	}
-
-	.cta-box {
-		text-align: center;
-		padding: 3rem;
-		background: rgba(255, 255, 255, 0.1);
-		border: 1px solid rgba(255, 255, 255, 0.2);
-	}
-
-	.cta-box h4 {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 1rem;
-		color: #ffffff;
-	}
-
-	.cta-box p {
-		margin-bottom: 2rem;
-		opacity: 0.9;
-	}
-
-
-	@media (max-width: 768px) {
-		.hero {
-			padding: 2rem 0;
-		}
-
-		.hero-content {
-			padding: 0 1rem;
-			margin-bottom: 2rem;
-		}
-
-		.hero h1 {
-			font-size: 2rem;
-			line-height: 1.2;
-			margin-bottom: 1rem;
-		}
-
-		.hero p {
-			font-size: 1rem;
-			line-height: 1.5;
-		}
-
-		.platform-stats {
-			grid-template-columns: 1fr;
-			gap: 1.5rem;
-			padding: 1.5rem 1rem;
-			margin-bottom: 2rem;
-		}
-
-		.stat {
-			border-bottom: 1px solid var(--color-light-gray);
-			padding-bottom: 1.5rem;
-		}
-
-		.stat:last-child {
-			border-bottom: none;
-			padding-bottom: 0;
-		}
-
-		.stat-value {
-			font-size: 1.75rem;
-		}
-
-		.cta-buttons {
-			flex-direction: column;
-			align-items: center;
-			gap: 0.75rem;
-			padding: 0 1rem;
-		}
-
-		.featured-tokens {
-			padding: 2rem 0;
-		}
-
-		.featured-tokens .section-header {
-			padding: 0 1rem;
-			margin-bottom: 1.5rem;
-		}
-
-		.section-header h2 {
-			font-size: 1.5rem;
-		}
-
-		.how-it-works {
-			padding: 2rem 0;
-		}
-
-		.how-it-works-content {
-			padding: 0 1rem;
-		}
-
-		.how-it-works h2 {
-			font-size: 1.5rem;
-			margin-bottom: 2rem;
-		}
-
-		.steps {
-			grid-template-columns: 1fr;
-			gap: 2rem;
-		}
-
-		.step h3 {
-			font-size: 1.1rem;
-		}
-
-		.step p {
-			font-size: 0.875rem;
-		}
-
-		.trust-indicators {
-			padding: 2rem 0;
-		}
-
-		.trust-indicators-content {
-			padding: 0 1rem;
-		}
-
-		.trust-indicators h2 {
-			font-size: 1.5rem;
-			margin-bottom: 2rem;
-		}
-
-		.indicators {
-			grid-template-columns: repeat(2, 1fr);
-			gap: 1.5rem;
-		}
-
-		.indicator h3 {
-			font-size: 0.9rem;
-		}
-
-		.indicator p {
-			font-size: 0.75rem;
-		}
-
-		.market-insights {
-			display: none;
-		}
-
-		.cta-box h4 {
-			font-size: 1.25rem;
-		}
-
-		.section-header {
-			flex-direction: column;
-			gap: 1rem;
-			text-align: center;
-		}
-	}
-
-	@media (max-width: 480px) {
-		.hero h1 {
-			font-size: 1.75rem;
-		}
-
-		.hero p {
-			font-size: 0.9rem;
-		}
-
-		.platform-stats {
-			padding: 1rem;
-		}
-
-		.stat-value {
-			font-size: 1.5rem;
-		}
-
-		.indicators {
-			grid-template-columns: 1fr;
-		}
-
-		.cta-box {
-			padding: 1.5rem 1rem;
-		}
-	}
-</style>
 
 <!-- Token Purchase Widget -->
 <TokenPurchaseWidget 

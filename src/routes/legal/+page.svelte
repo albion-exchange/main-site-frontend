@@ -1,5 +1,44 @@
 <script lang="ts">
 	let activeSection = 'terms';
+	
+	// Tailwind class mappings
+	$: pageClasses = 'pt-0';
+	$: heroClasses = 'py-16 px-8 text-center bg-white border-b border-light-gray';
+	$: heroContentClasses = 'max-w-6xl mx-auto';
+	$: heroTitleClasses = 'text-4xl font-extrabold mb-4 text-black tracking-tight leading-tight';
+	$: heroDescriptionClasses = 'text-lg leading-relaxed text-black max-w-2xl mx-auto';
+	$: legalNavClasses = 'bg-light-gray border-b border-light-gray px-8 py-8';
+	$: navContainerClasses = 'max-w-6xl mx-auto flex gap-4 flex-wrap justify-center';
+	$: navBtnClasses = 'bg-white border border-light-gray px-6 py-3 font-figtree font-semibold text-sm text-black cursor-pointer transition-all duration-200 hover:bg-black hover:text-white hover:border-black';
+	$: navBtnActiveClasses = 'bg-black text-white border-black';
+	$: legalContentClasses = 'py-16 px-8 max-w-6xl mx-auto';
+	$: documentClasses = 'bg-white border border-light-gray p-12';
+	$: documentTitleClasses = 'text-3xl font-extrabold text-black mb-2';
+	$: lastUpdatedClasses = 'text-black opacity-70 text-sm mb-8';
+	$: documentContentClasses = 'space-y-4';
+	$: documentH3Classes = 'text-xl font-extrabold text-black mt-8 mb-4';
+	$: documentH4Classes = 'text-lg font-extrabold text-black mt-6 mb-3';
+	$: documentPClasses = 'leading-relaxed mb-4 text-black';
+	$: documentUlClasses = 'my-4 pl-8';
+	$: documentLiClasses = 'mb-2 leading-normal text-black';
+	$: warningBoxClasses = 'bg-yellow-50 border border-yellow-400 p-6 my-8';
+	$: warningTitleClasses = 'text-yellow-800 font-extrabold mb-3 text-base';
+	$: warningTextClasses = 'text-yellow-800 mb-0 font-semibold';
+	$: legalContactClasses = 'bg-secondary text-white py-16 px-8 text-center';
+	$: contactContentClasses = 'max-w-6xl mx-auto';
+	$: contactTitleClasses = 'text-[1.75rem] font-extrabold mb-4';
+	$: contactDescriptionClasses = 'text-lg mb-8 opacity-90';
+	$: contactOptionsClasses = 'flex flex-col gap-3';
+	$: contactOptionClasses = 'text-sm px-3 py-3 bg-white/10 border border-white/20';
+	$: contactStrongClasses = 'text-primary font-extrabold';
+	
+	// Mobile responsive classes
+	$: mobileHeroTitleClasses = 'md:text-4xl text-3xl font-extrabold mb-4 text-black tracking-tight leading-tight';
+	$: mobileNavContainerClasses = 'max-w-6xl mx-auto flex md:flex-row flex-col md:gap-4 gap-3 md:flex-wrap md:justify-center items-center';
+	$: mobileNavBtnClasses = 'bg-white border border-light-gray px-6 py-3 font-figtree font-semibold text-sm text-black cursor-pointer transition-all duration-200 hover:bg-black hover:text-white hover:border-black md:w-auto w-full max-w-xs text-center';
+	$: mobileDocumentClasses = 'bg-white border border-light-gray md:p-12 p-8';
+	$: mobileLegalContentClasses = 'md:py-16 py-8 md:px-8 px-4 max-w-6xl mx-auto';
+	$: mobileContactOptionsClasses = 'flex flex-col gap-3 md:text-center text-left';
 </script>
 
 <svelte:head>
@@ -7,42 +46,38 @@
 	<meta name="description" content="Legal information, terms of service, and compliance details for Albion platform" />
 </svelte:head>
 
-<main class="legal-page">
+<main class={pageClasses}>
 	<!-- Hero Section -->
-	<section class="hero">
-		<div class="hero-content">
-			<h1>Legal Information</h1>
-			<p>Important legal documents and compliance information for the Albion platform.</p>
+	<section class={heroClasses}>
+		<div class={heroContentClasses}>
+			<h1 class={mobileHeroTitleClasses}>Legal Information</h1>
+			<p class={heroDescriptionClasses}>Important legal documents and compliance information for the Albion platform.</p>
 		</div>
 	</section>
 
 	<!-- Legal Navigation -->
-	<section class="legal-nav">
-		<div class="nav-container">
+	<section class={legalNavClasses}>
+		<div class={mobileNavContainerClasses}>
 			<button 
-				class="nav-btn"
-				class:active={activeSection === 'terms'}
+				class="{mobileNavBtnClasses} {activeSection === 'terms' ? navBtnActiveClasses : ''}"
 				on:click={() => activeSection = 'terms'}
 			>
 				Terms of Service
 			</button>
 			<button 
-				class="nav-btn"
-				class:active={activeSection === 'privacy'}
+				class="{mobileNavBtnClasses} {activeSection === 'privacy' ? navBtnActiveClasses : ''}"
 				on:click={() => activeSection = 'privacy'}
 			>
 				Privacy Policy
 			</button>
 			<button 
-				class="nav-btn"
-				class:active={activeSection === 'disclosures'}
+				class="{mobileNavBtnClasses} {activeSection === 'disclosures' ? navBtnActiveClasses : ''}"
 				on:click={() => activeSection = 'disclosures'}
 			>
 				Investment Disclosures
 			</button>
 			<button 
-				class="nav-btn"
-				class:active={activeSection === 'compliance'}
+				class="{mobileNavBtnClasses} {activeSection === 'compliance' ? navBtnActiveClasses : ''}"
 				on:click={() => activeSection = 'compliance'}
 			>
 				Compliance
@@ -51,44 +86,44 @@
 	</section>
 
 	<!-- Legal Content -->
-	<section class="legal-content">
+	<section class={mobileLegalContentClasses}>
 		{#if activeSection === 'terms'}
-			<div class="document">
-				<h2>Terms of Service</h2>
-				<p class="last-updated">Last updated: December 2024</p>
+			<div class={mobileDocumentClasses}>
+				<h2 class={documentTitleClasses}>Terms of Service</h2>
+				<p class={lastUpdatedClasses}>Last updated: December 2024</p>
 				
-				<div class="document-content">
-					<h3>1. Acceptance of Terms</h3>
-					<p>By accessing and using the Albion platform, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use our services.</p>
+				<div class={documentContentClasses}>
+					<h3 class={documentH3Classes}>1. Acceptance of Terms</h3>
+					<p class={documentPClasses}>By accessing and using the Albion platform, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use our services.</p>
 					
-					<h3>2. Platform Description</h3>
-					<p>Albion provides a blockchain-based platform for investing in tokenized oil & gas assets. Our platform enables users to purchase royalty tokens representing fractional ownership in energy production revenue.</p>
+					<h3 class={documentH3Classes}>2. Platform Description</h3>
+					<p class={documentPClasses}>Albion provides a blockchain-based platform for investing in tokenized oil & gas assets. Our platform enables users to purchase royalty tokens representing fractional ownership in energy production revenue.</p>
 					
-					<h3>3. User Eligibility</h3>
-					<p>You must be at least 18 years old and legally capable of entering into binding contracts. You must also comply with all applicable laws and regulations in your jurisdiction.</p>
+					<h3 class={documentH3Classes}>3. User Eligibility</h3>
+					<p class={documentPClasses}>You must be at least 18 years old and legally capable of entering into binding contracts. You must also comply with all applicable laws and regulations in your jurisdiction.</p>
 					
-					<h3>4. Account Registration</h3>
-					<p>To use our platform, you must create an account and complete our Know Your Customer (KYC) verification process. You are responsible for maintaining the security of your account credentials.</p>
+					<h3 class={documentH3Classes}>4. Account Registration</h3>
+					<p class={documentPClasses}>To use our platform, you must create an account and complete our Know Your Customer (KYC) verification process. You are responsible for maintaining the security of your account credentials.</p>
 					
-					<h3>5. Investment Terms</h3>
-					<p>All investments are subject to specific terms outlined in the respective token offering documents. Past performance does not guarantee future results. Investments may lose value.</p>
+					<h3 class={documentH3Classes}>5. Investment Terms</h3>
+					<p class={documentPClasses}>All investments are subject to specific terms outlined in the respective token offering documents. Past performance does not guarantee future results. Investments may lose value.</p>
 					
-					<h3>6. Platform Fees</h3>
-					<p>Albion charges management fees and transaction fees as disclosed in the relevant offering materials. All fees are clearly outlined before investment.</p>
+					<h3 class={documentH3Classes}>6. Platform Fees</h3>
+					<p class={documentPClasses}>Albion charges management fees and transaction fees as disclosed in the relevant offering materials. All fees are clearly outlined before investment.</p>
 					
-					<h3>7. Limitation of Liability</h3>
-					<p>Albion's liability is limited to the maximum extent permitted by law. We are not liable for investment losses, market volatility, or technical issues beyond our control.</p>
+					<h3 class={documentH3Classes}>7. Limitation of Liability</h3>
+					<p class={documentPClasses}>Albion's liability is limited to the maximum extent permitted by law. We are not liable for investment losses, market volatility, or technical issues beyond our control.</p>
 					
-					<h3>8. Termination</h3>
-					<p>We may terminate or suspend your account at any time for violation of these terms or applicable laws. You may close your account at any time subject to existing investment commitments.</p>
+					<h3 class={documentH3Classes}>8. Termination</h3>
+					<p class={documentPClasses}>We may terminate or suspend your account at any time for violation of these terms or applicable laws. You may close your account at any time subject to existing investment commitments.</p>
 				</div>
 			</div>
 		{:else if activeSection === 'privacy'}
-			<div class="document">
-				<h2>Privacy Policy</h2>
-				<p class="last-updated">Last updated: December 2024</p>
+			<div class={mobileDocumentClasses}>
+				<h2 class={documentTitleClasses}>Privacy Policy</h2>
+				<p class={lastUpdatedClasses}>Last updated: December 2024</p>
 				
-				<div class="document-content">
+				<div class={documentContentClasses}>
 					<h3>1. Information We Collect</h3>
 					<p>We collect personal information necessary for KYC compliance, including name, address, identification documents, and financial information. We also collect usage data and technical information about your interaction with our platform.</p>
 					
@@ -115,15 +150,15 @@
 				</div>
 			</div>
 		{:else if activeSection === 'disclosures'}
-			<div class="document">
-				<h2>Investment Disclosures</h2>
-				<p class="last-updated">Last updated: December 2024</p>
+			<div class={mobileDocumentClasses}>
+				<h2 class={documentTitleClasses}>Investment Disclosures</h2>
+				<p class={lastUpdatedClasses}>Last updated: December 2024</p>
 				
-				<div class="document-content">
+				<div class={documentContentClasses}>
 					<h3>Important Investment Warnings</h3>
-					<div class="warning-box">
-						<h4>⚠️ High-Return Investment Warning</h4>
-						<p>Oil & gas investments carry significant operational, market, and regulatory risks. Returns are not guaranteed and you may lose your entire investment.</p>
+					<div class={warningBoxClasses}>
+						<h4 class={warningTitleClasses}>⚠️ High-Return Investment Warning</h4>
+						<p class={warningTextClasses}>Oil & gas investments carry significant operational, market, and regulatory risks. Returns are not guaranteed and you may lose your entire investment.</p>
 					</div>
 					
 					<h3>1. Nature of Investment</h3>
@@ -152,11 +187,11 @@
 				</div>
 			</div>
 		{:else if activeSection === 'compliance'}
-			<div class="document">
-				<h2>Regulatory Compliance</h2>
-				<p class="last-updated">Last updated: December 2024</p>
+			<div class={mobileDocumentClasses}>
+				<h2 class={documentTitleClasses}>Regulatory Compliance</h2>
+				<p class={lastUpdatedClasses}>Last updated: December 2024</p>
 				
-				<div class="document-content">
+				<div class={documentContentClasses}>
 					<h3>1. Regulatory Framework</h3>
 					<p>Albion operates in compliance with applicable securities, commodities, and financial services regulations. Our legal framework is designed to protect investors while enabling innovation.</p>
 					
@@ -192,247 +227,22 @@
 	</section>
 
 	<!-- Contact Section -->
-	<section class="legal-contact">
-		<div class="contact-content">
-			<h2>Legal Questions?</h2>
-			<p>If you have questions about our legal documents or compliance procedures, please contact our legal team.</p>
-			<div class="contact-options">
-				<div class="contact-option">
-					<strong>Email:</strong> legal@albion.com
+	<section class={legalContactClasses}>
+		<div class={contactContentClasses}>
+			<h2 class={contactTitleClasses}>Legal Questions?</h2>
+			<p class={contactDescriptionClasses}>If you have questions about our legal documents or compliance procedures, please contact our legal team.</p>
+			<div class={mobileContactOptionsClasses}>
+				<div class={contactOptionClasses}>
+					<strong class={contactStrongClasses}>Email:</strong> legal@albion.com
 				</div>
-				<div class="contact-option">
-					<strong>Phone:</strong> +1 (555) 123-4567
+				<div class={contactOptionClasses}>
+					<strong class={contactStrongClasses}>Phone:</strong> +1 (555) 123-4567
 				</div>
-				<div class="contact-option">
-					<strong>Address:</strong> 123 Energy Plaza, Houston, TX 77002
+				<div class={contactOptionClasses}>
+					<strong class={contactStrongClasses}>Address:</strong> 123 Energy Plaza, Houston, TX 77002
 				</div>
 			</div>
 		</div>
 	</section>
 </main>
 
-<style>
-	.legal-page {
-		padding-top: 0;
-	}
-
-	.hero {
-		padding: 4rem 2rem;
-		text-align: center;
-		background: var(--color-white);
-		border-bottom: 1px solid var(--color-light-gray);
-	}
-
-	.hero-content {
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.hero h1 {
-		font-size: 2.5rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 1rem;
-		color: var(--color-black);
-		letter-spacing: -0.02em;
-		line-height: 1.1;
-	}
-
-	.hero p {
-		font-size: 1.1rem;
-		line-height: 1.6;
-		color: var(--color-black);
-		max-width: 600px;
-		margin: 0 auto;
-	}
-
-	.legal-nav {
-		background: var(--color-light-gray);
-		border-bottom: 1px solid var(--color-light-gray);
-		padding: 2rem;
-	}
-
-	.nav-container {
-		max-width: 1200px;
-		margin: 0 auto;
-		display: flex;
-		gap: 1rem;
-		flex-wrap: wrap;
-		justify-content: center;
-	}
-
-	.nav-btn {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 0.75rem 1.5rem;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.9rem;
-		color: var(--color-black);
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
-
-	.nav-btn:hover {
-		background: var(--color-black);
-		color: var(--color-white);
-		border-color: var(--color-black);
-	}
-
-	.nav-btn.active {
-		background: var(--color-black);
-		color: var(--color-white);
-		border-color: var(--color-black);
-	}
-
-	.legal-content {
-		padding: 4rem 2rem;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.document {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 3rem;
-	}
-
-	.document h2 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.last-updated {
-		color: var(--color-black);
-		opacity: 0.7;
-		font-size: 0.9rem;
-		margin-bottom: 2rem;
-	}
-
-	.document-content h3 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin: 2rem 0 1rem 0;
-	}
-
-	.document-content h4 {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin: 1.5rem 0 0.75rem 0;
-	}
-
-	.document-content p {
-		line-height: 1.6;
-		margin-bottom: 1rem;
-		color: var(--color-black);
-	}
-
-	.document-content ul {
-		margin: 1rem 0;
-		padding-left: 2rem;
-	}
-
-	.document-content li {
-		margin-bottom: 0.5rem;
-		line-height: 1.5;
-		color: var(--color-black);
-	}
-
-	.document-content li strong {
-		font-weight: var(--font-weight-extrabold);
-	}
-
-	.warning-box {
-		background: #fef3c7;
-		border: 1px solid #fbbf24;
-		padding: 1.5rem;
-		margin: 2rem 0;
-	}
-
-	.warning-box h4 {
-		color: #92400e;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 0.75rem;
-		font-size: 1rem;
-	}
-
-	.warning-box p {
-		color: #92400e;
-		margin-bottom: 0;
-		font-weight: var(--font-weight-semibold);
-	}
-
-	.legal-contact {
-		background: var(--color-secondary);
-		color: var(--color-white);
-		padding: 4rem 2rem;
-		text-align: center;
-	}
-
-	.contact-content {
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.legal-contact h2 {
-		font-size: 1.75rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 1rem;
-	}
-
-	.legal-contact p {
-		font-size: 1.1rem;
-		margin-bottom: 2rem;
-		opacity: 0.9;
-	}
-
-	.contact-options {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-	}
-
-	.contact-option {
-		font-size: 0.95rem;
-		padding: 0.75rem;
-		background: rgba(255, 255, 255, 0.1);
-		border: 1px solid rgba(255, 255, 255, 0.2);
-	}
-
-	.contact-option strong {
-		color: var(--color-primary);
-		font-weight: var(--font-weight-extrabold);
-	}
-
-	@media (max-width: 768px) {
-		.hero h1 {
-			font-size: 2rem;
-		}
-
-		.nav-container {
-			flex-direction: column;
-			align-items: center;
-		}
-
-		.nav-btn {
-			width: 100%;
-			max-width: 300px;
-			text-align: center;
-		}
-
-		.document {
-			padding: 2rem;
-		}
-
-		.legal-content {
-			padding: 2rem 1rem;
-		}
-
-		.contact-options {
-			text-align: left;
-		}
-	}
-</style>

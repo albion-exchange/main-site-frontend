@@ -53,6 +53,59 @@
 	function handleBuyTokens() {
 		dispatch('buyTokens', { assetId: asset.id });
 	}
+	
+	// Tailwind class mappings
+	$: highlightedStatsClasses = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-4 p-4 bg-light-gray rounded-lg';
+	$: highlightStatClasses = 'flex flex-col items-center text-center';
+	$: highlightValueClasses = 'text-xl font-bold text-secondary mb-1';
+	$: highlightLabelClasses = 'text-xs text-gray-500 uppercase font-medium tracking-wider';
+	$: headerClasses = 'mb-4';
+	$: headerMainClasses = 'flex justify-between items-start gap-4';
+	$: nameLocationClasses = 'flex-1';
+	$: operatorClasses = 'flex flex-col items-end text-right';
+	$: operatorLabelClasses = 'text-xs text-gray-500 uppercase font-medium tracking-wider mb-1';
+	$: operatorNameClasses = 'text-sm text-black font-semibold';
+	$: assetNameClasses = 'text-xl font-semibold text-black m-0 mb-2 min-h-[3.125rem] leading-tight flex items-start';
+	$: assetLocationClasses = 'text-gray-500 text-sm m-0';
+	$: assetDescriptionClasses = 'text-gray-700 text-sm leading-relaxed m-0 mb-6 line-clamp-3';
+	$: viewDetailsSectionClasses = 'my-6';
+	$: tokensSectionClasses = 'my-6';
+	$: tokensTitleClasses = 'text-base font-semibold text-black m-0 mb-4 uppercase tracking-wider';
+	$: tokensListClasses = 'flex flex-col gap-3';
+	$: tokensListScrollableClasses = 'flex flex-col gap-3 max-h-[11.5rem] overflow-y-auto pr-2 pb-2';
+	$: tokenButtonClasses = 'flex justify-between items-center w-full p-4 bg-white border-2 border-primary cursor-pointer transition-all duration-200 text-left relative hover:bg-primary/5 hover:transform hover:-translate-y-1 hover:shadow-lg hover:border-primary';
+	$: tokenButtonLeftClasses = 'flex flex-col gap-1';
+	$: tokenButtonRightClasses = 'flex flex-col items-end gap-2';
+	$: tokenSymbolClasses = 'font-bold text-sm text-black uppercase';
+	$: tokenNameClasses = 'text-xs text-gray-500 leading-tight';
+	$: tokenPaymentDateClasses = 'text-xs text-secondary font-medium mt-1';
+	$: returnsDisplayClasses = 'flex items-center gap-2';
+	$: returnItemClasses = 'flex flex-col items-center text-center';
+	$: returnLabelClasses = 'text-xs text-gray-500 uppercase font-medium tracking-wider';
+	$: returnValueClasses = 'text-base text-secondary font-bold';
+	$: returnValueBonusClasses = 'text-base text-primary font-bold';
+	$: returnDividerClasses = 'text-sm text-gray-500 font-medium mx-1';
+	$: buyCtaClasses = 'text-sm font-bold text-primary uppercase tracking-wider';
+	
+	// Mobile responsive classes
+	$: mobileHighlightedStatsClasses = 'grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 my-3 md:my-4 p-3 md:p-4 bg-light-gray rounded-lg';
+	$: mobileHighlightValueClasses = 'text-lg md:text-xl font-bold text-secondary mb-1';
+	$: mobileHighlightLabelClasses = 'text-[0.7rem] md:text-xs text-gray-500 uppercase font-medium tracking-wider';
+	$: mobileAssetNameClasses = 'text-lg md:text-xl font-semibold text-black m-0 mb-2 min-h-[2.75rem] md:min-h-[3.125rem] leading-tight flex items-start';
+	$: mobileAssetDescriptionClasses = 'text-gray-700 text-xs md:text-sm leading-relaxed m-0 mb-4 md:mb-6 line-clamp-3';
+	$: mobileTokensTitleClasses = 'text-sm md:text-base font-semibold text-black m-0 mb-4 uppercase tracking-wider';
+	$: mobileTokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 md:p-4 bg-white border-2 border-primary cursor-pointer transition-all duration-200 text-left relative hover:bg-primary/5 hover:transform hover:-translate-y-1 hover:shadow-lg hover:border-primary gap-3 sm:gap-0';
+	$: mobileTokenButtonRightClasses = 'flex flex-row sm:flex-col w-full sm:w-auto justify-between sm:justify-end items-center sm:items-end gap-2';
+	$: mobileTokenSymbolClasses = 'font-bold text-xs md:text-sm text-black uppercase';
+	$: mobileTokenNameClasses = 'text-[0.7rem] md:text-xs text-gray-500 leading-tight';
+	$: mobileTokenPaymentDateClasses = 'text-[0.65rem] md:text-xs text-secondary font-medium mt-1';
+	$: mobileReturnsDisplayClasses = 'flex items-center gap-1 md:gap-2';
+	$: mobileReturnValueClasses = 'text-xs md:text-base text-secondary font-bold';
+	$: mobileReturnValueBonusClasses = 'text-xs md:text-base text-primary font-bold';
+	$: mobileReturnLabelClasses = 'text-[0.55rem] md:text-xs text-gray-500 uppercase font-medium tracking-wider';
+	$: mobileBuyCtaClasses = 'text-xs md:text-sm font-bold text-primary uppercase tracking-wider';
+	$: smallMobileHeaderMainClasses = 'flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4';
+	$: smallMobileOperatorClasses = 'flex flex-col items-start sm:items-end text-left sm:text-right';
 
 </script>
 
@@ -60,41 +113,41 @@
 	<CardImage src={getAssetImage(asset)} alt={asset.name} zoomOnHover />
 	
 	<CardContent>
-		<header>
-			<div class="header-main">
-				<div class="name-location">
-					<h3 class="asset-name">{asset.name}</h3>
-					<p class="asset-location">{asset.location.state}, {asset.location.country}</p>
+		<header class={headerClasses}>
+			<div class={smallMobileHeaderMainClasses}>
+				<div class={nameLocationClasses}>
+					<h3 class={mobileAssetNameClasses}>{asset.name}</h3>
+					<p class={assetLocationClasses}>{asset.location.state}, {asset.location.country}</p>
 				</div>
-				<div class="operator">
-					<span class="operator-label">Operator</span>
-					<span class="operator-name">{asset.operator.name}</span>
+				<div class={smallMobileOperatorClasses}>
+					<span class={operatorLabelClasses}>Operator</span>
+					<span class={operatorNameClasses}>{asset.operator.name}</span>
 				</div>
 			</div>
 		</header>
 		
 		<!-- Highlighted Big Stats -->
-		<div class="highlighted-stats">
-			<div class="highlight-stat">
-				<span class="highlight-value">{dataStoreService.getCalculatedRemainingProduction(asset.id)}</span>
-				<span class="highlight-label">Expected Remaining</span>
+		<div class={mobileHighlightedStatsClasses}>
+			<div class={highlightStatClasses}>
+				<span class={mobileHighlightValueClasses}>{dataStoreService.getCalculatedRemainingProduction(asset.id)}</span>
+				<span class={mobileHighlightLabelClasses}>Expected Remaining</span>
 			</div>
-			<div class="highlight-stat">
-				<span class="highlight-value">{formatEndDate(asset.technical.expectedEndDate)}</span>
-				<span class="highlight-label">Expected End Date</span>
+			<div class={highlightStatClasses}>
+				<span class={mobileHighlightValueClasses}>{formatEndDate(asset.technical.expectedEndDate)}</span>
+				<span class={mobileHighlightLabelClasses}>Expected End Date</span>
 			</div>
 			{#if latestReport}
-				<div class="highlight-stat">
-					<span class="highlight-value">{formatCurrency(latestReport.netIncome)}</span>
-					<span class="highlight-label">Latest Payment</span>
+				<div class={highlightStatClasses}>
+					<span class={mobileHighlightValueClasses}>{formatCurrency(latestReport.netIncome)}</span>
+					<span class={mobileHighlightLabelClasses}>Latest Payment</span>
 				</div>
 			{/if}
 		</div>
 		
-		<p class="asset-description">{asset.description}</p>
+		<p class={mobileAssetDescriptionClasses}>{asset.description}</p>
 		
 		<!-- View Details Button -->
-		<div class="view-details-section">
+		<div class={viewDetailsSectionClasses}>
 			<PrimaryButton href="/assets/{asset.id}" fullWidth on:click={(e) => e.stopPropagation()}>
 				{hasAvailableTokens ? 'View details and buy tokens' : 'View details'}
 			</PrimaryButton>
@@ -106,36 +159,36 @@
 				const supply = dataStoreService.getTokenSupply(token.contractAddress);
 				return supply && supply.availableSupply > 0;
 			})}
-			<div class="tokens-section">
-				<h4 class="tokens-title">Available Token Releases</h4>
-				<div class="tokens-list" class:scrollable={availableTokens.length > 2}>
+			<div class={tokensSectionClasses}>
+				<h4 class={mobileTokensTitleClasses}>Available Token Releases</h4>
+				<div class="{availableTokens.length > 2 ? tokensListScrollableClasses : tokensListClasses} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
 					{#each availableTokens as token}
 						{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
 						{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) : 0}
 						{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) : 0}
 						{@const firstPaymentMonth = token.firstPaymentDate || 'TBD'}
 						<button 
-							class="token-button" 
+							class={mobileTokenButtonClasses} 
 							on:click|stopPropagation={() => handleBuyTokens()}
 						>
-							<div class="token-button-left">
-								<span class="token-symbol">{token.symbol}</span>
-								<span class="token-name">{token.name}</span>
-								<span class="token-payment-date">First payment: {firstPaymentMonth}</span>
+							<div class={tokenButtonLeftClasses}>
+								<span class={mobileTokenSymbolClasses}>{token.symbol}</span>
+								<span class={mobileTokenNameClasses}>{token.name}</span>
+								<span class={mobileTokenPaymentDateClasses}>First payment: {firstPaymentMonth}</span>
 							</div>
-							<div class="token-button-right">
-								<div class="returns-display">
-									<div class="return-item">
-										<span class="return-label">Est. Base</span>
-										<span class="return-value">{baseReturn}%</span>
+							<div class={mobileTokenButtonRightClasses}>
+								<div class={mobileReturnsDisplayClasses}>
+									<div class={returnItemClasses}>
+										<span class={mobileReturnLabelClasses}>Est. Base</span>
+										<span class={mobileReturnValueClasses}>{baseReturn}%</span>
 									</div>
-									<div class="return-divider">+</div>
-									<div class="return-item">
-										<span class="return-label">Est. Bonus</span>
-										<span class="return-value bonus">{bonusReturn}%</span>
+									<div class={returnDividerClasses}>+</div>
+									<div class={returnItemClasses}>
+										<span class={mobileReturnLabelClasses}>Est. Bonus</span>
+										<span class={mobileReturnValueBonusClasses}>{bonusReturn}%</span>
 									</div>
 								</div>
-								<span class="buy-cta">Buy Now →</span>
+								<span class={mobileBuyCtaClasses}>Buy Now →</span>
 							</div>
 						</button>
 					{/each}
@@ -146,360 +199,3 @@
 	</CardContent>
 </Card>
 
-<style>
-	/* Card-specific styles are now handled by Card components */
-
-	.highlighted-stats {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-		gap: 1rem;
-		margin: 1rem 0 1.5rem 0;
-		padding: 1rem;
-		background: #f8f4f4;
-		border-radius: 8px;
-	}
-
-	.highlight-stat {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		text-align: center;
-	}
-
-	.highlight-value {
-		font-size: 1.25rem;
-		font-weight: 700;
-		color: #283c84;
-		margin-bottom: 0.25rem;
-	}
-
-	.highlight-label {
-		font-size: 0.75rem;
-		color: #718096;
-		text-transform: uppercase;
-		font-weight: 500;
-		letter-spacing: 0.05em;
-	}
-
-	header {
-		margin-bottom: 1rem;
-	}
-
-	.header-main {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-start;
-		gap: 1rem;
-	}
-
-	.name-location {
-		flex: 1;
-	}
-
-	.operator {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-end;
-		text-align: right;
-	}
-
-	.operator-label {
-		font-size: 0.75rem;
-		color: #718096;
-		text-transform: uppercase;
-		font-weight: 500;
-		letter-spacing: 0.05em;
-		margin-bottom: 0.25rem;
-	}
-
-	.operator-name {
-		font-size: 0.875rem;
-		color: #1a202c;
-		font-weight: 600;
-	}
-
-	.asset-name {
-		font-size: 1.25rem;
-		font-weight: 600;
-		color: #1a202c;
-		margin: 0 0 0.5rem 0;
-		min-height: 3.125rem; /* Reserve space for exactly 2 lines (1.25rem * 2 + extra space) */
-		line-height: 1.25;
-		display: flex;
-		align-items: flex-start;
-	}
-
-	.asset-location {
-		color: #718096;
-		font-size: 0.875rem;
-		margin: 0;
-	}
-
-	.asset-description {
-		color: #2d3748;
-		font-size: 0.875rem;
-		line-height: 1.5;
-		margin: 0 0 1.5rem 0;
-		display: -webkit-box;
-		-webkit-line-clamp: 3;
-		line-clamp: 3;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	.view-details-section {
-		margin: 1.5rem 0;
-	}
-
-	.tokens-section {
-		margin: 1.5rem 0;
-	}
-
-	.tokens-title {
-		font-size: 1rem;
-		font-weight: 600;
-		color: #1a202c;
-		margin: 0 0 1rem 0;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.tokens-list {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-	}
-
-	.tokens-list.scrollable {
-		max-height: calc(2 * (5rem + 0.75rem) + 1rem); /* Height for 2 items with padding + gaps + extra space */
-		overflow-y: auto;
-		padding-right: 0.5rem;
-		padding-bottom: 0.5rem; /* Extra padding to prevent cut-off */
-	}
-
-	.tokens-list.scrollable::-webkit-scrollbar {
-		width: 4px;
-	}
-
-	.tokens-list.scrollable::-webkit-scrollbar-track {
-		background: #f1f1f1;
-		border-radius: 2px;
-	}
-
-	.tokens-list.scrollable::-webkit-scrollbar-thumb {
-		background: #c1c1c1;
-		border-radius: 2px;
-	}
-
-	.tokens-list.scrollable::-webkit-scrollbar-thumb:hover {
-		background: #a8a8a8;
-	}
-
-	.token-button {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		width: 100%;
-		padding: 1rem;
-		background: var(--color-white);
-		border: 2px solid var(--color-primary-blue);
-		border-radius: 0;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		text-align: left;
-		position: relative;
-	}
-
-
-	.token-button:hover:not(.unavailable) {
-		background: rgba(8, 188, 204, 0.05);
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(8, 188, 204, 0.15);
-		border-color: var(--color-primary-blue);
-	}
-
-
-	.token-button-left {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-	}
-
-	.token-button-right {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-end;
-		gap: 0.5rem;
-	}
-
-	.token-symbol {
-		font-weight: 700;
-		font-size: 0.875rem;
-		color: var(--color-black);
-		text-transform: uppercase;
-	}
-
-	.token-name {
-		font-size: 0.75rem;
-		color: #718096;
-		line-height: 1.2;
-	}
-
-	.token-payment-date {
-		font-size: 0.7rem;
-		color: var(--color-secondary-blue);
-		font-weight: 500;
-		margin-top: 0.25rem;
-	}
-
-	.returns-display {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.return-item {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		text-align: center;
-	}
-
-	.return-label {
-		font-size: 0.625rem;
-		color: #718096;
-		text-transform: uppercase;
-		font-weight: 500;
-		letter-spacing: 0.05em;
-	}
-
-	.return-value {
-		font-size: 1rem;
-		color: var(--color-secondary-blue);
-		font-weight: 700;
-	}
-
-	.return-value.bonus {
-		color: var(--color-primary-blue);
-	}
-
-	.return-divider {
-		font-size: 0.875rem;
-		color: #718096;
-		font-weight: 500;
-		margin: 0 0.25rem;
-	}
-
-	.buy-cta {
-		font-size: 0.875rem;
-		font-weight: 700;
-		color: var(--color-primary-blue);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	@media (max-width: 768px) {
-		.highlighted-stats {
-			grid-template-columns: repeat(2, 1fr);
-			gap: 0.75rem;
-			padding: 0.75rem;
-			margin: 0.75rem 0 1rem 0;
-		}
-		
-		.highlight-value {
-			font-size: 1.1rem;
-		}
-		
-		.highlight-label {
-			font-size: 0.7rem;
-		}
-
-		.asset-name {
-			font-size: 1.1rem;
-			min-height: 2.75rem;
-		}
-
-		.asset-description {
-			font-size: 0.8rem;
-			margin: 0 0 1rem 0;
-		}
-
-		.tokens-title {
-			font-size: 0.9rem;
-		}
-
-		.token-button {
-			padding: 0.75rem;
-		}
-
-		.token-symbol {
-			font-size: 0.8rem;
-		}
-
-		.token-name {
-			font-size: 0.7rem;
-		}
-
-		.token-payment-date {
-			font-size: 0.65rem;
-		}
-
-		.return-value {
-			font-size: 0.9rem;
-		}
-
-		.buy-cta {
-			font-size: 0.8rem;
-		}
-	}
-
-	@media (max-width: 480px) {
-		.highlighted-stats {
-			grid-template-columns: 1fr;
-			gap: 0.5rem;
-		}
-
-		.header-main {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 0.5rem;
-		}
-
-		.operator {
-			align-items: flex-start;
-			text-align: left;
-		}
-
-		.token-button {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 0.75rem;
-			padding: 0.625rem;
-		}
-
-		.token-button-right {
-			width: 100%;
-			flex-direction: row;
-			justify-content: space-between;
-			align-items: center;
-		}
-
-		.returns-display {
-			gap: 0.25rem;
-		}
-
-		.return-value {
-			font-size: 0.8rem;
-		}
-
-		.return-label {
-			font-size: 0.55rem;
-		}
-
-		.buy-cta {
-			font-size: 0.75rem;
-		}
-	}
-
-
-</style>
