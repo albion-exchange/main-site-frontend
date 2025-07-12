@@ -142,7 +142,7 @@
 	$: howItWorksTitleClasses = 'text-3xl font-extrabold text-black mb-12';
 	$: stepsClasses = 'grid grid-cols-1 md:grid-cols-3 gap-12';
 	$: stepClasses = 'text-center';
-	$: stepNumberClasses = 'w-15 h-15 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6';
+	$: stepNumberClasses = 'w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6';
 	$: stepTitleClasses = 'text-xl font-extrabold text-black mb-4';
 	$: stepTextClasses = 'text-sm leading-relaxed text-black';
 	$: trustIndicatorsClasses = 'py-16 text-center max-w-6xl mx-auto';

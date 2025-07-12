@@ -73,7 +73,7 @@
 	$: tokensTitleClasses = 'text-base font-semibold text-black m-0 mb-4 uppercase tracking-wider';
 	$: tokensListClasses = 'flex flex-col gap-3';
 	$: tokensListScrollableClasses = 'flex flex-col gap-3 max-h-[11.5rem] overflow-y-auto pr-2 pb-2';
-	$: tokenButtonClasses = 'flex justify-between items-center w-full p-4 bg-white border-2 border-primary cursor-pointer transition-all duration-200 text-left relative hover:bg-primary/5 hover:transform hover:-translate-y-1 hover:shadow-card-hover hover:border-primary';
+	$: tokenButtonClasses = 'flex justify-between items-center w-full p-4 bg-white border-2 border-primary rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-primary/5 hover:transform hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(8,188,204,0.15)]';
 	$: tokenButtonLeftClasses = 'flex flex-col gap-1';
 	$: tokenButtonRightClasses = 'flex flex-col items-end gap-2';
 	$: tokenSymbolClasses = 'font-bold text-sm text-black uppercase';

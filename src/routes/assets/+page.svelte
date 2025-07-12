@@ -76,7 +76,7 @@
 	$: emptyStateClasses = 'text-center py-16 px-8 border border-light-gray bg-white';
 	$: emptyTitleClasses = 'text-2xl font-extrabold mb-4 text-black';
 	$: emptyDescriptionClasses = 'mb-8 text-black';
-	$: assetsGridClasses = 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8';
+	$: assetsGridClasses = 'grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-8';
 	$: viewPreviousSectionClasses = 'text-center mt-12 py-8';
 	
 	// Mobile responsive classes
@@ -84,7 +84,7 @@
 	$: mobileHeaderClasses = 'text-center md:mb-16 mb-8';
 	$: mobileTitleClasses = 'md:text-5xl text-3xl font-extrabold md:mb-4 mb-3 text-black';
 	$: mobileSubtitleClasses = 'md:text-xl text-base text-black';
-	$: mobileAssetsGridClasses = 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 md:gap-8 gap-6';
+	$: mobileAssetsGridClasses = 'grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] md:gap-8 gap-6';
 	$: mobileLoadingStateClasses = 'text-center md:py-16 py-8 md:px-8 px-4 text-black';
 	$: mobileEmptyStateClasses = 'text-center md:py-16 py-8 md:px-8 px-4 border border-light-gray bg-white';
 	$: mobileViewPreviousSectionClasses = 'text-center md:mt-12 mt-8 md:py-8 py-6';

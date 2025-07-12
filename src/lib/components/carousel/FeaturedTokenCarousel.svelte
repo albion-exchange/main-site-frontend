@@ -226,8 +226,8 @@
 	$: assetMetaLabelClasses = 'text-sm font-semibold text-black';
 	$: assetMetaValueClasses = 'text-sm text-secondary';
 	$: navButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none rounded-full text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg';
-	$: prevButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none rounded-full text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg -left-16';
-	$: nextButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none rounded-full text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg -right-16';
+	$: prevButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none rounded-full text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg left-[-4rem]';
+	$: nextButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none rounded-full text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg right-[-4rem]';
 	$: indicatorsClasses = 'absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
 	$: indicatorClasses = 'w-3 h-3 rounded-full border-none bg-white/50 cursor-pointer transition-all duration-200 hover:bg-white/80';
 	$: indicatorActiveClasses = 'w-3 h-3 rounded-full border-none bg-white cursor-pointer transition-all duration-200 scale-125 shadow-lg';
@@ -237,8 +237,8 @@
 	$: mobileAssetSectionClasses = 'md:p-12 p-8 bg-light-gray flex flex-col justify-between';
 	$: mobileTokenStatsClasses = 'grid md:grid-cols-2 grid-cols-1 gap-4 mb-8';
 	$: mobileNavButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none rounded-full md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg';
-	$: mobilePrevButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none rounded-full md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:-left-16 -left-12';
-	$: mobileNextButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none rounded-full md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:-right-16 -right-12';
+	$: mobilePrevButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none rounded-full md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:left-[-4rem] left-[-3rem]';
+	$: mobileNextButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none rounded-full md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:right-[-4rem] right-[-3rem]';
 	$: mobileIndicatorsClasses = 'absolute md:bottom-6 bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
 	$: mobileContainerClasses = 'relative w-full max-w-6xl mx-auto md:px-8 px-4';
 	$: mobileBannerCardClasses = 'grid grid-cols-1 md:grid-cols-2 min-h-96 bg-white border border-light-gray transition-all duration-300 ease-in-out md:hover:transform md:hover:-translate-y-1 md:hover:shadow-action-hover animate-fade-in';

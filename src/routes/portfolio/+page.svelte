@@ -356,7 +356,7 @@
 	<meta name="description" content="Track your oil & gas investment portfolio performance" />
 </svelte:head>
 
-{#if !$walletStore.isConnected && !showWalletModal}
+{#if !$walletStore.isConnected}
 	<main class={walletRequiredClasses}>
 		<div class={walletRequiredContentClasses}>
 			<h1 class={walletRequiredTitleClasses}>Wallet Connection Required</h1>
@@ -366,7 +366,7 @@
 			</button>
 		</div>
 	</main>
-{:else if $walletStore.isConnected}
+{:else}
 <main class={smallMobileMainClasses}>
 	<!-- Portfolio Overview Header -->
 	<div class={mobilePortfolioOverviewClasses}>
