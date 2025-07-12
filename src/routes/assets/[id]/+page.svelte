@@ -246,7 +246,7 @@
 	$: metricValueClasses = 'text-2xl font-extrabold text-black mb-2';
 	$: metricLabelClasses = 'text-xs font-semibold text-black uppercase tracking-wider';
 	$: metricSubtitleClasses = 'text-xs font-medium text-primary uppercase tracking-wider mt-1';
-	$: clickableMetricClasses = 'cursor-pointer transition-all duration-200 rounded p-4 -m-4 border-2 border-light-gray bg-white shadow-sm hover:bg-light-gray hover:-translate-y-1 hover:border-primary hover:shadow-lg focus:outline-none focus:border-primary focus:bg-light-gray focus:shadow-lg';
+	$: clickableMetricClasses = 'cursor-pointer transition-all duration-200 rounded p-4 -m-4 border-2 border-light-gray bg-white shadow-sm hover:bg-light-gray hover:-translate-y-1 hover:border-primary hover:shadow-card-hover focus:outline-none focus:border-primary focus:bg-light-gray focus:shadow-card-hover';
 	$: clickableMetricSubtitleClasses = 'text-secondary font-semibold';
 	$: tabsContainerClasses = 'bg-white border border-light-gray mb-8';
 	$: tabsNavClasses = 'flex border-b border-light-gray';

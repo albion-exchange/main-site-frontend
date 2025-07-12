@@ -59,7 +59,7 @@
 	$: footerSectionLiClasses = 'mb-2';
 	$: footerSectionLinkClasses = 'text-black no-underline transition-colors duration-200 hover:text-primary';
 	$: footerSocialButtonsClasses = 'flex gap-4 mt-4';
-	$: footerSocialBtnClasses = 'flex items-center justify-center w-10 h-10 rounded-full border-2 border-black text-black no-underline transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg';
+	$: footerSocialBtnClasses = 'flex items-center justify-center w-10 h-10 rounded-full border-2 border-black text-black no-underline transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover';
 	$: footerSocialTwitterClasses = 'hover:border-[#1da1f2] hover:text-[#1da1f2]';
 	$: footerSocialLinkedinClasses = 'hover:border-[#0077b5] hover:text-[#0077b5]';
 	$: footerSocialTelegramClasses = 'hover:border-[#0088cc] hover:text-[#0088cc]';

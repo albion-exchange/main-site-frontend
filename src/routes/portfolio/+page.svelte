@@ -248,7 +248,7 @@
 	$: tabBtnClasses = 'px-8 py-4 bg-transparent border-none font-figtree font-semibold text-sm uppercase tracking-wider cursor-pointer transition-all duration-200 border-b-2 border-transparent hover:border-primary';
 	$: tabBtnActiveClasses = 'border-primary text-primary';
 	$: holdingsListClasses = 'flex flex-col gap-6';
-	$: holdingCardClasses = 'bg-white border border-light-gray p-8 transition-all duration-200 hover:shadow-lg';
+	$: holdingCardClasses = 'bg-white border border-light-gray p-8 transition-all duration-200 hover:shadow-card-hover';
 	$: holdingMainClasses = 'grid grid-cols-[auto_2fr_3fr] gap-8 items-center mb-6';
 	$: holdingIconClasses = 'text-3xl';
 	$: holdingInfoH3Classes = 'font-extrabold text-black mb-2 text-lg';
