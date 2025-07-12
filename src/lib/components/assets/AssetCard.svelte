@@ -73,7 +73,7 @@
 	$: tokensTitleClasses = 'text-base font-semibold text-black m-0 mb-4 uppercase tracking-wider';
 	$: tokensListClasses = 'flex flex-col gap-3';
 	$: tokensListScrollableClasses = 'flex flex-col gap-3 max-h-[11.5rem] overflow-y-auto pr-2 pb-2';
-	$: tokenButtonClasses = 'flex justify-between items-center w-full p-4 bg-white border-2 border-primary cursor-pointer transition-all duration-200 text-left relative hover:bg-primary/5 hover:transform hover:-translate-y-1 hover:shadow-lg hover:border-primary';
+	$: tokenButtonClasses = 'flex justify-between items-center w-full p-4 bg-white border-2 border-primary cursor-pointer transition-all duration-200 text-left relative hover:bg-primary/5 hover:transform hover:-translate-y-1 hover:shadow-card-hover hover:border-primary';
 	$: tokenButtonLeftClasses = 'flex flex-col gap-1';
 	$: tokenButtonRightClasses = 'flex flex-col items-end gap-2';
 	$: tokenSymbolClasses = 'font-bold text-sm text-black uppercase';
@@ -94,7 +94,7 @@
 	$: mobileAssetNameClasses = 'text-lg md:text-xl font-semibold text-black m-0 mb-2 min-h-[2.75rem] md:min-h-[3.125rem] leading-tight flex items-start';
 	$: mobileAssetDescriptionClasses = 'text-gray-700 text-xs md:text-sm leading-relaxed m-0 mb-4 md:mb-6 line-clamp-3';
 	$: mobileTokensTitleClasses = 'text-sm md:text-base font-semibold text-black m-0 mb-4 uppercase tracking-wider';
-	$: mobileTokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 md:p-4 bg-white border-2 border-primary cursor-pointer transition-all duration-200 text-left relative hover:bg-primary/5 hover:transform hover:-translate-y-1 hover:shadow-lg hover:border-primary gap-3 sm:gap-0';
+	$: mobileTokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 md:p-4 bg-white border-2 border-primary cursor-pointer transition-all duration-200 text-left relative hover:bg-primary/5 hover:transform hover:-translate-y-1 hover:shadow-card-hover hover:border-primary gap-3 sm:gap-0';
 	$: mobileTokenButtonRightClasses = 'flex flex-row sm:flex-col w-full sm:w-auto justify-between sm:justify-end items-center sm:items-end gap-2';
 	$: mobileTokenSymbolClasses = 'font-bold text-xs md:text-sm text-black uppercase';
 	$: mobileTokenNameClasses = 'text-[0.7rem] md:text-xs text-gray-500 leading-tight';

@@ -47,6 +47,11 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' }
         }
+      },
+      boxShadow: {
+        'card-hover': '0 4px 12px rgba(0, 0, 0, 0.15)',
+        'action-hover': '0 8px 25px rgba(0, 0, 0, 0.1)',
+        'carousel': '0 4px 20px rgba(0, 0, 0, 0.1)',
       }
     },
   },

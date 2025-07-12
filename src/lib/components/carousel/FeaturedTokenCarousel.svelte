@@ -194,12 +194,12 @@
 	$: emptyStateClasses = 'flex flex-col items-center justify-center p-16 text-center text-black bg-white border border-light-gray rounded-lg';
 	$: spinnerClasses = 'w-8 h-8 border-4 border-light-gray border-t-primary rounded-full animate-spin mb-4';
 	$: retryButtonClasses = 'mt-4 px-6 py-3 bg-primary text-white border-none rounded cursor-pointer font-semibold transition-colors duration-200 hover:bg-secondary';
-	$: carouselWrapperClasses = 'relative overflow-hidden rounded-xl shadow-xl outline-none focus:shadow-2xl focus:ring-4 focus:ring-primary/50 touch-pan-y';
+	$: carouselWrapperClasses = 'relative overflow-hidden rounded-xl shadow-carousel outline-none focus:shadow-carousel focus:ring-4 focus:ring-primary/50 touch-pan-y';
 	$: carouselTrackClasses = 'flex w-full transition-transform duration-700 ease-in-out will-change-transform';
 	$: carouselSlideClasses = 'flex-shrink-0 w-full relative transition-all duration-700 ease-in-out';
 	$: activeSlideClasses = 'opacity-100 scale-100';
 	$: inactiveSlideClasses = 'opacity-70 scale-95';
-	$: bannerCardClasses = 'grid grid-cols-1 md:grid-cols-2 min-h-96 bg-white border border-light-gray transition-all duration-300 ease-in-out hover:transform hover:-translate-y-1 hover:shadow-2xl animate-fade-in';
+	$: bannerCardClasses = 'grid grid-cols-1 md:grid-cols-2 min-h-96 bg-white border border-light-gray transition-all duration-300 ease-in-out hover:transform hover:-translate-y-1 hover:shadow-action-hover animate-fade-in';
 	$: tokenSectionClasses = 'p-12 bg-white border-b md:border-b-0 md:border-r border-light-gray flex flex-col justify-between';
 	$: assetSectionClasses = 'p-12 bg-light-gray flex flex-col justify-between';
 	$: tokenHeaderClasses = 'mb-8';
@@ -241,7 +241,7 @@
 	$: mobileNextButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none rounded-full md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:-right-16 -right-12';
 	$: mobileIndicatorsClasses = 'absolute md:bottom-6 bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
 	$: mobileContainerClasses = 'relative w-full max-w-6xl mx-auto md:px-8 px-4';
-	$: mobileBannerCardClasses = 'grid grid-cols-1 md:grid-cols-2 min-h-96 bg-white border border-light-gray transition-all duration-300 ease-in-out md:hover:transform md:hover:-translate-y-1 md:hover:shadow-2xl animate-fade-in';
+	$: mobileBannerCardClasses = 'grid grid-cols-1 md:grid-cols-2 min-h-96 bg-white border border-light-gray transition-all duration-300 ease-in-out md:hover:transform md:hover:-translate-y-1 md:hover:shadow-action-hover animate-fade-in';
 	$: mobileCarouselSlideClasses = 'flex-shrink-0 w-full relative transition-all duration-700 ease-in-out sm:opacity-100 sm:scale-100';
 	$: mobileCarouselTrackClasses = 'flex w-full sm:transition-transform sm:duration-500 transition-transform duration-700 ease-in-out will-change-transform';
 	
