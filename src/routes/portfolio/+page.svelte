@@ -655,26 +655,26 @@
 	<!-- Quick Actions -->
 	<ContentSection background="white" padding="standard" maxWidth={false}>
 		<GridContainer columns={3}>
-			<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200 text-center">
+			<div class="bg-white border border-light-gray p-8 transition-colors duration-200 hover:border-primary text-center">
 				<div class="text-4xl mb-4">➕</div>
 				<SectionTitle level="h3" size="card" center>Add Investment</SectionTitle>
 				<p class="text-sm text-black mb-6 opacity-70">Diversify with new assets</p>
-				<a href="/assets" class="px-8 py-4 no-underline font-semibold text-sm uppercase tracking-wider transition-colors duration-200 inline-block bg-black text-white hover:bg-secondary inline-block">Browse Assets</a>
+				<PrimaryButton href="/assets">Browse Assets</PrimaryButton>
 			</div>
 
-			<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200 text-center">
+			<div class="bg-white border border-light-gray p-8 transition-colors duration-200 hover:border-primary text-center">
 				<div class="text-4xl mb-4">💰</div>
 				<SectionTitle level="h3" size="card" center>Claim Payouts</SectionTitle>
 				<p class="text-sm text-black mb-6 opacity-70">{formatCurrency(unclaimedPayout)} available</p>
-				<a href="/claims" class="px-6 py-2 font-semibold text-sm uppercase tracking-wider transition-colors duration-200 bg-primary text-white hover:bg-primary-dark inline-block">Claim Now</a>
+				<PrimaryButton href="/claims">Claim Now</PrimaryButton>
 			</div>
 
 
-			<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200 text-center">
+			<div class="bg-white border border-light-gray p-8 transition-colors duration-200 hover:border-primary text-center">
 				<div class="text-4xl mb-4">📥</div>
 				<SectionTitle level="h3" size="card" center>Export Data</SectionTitle>
 				<p class="text-sm text-black mb-6 opacity-70">Tax & accounting reports</p>
-				<button class="px-8 py-4 no-underline font-semibold text-sm uppercase tracking-wider transition-colors duration-200 inline-block bg-white text-black border border-black hover:bg-black hover:text-white">Download</button>
+				<SecondaryButton>Download</SecondaryButton>
 			</div>
 		</GridContainer>
 	</ContentSection>

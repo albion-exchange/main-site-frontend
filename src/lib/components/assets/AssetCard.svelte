@@ -108,7 +108,7 @@
 	$: tokensTitleClasses = 'text-lg font-extrabold text-black m-0 mb-4 uppercase tracking-wider font-figtree';
 	$: tokensListClasses = 'flex flex-col gap-3';
 	$: tokensListScrollableClasses = 'flex flex-col gap-3 max-h-[13rem] overflow-y-auto pr-2 relative';
-	$: tokenButtonClasses = 'flex justify-between items-center w-full p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-gray-50';
+	$: tokenButtonClasses = 'flex justify-between items-center w-full p-4 bg-white rounded-none cursor-pointer transition-colors duration-200 text-left relative hover:bg-light-gray border border-transparent hover:border-primary';
 	$: tokenButtonLeftClasses = 'flex flex-col gap-1';
 	$: tokenButtonRightClasses = 'flex flex-col items-end gap-2';
 	$: tokenSymbolClasses = 'font-extrabold text-base text-black uppercase tracking-wider font-figtree';
@@ -129,7 +129,7 @@
 	$: mobileAssetNameClasses = 'text-base md:text-lg font-extrabold text-black m-0 mb-2 min-h-[2.75rem] md:min-h-[3.125rem] leading-tight flex items-start uppercase tracking-wider font-figtree';
 	$: mobileAssetDescriptionClasses = 'text-gray-700 text-sm md:text-base leading-relaxed m-0 mb-4 md:mb-6 line-clamp-3 h-[4rem] md:h-[4.5rem] font-figtree';
 	$: mobileTokensTitleClasses = 'text-base md:text-lg font-extrabold text-black m-0 mb-4 uppercase tracking-wider font-figtree';
-	$: mobileTokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 md:p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-gray-50 gap-3 sm:gap-0';
+	$: mobileTokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 md:p-4 bg-white rounded-none cursor-pointer transition-colors duration-200 text-left relative hover:bg-light-gray border border-transparent hover:border-primary gap-3 sm:gap-0';
 	$: mobileTokenButtonRightClasses = 'flex flex-row sm:flex-col w-full sm:w-auto justify-between sm:justify-end items-center sm:items-end gap-2';
 	$: mobileTokenSymbolClasses = 'font-extrabold text-sm md:text-base text-black uppercase tracking-wider font-figtree';
 	$: mobileTokenNameClasses = 'text-xs md:text-sm text-gray-500 leading-tight font-figtree';
@@ -234,19 +234,18 @@
 					{/each}
 					</div>
 					{#if availableTokens.length > 2}
-						<!-- Up arrow indicator -->
+						<!-- Scroll indicators -->
 						{#if canScrollUp}
-							<div class="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-white via-white to-transparent pointer-events-none flex items-start justify-center pt-1">
-								<svg class="w-5 h-5 text-gray-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<div class="absolute top-0 left-0 right-0 h-8 bg-white border-b border-light-gray pointer-events-none flex items-center justify-center">
+								<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
 								</svg>
 							</div>
 						{/if}
 						
-						<!-- Down arrow indicator -->
 						{#if canScrollDown}
-							<div class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white via-white to-transparent pointer-events-none flex items-end justify-center pb-1">
-								<svg class="w-5 h-5 text-gray-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<div class="absolute bottom-0 left-0 right-0 h-8 bg-white border-t border-light-gray pointer-events-none flex items-center justify-center">
+								<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
 								</svg>
 							</div>
