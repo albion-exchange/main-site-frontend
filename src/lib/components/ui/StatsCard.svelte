@@ -33,7 +33,7 @@
 	}
 </script>
 
-<Card hoverable>
+<Card hoverable showBorder={false}>
 	<CardContent paddingClass={sizeClasses[size]}>
 		<div class="text-center">
 			<div class="{valueSizeClasses[size]} font-extrabold {valueColorClasses[valueColor]} mb-2 font-figtree">

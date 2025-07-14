@@ -8,6 +8,7 @@
 	export let roundedClass = 'rounded-none';
 	export let overflowClass = 'overflow-hidden';
 	export let heightClass = '';
+	export let showBorder = true;
 	
 	const dispatch = createEventDispatcher();
 	
@@ -18,7 +19,7 @@
 	}
 	
 	// Generate Tailwind classes
-	$: classes = `border border-light-gray bg-white transition-colors duration-200 relative ${paddingClass} ${roundedClass} ${overflowClass} ${heightClass} ${hoverable ? 'cursor-pointer hover:border-primary' : ''} ${clickable ? 'focus:outline-primary focus:outline-2 focus:outline-offset-2' : ''}`;
+	$: classes = `${showBorder ? 'border border-light-gray' : ''} bg-white shadow-sm transition-all duration-200 relative ${paddingClass} ${roundedClass} ${overflowClass} ${heightClass} ${hoverable ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-card-hover' : ''} ${clickable ? 'active:translate-y-0 active:shadow-sm focus:outline-primary focus:outline-2 focus:outline-offset-2' : ''}`;
 </script>
 
 <article 

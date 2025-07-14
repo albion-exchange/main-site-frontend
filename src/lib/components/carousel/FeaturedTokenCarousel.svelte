@@ -201,7 +201,7 @@
 	$: inactiveSlideClasses = 'opacity-70 scale-95';
 	$: bannerCardClasses = 'grid grid-cols-1 md:grid-cols-2 min-h-96 bg-white border border-light-gray transition-all duration-300 ease-in-out hover:transform hover:-translate-y-1 hover:shadow-action-hover animate-fade-in';
 	$: tokenSectionClasses = 'p-12 bg-white border-b md:border-b-0 md:border-r border-light-gray flex flex-col justify-between';
-	$: assetSectionClasses = 'p-12 bg-white flex flex-col justify-between';
+	$: assetSectionClasses = 'p-12 bg-light-gray flex flex-col justify-between';
 	$: tokenHeaderClasses = 'mb-6';
 	$: tokenNameClasses = 'text-2xl font-extrabold text-black lowercase tracking-wider mb-3 leading-tight font-figtree';
 	$: tokenContractClasses = 'text-base font-medium text-secondary break-all leading-relaxed py-1 opacity-80 tracking-tight font-figtree';
@@ -211,19 +211,19 @@
 	$: statusIndicatorProducingClasses = 'w-2 h-2 bg-green-500 animate-pulse-status';
 	$: statusIndicatorFundingClasses = 'w-2 h-2 bg-yellow-500';
 	$: statusIndicatorCompletedClasses = 'w-2 h-2 bg-secondary';
-	$: statusTextClasses = 'text-sm font-medium text-black uppercase tracking-wider font-figtree';
-	$: assetNameClasses = 'text-4xl font-extrabold text-black mb-2 leading-tight font-figtree uppercase tracking-wider';
+	$: statusTextClasses = 'text-sm font-medium text-black font-figtree';
+	$: assetNameClasses = 'text-4xl font-extrabold text-black mb-2 leading-tight font-figtree';
 	$: assetLocationClasses = 'text-lg text-black leading-relaxed font-figtree';
 	$: assetDescriptionClasses = 'text-lg text-black leading-relaxed mb-8 font-figtree';
 	$: tokenStatsClasses = 'grid grid-cols-2 gap-4 mb-8';
 	$: assetStatsClasses = 'grid grid-cols-1 gap-4 mb-8';
 	$: statItemClasses = 'text-left';
-	$: statLabelClasses = 'text-sm font-medium text-gray-500 uppercase tracking-wider mb-1 font-figtree';
+	$: statLabelClasses = 'text-sm font-medium text-gray-500 mb-1 font-figtree';
 	$: statValueClasses = 'text-2xl md:text-3xl font-extrabold text-black font-figtree';
 	$: tokenActionsClasses = 'flex gap-4';
 	$: assetMetaClasses = 'flex flex-col gap-2';
 	$: assetMetaItemClasses = 'flex gap-2';
-	$: assetMetaLabelClasses = 'text-sm font-medium text-gray-500 uppercase tracking-wider font-figtree';
+	$: assetMetaLabelClasses = 'text-sm font-medium text-gray-500 font-figtree';
 	$: assetMetaValueClasses = 'text-sm text-black opacity-70 font-figtree';
 	$: navButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg';
 	$: prevButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg left-[-4rem]';
@@ -234,13 +234,13 @@
 	
 	// Responsive classes using Tailwind
 	$: mobileTokenSectionClasses = 'p-6 lg:p-12 bg-white border-b md:border-b-0 md:border-r border-light-gray flex flex-col justify-between';
-	$: mobileAssetSectionClasses = 'p-6 lg:p-12 bg-white flex flex-col justify-between';
+	$: mobileAssetSectionClasses = 'p-6 lg:p-12 bg-light-gray flex flex-col justify-between';
 	$: mobileTokenStatsClasses = 'grid grid-cols-2 gap-4 mb-8';
 	$: mobileNavButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg';
 	$: mobilePrevButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:left-[-4rem] left-[-3rem]';
 	$: mobileNextButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:right-[-4rem] right-[-3rem]';
 	$: mobileIndicatorsClasses = 'absolute md:bottom-6 bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
-	$: mobileContainerClasses = 'relative w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8';
+	$: mobileContainerClasses = 'relative w-full max-w-6xl mx-auto px-8';
 	$: mobileBannerCardClasses = 'grid grid-cols-1 md:grid-cols-2 min-h-96 bg-white border border-light-gray transition-all duration-300 ease-in-out md:hover:transform md:hover:-translate-y-1 md:hover:shadow-action-hover animate-fade-in';
 	$: mobileCarouselSlideClasses = 'flex-shrink-0 w-full relative transition-all duration-700 ease-in-out sm:opacity-100 sm:scale-100';
 	$: mobileCarouselTrackClasses = 'flex w-full sm:transition-transform sm:duration-500 transition-transform duration-700 ease-in-out will-change-transform';
@@ -320,7 +320,7 @@
 								<div class={tokenHeaderClasses}>
 									<div class="flex items-start justify-between gap-4 mb-3">
 										<h3 class={tokenNameClasses}>{item.token.name}</h3>
-										<div class="bg-primary text-white px-3 py-1 text-sm font-extrabold uppercase tracking-wider font-figtree flex-shrink-0">{item.token.sharePercentage || 25}% of asset</div>
+										<div class="bg-primary text-white px-3 py-1 text-sm font-extrabold font-figtree flex-shrink-0">{item.token.sharePercentage || 25}% of asset</div>
 									</div>
 									<div class={tokenContractClasses}>{item.token.contractAddress}</div>
 								</div>

@@ -10,7 +10,7 @@
 </script>
 
 <section class={sectionClasses}>
-	<PageHeader {title} {subtitle} centered maxWidth="lg" />
+	<PageHeader {title} {subtitle} centered maxWidth="xl" />
 	{#if showButtons}
 		<slot name="buttons" />
 	{/if}

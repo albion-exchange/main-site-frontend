@@ -6,10 +6,10 @@
 	export let className = '';
 	
 	const sizeClasses = {
-		page: 'text-3xl md:text-4xl font-extrabold text-black mb-8 font-figtree uppercase tracking-tight',
-		section: 'text-2xl md:text-3xl font-extrabold text-black mb-6 font-figtree uppercase tracking-wider',
-		card: 'text-xl md:text-2xl font-extrabold text-black mb-4 font-figtree uppercase tracking-wider',
-		subsection: 'text-lg md:text-xl font-extrabold text-black uppercase tracking-wider font-figtree',
+		page: 'text-3xl md:text-4xl font-extrabold text-black mb-8 font-figtree',
+		section: 'text-2xl md:text-3xl font-extrabold text-black mb-6 font-figtree',
+		card: 'text-xl md:text-2xl font-extrabold text-black mb-4 font-figtree',
+		subsection: 'text-lg md:text-xl font-extrabold text-black font-figtree',
 	};
 	
 	$: classes = `${sizeClasses[size]} ${center ? 'text-center' : ''} ${className}`;

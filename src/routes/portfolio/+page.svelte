@@ -655,14 +655,14 @@
 	<!-- Quick Actions -->
 	<ContentSection background="white" padding="standard" maxWidth={false}>
 		<GridContainer columns={3}>
-			<div class="bg-white border border-light-gray p-8 transition-colors duration-200 hover:border-primary text-center">
+			<div class="bg-white p-8 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-center">
 				<div class="text-4xl mb-4">➕</div>
 				<SectionTitle level="h3" size="card" center>Add Investment</SectionTitle>
 				<p class="text-sm text-black mb-6 opacity-70">Diversify with new assets</p>
 				<PrimaryButton href="/assets">Browse Assets</PrimaryButton>
 			</div>
 
-			<div class="bg-white border border-light-gray p-8 transition-colors duration-200 hover:border-primary text-center">
+			<div class="bg-white p-8 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-center">
 				<div class="text-4xl mb-4">💰</div>
 				<SectionTitle level="h3" size="card" center>Claim Payouts</SectionTitle>
 				<p class="text-sm text-black mb-6 opacity-70">{formatCurrency(unclaimedPayout)} available</p>
@@ -670,7 +670,7 @@
 			</div>
 
 
-			<div class="bg-white border border-light-gray p-8 transition-colors duration-200 hover:border-primary text-center">
+			<div class="bg-white p-8 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-center">
 				<div class="text-4xl mb-4">📥</div>
 				<SectionTitle level="h3" size="card" center>Export Data</SectionTitle>
 				<p class="text-sm text-black mb-6 opacity-70">Tax & accounting reports</p>
