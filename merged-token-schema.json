@@ -1,0 +1,143 @@
+{
+  "contractAddress": "0x4567890123def0123456789012cdef045678901", 
+  "symbol": "BAK-HF1",
+    "releaseName": "Release 1",
+  "assetName": "Bakken Horizon-2 Royalty",
+  "tokenType": "royalty",
+  "firstPaymentDate": "March 2025",
+  "sharePercentage": 48,
+  "decimals": 18, // Do we need this or on-chain?
+  "supply": {
+    "maxSupply": "1000000000000000000000000", // Do we need this or is just onchain data?
+    "mintedSupply": "487500000000000000000000" // On-chain data right? It will change
+  },
+  "monthlyData": [ // We will append to this every month
+    {
+      "month": "2025-06",
+      "assetData": {
+        "production": 1112.8,
+        "revenue": 77896.0,
+        "expenses": 0,
+        "netIncome": 77896.0
+      },
+      "tokenPayout": {
+        "date": "2025-06-15", // Do we need this or is just get date from tx timestamp?
+        "totalPayout": 37390.1,
+        "payoutPerToken": 0.0767,
+        "txHash": "0x00000000000000000000000041edb16a6f48b35c"
+      },
+      "realisedPrice": {
+        "oilPrice": 70.0,
+        "gasPrice": 3.1
+      }
+    }
+  ],
+  "asset": {
+    "description": "High-production shale oil development in the heart of the Bakken formation with advanced horizontal drilling technology and multiple producing wells.",
+    "location": {
+      "state": "North Dakota",
+      "county": "McKenzie County",
+      "country": "United States",
+      "coordinates": {
+        "lat": 47.8,
+        "lng": -103.2
+      },
+      "waterDepth": null
+    },
+    "operator": {
+      "name": "Horizon Energy Partners LLC",
+      "website": "https://horizonenergypartners.com",
+      "experience": "20+ years"
+    },
+    "technical": {
+      "fieldType": "Shale Oil",
+      "depth": "3,200m",
+      "license": "ND-2847",
+      "estimatedLife": "3+ years", 
+      "firstOil": "2020-Q2",
+      "infrastructure": "Rail and pipeline access",
+      "environmental": "EPA compliant with reduced emissions technology",
+      "expectedEndDate": "2028-06",
+      "crudeBenchmark": "WTI",
+      "pricing": {
+        "benchmarkPremium": "-$1.25", // might change rarely
+        "transportCosts": "Title transfer at well head" // might change rarely
+      }
+    },
+    "assetTerms": {
+      "interestType": "Royalty",
+      "amount": "3.2% of gross",
+      "amountTooltip": "All numbers shown have already been adjusted for the royalty percentage and represent the net amounts payable to token holders",
+      "paymentFrequency": "Monthly within 30 days"
+    },
+    "production": {
+      "current": "1200 boe/day", // I think we should delete this and calculate it from the most recent monthly production data
+      "status": "producing",
+      "units": {
+        "production": "BOE (Barrels of Oil Equivalent)",
+        "revenue": "USD"
+      }
+    },
+    "plannedProduction": { // This will likely change but we don't know how often. Maybe annually?
+      "oilPriceAssumption": 70, // We should store this locally not on metaboard, because it is used for local scenario calculations only
+      "oilPriceAssumptionCurrency": "USD", // If we store above locally, we don't need this either
+      "projections": [ // 
+        {
+          "month": "2025-07",
+          "production": 1226.8
+        },
+        {
+          "month": "2025-08",
+          "production": 1167.36
+        },
+        {
+          "month": "2025-09",
+          "production": 1186.16
+        },
+        {
+          "month": "2025-10",
+          "production": 1166.4
+        }
+      ]
+    },
+    "productionHistory": [ // This will NOT change
+      {
+        "month": "2020-02",
+        "production": 2112.48
+      },
+      {
+        "month": "2020-03",
+        "production": 1946.8
+      },
+      {
+        "month": "2020-04",
+        "production": 1953.72
+      },
+      {
+        "month": "2020-05",
+        "production": 1957.56
+      }
+    ],
+    "operationalMetrics": { // This may change but I don't know the frequency. Likely monthly
+      "uptime": {
+        "percentage": 94.5,
+        "unit": "percent",
+        "period": "last_30_days"
+      },
+      "dailyProduction": { // We should delete this and use the other daily production data key (production.current)
+        "current": 1216.0,
+        "target": 1280.0,
+        "unit": "boe"
+      },
+      "hseMetrics": { // Updated monthly at minimum, or otherwise when there is an incident
+        "incidentFreeDays": 198,
+        "lastIncidentDate": "2024-05-22",
+        "safetyRating": "Good"
+      }
+    }
+  },
+  "metadata": {
+    "createdAt": "2020-02-15T10:00:00Z",
+    "updatedAt": "2025-01-07T10:00:00Z"
+  }
+}

@@ -30,45 +30,45 @@
 	
 	// Tailwind class mappings
 	$: backdropClasses = 'fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-4';
-	$: modalClasses = 'bg-white border-2 border-black w-full max-w-md max-h-[90vh] overflow-y-auto animate-modal-slide';
-	$: headerClasses = 'flex justify-between items-center px-6 py-4 border-b border-light-gray';
-	$: titleClasses = 'text-xl font-extrabold text-black uppercase tracking-wide';
-	$: closeClasses = 'bg-transparent border-none text-2xl text-black cursor-pointer w-8 h-8 flex items-center justify-center hover:bg-light-gray rounded transition-colors duration-200';
-	$: bodyClasses = 'p-6';
-	$: footerClasses = 'px-6 py-4 border-t border-light-gray';
+	$: modalClasses = 'bg-white border-2 border-black w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl';
+	$: headerClasses = 'flex justify-between items-center px-8 py-6 border-b border-light-gray';
+	$: titleClasses = 'text-2xl font-extrabold text-black uppercase tracking-wide';
+	$: closeClasses = 'bg-transparent border-none text-3xl text-black cursor-pointer w-10 h-10 flex items-center justify-center hover:text-primary transition-colors duration-200';
+	$: bodyClasses = 'p-8';
+	$: footerClasses = 'px-8 py-6 border-t border-light-gray';
 	
 	// Placeholder banner classes
-	$: placeholderBannerClasses = 'bg-yellow-50 border border-yellow-200 p-4 mb-6 text-center';
-	$: placeholderIconClasses = 'text-3xl mb-2';
+	$: placeholderBannerClasses = 'bg-light-gray border border-light-gray p-6 mb-8 text-center';
+	$: placeholderIconClasses = 'text-4xl mb-3';
 	$: placeholderTitleClasses = 'font-extrabold text-black uppercase tracking-wide mb-2';
-	$: placeholderTextClasses = 'text-sm text-black opacity-70';
+	$: placeholderTextClasses = 'text-sm text-black';
 	
 	// Wallet options classes
-	$: walletOptionsClasses = 'space-y-3 mb-6';
-	$: walletOptionClasses = 'border border-light-gray p-4 hover:bg-light-gray transition-colors duration-200 cursor-pointer flex justify-between items-center';
-	$: walletOptionContentClasses = 'flex items-center gap-3';
-	$: walletIconClasses = 'text-2xl';
-	$: walletNameClasses = 'font-extrabold text-black text-sm uppercase tracking-wide';
-	$: walletDescClasses = 'text-xs text-black opacity-70';
-	$: walletBadgeClasses = 'px-2 py-1 text-xs font-bold uppercase tracking-wide text-white';
+	$: walletOptionsClasses = 'space-y-4 mb-8';
+	$: walletOptionClasses = 'border border-light-gray p-6 hover:border-primary transition-colors duration-200 cursor-pointer flex justify-between items-center';
+	$: walletOptionContentClasses = 'flex items-center gap-4';
+	$: walletIconClasses = 'text-3xl';
+	$: walletNameClasses = 'font-extrabold text-black text-base uppercase tracking-wide';
+	$: walletDescClasses = 'text-sm text-black mt-1';
+	$: walletBadgeClasses = 'px-3 py-1 text-xs font-bold uppercase tracking-wide text-white';
 	$: walletBadgePrimaryClasses = 'bg-primary';
 	$: walletBadgeSecondaryClasses = 'bg-secondary';
-	$: walletBadgeSecureClasses = 'bg-green-600';
+	$: walletBadgeSecureClasses = 'bg-primary';
 	
 	// Info section classes
-	$: infoSectionClasses = 'bg-light-gray p-4';
-	$: infoTitleClasses = 'font-extrabold text-black text-sm uppercase tracking-wide mb-3';
-	$: infoListClasses = 'space-y-2 text-sm text-black opacity-80';
-	$: infoItemClasses = 'flex items-start gap-2';
+	$: infoSectionClasses = 'bg-white border border-light-gray p-6';
+	$: infoTitleClasses = 'font-extrabold text-black text-base uppercase tracking-wide mb-4';
+	$: infoListClasses = 'space-y-3 text-sm text-black';
+	$: infoItemClasses = 'flex items-start gap-3';
 	$: infoBulletClasses = 'text-primary';
 	
 	// Button classes
-	$: connectButtonClasses = 'w-full bg-black text-white py-3 px-6 font-extrabold uppercase tracking-wide hover:bg-secondary transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2';
-	$: spinnerClasses = 'w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin';
+	$: connectButtonClasses = 'w-full bg-black text-white py-3 px-6 font-semibold uppercase tracking-wide border-2 border-black hover:bg-secondary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2';
+	$: spinnerClasses = 'w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin';
 	
 	// Security notice classes
-	$: securityNoticeClasses = 'flex items-center justify-center gap-2 mt-3 text-xs text-black opacity-60';
-	$: securityIconClasses = 'text-green-600';
+	$: securityNoticeClasses = 'flex items-center justify-center gap-2 mt-4 text-xs text-black';
+	$: securityIconClasses = 'text-primary';
 </script>
 
 {#if isOpen}

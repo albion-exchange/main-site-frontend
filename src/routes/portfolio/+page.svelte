@@ -4,6 +4,17 @@
 	import type { Asset, Token } from '$lib/types/dataStore';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/WalletModal.svelte';
+	import { typography } from '$lib/styles/typography';
+	import { layouts } from '$lib/styles/layouts';
+	import { buttons } from '$lib/styles/buttons';
+	import { 
+		SectionTitle, 
+		MetricDisplay, 
+		GridContainer, 
+		TabButton,
+		PrimaryButton,
+		SecondaryButton
+	} from '$lib/components/ui';
 	import { getMockPortfolioHoldings, calculatePortfolioSummary } from '$lib/utils/portfolioCalculations';
 
 	let totalPortfolioValue = 0;
@@ -210,145 +221,61 @@
 		}
 	}
 	
-	// Tailwind class mappings for portfolio page
-	$: walletRequiredClasses = 'p-0 max-w-6xl mx-auto';
-	$: walletRequiredContentClasses = 'flex items-center justify-center min-h-[60vh] text-center p-8';
-	$: walletRequiredTitleClasses = 'text-3xl font-extrabold text-black mb-4 uppercase tracking-wider';
-	$: walletRequiredTextClasses = 'text-lg text-black mb-8 opacity-80';
-	$: walletConnectBtnClasses = 'bg-primary text-white border-none px-8 py-4 font-figtree font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary';
-	$: smallMobileMainClasses = 'p-0 max-w-6xl mx-auto';
-	$: mobilePortfolioOverviewClasses = 'py-12 px-8 bg-white';
-	$: mobileOverviewGridClasses = 'grid md:grid-cols-[2fr_1fr] grid-cols-1 gap-12 mb-12';
-	$: overviewMainClasses = '';
-	$: portfolioTitleClasses = 'text-4xl font-extrabold mb-8 text-black uppercase tracking-tight';
-	$: totalValueClasses = 'bg-light-gray border border-light-gray p-8 mb-8';
-	$: totalValueLabelClasses = 'text-xs font-bold text-black uppercase tracking-wider mb-2';
-	$: totalValueAmountClasses = 'text-5xl font-extrabold text-black mb-4';
-	$: totalValueChangeClasses = 'text-lg font-semibold';
-	$: totalValueChangePositiveClasses = 'text-primary';
-	$: portfolioMetricsClasses = 'grid grid-cols-3 gap-6';
-	$: metricClasses = 'text-center p-6 bg-white border border-light-gray';
-	$: metricValueClasses = 'text-2xl font-extrabold text-black mb-2';
-	$: metricLabelClasses = 'text-xs font-bold text-black uppercase tracking-wider mb-1';
-	$: metricNoteClasses = 'text-xs font-medium';
-	$: metricNotePositiveClasses = 'text-primary';
-	$: portfolioInfoClasses = 'text-center mt-6';
-	$: updateTimeClasses = 'text-xs text-black opacity-70 mb-2';
-	$: mobileQuickStatsClasses = 'bg-white border border-light-gray p-8';
-	$: quickStatsTitleClasses = 'text-xl font-extrabold text-black mb-6 uppercase tracking-wider';
-	$: statsListClasses = 'flex flex-col gap-4 mb-8';
-	$: statRowClasses = 'flex justify-between items-center';
-	$: performanceSummaryClasses = 'border-t border-light-gray pt-6';
-	$: performerClasses = 'mb-4 last:mb-0';
-	$: performerHeaderClasses = 'flex justify-between items-center mb-1';
-	$: performerNameClasses = 'text-xs text-black opacity-70 uppercase tracking-wider';
-	$: portfolioHoldingsClasses = 'py-12 px-8 bg-light-gray';
-	$: sectionTitleClasses = 'text-[1.75rem] font-extrabold text-black mb-8 uppercase tracking-wider';
-	$: tabsNavClasses = 'flex border-b border-light-gray mb-8';
-	$: tabBtnClasses = 'px-8 py-4 bg-transparent border-none font-figtree font-semibold text-sm uppercase tracking-wider cursor-pointer transition-all duration-200 border-b-2 border-transparent hover:border-primary';
-	$: tabBtnActiveClasses = 'border-primary text-primary';
-	$: holdingsListClasses = 'flex flex-col gap-6';
-	$: holdingCardClasses = 'bg-white border border-light-gray p-8 transition-all duration-200 hover:shadow-card-hover';
-	$: holdingMainClasses = 'grid grid-cols-[auto_2fr_3fr] gap-8 items-center mb-6';
-	$: holdingIconClasses = 'text-3xl';
-	$: holdingInfoH3Classes = 'font-extrabold text-black mb-2 text-lg';
-	$: holdingLocationClasses = 'text-black opacity-70 text-sm';
-	$: holdingMetricsClasses = 'grid grid-cols-4 gap-6 text-center';
-	$: holdingMetricValueClasses = 'text-lg font-extrabold text-black mb-1';
-	$: holdingMetricValuePositiveClasses = 'text-primary';
-	$: holdingMetricValueNegativeClasses = 'text-red-600';
-	$: holdingMetricLabelClasses = 'text-xs font-bold text-black opacity-70 uppercase tracking-wider';
-	$: holdingFooterClasses = 'border-t border-light-gray pt-4';
-	$: footerInfoClasses = 'text-sm text-black opacity-70';
-	
-	// Performance tab classes
-	$: performanceContentClasses = 'bg-white';
-	$: performanceHeaderClasses = 'flex justify-between items-center mb-8 p-8 pb-0';
-	$: performanceHeaderH3Classes = 'text-xl font-extrabold text-black uppercase tracking-wider';
-	$: timeframeControlsClasses = 'flex gap-2';
-	$: timeframeBtnClasses = 'px-4 py-2 bg-white border border-light-gray font-figtree font-semibold text-xs uppercase tracking-wider cursor-pointer transition-all duration-200 hover:bg-light-gray';
-	$: timeframeBtnActiveClasses = 'bg-primary text-white border-primary';
-	$: performanceGridClasses = 'grid grid-cols-[2fr_1fr] gap-8 p-8';
-	$: chartSectionClasses = 'bg-light-gray border border-light-gray p-8';
-	$: chartPlaceholderClasses = 'h-80 flex items-center justify-center text-center';
-	$: chartContentClasses = 'text-center';
-	$: chartIconClasses = 'text-5xl mb-4';
-	$: chartLabelClasses = 'text-lg font-extrabold text-black mb-2';
-	$: chartNoteClasses = 'text-sm text-black opacity-70';
-	$: performanceStatsClasses = 'flex flex-col gap-6';
-	$: perfStatClasses = 'bg-white border border-light-gray p-6 text-center';
-	$: perfValueClasses = 'text-xl font-extrabold mb-2';
-	$: perfValuePositiveClasses = 'text-primary';
-	$: perfLabelClasses = 'text-xs font-bold text-black uppercase tracking-wider mb-1';
-	$: perfNoteClasses = 'text-xs text-black opacity-70';
-	$: monthlyPerformanceClasses = 'p-8 pt-0';
-	$: monthlyPerformanceH4Classes = 'text-lg font-extrabold text-black mb-6 uppercase tracking-wider';
-	$: monthlyGridClasses = 'grid grid-cols-6 gap-4';
-	$: monthlyItemClasses = 'bg-light-gray border border-light-gray p-4 text-center';
-	$: monthLabelClasses = 'text-xs font-bold text-black uppercase tracking-wider mb-2';
-	$: monthValueClasses = 'text-sm font-extrabold text-black mb-1';
-	$: monthPayoutClasses = 'text-xs text-primary font-semibold';
-	
-	// Allocation tab classes
-	$: allocationContentClasses = 'bg-white';
-	$: allocationGridClasses = 'grid grid-cols-[1fr_1fr] gap-8 p-8';
-	$: allocationChartClasses = 'bg-white border border-light-gray p-8';
-	$: allocationChartH3Classes = 'text-xl font-extrabold text-black mb-6 uppercase tracking-wider';
-	$: allocationBreakdownClasses = 'bg-white border border-light-gray p-8';
-	$: allocationBreakdownH3Classes = 'text-xl font-extrabold text-black mb-6 uppercase tracking-wider';
-	$: allocationListClasses = 'flex flex-col gap-4 mb-8';
-	$: allocationItemClasses = 'flex justify-between items-center p-4 bg-light-gray border border-light-gray';
-	$: allocationAssetClasses = 'flex items-center gap-3';
-	$: assetIconClasses = 'text-xl';
-	$: assetInfoClasses = 'flex-1';
-	$: assetNameClasses = 'font-extrabold text-black text-sm mb-1';
-	$: assetLocationClasses = 'text-xs text-black opacity-70';
-	$: allocationStatsClasses = 'text-right';
-	$: allocationPercentClasses = 'text-lg font-extrabold text-primary mb-1';
-	$: allocationValueClasses = 'text-xs text-black opacity-70';
-	$: diversificationTipClasses = 'bg-yellow-50 border border-yellow-200 p-4 flex items-start gap-3';
-	$: tipIconClasses = 'text-xl';
-	$: tipContentClasses = 'flex-1';
-	$: tipTitleClasses = 'font-extrabold text-black text-sm mb-1';
-	$: tipTextClasses = 'text-xs text-black opacity-80 leading-relaxed';
-	
-	// Analytics tab classes
-	$: analyticsContentClasses = 'bg-white';
-	$: analyticsGridClasses = 'grid grid-cols-2 gap-8 p-8';
-	$: performanceMetricsClasses = 'bg-white border border-light-gray p-8';
-	$: performanceMetricsH4Classes = 'text-lg font-extrabold text-black mb-6 uppercase tracking-wider';
-	$: metricsListClasses = 'flex flex-col gap-3';
-	$: metricRowClasses = 'flex justify-between items-center text-sm';
-	$: metricRowSpanClasses = 'text-black';
-	$: metricRowValueClasses = 'font-extrabold';
-	$: metricRowValuePositiveClasses = 'text-primary';
-	$: metricRowValueNegativeClasses = 'text-red-600';
-	$: payoutAnalyticsClasses = 'bg-white border border-light-gray p-8';
-	$: payoutAnalyticsH4Classes = 'text-lg font-extrabold text-black mb-6 uppercase tracking-wider';
-	
-	// Quick stats specific classes
-	$: statLabelClasses = 'text-black opacity-70';
-	$: statValueClasses = 'font-semibold text-black';
-	$: statValuePrimaryClasses = 'text-primary font-semibold';
-	$: bestPerformerValueClasses = 'text-primary font-extrabold';
-	$: worstPerformerValueClasses = 'text-red-600 font-extrabold';
-	
-	// Holding footer classes
-	$: holdingFooterSpanClasses = 'text-black opacity-70 font-semibold';
-	$: holdingFooterValueClasses = 'font-extrabold text-black';
-	$: holdingFooterValuePrimaryClasses = 'text-primary font-extrabold';
-	
-	// Scenario analysis classes
-	$: scenarioAnalysisClasses = 'mt-8 p-8 bg-white border border-light-gray';
-	$: scenarioAnalysisH4Classes = 'text-lg font-extrabold text-black mb-6 uppercase tracking-wider';
-	$: scenarioTableClasses = 'border border-light-gray';
-	$: tableHeaderClasses = 'grid grid-cols-4 gap-0 bg-light-gray border-b border-light-gray';
-	$: tableCellClasses = 'p-4 text-sm border-r border-light-gray last:border-r-0';
-	$: tableCellHeaderClasses = 'font-extrabold text-black text-xs uppercase tracking-wider';
-	$: tableRowClasses = 'grid grid-cols-4 gap-0 border-b border-light-gray last:border-b-0';
-	$: tableRowCurrentClasses = 'bg-primary/5';
-	$: tableCellNegativeClasses = 'text-red-600 font-extrabold';
-	$: tableCellPositiveClasses = 'text-primary font-extrabold';
+	// Mobile specific classes that aren't in utilities
+	const mobileMetricClasses = 'text-center p-6 bg-white border border-light-gray';
+	const mobileHoldingsHeaderClasses = 'flex justify-between items-center mb-8';
+	const holdingsHeaderTitleClasses = typography.cardTitle;
+	const mobileViewControlsClasses = 'flex gap-2';
+	const viewBtnClasses = `${buttons.base} px-4 py-2 bg-white border border-light-gray text-xs hover:bg-light-gray`;
+	const viewBtnActiveClasses = 'bg-primary text-white border-primary';
+	const smallMobileHoldingCardClasses = layouts.cardHover;
+	const mobileHoldingMainClasses = 'grid grid-cols-1 md:grid-cols-6 gap-4 mb-6';
+	const holdingInfoClasses = 'flex items-start gap-4 md:col-span-2';
+	const holdingIconClasses = 'text-3xl';
+	const holdingDetailsH4Classes = typography.metricValueSmall;
+	const holdingLocationClasses = 'text-black opacity-70 text-sm';
+	const holdingBadgesClasses = 'flex gap-2 mt-2';
+	const statusBadgeClasses = 'text-xs font-bold uppercase tracking-wider px-2 py-1 bg-white border border-light-gray';
+	const statusBadgeProducingClasses = 'bg-primary/10 text-primary';
+	const holdingTokensClasses = 'text-center';
+	const tokensValueClasses = typography.metricValue;
+	const tokensLabelClasses = typography.labelMuted;
+	const allocationInfoClasses = typography.meta;
+	const holdingValueClasses = 'text-center';
+	const valueAmountClasses = typography.metricValue;
+	const valueLabelClasses = typography.labelMuted;
+	const costBasisClasses = typography.meta;
+	const holdingPnlClasses = 'text-center';
+	const pnlAmountClasses = typography.metricValue;
+	const pnlAmountPositiveClasses = 'text-primary';
+	const pnlAmountNegativeClasses = 'text-red-600';
+	const pnlLabelClasses = typography.labelMuted;
+	const pnlPercentClasses = typography.meta;
+	const pnlPercentPositiveClasses = 'text-primary';
+	const pnlPercentNegativeClasses = 'text-red-600';
+	const holdingPayoutClasses = 'text-center';
+	const payoutValueClasses = `${typography.metricValue} text-primary`;
+	const payoutLabelClasses = typography.labelMuted;
+	const holdingActionsClasses = 'flex items-center justify-center';
+	const manageBtnClasses = `${buttons.base} ${buttons.secondarySmall}`;
+	const mobileHoldingFooterClasses = 'border-t border-light-gray pt-4 flex justify-around text-sm';
+	const footerItemClasses = 'text-center';
+	const holdingFooterSpanClasses = 'text-black opacity-70 font-semibold';
+	const holdingFooterValueClasses = 'font-extrabold text-black';
+	const holdingFooterValuePrimaryClasses = 'text-primary font-extrabold';
+	const mobilePortfolioMetricsClasses = layouts.gridMetrics;
+	const mobileTabsContainerClasses = layouts.pageSectionAlt;
+	const mobileTabContentClasses = '';
+	const loadingMessageClasses = 'text-center py-8 text-black opacity-70';
+	const mobileQuickActionsClasses = `${layouts.pageSection} ${layouts.gridThree}`;
+	const mobileActionCardClasses = layouts.card + ' text-center';
+	const actionIconClasses = 'text-4xl mb-4';
+	const actionCardH4Classes = typography.cardTitle;
+	const actionCardPClasses = `${typography.bodyTextSmall} mb-6 opacity-70`;
+	const actionBtnClasses = `${buttons.base} inline-block`;
+	const actionBtnPrimaryClasses = buttons.primary;
+	const actionBtnClaimClasses = buttons.claim;
+	const actionBtnSecondaryClasses = buttons.secondary;
 </script>
 
 <svelte:head>
@@ -357,139 +284,147 @@
 </svelte:head>
 
 {#if !$walletStore.isConnected}
-	<main class={walletRequiredClasses}>
-		<div class={walletRequiredContentClasses}>
-			<h1 class={walletRequiredTitleClasses}>Wallet Connection Required</h1>
-			<p class={walletRequiredTextClasses}>Please connect your wallet to view your portfolio.</p>
-			<button class={walletConnectBtnClasses} on:click={() => showWalletModal = true}>
-				Connect Wallet
-			</button>
+	<main class={layouts.pageContainer}>
+		<div class="{layouts.flexCenter} min-h-[60vh] text-center p-8">
+			<div>
+				<SectionTitle level="h1" size="section" center>Wallet Connection Required</SectionTitle>
+				<p class="text-lg text-black mb-8 opacity-80">Please connect your wallet to view your portfolio.</p>
+				<PrimaryButton on:click={() => showWalletModal = true}>
+					Connect Wallet
+				</PrimaryButton>
+			</div>
 		</div>
 	</main>
 {:else}
-<main class={smallMobileMainClasses}>
+<main class={layouts.pageContainer}>
 	<!-- Portfolio Overview Header -->
-	<div class={mobilePortfolioOverviewClasses}>
-		<div class={mobileOverviewGridClasses}>
-			<div class={overviewMainClasses}>
-				<h1 class={portfolioTitleClasses}>Portfolio Overview</h1>
+	<div class={layouts.pageSection}>
+		<GridContainer columns={2} gap="large" className="md:grid-cols-[2fr_1fr] mb-12">
+			<div>
+				<SectionTitle level="h1" size="page">Portfolio Overview</SectionTitle>
 				
-				<div class={mobilePortfolioMetricsClasses}>
+				<GridContainer columns={3} className="md:grid-cols-4">
 					<div class={mobileMetricClasses}>
-						<div class={metricValueClasses}>{formatCurrency(totalPortfolioValue)}</div>
-						<div class={metricLabelClasses}>Total Value</div>
-						<div class={metricNoteClasses}>Real-time</div>
+						<MetricDisplay 
+							value={formatCurrency(totalPortfolioValue)} 
+							label="Total Value" 
+							note="Real-time" 
+						/>
 					</div>
 					<div class={mobileMetricClasses}>
-						<div class={metricValueClasses}>{formatCurrency(totalInvested)}</div>
-						<div class={metricLabelClasses}>Invested</div>
-						<div class={metricNoteClasses}>Principal</div>
+						<MetricDisplay 
+							value={formatCurrency(totalInvested)} 
+							label="Invested" 
+							note="Principal" 
+						/>
 					</div>
 					<div class={mobileMetricClasses}>
-						<div class="{metricValueClasses} {unrealizedGains >= 0 ? metricValuePositiveClasses : metricValueNegativeClasses}">
-							{formatCurrency(unrealizedGains)}
-						</div>
-						<div class={metricLabelClasses}>Unrealized P&L</div>
-						<div class="{metricNoteClasses} {unrealizedGains >= 0 ? metricNotePositiveClasses : 'text-red-600'}">
-							{formatPercent(portfolioMetrics.totalReturn)}
-						</div>
+						<MetricDisplay 
+							value={formatCurrency(unrealizedGains)} 
+							label="Unrealized P&L" 
+							note={formatPercent(portfolioMetrics.totalReturn)}
+							valueColor={unrealizedGains >= 0 ? 'positive' : 'negative'}
+						/>
 					</div>
 					<div class={mobileMetricClasses}>
-						<div class="{metricValueClasses} {metricValuePositiveClasses}">{formatCurrency(portfolioMetrics.totalPayoutEarned)}</div>
-						<div class={metricLabelClasses}>Payout Earned</div>
-						<div class="{metricNoteClasses} {metricNotePositiveClasses}">{formatPercent(portfolioMetrics.payoutReturn)}</div>
+						<MetricDisplay 
+							value={formatCurrency(portfolioMetrics.totalPayoutEarned)} 
+							label="Payout Earned" 
+							note={formatPercent(portfolioMetrics.payoutReturn)}
+							valueColor="primary"
+						/>
 					</div>
-				</div>
+				</GridContainer>
 
-				<div class={portfolioInfoClasses}>
-					<div class={updateTimeClasses}>
+				<div class="text-center mt-6">
+					<div class={typography.meta}>
 						Last updated: {getCurrentTime()}
 					</div>
-					<div class={updateTimeClasses}>
+					<div class={typography.meta}>
 						Portfolio inception: Jul 2024 (6 months)
 					</div>
 				</div>
 			</div>
 
 			<!-- Quick Stats Panel -->
-			<div class={mobileQuickStatsClasses}>
-				<h3 class={quickStatsTitleClasses}>Quick Stats</h3>
+			<div class={layouts.card}>
+				<SectionTitle level="h3" size="card">Quick Stats</SectionTitle>
 				
-				<div class={statsListClasses}>
-					<div class={statRowClasses}>
-						<span class={statLabelClasses}>Average Payout</span>
-						<span class={statValuePrimaryClasses}>{portfolioMetrics.averagePayout.toFixed(1)}%</span>
+				<div class="flex flex-col gap-4 mb-8">
+					<div class={layouts.flexBetween}>
+						<span class="text-black opacity-70">Average Payout</span>
+						<span class={typography.success}>{portfolioMetrics.averagePayout.toFixed(1)}%</span>
 					</div>
-					<div class={statRowClasses}>
-						<span class={statLabelClasses}>Total Tokens</span>
-						<span class={statValueClasses}>{portfolioMetrics.totalTokens.toLocaleString()}</span>
+					<div class={layouts.flexBetween}>
+						<span class="text-black opacity-70">Total Tokens</span>
+						<span class="font-semibold text-black">{portfolioMetrics.totalTokens.toLocaleString()}</span>
 					</div>
-					<div class={statRowClasses}>
-						<span class={statLabelClasses}>Active Assets</span>
-						<span class={statValueClasses}>{holdings.length}</span>
+					<div class={layouts.flexBetween}>
+						<span class="text-black opacity-70">Active Assets</span>
+						<span class="font-semibold text-black">{holdings.length}</span>
 					</div>
-					<div class={statRowClasses}>
-						<span class={statLabelClasses}>Monthly Income</span>
-						<span class={statValuePrimaryClasses}>{formatCurrency(portfolioMetrics.totalPayoutEarned / 6)}</span>
+					<div class={layouts.flexBetween}>
+						<span class="text-black opacity-70">Monthly Income</span>
+						<span class={typography.success}>{formatCurrency(portfolioMetrics.totalPayoutEarned / 6)}</span>
 					</div>
 				</div>
 
-				<div class={performanceSummaryClasses}>
+				<div class="border-t border-light-gray pt-6">
 					{#if portfolioMetrics.bestPerformer && portfolioMetrics.worstPerformer}
-						<div class={performerClasses}>
-							<div class={performerHeaderClasses}>
+						<div class="mb-4 last:mb-0">
+							<div class={layouts.flexBetween + ' mb-1'}>
 								<span>Best Performer</span>
-								<span class={bestPerformerValueClasses}>{formatPercent(portfolioMetrics.bestPerformer.unrealizedGainPercent)}</span>
+								<span class={typography.metricValuePrimary}>{formatPercent(portfolioMetrics.bestPerformer.unrealizedGainPercent)}</span>
 							</div>
-							<div class={performerNameClasses}>{portfolioMetrics.bestPerformer.name}</div>
+							<div class={typography.labelMuted}>{portfolioMetrics.bestPerformer.name}</div>
 						</div>
-						<div class={performerClasses}>
-							<div class={performerHeaderClasses}>
+						<div class="mb-4 last:mb-0">
+							<div class={layouts.flexBetween + ' mb-1'}>
 								<span>Worst Performer</span>
-								<span class={worstPerformerValueClasses}>{formatPercent(portfolioMetrics.worstPerformer.unrealizedGainPercent)}</span>
+								<span class={typography.error}>{formatPercent(portfolioMetrics.worstPerformer.unrealizedGainPercent)}</span>
 							</div>
-							<div class={performerNameClasses}>{portfolioMetrics.worstPerformer.name}</div>
+							<div class={typography.labelMuted}>{portfolioMetrics.worstPerformer.name}</div>
 						</div>
 					{/if}
 				</div>
 			</div>
-		</div>
+		</GridContainer>
 	</div>
 
 	<!-- Portfolio Tabs -->
-	<div class={mobileTabsContainerClasses}>
-		<div class={tabsNavClasses}>
-			<button 
-				class="{tabBtnClasses} {activeTab === 'overview' ? tabBtnActiveClasses : ''}"
+	<div class={layouts.pageSectionAlt}>
+		<div class="flex border-b border-light-gray mb-8">
+			<TabButton 
+				active={activeTab === 'overview'}
 				on:click={() => activeTab = 'overview'}
 			>
 				Holdings
-			</button>
-			<button 
-				class="{tabBtnClasses} {activeTab === 'performance' ? tabBtnActiveClasses : ''}"
+			</TabButton>
+			<TabButton 
+				active={activeTab === 'performance'}
 				on:click={() => activeTab = 'performance'}
 			>
 				Performance
-			</button>
-			<button 
-				class="{tabBtnClasses} {activeTab === 'allocation' ? tabBtnActiveClasses : ''}"
+			</TabButton>
+			<TabButton 
+				active={activeTab === 'allocation'}
 				on:click={() => activeTab = 'allocation'}
 			>
 				Allocation
-			</button>
-			<button 
-				class="{tabBtnClasses} {activeTab === 'analytics' ? tabBtnActiveClasses : ''}"
+			</TabButton>
+			<TabButton 
+				active={activeTab === 'analytics'}
 				on:click={() => activeTab = 'analytics'}
 			>
 				Analytics
-			</button>
+			</TabButton>
 		</div>
 
-		<div class={mobileTabContentClasses}>
+		<div>
 			{#if activeTab === 'overview'}
 				<div>
 					<div class={mobileHoldingsHeaderClasses}>
-						<h3 class={holdingsHeaderTitleClasses}>My Holdings</h3>
+						<SectionTitle level="h3" size="card">My Holdings</SectionTitle>
 						<div class={mobileViewControlsClasses}>
 							<button class="{viewBtnClasses} {viewBtnActiveClasses}">Value</button>
 							<button class={viewBtnClasses}>Payout</button>
@@ -497,12 +432,12 @@
 						</div>
 					</div>
 
-					<div class={holdingsListClasses}>
+					<div class="flex flex-col gap-6">
 						{#if loading}
 							<div class={loadingMessageClasses}>Loading portfolio holdings...</div>
 						{:else}
 							{#each holdings as holding}
-								<div class={smallMobileHoldingCardClasses}>
+								<div class={layouts.cardHover}>
 								<div class={mobileHoldingMainClasses}>
 									<div class={holdingInfoClasses}>
 										<div class={holdingIconClasses}>{holding.icon}</div>
@@ -567,13 +502,13 @@
 					</div>
 				</div>
 			{:else if activeTab === 'performance'}
-				<div class={performanceContentClasses}>
-					<div class={performanceHeaderClasses}>
-						<h3 class={performanceHeaderH3Classes}>Performance Analytics</h3>
-						<div class={timeframeControlsClasses}>
+				<div class="bg-white">
+					<div class="{layouts.flexBetween} mb-8 p-8 pb-0">
+						<SectionTitle level="h3" size="card">Performance Analytics</SectionTitle>
+						<div class="flex gap-2">
 							{#each ['1M', '3M', '6M', 'YTD'] as period}
 								<button 
-									class="{timeframeBtnClasses} {timeframe === period ? timeframeBtnActiveClasses : ''}"
+									class="{buttons.base} {buttons.control} text-xs {timeframe === period ? buttons.controlActive : ''}"
 										on:click={() => timeframe = period}
 								>
 									{period}
@@ -582,177 +517,188 @@
 						</div>
 					</div>
 
-					<div class={performanceGridClasses}>
-						<div class={chartSectionClasses}>
-							<div class={chartPlaceholderClasses}>
-								<div class={chartContentClasses}>
-									<div class={chartIconClasses}>📈</div>
-									<div class={chartLabelClasses}>Portfolio Value Chart</div>
-									<div class={chartNoteClasses}>Total value vs payout earnings over time</div>
+					<div class="grid grid-cols-[2fr_1fr] gap-8 p-8">
+						<div class="{layouts.card} bg-white border border-light-gray">
+							<div class="h-80 {layouts.flexCenter} text-center">
+								<div class="text-center">
+									<div class="text-5xl mb-4">📈</div>
+									<div class={typography.subsectionTitle}>Portfolio Value Chart</div>
+									<div class={typography.meta}>Total value vs payout earnings over time</div>
 								</div>
 							</div>
 						</div>
 
-						<div class={performanceStatsClasses}>
-							<div class={perfStatClasses}>
-								<div class="{perfValueClasses} {perfValuePositiveClasses}">{formatPercent(portfolioMetrics.totalReturn)}</div>
-								<div class={perfLabelClasses}>Total Return</div>
-								<div class={perfNoteClasses}>Since inception</div>
+						<div class="flex flex-col gap-6">
+							<div class={layouts.metricCard}>
+								<MetricDisplay 
+									value={formatPercent(portfolioMetrics.totalReturn)} 
+									label="Total Return" 
+									note="Since inception"
+									valueColor="positive"
+									size="small"
+								/>
 							</div>
-							<div class={perfStatClasses}>
-								<div class="{perfValueClasses} {perfValuePositiveClasses}">{formatPercent(portfolioMetrics.payoutReturn)}</div>
-								<div class={perfLabelClasses}>Payout Return</div>
-								<div class={perfNoteClasses}>Income only</div>
+							<div class={layouts.metricCard}>
+								<MetricDisplay 
+									value={formatPercent(portfolioMetrics.payoutReturn)} 
+									label="Payout Return" 
+									note="Income only"
+									valueColor="positive"
+									size="small"
+								/>
 							</div>
-							<div class={perfStatClasses}>
-								<div class={perfValueClasses}>{dataStoreService.getPlatformStats().averagePortfolioIRR?.formatted || '16.3%'}</div>
-								<div class={perfLabelClasses}>Annualized IRR</div>
-								<div class={perfNoteClasses}>12-month projection</div>
+							<div class={layouts.metricCard}>
+								<MetricDisplay 
+									value={dataStoreService.getPlatformStats().averagePortfolioIRR?.formatted || '16.3%'} 
+									label="Annualized IRR" 
+									note="12-month projection"
+									size="small"
+								/>
 							</div>
 						</div>
 					</div>
 
-					<div class={monthlyPerformanceClasses}>
-						<h4 class={monthlyPerformanceH4Classes}>Monthly Performance</h4>
-						<div class={monthlyGridClasses}>
+					<div class="p-8 pt-0">
+						<SectionTitle level="h3" size="subsection">Monthly Performance</SectionTitle>
+						<div class="grid grid-cols-6 gap-4">
 							{#each performanceData as month}
-								<div class={monthlyItemClasses}>
-									<div class={monthLabelClasses}>{month.month.split(' ')[0]}</div>
-									<div class={monthValueClasses}>{formatCurrency(month.value)}</div>
-									<div class={monthPayoutClasses}>{formatCurrency(month.payout)} payout</div>
+								<div class={layouts.metricCompact}>
+									<div class={typography.label}>{month.month.split(' ')[0]}</div>
+									<div class="text-sm font-extrabold text-black mb-1">{formatCurrency(month.value)}</div>
+									<div class="text-xs text-primary font-semibold">{formatCurrency(month.payout)} payout</div>
 								</div>
 							{/each}
 						</div>
 					</div>
 				</div>
 			{:else if activeTab === 'allocation'}
-				<div class={allocationContentClasses}>
-					<div class={allocationGridClasses}>
-						<div class={allocationChartClasses}>
-							<h3 class={allocationChartH3Classes}>Asset Allocation</h3>
-							<div class={chartPlaceholderClasses}>
-								<div class={chartContentClasses}>
-									<div class={chartIconClasses}>🥧</div>
-									<div class={chartLabelClasses}>Portfolio Pie Chart</div>
-									<div class={chartNoteClasses}>Asset allocation by value</div>
+				<div class="bg-white">
+					<GridContainer columns={2} className="gap-8 p-8">
+						<div class={layouts.card}>
+							<SectionTitle level="h3" size="card">Asset Allocation</SectionTitle>
+							<div class="h-80 {layouts.flexCenter} text-center">
+								<div class="text-center">
+									<div class="text-5xl mb-4">🥧</div>
+									<div class={typography.subsectionTitle}>Portfolio Pie Chart</div>
+									<div class={typography.meta}>Asset allocation by value</div>
 								</div>
 							</div>
 						</div>
 
-						<div class={allocationBreakdownClasses}>
-							<h3 class={allocationBreakdownH3Classes}>Allocation Breakdown</h3>
-							<div class={allocationListClasses}>
+						<div class={layouts.card}>
+							<SectionTitle level="h3" size="card">Allocation Breakdown</SectionTitle>
+							<div class="flex flex-col gap-4 mb-8">
 								{#each holdings as holding}
-									<div class={allocationItemClasses}>
-										<div class={allocationAssetClasses}>
-											<div class={assetIconClasses}>{holding.icon}</div>
-											<div class={assetInfoClasses}>
-												<div class={assetNameClasses}>{holding.name}</div>
-												<div class={assetLocationClasses}>{holding.location}</div>
+									<div class="{layouts.flexBetween} p-4 bg-white border border-light-gray">
+										<div class="flex items-center gap-3">
+											<div class="text-xl">{holding.icon}</div>
+											<div class="flex-1">
+												<div class="font-extrabold text-black text-sm mb-1">{holding.name}</div>
+												<div class={typography.meta}>{holding.location}</div>
 											</div>
 										</div>
-										<div class={allocationStatsClasses}>
-											<div class={allocationPercentClasses}>{holding.allocation}%</div>
-											<div class={allocationValueClasses}>{formatCurrency(holding.currentValue)}</div>
+										<div class="text-right">
+											<div class="{typography.metricValueSmall} text-primary mb-1">{holding.allocation}%</div>
+											<div class={typography.meta}>{formatCurrency(holding.currentValue)}</div>
 										</div>
 									</div>
 								{/each}
 							</div>
 
-							<div class={diversificationTipClasses}>
-								<div class={tipIconClasses}>⚠️</div>
-								<div class={tipContentClasses}>
-									<div class={tipTitleClasses}>Diversification Tip</div>
-									<div class={tipTextClasses}>
+							<div class="bg-yellow-50 border border-yellow-200 p-4 flex items-start gap-3">
+								<div class="text-xl">⚠️</div>
+								<div class="flex-1">
+									<div class="font-extrabold text-black text-sm mb-1">Diversification Tip</div>
+									<div class="text-xs text-black opacity-80 leading-relaxed">
 										Consider diversifying: 49.6% allocation to single asset (Europa Wressle) may impact portfolio balance.
 									</div>
 								</div>
 							</div>
 						</div>
-					</div>
+					</GridContainer>
 				</div>
 			{:else if activeTab === 'analytics'}
-				<div class={analyticsContentClasses}>
-					<div class={analyticsGridClasses}>
-						<div class={performanceMetricsClasses}>
-							<h4 class={performanceMetricsH4Classes}>Performance Metrics</h4>
-							<div class={metricsListClasses}>
-								<div class={metricRowClasses}>
-									<span class={metricRowSpanClasses}>Portfolio Beta</span>
-									<span class={metricRowValueClasses}>0.87</span>
+				<div class="bg-white">
+					<GridContainer columns={2} className="gap-8 p-8">
+						<div class={layouts.card}>
+							<SectionTitle level="h3" size="subsection">Performance Metrics</SectionTitle>
+							<div class="flex flex-col gap-3">
+								<div class="{layouts.flexBetween} text-sm">
+									<span class="text-black">Portfolio Beta</span>
+									<span class="font-extrabold">0.87</span>
 								</div>
-								<div class={metricRowClasses}>
-									<span class={metricRowSpanClasses}>Volatility (30d)</span>
-									<span class={metricRowValueClasses}>3.2%</span>
+								<div class="{layouts.flexBetween} text-sm">
+									<span class="text-black">Volatility (30d)</span>
+									<span class="font-extrabold">3.2%</span>
 								</div>
-								<div class={metricRowClasses}>
-									<span class={metricRowSpanClasses}>Sharpe Ratio</span>
-									<span class="{metricRowValueClasses} {metricRowValuePositiveClasses}">2.14</span>
+								<div class="{layouts.flexBetween} text-sm">
+									<span class="text-black">Sharpe Ratio</span>
+									<span class="font-extrabold text-primary">2.14</span>
 								</div>
-								<div class={metricRowClasses}>
-									<span class={metricRowSpanClasses}>Max Drawdown</span>
-									<span class="{metricRowValueClasses} {metricRowValueNegativeClasses}">-2.1%</span>
+								<div class="{layouts.flexBetween} text-sm">
+									<span class="text-black">Max Drawdown</span>
+									<span class="font-extrabold text-red-600">-2.1%</span>
 								</div>
-								<div class={metricRowClasses}>
-									<span class={metricRowSpanClasses}>Correlation to Oil</span>
-									<span class={metricRowValueClasses}>0.72</span>
+								<div class="{layouts.flexBetween} text-sm">
+									<span class="text-black">Correlation to Oil</span>
+									<span class="font-extrabold">0.72</span>
 								</div>
 							</div>
 						</div>
 
-						<div class={payoutAnalyticsClasses}>
-							<h4 class={payoutAnalyticsH4Classes}>Payout Analytics</h4>
-							<div class={metricsListClasses}>
-								<div class={metricRowClasses}>
-									<span class={metricRowSpanClasses}>Weighted Avg Payout</span>
-									<span class="{metricRowValueClasses} {metricRowValuePositiveClasses}">{portfolioMetrics.averagePayout.toFixed(1)}%</span>
+						<div class={layouts.card}>
+							<SectionTitle level="h3" size="subsection">Payout Analytics</SectionTitle>
+							<div class="flex flex-col gap-3">
+								<div class="{layouts.flexBetween} text-sm">
+									<span class="text-black">Weighted Avg Payout</span>
+									<span class="font-extrabold text-primary">{portfolioMetrics.averagePayout.toFixed(1)}%</span>
 								</div>
-								<div class={metricRowClasses}>
-									<span class={metricRowSpanClasses}>Monthly Income</span>
-									<span class="{metricRowValueClasses} {metricRowValuePositiveClasses}">{formatCurrency(portfolioMetrics.totalPayoutEarned / 6)}</span>
+								<div class="{layouts.flexBetween} text-sm">
+									<span class="text-black">Monthly Income</span>
+									<span class="font-extrabold text-primary">{formatCurrency(portfolioMetrics.totalPayoutEarned / 6)}</span>
 								</div>
-								<div class={metricRowClasses}>
-									<span class={metricRowSpanClasses}>Payout Consistency</span>
-									<span class="{metricRowValueClasses} {metricRowValuePositiveClasses}">94.2%</span>
+								<div class="{layouts.flexBetween} text-sm">
+									<span class="text-black">Payout Consistency</span>
+									<span class="font-extrabold text-primary">94.2%</span>
 								</div>
-								<div class={metricRowClasses}>
-									<span class={metricRowSpanClasses}>Payout Frequency</span>
-									<span class={metricRowValueClasses}>Monthly</span>
+								<div class="{layouts.flexBetween} text-sm">
+									<span class="text-black">Payout Frequency</span>
+									<span class="font-extrabold">Monthly</span>
 								</div>
-								<div class={metricRowClasses}>
-									<span class={metricRowSpanClasses}>Reinvestment Rate</span>
-									<span class={metricRowValueClasses}>0%</span>
+								<div class="{layouts.flexBetween} text-sm">
+									<span class="text-black">Reinvestment Rate</span>
+									<span class="font-extrabold">0%</span>
 								</div>
 							</div>
 						</div>
-					</div>
+					</GridContainer>
 
-					<div class={scenarioAnalysisClasses}>
-						<h4 class={scenarioAnalysisH4Classes}>Scenario Analysis</h4>
-						<div class={scenarioTableClasses}>
-							<div class={tableHeaderClasses}>
-								<div class="{tableCellClasses} {tableCellHeaderClasses}">Oil Price Scenario</div>
-								<div class="{tableCellClasses} {tableCellHeaderClasses}">Portfolio Value</div>
-								<div class="{tableCellClasses} {tableCellHeaderClasses}">Annual Payout</div>
-								<div class="{tableCellClasses} {tableCellHeaderClasses}">Total Return</div>
+					<div class="mt-8 p-8 {layouts.card}">
+						<SectionTitle level="h3" size="subsection">Scenario Analysis</SectionTitle>
+						<div class="border border-light-gray">
+							<div class="grid grid-cols-4 gap-0 bg-white border-b border-light-gray">
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 {typography.label}">Oil Price Scenario</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 {typography.label}">Portfolio Value</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 {typography.label}">Annual Payout</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 {typography.label}">Total Return</div>
 							</div>
-							<div class={tableRowClasses}>
-								<div class={tableCellClasses}>Bear Case ($60/bbl)</div>
-								<div class="{tableCellClasses} {tableCellNegativeClasses}">{formatCurrency(39500)}</div>
-								<div class="{tableCellClasses} {tableCellNegativeClasses}">9.2%</div>
-								<div class="{tableCellClasses} {tableCellNegativeClasses}">-6.0%</div>
+							<div class="grid grid-cols-4 gap-0 border-b border-light-gray last:border-b-0">
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0">Bear Case ($60/bbl)</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 text-red-600 font-extrabold">{formatCurrency(39500)}</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 text-red-600 font-extrabold">9.2%</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 text-red-600 font-extrabold">-6.0%</div>
 							</div>
-							<div class="{tableRowClasses} {tableRowCurrentClasses}">
-								<div class={tableCellClasses}>Current ($78/bbl)</div>
-								<div class={tableCellClasses}>{formatCurrency(totalPortfolioValue)}</div>
-								<div class="{tableCellClasses} {tableCellPositiveClasses}">{portfolioMetrics.averagePayout.toFixed(1)}%</div>
-								<div class="{tableCellClasses} {tableCellPositiveClasses}">{formatPercent(portfolioMetrics.totalReturn)}</div>
+							<div class="grid grid-cols-4 gap-0 border-b border-light-gray last:border-b-0 bg-primary/5">
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0">Current ($78/bbl)</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0">{formatCurrency(totalPortfolioValue)}</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 text-primary font-extrabold">{portfolioMetrics.averagePayout.toFixed(1)}%</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 text-primary font-extrabold">{formatPercent(portfolioMetrics.totalReturn)}</div>
 							</div>
-							<div class={tableRowClasses}>
-								<div class={tableCellClasses}>Bull Case ($95/bbl)</div>
-								<div class="{tableCellClasses} {tableCellPositiveClasses}">{formatCurrency(58200)}</div>
-								<div class="{tableCellClasses} {tableCellPositiveClasses}">17.8%</div>
-								<div class="{tableCellClasses} {tableCellPositiveClasses}">+38.6%</div>
+							<div class="grid grid-cols-4 gap-0 border-b border-light-gray last:border-b-0">
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0">Bull Case ($95/bbl)</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 text-primary font-extrabold">{formatCurrency(58200)}</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 text-primary font-extrabold">17.8%</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 text-primary font-extrabold">+38.6%</div>
 							</div>
 						</div>
 					</div>
@@ -762,28 +708,30 @@
 	</div>
 
 	<!-- Quick Actions -->
-	<div class={mobileQuickActionsClasses}>
-		<div class={mobileActionCardClasses}>
-			<div class={actionIconClasses}>➕</div>
-			<h4 class={actionCardH4Classes}>Add Investment</h4>
-			<p class={actionCardPClasses}>Diversify with new assets</p>
-			<a href="/assets" class="{actionBtnClasses} {actionBtnPrimaryClasses}">Browse Assets</a>
-		</div>
+	<div class={layouts.pageSection}>
+		<GridContainer columns={3}>
+			<div class="{layouts.card} text-center">
+				<div class="text-4xl mb-4">➕</div>
+				<SectionTitle level="h3" size="card" center>Add Investment</SectionTitle>
+				<p class="{typography.bodyTextSmall} mb-6 opacity-70">Diversify with new assets</p>
+				<a href="/assets" class="{buttons.base} {buttons.primary} inline-block">Browse Assets</a>
+			</div>
 
-		<div class={mobileActionCardClasses}>
-			<div class={actionIconClasses}>💰</div>
-			<h4 class={actionCardH4Classes}>Claim Payouts</h4>
-			<p class={actionCardPClasses}>{formatCurrency(unclaimedPayout)} available</p>
-			<a href="/claims" class="{actionBtnClasses} {actionBtnClaimClasses}">Claim Now</a>
-		</div>
+			<div class="{layouts.card} text-center">
+				<div class="text-4xl mb-4">💰</div>
+				<SectionTitle level="h3" size="card" center>Claim Payouts</SectionTitle>
+				<p class="{typography.bodyTextSmall} mb-6 opacity-70">{formatCurrency(unclaimedPayout)} available</p>
+				<a href="/claims" class="{buttons.base} {buttons.claim} inline-block">Claim Now</a>
+			</div>
 
 
-		<div class={mobileActionCardClasses}>
-			<div class={actionIconClasses}>📥</div>
-			<h4 class={actionCardH4Classes}>Export Data</h4>
-			<p class={actionCardPClasses}>Tax & accounting reports</p>
-			<button class="{actionBtnClasses} {actionBtnSecondaryClasses}">Download</button>
-		</div>
+			<div class="{layouts.card} text-center">
+				<div class="text-4xl mb-4">📥</div>
+				<SectionTitle level="h3" size="card" center>Export Data</SectionTitle>
+				<p class="{typography.bodyTextSmall} mb-6 opacity-70">Tax & accounting reports</p>
+				<button class="{buttons.base} {buttons.secondary}">Download</button>
+			</div>
+		</GridContainer>
 	</div>
 </main>
 {/if}

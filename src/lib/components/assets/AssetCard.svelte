@@ -55,7 +55,7 @@
 	}
 	
 	// Tailwind class mappings
-	$: highlightedStatsClasses = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-4 p-4 bg-light-gray rounded-lg';
+	$: highlightedStatsClasses = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-4 p-4 bg-white rounded-lg';
 	$: highlightStatClasses = 'flex flex-col items-center text-center';
 	$: highlightValueClasses = 'text-xl font-bold text-secondary mb-1';
 	$: highlightLabelClasses = 'text-xs text-gray-500 uppercase font-medium tracking-wider';
@@ -72,8 +72,8 @@
 	$: tokensSectionClasses = 'my-6';
 	$: tokensTitleClasses = 'text-base font-semibold text-black m-0 mb-4 uppercase tracking-wider';
 	$: tokensListClasses = 'flex flex-col gap-3';
-	$: tokensListScrollableClasses = 'flex flex-col gap-3 max-h-[11.5rem] overflow-y-auto pr-2 pb-2';
-	$: tokenButtonClasses = 'flex justify-between items-center w-full p-4 bg-white border-2 border-primary rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-primary/5 hover:transform hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(8,188,204,0.15)]';
+	$: tokensListScrollableClasses = 'flex flex-col gap-3 max-h-[13rem] overflow-y-auto pr-2 relative';
+	$: tokenButtonClasses = 'flex justify-between items-center w-full p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-gray-50';
 	$: tokenButtonLeftClasses = 'flex flex-col gap-1';
 	$: tokenButtonRightClasses = 'flex flex-col items-end gap-2';
 	$: tokenSymbolClasses = 'font-bold text-sm text-black uppercase';
@@ -82,37 +82,37 @@
 	$: returnsDisplayClasses = 'flex items-center gap-2';
 	$: returnItemClasses = 'flex flex-col items-center text-center';
 	$: returnLabelClasses = 'text-xs text-gray-500 uppercase font-medium tracking-wider';
-	$: returnValueClasses = 'text-base text-secondary font-bold';
+	$: returnValueClasses = 'text-base text-primary font-bold';
 	$: returnValueBonusClasses = 'text-base text-primary font-bold';
 	$: returnDividerClasses = 'text-sm text-gray-500 font-medium mx-1';
-	$: buyCtaClasses = 'text-sm font-bold text-primary uppercase tracking-wider';
+	$: buyCtaClasses = 'text-sm font-bold text-black uppercase tracking-wider';
 	
 	// Mobile responsive classes
-	$: mobileHighlightedStatsClasses = 'grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 my-3 md:my-4 p-3 md:p-4 bg-light-gray rounded-lg';
+	$: mobileHighlightedStatsClasses = 'grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 my-3 md:my-4 p-3 md:p-4 bg-white rounded-lg';
 	$: mobileHighlightValueClasses = 'text-lg md:text-xl font-bold text-secondary mb-1';
 	$: mobileHighlightLabelClasses = 'text-[0.7rem] md:text-xs text-gray-500 uppercase font-medium tracking-wider';
 	$: mobileAssetNameClasses = 'text-lg md:text-xl font-semibold text-black m-0 mb-2 min-h-[2.75rem] md:min-h-[3.125rem] leading-tight flex items-start';
 	$: mobileAssetDescriptionClasses = 'text-gray-700 text-xs md:text-sm leading-relaxed m-0 mb-4 md:mb-6 line-clamp-3';
 	$: mobileTokensTitleClasses = 'text-sm md:text-base font-semibold text-black m-0 mb-4 uppercase tracking-wider';
-	$: mobileTokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 md:p-4 bg-white border-2 border-primary cursor-pointer transition-all duration-200 text-left relative hover:bg-primary/5 hover:transform hover:-translate-y-1 hover:shadow-card-hover hover:border-primary gap-3 sm:gap-0';
+	$: mobileTokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 md:p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-gray-50 gap-3 sm:gap-0';
 	$: mobileTokenButtonRightClasses = 'flex flex-row sm:flex-col w-full sm:w-auto justify-between sm:justify-end items-center sm:items-end gap-2';
 	$: mobileTokenSymbolClasses = 'font-bold text-xs md:text-sm text-black uppercase';
 	$: mobileTokenNameClasses = 'text-[0.7rem] md:text-xs text-gray-500 leading-tight';
 	$: mobileTokenPaymentDateClasses = 'text-[0.65rem] md:text-xs text-secondary font-medium mt-1';
 	$: mobileReturnsDisplayClasses = 'flex items-center gap-1 md:gap-2';
-	$: mobileReturnValueClasses = 'text-xs md:text-base text-secondary font-bold';
+	$: mobileReturnValueClasses = 'text-xs md:text-base text-primary font-bold';
 	$: mobileReturnValueBonusClasses = 'text-xs md:text-base text-primary font-bold';
 	$: mobileReturnLabelClasses = 'text-[0.55rem] md:text-xs text-gray-500 uppercase font-medium tracking-wider';
-	$: mobileBuyCtaClasses = 'text-xs md:text-sm font-bold text-primary uppercase tracking-wider';
+	$: mobileBuyCtaClasses = 'text-xs md:text-sm font-bold text-black uppercase tracking-wider';
 	$: smallMobileHeaderMainClasses = 'flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4';
 	$: smallMobileOperatorClasses = 'flex flex-col items-start sm:items-end text-left sm:text-right';
 
 </script>
 
-<Card hoverable clickable on:click={() => window.location.href = `/assets/${asset.id}`}>
+<Card hoverable clickable heightClass="h-full flex flex-col" on:click={() => window.location.href = `/assets/${asset.id}`}>
 	<CardImage src={getAssetImage(asset)} alt={asset.name} zoomOnHover />
 	
-	<CardContent>
+	<CardContent paddingClass="p-8 flex-1 flex flex-col">
 		<header class={headerClasses}>
 			<div class={smallMobileHeaderMainClasses}>
 				<div class={nameLocationClasses}>
@@ -146,23 +146,27 @@
 		
 		<p class={mobileAssetDescriptionClasses}>{asset.description}</p>
 		
-		<!-- View Details Button -->
-		<div class={viewDetailsSectionClasses}>
-			<PrimaryButton href="/assets/{asset.id}" fullWidth on:click={(e) => e.stopPropagation()}>
-				{hasAvailableTokens ? 'View details and buy tokens' : 'View details'}
-			</PrimaryButton>
-		</div>
+		<div class="flex-grow"></div>
+		
+		<div>
+			<!-- View Details Button -->
+			<div class={viewDetailsSectionClasses}>
+				<PrimaryButton href="/assets/{asset.id}" fullWidth on:click={(e) => e.stopPropagation()}>
+					{hasAvailableTokens ? 'View details and buy tokens' : 'View details'}
+				</PrimaryButton>
+			</div>
 
-		<!-- Available Tokens Section -->
-		{#if hasAvailableTokens}
+			<!-- Available Tokens Section -->
+			{#if hasAvailableTokens}
 			{@const availableTokens = assetTokens.filter(token => {
 				const supply = dataStoreService.getTokenSupply(token.contractAddress);
 				return supply && supply.availableSupply > 0;
 			})}
 			<div class={tokensSectionClasses}>
 				<h4 class={mobileTokensTitleClasses}>Available Token Releases</h4>
-				<div class="{availableTokens.length > 2 ? tokensListScrollableClasses : tokensListClasses} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
-					{#each availableTokens as token}
+				<div class="relative">
+					<div class="{availableTokens.length > 2 ? tokensListScrollableClasses : tokensListClasses} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
+						{#each availableTokens as token}
 						{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
 						{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) : 0}
 						{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) : 0}
@@ -192,9 +196,18 @@
 							</div>
 						</button>
 					{/each}
+					</div>
+					{#if availableTokens.length > 2}
+						<div class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white via-white to-transparent pointer-events-none flex items-end justify-center pb-1">
+							<svg class="w-5 h-5 text-gray-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+							</svg>
+						</div>
+					{/if}
 				</div>
 			</div>
 		{/if}
+		</div>
 		
 	</CardContent>
 </Card>

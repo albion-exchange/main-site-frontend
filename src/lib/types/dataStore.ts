@@ -65,7 +65,12 @@ export interface MonthlyReport {
 export interface PlannedProductionProjection {
   month: string; // YYYY-MM format
   production: number; // BOE
-  revenue: number; // USD
+  revenue?: number; // USD (optional - calculated at runtime)
+}
+
+export interface ProductionHistoryRecord {
+  month: string; // YYYY-MM format
+  production: number; // barrels
 }
 
 export interface PlannedProduction {
@@ -108,7 +113,7 @@ export interface Asset {
   assetTerms: AssetTerms;
   tokenContracts: string[]; // Array of contract addresses
   monthlyReports: MonthlyReport[];
-  productionHistory?: MonthlyReport[]; // Alternative to monthlyReports for historical data
+  productionHistory?: ProductionHistoryRecord[]; // Historical production data without financial details
   plannedProduction?: PlannedProduction;
   operationalMetrics?: OperationalMetrics;
   metadata: AssetMetadata;

@@ -6,6 +6,16 @@
 	import WalletModal from '$lib/components/WalletModal.svelte';
 	import marketData from '$lib/data/marketData.json';
 	import { getMockPortfolioHoldings, calculatePortfolioSummary } from '$lib/utils/portfolioCalculations';
+	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
+	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
+	import GridContainer from '$lib/components/ui/GridContainer.svelte';
+	import TabButton from '$lib/components/ui/TabButton.svelte';
+	import PrimaryButton from '$lib/components/ui/PrimaryButton.svelte';
+	import SecondaryButton from '$lib/components/ui/SecondaryButton.svelte';
+	import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
+	import { layouts, layoutPatterns } from '$lib/styles/layouts';
+	import { typography } from '$lib/styles/typography';
+	import { buttons } from '$lib/styles/buttons';
 
 	let totalEarned = 0;
 	let totalClaimed = 0;
@@ -17,6 +27,7 @@
 	let claimMethod = 'wallet';
 	let isAccruing = true;
 	let showWalletModal = false;
+	let activeHistoryTab = 'recent';
 
 	// Mock portfolio data based on real assets
 	const mockPortfolioBalances = [
@@ -202,112 +213,6 @@
 			window.location.href = '/';
 		}
 	}
-	
-	// Tailwind class mappings
-	$: claimsPageClasses = 'p-0 max-w-6xl mx-auto';
-	$: walletRequiredClasses = 'flex items-center justify-center min-h-[60vh] text-center p-8';
-	$: walletRequiredTitleClasses = 'text-3xl font-extrabold text-black mb-4 uppercase tracking-wider';
-	$: walletRequiredTextClasses = 'text-lg text-black mb-8 opacity-80';
-	$: connectBtnClasses = 'bg-primary text-white border-none px-8 py-4 font-figtree font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary';
-	$: heroClasses = 'py-16 px-8 text-center bg-white border-b border-light-gray';
-	$: heroContentClasses = 'max-w-3xl mx-auto';
-	$: heroTitleClasses = 'text-4xl font-extrabold mb-4 text-black uppercase tracking-tight';
-	$: heroPClasses = 'text-lg text-black mb-8';
-	$: liveIndicatorClasses = 'inline-flex items-center gap-2 text-sm font-semibold text-black uppercase tracking-wider';
-	$: pulseDotClasses = 'w-2 h-2 bg-primary rounded-full animate-pulse';
-	$: loadingStateClasses = 'text-center py-16 px-8 text-black';
-	$: successMessageClasses = 'bg-light-gray border border-primary text-primary p-6 mx-8 my-8 text-center';
-	$: successTitleClasses = 'font-extrabold mb-2';
-	$: payoutOverviewClasses = 'py-12 px-8';
-	$: overviewGridClasses = 'grid grid-cols-3 gap-8';
-	$: overviewCardClasses = 'bg-white border border-light-gray p-8 text-center';
-	$: metricValueClasses = 'text-3xl font-extrabold text-black mb-2';
-	$: metricValueAvailableClasses = 'text-primary';
-	$: metricLabelClasses = 'text-xs font-bold text-black uppercase tracking-wider mb-1';
-	$: metricNoteClasses = 'text-xs text-secondary font-medium';
-	$: quickClaimClasses = 'px-8 pb-12';
-	$: claimGridClasses = 'grid grid-cols-2 gap-12 bg-light-gray border border-light-gray p-12';
-	$: claimInfoTitleClasses = 'text-xl font-extrabold text-black mb-8 uppercase tracking-wider';
-	$: amountDisplayClasses = 'text-4xl font-extrabold text-primary mb-2';
-	$: amountLabelClasses = 'text-sm text-black font-semibold mb-8';
-	$: gasInfoClasses = 'flex flex-col gap-2 text-sm';
-	$: gasRowClasses = 'flex justify-between';
-	$: gasLabelClasses = 'text-black font-semibold';
-	$: gasValueClasses = 'text-black font-extrabold';
-	$: netAmountClasses = 'text-primary font-extrabold';
-	$: claimActionsClasses = 'flex flex-col gap-4 justify-center';
-	$: claimBtnClasses = 'px-8 py-4 border-none font-figtree font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-all duration-200';
-	$: claimBtnPrimaryClasses = 'bg-black text-white hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed';
-	$: claimBtnSecondaryClasses = 'bg-white text-black border border-black hover:bg-black hover:text-white';
-	$: assetClaimsClasses = 'py-12 px-8 bg-white';
-	$: sectionHeaderClasses = 'flex justify-between items-center mb-8';
-	$: sectionTitleClasses = 'text-[1.75rem] font-extrabold text-black uppercase tracking-wider';
-	$: controlsClasses = 'flex gap-4';
-	$: controlBtnClasses = 'px-6 py-3 bg-white border border-black text-black font-figtree font-semibold text-xs uppercase tracking-wider cursor-pointer transition-all duration-200 hover:bg-black hover:text-white';
-	$: controlBtnActiveClasses = 'bg-black text-white';
-	$: controlBtnPrimaryClasses = 'bg-primary border-primary text-white hover:opacity-90';
-	$: assetsListClasses = 'flex flex-col gap-4';
-	$: assetCardClasses = 'bg-white border border-light-gray p-8 transition-all duration-200';
-	$: assetCardSelectedClasses = 'border-primary bg-light-gray';
-	$: assetMainClasses = 'grid grid-cols-[auto_2fr_3fr_auto] gap-8 items-center mb-4';
-	$: assetSelectClasses = 'w-5 h-5';
-	$: assetInfoH3Classes = 'font-extrabold text-black mb-2 text-base';
-	$: assetLocationClasses = 'text-black opacity-70 text-sm mb-2';
-	$: statusBadgeClasses = 'bg-light-gray text-secondary px-2 py-1 text-xs font-bold uppercase tracking-wider';
-	$: statusBadgeProducingClasses = 'text-primary';
-	$: assetMetricsClasses = 'grid grid-cols-3 gap-4 text-center';
-	$: metricClasses = 'text-center';
-	$: assetMetricValueClasses = 'text-lg font-extrabold text-black mb-1';
-	$: assetMetricValueUnclaimedClasses = 'text-primary';
-	$: assetMetricLabelClasses = 'text-xs font-bold text-black opacity-70 uppercase tracking-wider';
-	$: assetClaimBtnClasses = 'bg-black text-white border-none px-6 py-3 font-figtree font-semibold text-xs uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary';
-	$: assetFooterClasses = 'border-t border-light-gray pt-4';
-	$: footerInfoClasses = 'text-sm text-black opacity-70';
-	$: bottomSectionClasses = 'py-12 px-8 bg-light-gray';
-	$: bottomGridClasses = 'grid grid-cols-2 gap-12';
-	$: settingsCardClasses = 'bg-white border border-light-gray p-8';
-	$: cardTitleClasses = 'text-xl font-extrabold text-black mb-6 uppercase tracking-wider';
-	$: settingGroupClasses = 'mb-8';
-	$: settingLabelClasses = 'text-xs font-bold text-black uppercase tracking-wider mb-4';
-	$: radioGroupClasses = 'flex flex-col gap-4';
-	$: radioOptionClasses = 'flex items-center gap-3 cursor-pointer';
-	$: radioContentClasses = 'flex-1';
-	$: radioTitleClasses = 'font-extrabold text-black text-sm mb-1';
-	$: radioDescClasses = 'text-xs text-black opacity-70';
-	$: statsGridClasses = 'grid grid-cols-2 gap-4 mb-6';
-	$: statItemClasses = 'text-center p-4 bg-light-gray border border-light-gray';
-	$: statValueClasses = 'text-xl font-extrabold text-primary mb-1';
-	$: statLabelClasses = 'text-xs font-bold text-black opacity-70 uppercase tracking-wider';
-	$: statsListClasses = 'flex flex-col gap-3';
-	$: statsRowClasses = 'flex justify-between text-sm';
-	$: claimHistoryClasses = 'py-12 px-8 bg-white';
-	$: historyHeaderClasses = 'flex justify-between items-center mb-8';
-	$: historyControlsClasses = 'flex gap-2';
-	$: historyTableClasses = 'border border-light-gray';
-	$: tableHeaderClasses = 'grid grid-cols-[1fr_2fr_1fr_1.5fr_1fr] gap-4 p-4 bg-light-gray border-b border-light-gray';
-	$: headerCellClasses = 'font-extrabold text-black text-xs uppercase tracking-wider';
-	$: tableRowClasses = 'grid grid-cols-[1fr_2fr_1fr_1.5fr_1fr] gap-4 p-4 border-b border-light-gray items-center hover:bg-light-gray';
-	$: tableCellClasses = 'text-sm text-black';
-	$: assetNameClasses = 'font-extrabold';
-	$: tableCellAmountClasses = 'font-extrabold text-primary';
-	$: txHashClasses = 'font-mono text-xs text-black opacity-70';
-	$: statusCompletedClasses = 'text-primary font-semibold text-xs';
-	$: statsListLabelClasses = 'text-black opacity-70';
-	$: statsListValueClasses = 'font-extrabold text-black';
-	
-	// Mobile responsive classes
-	$: mobileHeroTitleClasses = 'md:text-4xl text-3xl font-extrabold mb-4 text-black uppercase tracking-tight';
-	$: mobileOverviewGridClasses = 'grid grid-cols-1 md:grid-cols-3 gap-8';
-	$: mobileClaimGridClasses = 'grid grid-cols-1 md:grid-cols-2 md:gap-12 gap-8 bg-light-gray border border-light-gray md:p-12 p-8';
-	$: mobileAssetMainClasses = 'grid grid-cols-1 md:grid-cols-[auto_2fr_3fr_auto] md:gap-8 gap-4 items-center mb-4';
-	$: mobileAssetMetricsClasses = 'grid grid-cols-1 md:grid-cols-3 gap-4 text-center';
-	$: mobileControlsClasses = 'flex md:flex-row flex-col gap-4';
-	$: mobileBottomGridClasses = 'grid grid-cols-1 md:grid-cols-2 md:gap-12 gap-8';
-	$: mobileStatsGridClasses = 'grid grid-cols-1 md:grid-cols-2 gap-4 mb-6';
-	$: mobileTableHeaderClasses = 'grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr_1.5fr_1fr] md:gap-4 gap-2 p-4 bg-light-gray border-b border-light-gray';
-	$: mobileTableRowClasses = 'grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr_1.5fr_1fr] md:gap-4 gap-2 p-4 border-b border-light-gray items-center hover:bg-light-gray';
-	$: mobileHeaderCellClasses = 'font-extrabold text-black text-xs uppercase tracking-wider md:text-left text-center md:py-0 py-2';
-	$: mobileTableCellClasses = 'text-sm text-black md:text-left text-center md:py-0 py-2';
 </script>
 
 <svelte:head>
@@ -316,91 +221,89 @@
 </svelte:head>
 
 {#if !$walletStore.isConnected && !showWalletModal}
-	<main class={claimsPageClasses}>
-		<div class={walletRequiredClasses}>
+	<main class={layouts.pageContainer}>
+		<div class="{layouts.flexCenter} min-h-[60vh] text-center p-8">
 			<div>
-				<h1 class={walletRequiredTitleClasses}>Wallet Connection Required</h1>
-				<p class={walletRequiredTextClasses}>Please connect your wallet to view and claim your payouts.</p>
-				<button class={connectBtnClasses} on:click={() => showWalletModal = true}>
+				<h1 class="{typography.sectionTitle} mb-4">Wallet Connection Required</h1>
+				<p class="{typography.bodyText} mb-8">Please connect your wallet to view and claim your payouts.</p>
+				<PrimaryButton on:click={() => showWalletModal = true}>
 					Connect Wallet
-				</button>
+				</PrimaryButton>
 			</div>
 		</div>
 	</main>
 {:else if $walletStore.isConnected}
-<main class={claimsPageClasses}>
+<main class={layouts.pageContainer}>
 	<!-- Hero Section -->
-	<section class={heroClasses}>
-		<div class={heroContentClasses}>
-			<h1 class={mobileHeroTitleClasses}>Claim Payouts</h1>
-			<p class={heroPClasses}>Claim your earnings from oil & gas investments and track your payout history.</p>
-			<div class={liveIndicatorClasses}>
-				<div class={pulseDotClasses}></div>
+	<section class={layoutPatterns.heroSection}>
+		<div class="max-w-3xl mx-auto">
+			<h1 class={typography.pageTitle}>Claim Payouts</h1>
+			<p class="{typography.bodyText} text-lg mb-8">Claim your earnings from oil & gas investments and track your payout history.</p>
+			<div class="inline-flex items-center gap-2 text-sm font-semibold text-black uppercase tracking-wider">
+				<div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
 				<span>Live Tracking: {isAccruing ? 'Active' : 'Paused'}</span>
 			</div>
 		</div>
 	</section>
 
 	{#if loading}
-		<div class={loadingStateClasses}>
-			<p>Loading payout information...</p>
+		<div class="text-center {layouts.pageSection}">
+			<p class={typography.bodyText}>Loading payout information...</p>
 		</div>
 	{:else}
 		<!-- Success Message -->
 		{#if claimSuccess}
-			<div class={successMessageClasses}>
-				<h3 class={successTitleClasses}>✅ Claim Successful!</h3>
-				<p>Your payouts have been successfully transferred to your wallet.</p>
+			<div class="bg-light-gray border border-primary text-primary p-6 mx-8 my-8 text-center">
+				<h3 class="{typography.cardTitle} mb-2">✅ Claim Successful!</h3>
+				<p class={typography.bodyText}>Your payouts have been successfully transferred to your wallet.</p>
 			</div>
 		{/if}
 
 		<!-- Payout Overview -->
-		<section class={payoutOverviewClasses}>
-			<div class={mobileOverviewGridClasses}>
-				<div class={overviewCardClasses}>
-					<div class={metricValueClasses}>{formatCurrency(totalEarned)}</div>
-					<div class={metricLabelClasses}>Total Earned</div>
-					<div class={metricNoteClasses}>All time from investments</div>
-				</div>
-				
-				<div class={overviewCardClasses}>
-					<div class={metricValueClasses}>{formatCurrency(totalClaimed)}</div>
-					<div class={metricLabelClasses}>Total Claimed</div>
-					<div class={metricNoteClasses}>Successfully withdrawn</div>
-				</div>
-				
-				<div class={overviewCardClasses}>
-					<div class="{metricValueClasses} {metricValueAvailableClasses}">{formatCurrency(unclaimedPayout)}</div>
-					<div class={metricLabelClasses}>Available to Claim</div>
-					<div class={metricNoteClasses}>Ready for withdrawal</div>
-				</div>
-			</div>
+		<section class="py-12 px-8">
+			<GridContainer>
+				<MetricDisplay 
+					value={formatCurrency(totalEarned)}
+					label="Total Earned"
+					note="All time from investments"
+				/>
+				<MetricDisplay 
+					value={formatCurrency(totalClaimed)}
+					label="Total Claimed"
+					note="Successfully withdrawn"
+				/>
+				<MetricDisplay 
+					value={formatCurrency(unclaimedPayout)}
+					label="Available to Claim"
+					note="Ready for withdrawal"
+					valueColor="primary"
+				/>
+			</GridContainer>
 		</section>
 
 		<!-- Quick Claim Section -->
-		<section class={quickClaimClasses}>
-			<div class={mobileClaimGridClasses}>
+		<section class="px-8 pb-12">
+			<div class="{layouts.gridTwo} bg-light-gray border border-light-gray p-8 md:p-12">
 				<div>
-					<h2 class={claimInfoTitleClasses}>Quick Claim All</h2>
-					<div>
-						<div class={amountDisplayClasses}>{formatCurrency(unclaimedPayout)}</div>
-						<div class={amountLabelClasses}>Total Available</div>
+					<h2 class={typography.cardTitle}>Quick Claim All</h2>
+					<div class="mb-8">
+						<div class="text-4xl font-extrabold text-primary mb-2">{formatCurrency(unclaimedPayout)}</div>
+						<div class="{typography.bodyTextSmall} font-semibold">Total Available</div>
 					</div>
-					<div class={gasInfoClasses}>
-						<div class={gasRowClasses}>
-							<span class={gasLabelClasses}>Estimated Gas:</span>
-							<span class={gasValueClasses}>~${marketData.gasFeesEstimate.medium}</span>
+					<div class="{layouts.flexColumn} gap-2 text-sm">
+						<div class={layouts.flexBetween}>
+							<span class="font-semibold">Estimated Gas:</span>
+							<span class="font-extrabold">~${marketData.gasFeesEstimate.medium}</span>
 						</div>
-						<div class={gasRowClasses}>
-							<span class={gasLabelClasses}>Net Amount:</span>
-							<span class={netAmountClasses}>{formatCurrency(unclaimedPayout - marketData.gasFeesEstimate.medium)}</span>
+						<div class={layouts.flexBetween}>
+							<span class="font-semibold">Net Amount:</span>
+							<span class={typography.metricValuePrimary}>{formatCurrency(unclaimedPayout - marketData.gasFeesEstimate.medium)}</span>
 						</div>
 					</div>
 				</div>
 				
-				<div class={claimActionsClasses}>
-					<button 
-						class="{claimBtnClasses} {claimBtnPrimaryClasses}"
+				<div class="{layouts.flexColumn} gap-4 justify-center">
+					<PrimaryButton 
 						on:click={handleClaim}
 						disabled={claiming || unclaimedPayout <= 0}
 					>
@@ -409,28 +312,28 @@
 						{:else}
 							Claim All {formatCurrency(unclaimedPayout)}
 						{/if}
-					</button>
-					<button class="{claimBtnClasses} {claimBtnSecondaryClasses}">
+					</PrimaryButton>
+					<SecondaryButton>
 						Claim & Reinvest
-					</button>
+					</SecondaryButton>
 				</div>
 			</div>
 		</section>
 
 		<!-- Asset-by-Asset Claiming -->
-		<section class={assetClaimsClasses}>
-			<div class={sectionHeaderClasses}>
-				<h2 class={sectionTitleClasses}>Claim by Asset</h2>
-				<div class={mobileControlsClasses}>
+		<section class="{layouts.pageSection} bg-white">
+			<div class={layouts.flexBetween}>
+				<SectionTitle>Claim by Asset</SectionTitle>
+				<div class="flex md:flex-row flex-col gap-4">
 					<button 
-						class={controlBtnClasses}
+						class="{buttons.base} {buttons.control}"
 						on:click={handleSelectAll}
 					>
 						{selectedAssets.length === holdings.length ? 'Deselect All' : 'Select All'}
 					</button>
 					{#if selectedAssets.length > 0}
 						<button 
-							class="{controlBtnClasses} {controlBtnPrimaryClasses}"
+							class="{buttons.base} {buttons.controlPrimary}"
 							on:click={handleClaim}
 							disabled={claiming}
 						>
@@ -444,45 +347,43 @@
 				</div>
 			</div>
 
-			<div class={assetsListClasses}>
+			<div class="{layouts.flexColumn} gap-4 mt-8">
 				{#each holdings as holding}
-					<div class="{assetCardClasses} {selectedAssets.includes(holding.id) ? assetCardSelectedClasses : ''}">
-						<div class={mobileAssetMainClasses}>
+					<div class="{layouts.card} {selectedAssets.includes(holding.id) ? 'border-primary bg-light-gray' : ''}">
+						<div class="grid grid-cols-1 md:grid-cols-[auto_2fr_3fr_auto] gap-4 md:gap-8 items-center mb-4">
 							<div>
 								<input 
 									type="checkbox" 
-									class={assetSelectClasses}
+									class="w-5 h-5"
 									checked={selectedAssets.includes(holding.id)}
 									on:change={() => handleAssetSelect(holding.id)}
 								/>
 							</div>
 							
 							<div>
-								<h3 class={assetInfoH3Classes}>{holding.name}</h3>
-								<p class={assetLocationClasses}>{holding.location}</p>
-								<span class="{statusBadgeClasses} {holding.status === 'producing' ? statusBadgeProducingClasses : ''}">
-									{holding.status.toUpperCase()}
-								</span>
+								<h3 class="{typography.subsectionTitle} mb-2">{holding.name}</h3>
+								<p class="{typography.meta} mb-2">{holding.location}</p>
+								<StatusBadge status={holding.status} />
 							</div>
 							
-							<div class={mobileAssetMetricsClasses}>
-								<div class={metricClasses}>
-									<div class="{assetMetricValueClasses} {assetMetricValueUnclaimedClasses}">{formatCurrency(holding.unclaimedAmount)}</div>
-									<div class={assetMetricLabelClasses}>Unclaimed</div>
+							<div class="{layouts.gridThree} text-center">
+								<div>
+									<div class="{typography.metricValueSmall} text-primary">{formatCurrency(holding.unclaimedAmount)}</div>
+									<div class={typography.labelMuted}>Unclaimed</div>
 								</div>
-								<div class={metricClasses}>
-									<div class={assetMetricValueClasses}>{formatCurrency(holding.totalEarned)}</div>
-									<div class={assetMetricLabelClasses}>Total Earned</div>
+								<div>
+									<div class={typography.metricValueSmall}>{formatCurrency(holding.totalEarned)}</div>
+									<div class={typography.labelMuted}>Total Earned</div>
 								</div>
-								<div class={metricClasses}>
-									<div class={assetMetricValueClasses}>{holding.currentPayout}%</div>
-									<div class={assetMetricLabelClasses}>Current Payout</div>
+								<div>
+									<div class={typography.metricValueSmall}>{holding.currentPayout}%</div>
+									<div class={typography.labelMuted}>Current Payout</div>
 								</div>
 							</div>
 							
 							<div>
 								<button 
-									class={assetClaimBtnClasses}
+									class="{buttons.base} {buttons.claim}"
 									on:click={() => handleAssetSelect(holding.id)}
 								>
 									Claim
@@ -490,8 +391,8 @@
 							</div>
 						</div>
 						
-						<div class={assetFooterClasses}>
-							<div class={footerInfoClasses}>
+						<div class="border-t border-light-gray pt-4">
+							<div class={typography.meta}>
 								<span>Last Payout: {formatDate(holding.lastPayout)}</span>
 							</div>
 						</div>
@@ -501,37 +402,37 @@
 		</section>
 
 		<!-- Claim Settings & History -->
-		<section class={bottomSectionClasses}>
-			<div class={mobileBottomGridClasses}>
+		<section class={layouts.pageSectionAlt}>
+			<div class={layouts.gridTwo}>
 				<!-- Claim Settings -->
-				<div class={settingsCardClasses}>
-					<h3 class={cardTitleClasses}>Claim Settings</h3>
+				<div class={layouts.card}>
+					<h3 class={typography.cardTitle}>Claim Settings</h3>
 					
-					<div class={settingGroupClasses}>
-						<div class={settingLabelClasses}>Claim Method</div>
-						<div class={radioGroupClasses}>
-							<label class={radioOptionClasses}>
+					<div class="mb-8">
+						<div class="{typography.label} mb-4">Claim Method</div>
+						<div class="{layouts.flexColumn} gap-4">
+							<label class="flex items-center gap-3 cursor-pointer">
 								<input 
 									type="radio" 
 									name="claimMethod" 
 									value="wallet"
 									bind:group={claimMethod}
 								/>
-								<div class={radioContentClasses}>
-									<div class={radioTitleClasses}>Direct to Wallet</div>
-									<div class={radioDescClasses}>Instant transfer to connected wallet</div>
+								<div class="flex-1">
+									<div class="font-extrabold text-black text-sm mb-1">Direct to Wallet</div>
+									<div class={typography.meta}>Instant transfer to connected wallet</div>
 								</div>
 							</label>
-							<label class={radioOptionClasses}>
+							<label class="flex items-center gap-3 cursor-pointer">
 								<input 
 									type="radio" 
 									name="claimMethod" 
 									value="reinvest"
 									bind:group={claimMethod}
 								/>
-								<div class={radioContentClasses}>
-									<div class={radioTitleClasses}>Auto-Reinvest</div>
-									<div class={radioDescClasses}>Automatically purchase more tokens</div>
+								<div class="flex-1">
+									<div class="font-extrabold text-black text-sm mb-1">Auto-Reinvest</div>
+									<div class={typography.meta}>Automatically purchase more tokens</div>
 								</div>
 							</label>
 						</div>
@@ -539,28 +440,28 @@
 				</div>
 
 				<!-- Statistics -->
-				<div class={settingsCardClasses}>
-					<h3 class={cardTitleClasses}>Payout Statistics</h3>
+				<div class={layouts.card}>
+					<h3 class={typography.cardTitle}>Payout Statistics</h3>
 					
-					<div class={mobileStatsGridClasses}>
-						<div class={statItemClasses}>
-							<div class={statValueClasses}>{dataStoreService.getPlatformStats().averagePortfolioIRR?.formatted || '13.2%'}</div>
-							<div class={statLabelClasses}>Avg Portfolio IRR</div>
+					<div class="{layouts.gridTwo} mb-6">
+						<div class={layouts.metricCompact}>
+							<div class="text-xl font-extrabold text-primary mb-1">{dataStoreService.getPlatformStats().averagePortfolioIRR?.formatted || '13.2%'}</div>
+							<div class={typography.labelMuted}>Avg Portfolio IRR</div>
 						</div>
-						<div class={statItemClasses}>
-							<div class={statValueClasses}>{formatCurrency(totalEarned / 12)}</div>
-							<div class={statLabelClasses}>Avg Monthly Income</div>
+						<div class={layouts.metricCompact}>
+							<div class="text-xl font-extrabold text-primary mb-1">{formatCurrency(totalEarned / 12)}</div>
+							<div class={typography.labelMuted}>Avg Monthly Income</div>
 						</div>
 					</div>
 					
-					<div class={statsListClasses}>
-						<div class={statsRowClasses}>
-							<span class={statsListLabelClasses}>Total Payouts This Year:</span>
-							<span class={statsListValueClasses}>{dataStoreService.getPlatformStats().totalPayoutsThisYear?.formatted || '24'}</span>
+					<div class="{layouts.flexColumn} gap-3">
+						<div class="{layouts.flexBetween} text-sm">
+							<span class="opacity-70">Total Payouts This Year:</span>
+							<span class="font-extrabold">{dataStoreService.getPlatformStats().totalPayoutsThisYear?.formatted || '24'}</span>
 						</div>
-						<div class={statsRowClasses}>
-							<span class={statsListLabelClasses}>Days Since Last Claim:</span>
-							<span class={statsListValueClasses}>{dataStoreService.getPlatformStats().daysSinceLastClaim?.formatted || '3'}</span>
+						<div class="{layouts.flexBetween} text-sm">
+							<span class="opacity-70">Days Since Last Claim:</span>
+							<span class="font-extrabold">{dataStoreService.getPlatformStats().daysSinceLastClaim?.formatted || '3'}</span>
 						</div>
 					</div>
 				</div>
@@ -568,37 +469,52 @@
 		</section>
 
 		<!-- Claim History -->
-		<section class={claimHistoryClasses}>
-			<div class={historyHeaderClasses}>
-				<h2 class={sectionTitleClasses}>Claim History</h2>
-				<div class={historyControlsClasses}>
-					<button class="{controlBtnClasses} {controlBtnActiveClasses}">Recent</button>
-					<button class={controlBtnClasses}>All Time</button>
-					<button class={controlBtnClasses}>Export</button>
+		<section class="{layouts.pageSection} bg-white">
+			<div class={layouts.flexBetween}>
+				<SectionTitle>Claim History</SectionTitle>
+				<div class="flex gap-2">
+					<TabButton 
+						active={activeHistoryTab === 'recent'}
+						on:click={() => activeHistoryTab = 'recent'}
+					>
+						Recent
+					</TabButton>
+					<TabButton 
+						active={activeHistoryTab === 'all'}
+						on:click={() => activeHistoryTab = 'all'}
+					>
+						All Time
+					</TabButton>
+					<TabButton 
+						active={false}
+						on:click={() => {}}
+					>
+						Export
+					</TabButton>
 				</div>
 			</div>
 			
-			<div class={historyTableClasses}>
-				<div class={mobileTableHeaderClasses}>
-					<div class={mobileHeaderCellClasses}>Date</div>
-					<div class={mobileHeaderCellClasses}>Asset</div>
-					<div class={mobileHeaderCellClasses}>Amount</div>
-					<div class={mobileHeaderCellClasses}>Transaction</div>
-					<div class={mobileHeaderCellClasses}>Status</div>
+			<div class="border border-light-gray mt-8">
+				<div class="{layouts.tableHeader} grid-cols-1 md:grid-cols-[1fr_2fr_1fr_1.5fr_1fr]">
+					<div class="{typography.label} md:text-left text-center">Date</div>
+					<div class="{typography.label} md:text-left text-center">Asset</div>
+					<div class="{typography.label} md:text-left text-center">Amount</div>
+					<div class="{typography.label} md:text-left text-center">Transaction</div>
+					<div class="{typography.label} md:text-left text-center">Status</div>
 				</div>
 				
 				{#each claimHistory as claim}
-					<div class={mobileTableRowClasses}>
-						<div class={mobileTableCellClasses}>{formatDate(claim.date)}</div>
-						<div class={mobileTableCellClasses}>
-							<div class={assetNameClasses}>{claim.asset}</div>
+					<div class="{layouts.tableRow} grid-cols-1 md:grid-cols-[1fr_2fr_1fr_1.5fr_1fr]">
+						<div class="{typography.bodyTextSmall} md:text-left text-center">{formatDate(claim.date)}</div>
+						<div class="md:text-left text-center">
+							<div class="font-extrabold {typography.bodyTextSmall}">{claim.asset}</div>
 						</div>
-						<div class="{mobileTableCellClasses} {tableCellAmountClasses}">{formatCurrency(claim.amount)}</div>
-						<div class={mobileTableCellClasses}>
-							<div class={txHashClasses}>{claim.txHash}</div>
+						<div class="{typography.bodyTextSmall} {typography.metricValuePrimary} md:text-left text-center">{formatCurrency(claim.amount)}</div>
+						<div class="md:text-left text-center">
+							<div class="font-mono {typography.meta}">{claim.txHash}</div>
 						</div>
-						<div class={mobileTableCellClasses}>
-							<span class={statusCompletedClasses}>✓ Completed</span>
+						<div class="md:text-left text-center">
+							<span class="{typography.success} text-xs">✓ Completed</span>
 						</div>
 					</div>
 				{/each}
@@ -615,4 +531,3 @@
 	on:connect={handleWalletConnect}
 	on:close={handleWalletModalClose}
 />
-

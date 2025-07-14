@@ -153,11 +153,11 @@
 	$: titleRowClasses = 'flex justify-between items-center gap-4';
 	$: mainTitleClasses = 'text-2xl font-bold text-black m-0';
 	$: assetNameClasses = 'text-secondary text-sm mt-2 m-0';
-	$: viewDetailsClasses = 'text-primary border border-primary px-3 py-2 text-sm font-medium rounded hover:bg-primary hover:text-white transition-all duration-200 no-underline whitespace-nowrap';
+	$: viewDetailsClasses = 'text-black px-3 py-2 text-sm font-medium hover:underline transition-all duration-200 no-underline whitespace-nowrap';
 	$: closeClasses = 'bg-transparent border-none text-2xl cursor-pointer text-black p-0 w-8 h-8 flex items-center justify-center rounded transition-colors duration-200 hover:bg-light-gray';
 	$: contentClasses = 'flex-1 p-8 overflow-y-auto min-h-0';
 	$: formClasses = 'flex flex-col gap-8';
-	$: tokenDetailsClasses = 'bg-light-gray p-6';
+	$: tokenDetailsClasses = 'bg-white border border-light-gray p-6';
 	$: detailsGridClasses = 'grid grid-cols-1 md:grid-cols-3 gap-4';
 	$: detailItemClasses = 'flex flex-col gap-1';
 	$: detailLabelClasses = 'text-xs text-gray-500 uppercase tracking-wider';

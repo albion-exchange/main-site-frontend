@@ -189,28 +189,28 @@
 	
 	// Tailwind class mappings
 	$: containerClasses = 'relative w-full max-w-6xl mx-auto px-8';
-	$: loadingStateClasses = 'flex flex-col items-center justify-center p-16 text-center text-black bg-white border border-light-gray rounded-lg';
-	$: errorStateClasses = 'flex flex-col items-center justify-center p-16 text-center text-black bg-white border border-light-gray rounded-lg';
-	$: emptyStateClasses = 'flex flex-col items-center justify-center p-16 text-center text-black bg-white border border-light-gray rounded-lg';
-	$: spinnerClasses = 'w-8 h-8 border-4 border-light-gray border-t-primary rounded-full animate-spin mb-4';
-	$: retryButtonClasses = 'mt-4 px-6 py-3 bg-primary text-white border-none rounded cursor-pointer font-semibold transition-colors duration-200 hover:bg-secondary';
-	$: carouselWrapperClasses = 'relative overflow-hidden rounded-xl shadow-carousel outline-none focus:shadow-carousel focus:ring-4 focus:ring-primary/50 touch-pan-y';
+	$: loadingStateClasses = 'flex flex-col items-center justify-center p-16 text-center text-black bg-white border border-light-gray';
+	$: errorStateClasses = 'flex flex-col items-center justify-center p-16 text-center text-black bg-white border border-light-gray';
+	$: emptyStateClasses = 'flex flex-col items-center justify-center p-16 text-center text-black bg-white border border-light-gray';
+	$: spinnerClasses = 'w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mb-4';
+	$: retryButtonClasses = 'mt-4 px-6 py-3 bg-primary text-white border-none cursor-pointer font-semibold transition-colors duration-200 hover:bg-secondary';
+	$: carouselWrapperClasses = 'relative overflow-hidden shadow-carousel outline-none focus:shadow-carousel focus:ring-4 focus:ring-primary/50 touch-pan-y';
 	$: carouselTrackClasses = 'flex w-full transition-transform duration-700 ease-in-out will-change-transform';
 	$: carouselSlideClasses = 'flex-shrink-0 w-full relative transition-all duration-700 ease-in-out';
 	$: activeSlideClasses = 'opacity-100 scale-100';
 	$: inactiveSlideClasses = 'opacity-70 scale-95';
 	$: bannerCardClasses = 'grid grid-cols-1 md:grid-cols-2 min-h-96 bg-white border border-light-gray transition-all duration-300 ease-in-out hover:transform hover:-translate-y-1 hover:shadow-action-hover animate-fade-in';
 	$: tokenSectionClasses = 'p-12 bg-white border-b md:border-b-0 md:border-r border-light-gray flex flex-col justify-between';
-	$: assetSectionClasses = 'p-12 bg-light-gray flex flex-col justify-between';
+	$: assetSectionClasses = 'p-12 bg-white flex flex-col justify-between';
 	$: tokenHeaderClasses = 'mb-8';
 	$: tokenNameClasses = 'text-2xl font-extrabold text-black mb-3 leading-tight';
 	$: tokenContractClasses = 'text-sm font-medium text-secondary font-mono break-all leading-relaxed py-1 opacity-80';
 	$: assetHeaderClasses = 'mb-6';
 	$: assetStatusClasses = 'flex items-center gap-2 mb-4';
-	$: statusIndicatorClasses = 'w-2 h-2 rounded-full bg-secondary';
-	$: statusIndicatorProducingClasses = 'w-2 h-2 rounded-full bg-green-500 animate-pulse-status';
-	$: statusIndicatorFundingClasses = 'w-2 h-2 rounded-full bg-yellow-500';
-	$: statusIndicatorCompletedClasses = 'w-2 h-2 rounded-full bg-secondary';
+	$: statusIndicatorClasses = 'w-2 h-2 bg-secondary';
+	$: statusIndicatorProducingClasses = 'w-2 h-2 bg-green-500 animate-pulse-status';
+	$: statusIndicatorFundingClasses = 'w-2 h-2 bg-yellow-500';
+	$: statusIndicatorCompletedClasses = 'w-2 h-2 bg-secondary';
 	$: statusTextClasses = 'text-xs font-semibold text-secondary uppercase tracking-wider';
 	$: assetNameClasses = 'text-2xl font-extrabold text-black mb-2 leading-tight';
 	$: assetLocationClasses = 'text-sm text-secondary font-semibold';
@@ -225,20 +225,20 @@
 	$: assetMetaItemClasses = 'flex gap-2';
 	$: assetMetaLabelClasses = 'text-sm font-semibold text-black';
 	$: assetMetaValueClasses = 'text-sm text-secondary';
-	$: navButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none rounded-full text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg';
-	$: prevButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none rounded-full text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg left-[-4rem]';
-	$: nextButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none rounded-full text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg right-[-4rem]';
+	$: navButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg';
+	$: prevButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg left-[-4rem]';
+	$: nextButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg right-[-4rem]';
 	$: indicatorsClasses = 'absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
-	$: indicatorClasses = 'w-3 h-3 rounded-full border-none bg-white/50 cursor-pointer transition-all duration-200 hover:bg-white/80';
-	$: indicatorActiveClasses = 'w-3 h-3 rounded-full border-none bg-white cursor-pointer transition-all duration-200 scale-125 shadow-lg';
+	$: indicatorClasses = 'w-3 h-3 border-none bg-white/50 cursor-pointer transition-all duration-200 hover:bg-white/80';
+	$: indicatorActiveClasses = 'w-3 h-3 border-none bg-white cursor-pointer transition-all duration-200 scale-125 shadow-lg';
 	
 	// Responsive classes
 	$: mobileTokenSectionClasses = 'md:p-12 p-8 bg-white border-b md:border-b-0 md:border-r border-light-gray flex flex-col justify-between';
-	$: mobileAssetSectionClasses = 'md:p-12 p-8 bg-light-gray flex flex-col justify-between';
+	$: mobileAssetSectionClasses = 'md:p-12 p-8 bg-white flex flex-col justify-between';
 	$: mobileTokenStatsClasses = 'grid md:grid-cols-2 grid-cols-1 gap-4 mb-8';
-	$: mobileNavButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none rounded-full md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg';
-	$: mobilePrevButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none rounded-full md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:left-[-4rem] left-[-3rem]';
-	$: mobileNextButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none rounded-full md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:right-[-4rem] right-[-3rem]';
+	$: mobileNavButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg';
+	$: mobilePrevButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:left-[-4rem] left-[-3rem]';
+	$: mobileNextButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:right-[-4rem] right-[-3rem]';
 	$: mobileIndicatorsClasses = 'absolute md:bottom-6 bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
 	$: mobileContainerClasses = 'relative w-full max-w-6xl mx-auto md:px-8 px-4';
 	$: mobileBannerCardClasses = 'grid grid-cols-1 md:grid-cols-2 min-h-96 bg-white border border-light-gray transition-all duration-300 ease-in-out md:hover:transform md:hover:-translate-y-1 md:hover:shadow-action-hover animate-fade-in';
@@ -338,12 +338,12 @@
 									</div>
 									<div class={statItemClasses}>
 										<div class={statLabelClasses}>Estimated Base Payout</div>
-										<div class={statValueClasses}>{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</div>
+										<div class="text-xl font-extrabold text-primary">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</div>
 									</div>
 									
 									<div class={statItemClasses}>
 										<div class={statLabelClasses}>Estimated Bonus Payout</div>
-										<div class={statValueClasses}>+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
+										<div class="text-xl font-extrabold text-primary">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
 									</div>
 								</div>
 
