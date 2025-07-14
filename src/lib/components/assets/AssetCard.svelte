@@ -67,8 +67,8 @@
 	$: operatorNameClasses = 'text-sm text-black font-semibold';
 	$: assetNameClasses = 'text-xl font-semibold text-black m-0 mb-2 min-h-[3.125rem] leading-tight flex items-start';
 	$: assetLocationClasses = 'text-gray-500 text-sm m-0';
-	$: assetDescriptionClasses = 'text-gray-700 text-sm leading-relaxed m-0 mb-6 line-clamp-3';
-	$: viewDetailsSectionClasses = 'my-6';
+	$: assetDescriptionClasses = 'text-gray-700 text-sm leading-relaxed m-0 mb-6 line-clamp-3 min-h-[4.5rem]';
+	$: viewDetailsSectionClasses = 'mt-6 mb-6';
 	$: tokensSectionClasses = 'my-6';
 	$: tokensTitleClasses = 'text-base font-semibold text-black m-0 mb-4 uppercase tracking-wider';
 	$: tokensListClasses = 'flex flex-col gap-3';
@@ -87,12 +87,12 @@
 	$: returnDividerClasses = 'text-sm text-gray-500 font-medium mx-1';
 	$: buyCtaClasses = 'text-sm font-bold text-black uppercase tracking-wider';
 	
-	// Mobile responsive classes
-	$: mobileHighlightedStatsClasses = 'grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 my-3 md:my-4 p-3 md:p-4 bg-white rounded-lg';
+	// Mobile responsive classes using Tailwind
+	$: mobileHighlightedStatsClasses = 'grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 my-3 md:my-4 p-3 md:p-4 bg-white rounded-lg';
 	$: mobileHighlightValueClasses = 'text-lg md:text-xl font-bold text-secondary mb-1';
 	$: mobileHighlightLabelClasses = 'text-[0.7rem] md:text-xs text-gray-500 uppercase font-medium tracking-wider';
 	$: mobileAssetNameClasses = 'text-lg md:text-xl font-semibold text-black m-0 mb-2 min-h-[2.75rem] md:min-h-[3.125rem] leading-tight flex items-start';
-	$: mobileAssetDescriptionClasses = 'text-gray-700 text-xs md:text-sm leading-relaxed m-0 mb-4 md:mb-6 line-clamp-3';
+	$: mobileAssetDescriptionClasses = 'text-gray-700 text-xs md:text-sm leading-relaxed m-0 mb-4 md:mb-6 line-clamp-3 min-h-[4rem] md:min-h-[4.5rem]';
 	$: mobileTokensTitleClasses = 'text-sm md:text-base font-semibold text-black m-0 mb-4 uppercase tracking-wider';
 	$: mobileTokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 md:p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-gray-50 gap-3 sm:gap-0';
 	$: mobileTokenButtonRightClasses = 'flex flex-row sm:flex-col w-full sm:w-auto justify-between sm:justify-end items-center sm:items-end gap-2';

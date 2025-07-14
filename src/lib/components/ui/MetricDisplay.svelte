@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { typography } from '$lib/styles/typography';
 	
 	export let value: string | number;
 	export let label: string;
@@ -9,9 +8,9 @@
 	export let center = true;
 	
 	const sizeClasses = {
-		large: typography.metricValueLarge,
-		medium: typography.metricValue,
-		small: typography.metricValueSmall,
+		large: 'text-3xl font-extrabold text-black',
+		medium: 'text-2xl font-extrabold text-black',
+		small: 'text-xl font-extrabold text-black',
 	};
 	
 	const colorClasses = {
@@ -27,8 +26,8 @@
 
 <div class={containerClasses}>
 	<div class={valueClasses}>{value}</div>
-	<div class={typography.label}>{label}</div>
+	<div class="text-xs font-bold text-black uppercase tracking-wider">{label}</div>
 	{#if note}
-		<div class="{typography.meta} mt-1">{note}</div>
+		<div class="text-xs text-black opacity-70 mt-1">{note}</div>
 	{/if}
 </div>

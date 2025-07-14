@@ -1,7 +1,4 @@
 <script lang="ts">
-	import { typography } from '$lib/styles/typography';
-	import { layouts } from '$lib/styles/layouts';
-	import { buttons } from '$lib/styles/buttons';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
 	import ControlButton from '$lib/components/ui/ControlButton.svelte';
 	
@@ -16,7 +13,7 @@
 <main class="pt-0">
 	<!-- Hero Section -->
 	<section class="py-16 px-8 text-center bg-white border-b border-light-gray">
-		<div class={layouts.pageContainer}>
+		<div class="max-w-6xl mx-auto">
 			<h1 class="md:text-4xl text-3xl font-extrabold mb-4 text-black tracking-tight leading-tight">Legal Information</h1>
 			<p class="text-lg leading-relaxed text-black max-w-2xl mx-auto">Important legal documents and compliance information for the Albion platform.</p>
 		</div>
@@ -55,7 +52,7 @@
 	<!-- Legal Content -->
 	<section class="md:py-16 py-8 md:px-8 px-4 max-w-6xl mx-auto">
 		{#if activeSection === 'terms'}
-			<div class="bg-white border border-light-gray md:p-12 p-8">
+			<div class="bg-white md:p-12 p-8">
 				<SectionTitle level="h2" size="section">Terms of Service</SectionTitle>
 				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
@@ -86,7 +83,7 @@
 				</div>
 			</div>
 		{:else if activeSection === 'privacy'}
-			<div class="bg-white border border-light-gray md:p-12 p-8">
+			<div class="bg-white md:p-12 p-8">
 				<SectionTitle level="h2" size="section">Privacy Policy</SectionTitle>
 				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
@@ -117,7 +114,7 @@
 				</div>
 			</div>
 		{:else if activeSection === 'disclosures'}
-			<div class="bg-white border border-light-gray md:p-12 p-8">
+			<div class="bg-white md:p-12 p-8">
 				<SectionTitle level="h2" size="section">Investment Disclosures</SectionTitle>
 				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
@@ -154,7 +151,7 @@
 				</div>
 			</div>
 		{:else if activeSection === 'compliance'}
-			<div class="bg-white border border-light-gray md:p-12 p-8">
+			<div class="bg-white md:p-12 p-8">
 				<SectionTitle level="h2" size="section">Regulatory Compliance</SectionTitle>
 				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
@@ -195,7 +192,7 @@
 
 	<!-- Contact Section -->
 	<section class="bg-secondary text-white py-16 px-8 text-center">
-		<div class={layouts.pageContainer}>
+		<div class="max-w-6xl mx-auto">
 			<h2 class="text-[1.75rem] font-extrabold mb-4 text-white">Legal Questions?</h2>
 			<p class="text-lg mb-8 opacity-90">If you have questions about our legal documents or compliance procedures, please contact our legal team.</p>
 			<div class="flex flex-col gap-3 md:text-center text-left">

@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { layouts } from '$lib/styles/layouts';
 	
 	export let columns: string[] = [];
 	export let columnWidths: string = '';
 	export let className = '';
 	
-	$: headerClasses = `${layouts.tableHeader} ${columnWidths}`;
-	$: containerClasses = `${layouts.card} overflow-hidden ${className}`;
+	$: headerClasses = `grid items-center gap-4 p-4 bg-light-gray border-b border-light-gray ${columnWidths}`;
+	$: containerClasses = `bg-white border border-light-gray p-8 overflow-hidden ${className}`;
 </script>
 
 <div class={containerClasses}>

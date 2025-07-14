@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { typography } from '$lib/styles/typography';
 	
 	export let level: 'h1' | 'h2' | 'h3' = 'h2';
 	export let size: 'page' | 'section' | 'card' | 'subsection' = 'section';
@@ -7,10 +6,10 @@
 	export let className = '';
 	
 	const sizeClasses = {
-		page: typography.pageTitle,
-		section: typography.sectionTitle,
-		card: typography.cardTitle,
-		subsection: typography.subsectionTitle,
+		page: 'text-4xl font-extrabold text-black mb-8',
+		section: 'text-3xl font-extrabold text-black mb-6',
+		card: 'text-xl font-extrabold text-black mb-4',
+		subsection: 'text-lg font-extrabold text-black uppercase tracking-wider',
 	};
 	
 	$: classes = `${sizeClasses[size]} ${center ? 'text-center' : ''} ${className}`;

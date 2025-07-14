@@ -5,8 +5,6 @@
 	import AssetCard from '$lib/components/assets/AssetCard.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
 	import { SecondaryButton, SectionTitle, Card, CardContent } from '$lib/components/ui';
-	import { typography } from '$lib/styles/typography';
-	import { layouts } from '$lib/styles/layouts';
 
 	let loading = true;
 	let allAssets: Asset[] = [];
@@ -65,28 +63,28 @@
 	<meta name="description" content="Browse available oil field assets for investment" />
 </svelte:head>
 
-<main class={layouts.pageContainer}>
+<main class="max-w-6xl mx-auto">
 	<!-- Header Section -->
-	<section class="{layouts.pageSection} text-center">
+	<section class="py-16 px-8 md:py-12 md:px-8 text-center">
 		<SectionTitle level="h1" size="page">Available Assets</SectionTitle>
-		<p class="{typography.bodyText} mt-4">Discover tokenized oil field investments</p>
+		<p class="text-base text-black leading-relaxed mt-4">Discover tokenized oil field investments</p>
 	</section>
 
 	{#if loading}
 		<!-- Loading State -->
-		<div class="{layouts.pageSection} text-center">
-			<p class={typography.bodyText}>Loading assets...</p>
+		<div class="py-16 px-8 md:py-12 md:px-8 text-center">
+			<p class="text-base text-black leading-relaxed">Loading assets...</p>
 		</div>
 	{:else}
 		<!-- Assets Section -->
-		<section class={layouts.pageSection}>
+		<section class="py-16 px-8 md:py-12 md:px-8">
 			{#if filteredAssets.length === 0 && !showSoldOutAssets}
 				<!-- No Available Assets -->
 				<Card>
 					<CardContent>
 						<div class="text-center">
 							<SectionTitle level="h3" size="card">No Available Assets</SectionTitle>
-							<p class="{typography.bodyText} mt-4">All assets are currently sold out.</p>
+							<p class="text-base text-black leading-relaxed mt-4">All assets are currently sold out.</p>
 						</div>
 					</CardContent>
 				</Card>
@@ -96,7 +94,7 @@
 					<CardContent>
 						<div class="text-center">
 							<SectionTitle level="h3" size="card">No Assets Found</SectionTitle>
-							<p class="{typography.bodyText} mt-4">Try adjusting your search criteria or filters to find assets.</p>
+							<p class="text-base text-black leading-relaxed mt-4">Try adjusting your search criteria or filters to find assets.</p>
 						</div>
 					</CardContent>
 				</Card>

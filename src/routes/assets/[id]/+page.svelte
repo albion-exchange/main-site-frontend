@@ -5,9 +5,6 @@
 	import type { Asset, Token } from '$lib/types/dataStore';
 	import { Card, CardContent, PrimaryButton, SecondaryButton } from '$lib/components/ui';
 	import { getAssetCoverImage, getAssetGalleryImages } from '$lib/utils/assetImages';
-	import { typography } from '$lib/styles/typography';
-	import { layouts } from '$lib/styles/layouts';
-	import { buttons } from '$lib/styles/buttons';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
 	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
 	import TabButton from '$lib/components/ui/TabButton.svelte';
@@ -247,7 +244,7 @@
 		<div class="text-center py-16 px-8 text-black">
 			<h1>Error</h1>
 			<p>{error}</p>
-			<a href="/assets" class="{buttons.primary} inline-block">Back to Assets</a>
+			<a href="/assets" class="px-8 py-4 no-underline font-semibold text-sm uppercase tracking-wider transition-colors duration-200 inline-block bg-black text-white hover:bg-secondary inline-block">Back to Assets</a>
 		</div>
 	{:else}
 		<!-- Breadcrumb -->
@@ -271,7 +268,7 @@
 					</div>
 					<div class="flex-1">
 						<div class="flex justify-between items-start gap-4 mb-4">
-							<h1 class="{typography.pageTitle} m-0">{assetData?.name}</h1>
+							<h1 class="text-4xl md:text-5xl font-extrabold text-black uppercase tracking-tight m-0">{assetData?.name}</h1>
 							<div class="flex flex-col items-end gap-2 flex-shrink-0">
 								<div class="text-xs font-medium text-black uppercase tracking-wider">Share this investment:</div>
 								<div class="flex gap-2">
@@ -391,27 +388,27 @@
 							<div>
 								<SectionTitle level="h3" size="subsection" className="mb-6 uppercase tracking-wider">Asset Fundamentals</SectionTitle>
 								<div class="flex flex-col gap-4">
-									<div class="flex justify-between pb-3 border-b border-light-gray text-sm last:border-b-0 last:pb-0">
+									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Field Type</span>
 										<span class="font-extrabold text-black">{assetData?.technical.fieldType}</span>
 									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-sm last:border-b-0 last:pb-0">
+									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Crude Benchmark</span>
 										<span class="font-extrabold text-black">{assetData?.technical.crudeBenchmark}</span>
 									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-sm last:border-b-0 last:pb-0">
+									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Pricing</span>
 										<span class="font-extrabold text-black">{formatPricing(assetData?.technical.pricing?.benchmarkPremium || '')}, {assetData?.technical.pricing?.transportCosts}</span>
 									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-sm last:border-b-0 last:pb-0">
+									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">First Oil</span>
 										<span class="font-extrabold text-black">{assetData?.technical.firstOil}</span>
 									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-sm last:border-b-0 last:pb-0">
+									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Estimated End Date</span>
 										<span class="font-extrabold text-black">{formatEndDate(assetData?.technical.expectedEndDate || '')}</span>
 									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-sm last:border-b-0 last:pb-0">
+									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Coordinates</span>
 										<span class="font-extrabold text-black">{assetData?.location.coordinates.lat}°, {assetData?.location.coordinates.lng}°</span>
 									</div>
@@ -421,11 +418,11 @@
 							<div>
 								<SectionTitle level="h3" size="subsection" className="mb-6 uppercase tracking-wider">Asset Terms</SectionTitle>
 								<div class="flex flex-col gap-4">
-									<div class="flex justify-between pb-3 border-b border-light-gray text-sm last:border-b-0 last:pb-0">
+									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Interest Type</span>
 										<span class="font-extrabold text-black">{assetData?.assetTerms?.interestType}</span>
 									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-sm last:border-b-0 last:pb-0">
+									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black relative">
 											Amount
 											{#if assetData?.assetTerms?.amountTooltip}
@@ -443,11 +440,11 @@
 										</span>
 										<span class="font-extrabold text-black">{assetData?.assetTerms?.amount}</span>
 									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-sm last:border-b-0 last:pb-0">
+									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Payment Frequency</span>
 										<span class="font-extrabold text-black">{assetData?.assetTerms?.paymentFrequency}</span>
 									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-sm last:border-b-0 last:pb-0">
+									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Infrastructure</span>
 										<span class="font-extrabold text-black">{assetData?.technical.infrastructure}</span>
 									</div>
@@ -483,12 +480,12 @@
 										{/each}
 										
 										<!-- Y-axis labels (Production in BOE) -->
-										<text x="70" y="55" text-anchor="end" font-size="10" fill="#000000">{Math.round(maxProduction)}</text>
-										<text x="70" y="95" text-anchor="end" font-size="10" fill="#000000">{Math.round(maxProduction * 0.8)}</text>
-										<text x="70" y="135" text-anchor="end" font-size="10" fill="#000000">{Math.round(maxProduction * 0.6)}</text>
-										<text x="70" y="175" text-anchor="end" font-size="10" fill="#000000">{Math.round(maxProduction * 0.4)}</text>
-										<text x="70" y="215" text-anchor="end" font-size="10" fill="#000000">{Math.round(maxProduction * 0.2)}</text>
-										<text x="70" y="255" text-anchor="end" font-size="10" fill="#000000">0</text>
+										<text x="70" y="55" text-anchor="end" font-size="12" fill="#000000">{Math.round(maxProduction)}</text>
+										<text x="70" y="95" text-anchor="end" font-size="12" fill="#000000">{Math.round(maxProduction * 0.8)}</text>
+										<text x="70" y="135" text-anchor="end" font-size="12" fill="#000000">{Math.round(maxProduction * 0.6)}</text>
+										<text x="70" y="175" text-anchor="end" font-size="12" fill="#000000">{Math.round(maxProduction * 0.4)}</text>
+										<text x="70" y="215" text-anchor="end" font-size="12" fill="#000000">{Math.round(maxProduction * 0.2)}</text>
+										<text x="70" y="255" text-anchor="end" font-size="12" fill="#000000">0</text>
 										
 										<!-- X-axis labels (Months and years from real data) -->
 										{#each productionReports as report, i}
@@ -496,9 +493,9 @@
 											{@const monthLabel = date.toLocaleDateString('en-US', { month: 'short' })}
 											{@const year = date.getFullYear()}
 											{@const showYear = i === 0 || date.getMonth() === 0 || (i > 0 && new Date(productionReports[i-1].month + '-01').getFullYear() !== year)}
-											<text x={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y="270" text-anchor="middle" font-size="9" fill="#000000">{monthLabel}</text>
+											<text x={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y="270" text-anchor="middle" font-size="11" fill="#000000">{monthLabel}</text>
 											{#if showYear}
-												<text x={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y="285" text-anchor="middle" font-size="8" fill="#666666" font-weight="bold">{year}</text>
+												<text x={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y="285" text-anchor="middle" font-size="10" fill="#666666" font-weight="bold">{year}</text>
 											{/if}
 										{/each}
 										
@@ -530,20 +527,20 @@
 												stroke-width="2"
 											/>
 											<!-- Value label near point -->
-											<text x={x} y={y - 10} text-anchor="middle" font-size="8" fill="#000000" font-weight="semibold">
+											<text x={x} y={y - 10} text-anchor="middle" font-size="10" fill="#000000" font-weight="semibold">
 												{Math.round(report.production)}
 											</text>
 										{/each}
 										
 										<!-- Chart title -->
-										<text x="400" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#000000">Production History</text>
+										<text x="400" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#000000">Production History</text>
 										
 										<!-- Legend -->
 										<rect x="580" y="60" width="150" height="40" fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
 										<line x1="590" y1="70" x2="610" y2="70" stroke="#08bccc" stroke-width="3"/>
-										<text x="615" y="75" font-size="9" fill="#000000">Production Rate</text>
+										<text x="615" y="75" font-size="11" fill="#000000">Production Rate</text>
 										<circle cx="600" cy="85" r="3" fill="#283c84"/>
-										<text x="615" y="90" font-size="9" fill="#000000">Monthly Data</text>
+										<text x="615" y="90" font-size="11" fill="#000000">Monthly Data</text>
 									</svg>
 								</div>
 							</div>
@@ -551,18 +548,18 @@
 							<div class="bg-white border border-light-gray p-6">
 								<h4 class="text-lg font-extrabold text-black mb-6">Production Metrics</h4>
 								<div class="text-center mb-6 p-4 bg-white">
-									<div class="text-3xl font-extrabold text-black mb-2">{assetData?.operationalMetrics?.uptime?.percentage?.toFixed(1) || defaults.operationalMetrics.uptime.percentage.toFixed(1)}%</div>
-									<div class="text-sm font-medium text-black opacity-70">Uptime {assetData?.operationalMetrics?.uptime?.period?.replace('_', ' ') || defaults.operationalMetrics.uptime.period}</div>
+									<div class="text-4xl font-extrabold text-black mb-2">{assetData?.operationalMetrics?.uptime?.percentage?.toFixed(1) || defaults.operationalMetrics.uptime.percentage.toFixed(1)}%</div>
+									<div class="text-base font-medium text-black opacity-70">Uptime {assetData?.operationalMetrics?.uptime?.period?.replace('_', ' ') || defaults.operationalMetrics.uptime.period}</div>
 								</div>
 								<div class="grid grid-cols-1 gap-4 mb-6">
 									<div class="text-center p-3 bg-white">
-										<div class="text-2xl font-extrabold text-black mb-1">{assetData?.operationalMetrics?.dailyProduction?.current?.toFixed(1) || defaults.operationalMetrics.dailyProduction.current.toFixed(1)}</div>
-										<div class="text-xs font-medium text-black opacity-70">Current Daily Production ({assetData?.operationalMetrics?.dailyProduction?.unit || defaults.operationalMetrics.dailyProduction.unit})</div>
+										<div class="text-3xl font-extrabold text-black mb-1">{assetData?.operationalMetrics?.dailyProduction?.current?.toFixed(1) || defaults.operationalMetrics.dailyProduction.current.toFixed(1)}</div>
+										<div class="text-sm font-medium text-black opacity-70">Current Daily Production ({assetData?.operationalMetrics?.dailyProduction?.unit || defaults.operationalMetrics.dailyProduction.unit})</div>
 									</div>
 								</div>
 								<div class="text-center p-4 bg-white">
-									<div class="text-3xl font-extrabold text-black mb-2">{assetData?.operationalMetrics?.hseMetrics?.incidentFreeDays || defaults.operationalMetrics.hseMetrics.incidentFreeDays}</div>
-									<div class="text-sm font-medium text-black opacity-70">Days Since Last HSE Incident</div>
+									<div class="text-4xl font-extrabold text-black mb-2">{assetData?.operationalMetrics?.hseMetrics?.incidentFreeDays || defaults.operationalMetrics.hseMetrics.incidentFreeDays}</div>
+									<div class="text-base font-medium text-black opacity-70">Days Since Last HSE Incident</div>
 								</div>
 							</div>
 						</div>
@@ -596,12 +593,12 @@
 										{/each}
 										
 										<!-- Y-axis labels (Revenue amounts) -->
-										<text x="70" y="55" text-anchor="end" font-size="10" fill="#000000">${Math.round(maxRevenue)}</text>
-										<text x="70" y="95" text-anchor="end" font-size="10" fill="#000000">${Math.round(maxRevenue * 0.8)}</text>
-										<text x="70" y="135" text-anchor="end" font-size="10" fill="#000000">${Math.round(maxRevenue * 0.6)}</text>
-										<text x="70" y="175" text-anchor="end" font-size="10" fill="#000000">${Math.round(maxRevenue * 0.4)}</text>
-										<text x="70" y="215" text-anchor="end" font-size="10" fill="#000000">${Math.round(maxRevenue * 0.2)}</text>
-										<text x="70" y="255" text-anchor="end" font-size="10" fill="#000000">$0</text>
+										<text x="70" y="55" text-anchor="end" font-size="12" fill="#000000">${Math.round(maxRevenue)}</text>
+										<text x="70" y="95" text-anchor="end" font-size="12" fill="#000000">${Math.round(maxRevenue * 0.8)}</text>
+										<text x="70" y="135" text-anchor="end" font-size="12" fill="#000000">${Math.round(maxRevenue * 0.6)}</text>
+										<text x="70" y="175" text-anchor="end" font-size="12" fill="#000000">${Math.round(maxRevenue * 0.4)}</text>
+										<text x="70" y="215" text-anchor="end" font-size="12" fill="#000000">${Math.round(maxRevenue * 0.2)}</text>
+										<text x="70" y="255" text-anchor="end" font-size="12" fill="#000000">$0</text>
 										
 										<!-- X-axis labels (Months and years from monthly reports) -->
 										{#each monthlyReports as report, i}
@@ -609,9 +606,9 @@
 											{@const monthLabel = date.toLocaleDateString('en-US', { month: 'short' })}
 											{@const year = date.getFullYear()}
 											{@const showYear = i === 0 || date.getMonth() === 0 || (i > 0 && new Date(monthlyReports[i-1].month + '-01').getFullYear() !== year)}
-											<text x={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y="270" text-anchor="middle" font-size="9" fill="#000000">{monthLabel}</text>
+											<text x={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y="270" text-anchor="middle" font-size="11" fill="#000000">{monthLabel}</text>
 											{#if showYear}
-												<text x={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y="285" text-anchor="middle" font-size="8" fill="#666666" font-weight="bold">{year}</text>
+												<text x={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y="285" text-anchor="middle" font-size="10" fill="#666666" font-weight="bold">{year}</text>
 											{/if}
 										{/each}
 										
@@ -632,13 +629,13 @@
 												rx="2"
 											/>
 											<!-- Value label on top of bar -->
-											<text x={x + barWidth / 2} y={y - 5} text-anchor="middle" font-size="8" fill="#000000" font-weight="semibold">
+											<text x={x + barWidth / 2} y={y - 5} text-anchor="middle" font-size="10" fill="#000000" font-weight="semibold">
 												${Math.round(report.revenue)}
 											</text>
 										{/each}
 										
 										<!-- Chart title -->
-										<text x="400" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#000000">Past Payments</text>
+										<text x="400" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#000000">Past Payments</text>
 									</svg>
 								</div>
 							</div>
@@ -647,16 +644,16 @@
 								<h4 class="text-lg font-extrabold text-black mb-6">Revenue Metrics</h4>
 								<div class="space-y-6">
 									<div class="text-center p-4 bg-white">
-										<div class="text-3xl font-extrabold text-black mb-2">{nextMonth.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</div>
-										<div class="text-sm font-medium text-black opacity-70">Next Report Due</div>
+										<div class="text-4xl font-extrabold text-black mb-2">{nextMonth.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</div>
+										<div class="text-base font-medium text-black opacity-70">Next Report Due</div>
 									</div>
 									<div class="text-center p-3 bg-white">
-										<div class="text-2xl font-extrabold text-black mb-1">${latestReport?.revenue?.toFixed(0) || dataStoreService.getDefaultValues().revenue.latestMonthly.toLocaleString()}</div>
-										<div class="text-xs font-medium text-black opacity-70">Latest Monthly Revenue</div>
+										<div class="text-3xl font-extrabold text-black mb-1">${latestReport?.revenue?.toFixed(0) || dataStoreService.getDefaultValues().revenue.latestMonthly.toLocaleString()}</div>
+										<div class="text-sm font-medium text-black opacity-70">Latest Monthly Revenue</div>
 									</div>
 									<div class="text-center p-3 bg-white">
-										<div class="text-2xl font-extrabold text-black mb-1">${avgRevenue.toFixed(0)}</div>
-										<div class="text-xs font-medium text-black opacity-70">Avg Monthly Revenue</div>
+										<div class="text-3xl font-extrabold text-black mb-1">${avgRevenue.toFixed(0)}</div>
+										<div class="text-sm font-medium text-black opacity-70">Avg Monthly Revenue</div>
 									</div>
 								</div>
 							</div>
@@ -807,13 +804,13 @@
 									<div class="absolute inset-0 backface-hidden">
 										<div class="p-8 pb-0 relative">
 										<div class="flex-1">
-											<h4 class="text-xl font-extrabold mb-2">{token.name}</h4>
-											<p class="text-xs text-secondary font-mono">{token.contractAddress}</p>
+											<h4 class="text-xl font-extrabold mb-2 text-black">{token.name}</h4>
+											<p class="text-xs text-secondary font-medium break-all tracking-tight opacity-80">{token.contractAddress}</p>
 										</div>
-										<div class="{!hasAvailableSupply ? 'text-xs font-extrabold text-white bg-black px-3 py-1 uppercase tracking-wider' : 'text-xs font-extrabold text-black bg-primary px-3 py-1 uppercase tracking-wider'} absolute top-2 right-2">
+										<div class="{!hasAvailableSupply ? 'text-xs font-extrabold text-white bg-black px-3 py-1.5 uppercase tracking-wider rounded' : 'text-xs font-extrabold text-black bg-primary px-3 py-1.5 uppercase tracking-wider rounded'} absolute top-8 right-8">
 											{hasAvailableSupply ? 'Available' : 'Sold Out'}
 										</div>
-										<div class="text-xs font-extrabold text-white bg-secondary px-3 py-2 uppercase tracking-wider inline-block mt-4">
+										<div class="text-xs font-extrabold text-white bg-secondary px-3 py-2 uppercase tracking-wider inline-block mt-4 rounded">
 											{token.sharePercentage || 25}% of Asset
 										</div>
 									</div>
@@ -928,7 +925,7 @@
 								<div class="absolute inset-0 backface-hidden rotate-y-180 bg-white">
 									<div class="p-8 flex flex-col h-full">
 										<div class="flex justify-between items-center mb-6">
-										<h4 class="text-lg font-extrabold text-black">Distributions History</h4>
+										<h4 class="text-xl font-extrabold text-black uppercase tracking-wider">Distributions History</h4>
 										<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCardFlip(token.contractAddress); }} role="button" tabindex="0">
 											<SecondaryButton>
 												← Back
@@ -964,8 +961,8 @@
 									{:else}
 										{@const nextRelease = dataStoreService.getFutureReleaseByAsset(assetData?.id || '')}
 										<div class="text-center py-8 text-black opacity-70">
-											<p>No distributions available yet.</p>
-											<p>First payout expected in {nextRelease?.whenRelease || 'Q1 2025'}.</p>
+											<p class="text-sm">No distributions available yet.</p>
+											<p class="text-sm">First payout expected in {nextRelease?.whenRelease || 'Q1 2025'}.</p>
 										</div>
 									{/if}
 									</div>
@@ -983,8 +980,8 @@
 					<CardContent>
 						<div class="text-center p-12">
 							<div class="text-5xl mb-6">{release.emoji || '📅'}</div>
-							<h4 class="text-xl font-extrabold mb-4">{index === 0 ? 'Next Release' : 'Future Release'} - {release.whenRelease}</h4>
-							<p class="text-base mb-8">{release.description || 'Token release planned'}</p>
+							<h4 class="text-xl font-extrabold mb-4 text-black uppercase tracking-wider">{index === 0 ? 'Next Release' : 'Future Release'} - {release.whenRelease}</h4>
+							<p class="text-base mb-8 text-black opacity-70">{release.description || 'Token release planned'}</p>
 							<SecondaryButton on:click={handleGetNotified}>
 								Get Notified
 							</SecondaryButton>
@@ -999,8 +996,8 @@
 						<CardContent>
 							<div class="text-center p-12">
 								<div class="text-5xl mb-6">🚀</div>
-								<h4 class="text-xl font-extrabold mb-4">New Release Coming Soon</h4>
-								<p class="text-base mb-8">Next token release planned for Q1 2025</p>
+								<h4 class="text-xl font-extrabold mb-4 text-black uppercase tracking-wider">New Release Coming Soon</h4>
+								<p class="text-base mb-8 text-black opacity-70">Next token release planned for Q1 2025</p>
 								<SecondaryButton on:click={handleGetNotified}>
 									Get Notified
 								</SecondaryButton>

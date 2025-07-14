@@ -4,9 +4,6 @@
 	import type { Asset, Token } from '$lib/types/dataStore';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/WalletModal.svelte';
-	import { typography } from '$lib/styles/typography';
-	import { layouts } from '$lib/styles/layouts';
-	import { buttons } from '$lib/styles/buttons';
 	import { 
 		SectionTitle, 
 		MetricDisplay, 
@@ -221,61 +218,6 @@
 		}
 	}
 	
-	// Mobile specific classes that aren't in utilities
-	const mobileMetricClasses = 'text-center p-6 bg-white border border-light-gray';
-	const mobileHoldingsHeaderClasses = 'flex justify-between items-center mb-8';
-	const holdingsHeaderTitleClasses = typography.cardTitle;
-	const mobileViewControlsClasses = 'flex gap-2';
-	const viewBtnClasses = `${buttons.base} px-4 py-2 bg-white border border-light-gray text-xs hover:bg-light-gray`;
-	const viewBtnActiveClasses = 'bg-primary text-white border-primary';
-	const smallMobileHoldingCardClasses = layouts.cardHover;
-	const mobileHoldingMainClasses = 'grid grid-cols-1 md:grid-cols-6 gap-4 mb-6';
-	const holdingInfoClasses = 'flex items-start gap-4 md:col-span-2';
-	const holdingIconClasses = 'text-3xl';
-	const holdingDetailsH4Classes = typography.metricValueSmall;
-	const holdingLocationClasses = 'text-black opacity-70 text-sm';
-	const holdingBadgesClasses = 'flex gap-2 mt-2';
-	const statusBadgeClasses = 'text-xs font-bold uppercase tracking-wider px-2 py-1 bg-white border border-light-gray';
-	const statusBadgeProducingClasses = 'bg-primary/10 text-primary';
-	const holdingTokensClasses = 'text-center';
-	const tokensValueClasses = typography.metricValue;
-	const tokensLabelClasses = typography.labelMuted;
-	const allocationInfoClasses = typography.meta;
-	const holdingValueClasses = 'text-center';
-	const valueAmountClasses = typography.metricValue;
-	const valueLabelClasses = typography.labelMuted;
-	const costBasisClasses = typography.meta;
-	const holdingPnlClasses = 'text-center';
-	const pnlAmountClasses = typography.metricValue;
-	const pnlAmountPositiveClasses = 'text-primary';
-	const pnlAmountNegativeClasses = 'text-red-600';
-	const pnlLabelClasses = typography.labelMuted;
-	const pnlPercentClasses = typography.meta;
-	const pnlPercentPositiveClasses = 'text-primary';
-	const pnlPercentNegativeClasses = 'text-red-600';
-	const holdingPayoutClasses = 'text-center';
-	const payoutValueClasses = `${typography.metricValue} text-primary`;
-	const payoutLabelClasses = typography.labelMuted;
-	const holdingActionsClasses = 'flex items-center justify-center';
-	const manageBtnClasses = `${buttons.base} ${buttons.secondarySmall}`;
-	const mobileHoldingFooterClasses = 'border-t border-light-gray pt-4 flex justify-around text-sm';
-	const footerItemClasses = 'text-center';
-	const holdingFooterSpanClasses = 'text-black opacity-70 font-semibold';
-	const holdingFooterValueClasses = 'font-extrabold text-black';
-	const holdingFooterValuePrimaryClasses = 'text-primary font-extrabold';
-	const mobilePortfolioMetricsClasses = layouts.gridMetrics;
-	const mobileTabsContainerClasses = layouts.pageSectionAlt;
-	const mobileTabContentClasses = '';
-	const loadingMessageClasses = 'text-center py-8 text-black opacity-70';
-	const mobileQuickActionsClasses = `${layouts.pageSection} ${layouts.gridThree}`;
-	const mobileActionCardClasses = layouts.card + ' text-center';
-	const actionIconClasses = 'text-4xl mb-4';
-	const actionCardH4Classes = typography.cardTitle;
-	const actionCardPClasses = `${typography.bodyTextSmall} mb-6 opacity-70`;
-	const actionBtnClasses = `${buttons.base} inline-block`;
-	const actionBtnPrimaryClasses = buttons.primary;
-	const actionBtnClaimClasses = buttons.claim;
-	const actionBtnSecondaryClasses = buttons.secondary;
 </script>
 
 <svelte:head>
@@ -284,8 +226,8 @@
 </svelte:head>
 
 {#if !$walletStore.isConnected}
-	<main class={layouts.pageContainer}>
-		<div class="{layouts.flexCenter} min-h-[60vh] text-center p-8">
+	<main class="max-w-6xl mx-auto">
+		<div class="flex items-center justify-center min-h-[60vh] text-center p-8">
 			<div>
 				<SectionTitle level="h1" size="section" center>Wallet Connection Required</SectionTitle>
 				<p class="text-lg text-black mb-8 opacity-80">Please connect your wallet to view your portfolio.</p>
@@ -296,29 +238,29 @@
 		</div>
 	</main>
 {:else}
-<main class={layouts.pageContainer}>
+<main class="max-w-6xl mx-auto">
 	<!-- Portfolio Overview Header -->
-	<div class={layouts.pageSection}>
+	<div class="py-16 px-8 md:py-12 md:px-8">
 		<GridContainer columns={2} gap="large" className="md:grid-cols-[2fr_1fr] mb-12">
 			<div>
 				<SectionTitle level="h1" size="page">Portfolio Overview</SectionTitle>
 				
 				<GridContainer columns={3} className="md:grid-cols-4">
-					<div class={mobileMetricClasses}>
+					<div class="text-center p-6 bg-white border border-light-gray">
 						<MetricDisplay 
 							value={formatCurrency(totalPortfolioValue)} 
 							label="Total Value" 
 							note="Real-time" 
 						/>
 					</div>
-					<div class={mobileMetricClasses}>
+					<div class="text-center p-6 bg-white border border-light-gray">
 						<MetricDisplay 
 							value={formatCurrency(totalInvested)} 
 							label="Invested" 
 							note="Principal" 
 						/>
 					</div>
-					<div class={mobileMetricClasses}>
+					<div class="text-center p-6 bg-white border border-light-gray">
 						<MetricDisplay 
 							value={formatCurrency(unrealizedGains)} 
 							label="Unrealized P&L" 
@@ -326,7 +268,7 @@
 							valueColor={unrealizedGains >= 0 ? 'positive' : 'negative'}
 						/>
 					</div>
-					<div class={mobileMetricClasses}>
+					<div class="text-center p-6 bg-white border border-light-gray">
 						<MetricDisplay 
 							value={formatCurrency(portfolioMetrics.totalPayoutEarned)} 
 							label="Payout Earned" 
@@ -337,53 +279,53 @@
 				</GridContainer>
 
 				<div class="text-center mt-6">
-					<div class={typography.meta}>
+					<div class="text-xs text-black opacity-70">
 						Last updated: {getCurrentTime()}
 					</div>
-					<div class={typography.meta}>
+					<div class="text-xs text-black opacity-70">
 						Portfolio inception: Jul 2024 (6 months)
 					</div>
 				</div>
 			</div>
 
 			<!-- Quick Stats Panel -->
-			<div class={layouts.card}>
+			<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
 				<SectionTitle level="h3" size="card">Quick Stats</SectionTitle>
 				
 				<div class="flex flex-col gap-4 mb-8">
-					<div class={layouts.flexBetween}>
+					<div class="flex justify-between items-center">
 						<span class="text-black opacity-70">Average Payout</span>
-						<span class={typography.success}>{portfolioMetrics.averagePayout.toFixed(1)}%</span>
+						<span class="text-green-600 font-semibold">{portfolioMetrics.averagePayout.toFixed(1)}%</span>
 					</div>
-					<div class={layouts.flexBetween}>
+					<div class="flex justify-between items-center">
 						<span class="text-black opacity-70">Total Tokens</span>
 						<span class="font-semibold text-black">{portfolioMetrics.totalTokens.toLocaleString()}</span>
 					</div>
-					<div class={layouts.flexBetween}>
+					<div class="flex justify-between items-center">
 						<span class="text-black opacity-70">Active Assets</span>
 						<span class="font-semibold text-black">{holdings.length}</span>
 					</div>
-					<div class={layouts.flexBetween}>
+					<div class="flex justify-between items-center">
 						<span class="text-black opacity-70">Monthly Income</span>
-						<span class={typography.success}>{formatCurrency(portfolioMetrics.totalPayoutEarned / 6)}</span>
+						<span class="text-green-600 font-semibold">{formatCurrency(portfolioMetrics.totalPayoutEarned / 6)}</span>
 					</div>
 				</div>
 
 				<div class="border-t border-light-gray pt-6">
 					{#if portfolioMetrics.bestPerformer && portfolioMetrics.worstPerformer}
 						<div class="mb-4 last:mb-0">
-							<div class={layouts.flexBetween + ' mb-1'}>
+							<div class="flex justify-between items-center mb-1">
 								<span>Best Performer</span>
-								<span class={typography.metricValuePrimary}>{formatPercent(portfolioMetrics.bestPerformer.unrealizedGainPercent)}</span>
+								<span class="text-primary font-extrabold">{formatPercent(portfolioMetrics.bestPerformer.unrealizedGainPercent)}</span>
 							</div>
-							<div class={typography.labelMuted}>{portfolioMetrics.bestPerformer.name}</div>
+							<div class="text-xs font-bold text-black uppercase tracking-wider opacity-70">{portfolioMetrics.bestPerformer.name}</div>
 						</div>
 						<div class="mb-4 last:mb-0">
-							<div class={layouts.flexBetween + ' mb-1'}>
+							<div class="flex justify-between items-center mb-1">
 								<span>Worst Performer</span>
-								<span class={typography.error}>{formatPercent(portfolioMetrics.worstPerformer.unrealizedGainPercent)}</span>
+								<span class="text-red-600 font-semibold">{formatPercent(portfolioMetrics.worstPerformer.unrealizedGainPercent)}</span>
 							</div>
-							<div class={typography.labelMuted}>{portfolioMetrics.worstPerformer.name}</div>
+							<div class="text-xs font-bold text-black uppercase tracking-wider opacity-70">{portfolioMetrics.worstPerformer.name}</div>
 						</div>
 					{/if}
 				</div>
@@ -392,7 +334,7 @@
 	</div>
 
 	<!-- Portfolio Tabs -->
-	<div class={layouts.pageSectionAlt}>
+	<div class="py-16 px-8 bg-light-gray">
 		<div class="flex border-b border-light-gray mb-8">
 			<TabButton 
 				active={activeTab === 'overview'}
@@ -423,77 +365,77 @@
 		<div>
 			{#if activeTab === 'overview'}
 				<div>
-					<div class={mobileHoldingsHeaderClasses}>
+					<div class="flex justify-between items-center mb-8">
 						<SectionTitle level="h3" size="card">My Holdings</SectionTitle>
-						<div class={mobileViewControlsClasses}>
-							<button class="{viewBtnClasses} {viewBtnActiveClasses}">Value</button>
-							<button class={viewBtnClasses}>Payout</button>
-							<button class={viewBtnClasses}>Performance</button>
+						<div class="flex gap-2">
+							<button class="px-4 py-2 bg-white border border-light-gray text-xs hover:bg-light-gray bg-primary text-white border-primary">Value</button>
+							<button class="px-4 py-2 bg-white border border-light-gray text-xs hover:bg-light-gray">Payout</button>
+							<button class="px-4 py-2 bg-white border border-light-gray text-xs hover:bg-light-gray">Performance</button>
 						</div>
 					</div>
 
 					<div class="flex flex-col gap-6">
 						{#if loading}
-							<div class={loadingMessageClasses}>Loading portfolio holdings...</div>
+							<div class="text-center py-8 text-black opacity-70">Loading portfolio holdings...</div>
 						{:else}
 							{#each holdings as holding}
-								<div class={layouts.cardHover}>
-								<div class={mobileHoldingMainClasses}>
-									<div class={holdingInfoClasses}>
-										<div class={holdingIconClasses}>{holding.icon}</div>
+								<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer hover:shadow-lg hover:border-primary">
+								<div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+									<div class="flex items-start gap-4 md:col-span-2">
+										<div class="text-3xl">{holding.icon}</div>
 										<div>
-											<h4 class={holdingDetailsH4Classes}>{holding.name}</h4>
-											<div class={holdingLocationClasses}>{holding.location}</div>
-											<div class={holdingBadgesClasses}>
-												<span class="{statusBadgeClasses} {holding.status === 'producing' ? statusBadgeProducingClasses : ''}">{holding.status.toUpperCase()}</span>
+											<h4 class="text-2xl font-extrabold">{holding.name}</h4>
+											<div class="text-black opacity-70 text-sm">{holding.location}</div>
+											<div class="flex gap-2 mt-2">
+												<span class="text-xs font-bold uppercase tracking-wider px-2 py-1 bg-white border border-light-gray {holding.status === 'producing' ? 'bg-primary/10 text-primary' : ''}">{holding.status.toUpperCase()}</span>
 											</div>
 										</div>
 									</div>
 
-									<div class={holdingTokensClasses}>
-										<div class={tokensValueClasses}>{holding.tokensOwned.toLocaleString()}</div>
-										<div class={tokensLabelClasses}>Tokens</div>
-										<div class={allocationInfoClasses}>{holding.allocation}% allocation</div>
+									<div class="text-center">
+										<div class="text-3xl font-extrabold">{holding.tokensOwned.toLocaleString()}</div>
+										<div class="text-xs font-bold text-black uppercase tracking-wider opacity-70">Tokens</div>
+										<div class="text-xs text-black opacity-70">{holding.allocation}% allocation</div>
 									</div>
 
-									<div class={holdingValueClasses}>
-										<div class={valueAmountClasses}>{formatCurrency(holding.currentValue)}</div>
-										<div class={valueLabelClasses}>Current Value</div>
-										<div class={costBasisClasses}>Cost: {formatCurrency(holding.investmentAmount)}</div>
+									<div class="text-center">
+										<div class="text-3xl font-extrabold">{formatCurrency(holding.currentValue)}</div>
+										<div class="text-xs font-bold text-black uppercase tracking-wider opacity-70">Current Value</div>
+										<div class="text-xs text-black opacity-70">Cost: {formatCurrency(holding.investmentAmount)}</div>
 									</div>
 
-									<div class={holdingPnlClasses}>
-										<div class="{pnlAmountClasses} {holding.unrealizedGain >= 0 ? pnlAmountPositiveClasses : pnlAmountNegativeClasses}">
+									<div class="text-center">
+										<div class="text-3xl font-extrabold {holding.unrealizedGain >= 0 ? 'text-primary' : 'text-red-600'}">
 											{formatCurrency(holding.unrealizedGain)}
 										</div>
-										<div class={pnlLabelClasses}>Unrealized P&L</div>
-										<div class="{pnlPercentClasses} {holding.unrealizedGain >= 0 ? pnlPercentPositiveClasses : pnlPercentNegativeClasses}">
+										<div class="text-xs font-bold text-black uppercase tracking-wider opacity-70">Unrealized P&L</div>
+										<div class="text-xs text-black opacity-70 {holding.unrealizedGain >= 0 ? 'text-primary' : 'text-red-600'}">
 											{formatPercent(holding.unrealizedGainPercent)}
 										</div>
 									</div>
 
-									<div class={holdingPayoutClasses}>
-										<div class={payoutValueClasses}>{holding.currentPayout}%</div>
-										<div class={payoutLabelClasses}>Payout</div>
+									<div class="text-center">
+										<div class="text-3xl font-extrabold text-primary">{holding.currentPayout}%</div>
+										<div class="text-xs font-bold text-black uppercase tracking-wider opacity-70">Payout</div>
 									</div>
 
-									<div class={holdingActionsClasses}>
-										<button class={manageBtnClasses}>Manage</button>
+									<div class="flex items-center justify-center">
+										<button class="px-4 py-2 font-semibold text-xs uppercase tracking-wider transition-colors duration-200 bg-white text-black border border-light-gray hover:bg-light-gray">Manage</button>
 									</div>
 								</div>
 
-								<div class={mobileHoldingFooterClasses}>
-									<div class={footerItemClasses}>
-										<span class={holdingFooterSpanClasses}>Total Earned:</span>
-										<span class={holdingFooterValuePrimaryClasses}>{formatCurrency(holding.totalEarned)}</span>
+								<div class="border-t border-light-gray pt-4 flex justify-around text-sm">
+									<div class="text-center">
+										<span class="text-black opacity-70 font-semibold">Total Earned:</span>
+										<span class="text-primary font-extrabold">{formatCurrency(holding.totalEarned)}</span>
 									</div>
-									<div class={footerItemClasses}>
-										<span class={holdingFooterSpanClasses}>Last Payout:</span>
-										<span class={holdingFooterValueClasses}>{holding.lastPayout}</span>
+									<div class="text-center">
+										<span class="text-black opacity-70 font-semibold">Last Payout:</span>
+										<span class="font-extrabold text-black">{holding.lastPayout}</span>
 									</div>
-									<div class={footerItemClasses}>
-										<span class={holdingFooterSpanClasses}>Status:</span>
-										<span class={holdingFooterValuePrimaryClasses}>Active</span>
+									<div class="text-center">
+										<span class="text-black opacity-70 font-semibold">Status:</span>
+										<span class="text-primary font-extrabold">Active</span>
 									</div>
 								</div>
 								</div>
@@ -503,12 +445,12 @@
 				</div>
 			{:else if activeTab === 'performance'}
 				<div class="bg-white">
-					<div class="{layouts.flexBetween} mb-8 p-8 pb-0">
+					<div class="flex justify-between items-center mb-8 p-8 pb-0">
 						<SectionTitle level="h3" size="card">Performance Analytics</SectionTitle>
 						<div class="flex gap-2">
 							{#each ['1M', '3M', '6M', 'YTD'] as period}
 								<button 
-									class="{buttons.base} {buttons.control} text-xs {timeframe === period ? buttons.controlActive : ''}"
+									class="px-6 py-3 font-semibold text-sm uppercase tracking-wider transition-all duration-200 border-2 bg-white text-black border-light-gray hover:bg-light-gray text-xs {timeframe === period ? 'px-6 py-3 font-semibold text-sm uppercase tracking-wider transition-all duration-200 border-2 bg-secondary text-white border-secondary' : ''}"
 										on:click={() => timeframe = period}
 								>
 									{period}
@@ -518,18 +460,18 @@
 					</div>
 
 					<div class="grid grid-cols-[2fr_1fr] gap-8 p-8">
-						<div class="{layouts.card} bg-white border border-light-gray">
-							<div class="h-80 {layouts.flexCenter} text-center">
+						<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200 bg-white border border-light-gray">
+							<div class="h-80 flex items-center justify-center text-center">
 								<div class="text-center">
 									<div class="text-5xl mb-4">📈</div>
-									<div class={typography.subsectionTitle}>Portfolio Value Chart</div>
-									<div class={typography.meta}>Total value vs payout earnings over time</div>
+									<div class="text-lg font-extrabold text-black uppercase tracking-wider">Portfolio Value Chart</div>
+									<div class="text-xs text-black opacity-70">Total value vs payout earnings over time</div>
 								</div>
 							</div>
 						</div>
 
 						<div class="flex flex-col gap-6">
-							<div class={layouts.metricCard}>
+							<div class="bg-white border border-light-gray p-6 text-center">
 								<MetricDisplay 
 									value={formatPercent(portfolioMetrics.totalReturn)} 
 									label="Total Return" 
@@ -538,7 +480,7 @@
 									size="small"
 								/>
 							</div>
-							<div class={layouts.metricCard}>
+							<div class="bg-white border border-light-gray p-6 text-center">
 								<MetricDisplay 
 									value={formatPercent(portfolioMetrics.payoutReturn)} 
 									label="Payout Return" 
@@ -547,7 +489,7 @@
 									size="small"
 								/>
 							</div>
-							<div class={layouts.metricCard}>
+							<div class="bg-white border border-light-gray p-6 text-center">
 								<MetricDisplay 
 									value={dataStoreService.getPlatformStats().averagePortfolioIRR?.formatted || '16.3%'} 
 									label="Annualized IRR" 
@@ -562,8 +504,8 @@
 						<SectionTitle level="h3" size="subsection">Monthly Performance</SectionTitle>
 						<div class="grid grid-cols-6 gap-4">
 							{#each performanceData as month}
-								<div class={layouts.metricCompact}>
-									<div class={typography.label}>{month.month.split(' ')[0]}</div>
+								<div class="text-center p-4 bg-white border border-light-gray">
+									<div class="text-xs font-bold text-black uppercase tracking-wider">{month.month.split(' ')[0]}</div>
 									<div class="text-sm font-extrabold text-black mb-1">{formatCurrency(month.value)}</div>
 									<div class="text-xs text-primary font-semibold">{formatCurrency(month.payout)} payout</div>
 								</div>
@@ -574,32 +516,32 @@
 			{:else if activeTab === 'allocation'}
 				<div class="bg-white">
 					<GridContainer columns={2} className="gap-8 p-8">
-						<div class={layouts.card}>
+						<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
 							<SectionTitle level="h3" size="card">Asset Allocation</SectionTitle>
-							<div class="h-80 {layouts.flexCenter} text-center">
+							<div class="h-80 flex items-center justify-center text-center">
 								<div class="text-center">
 									<div class="text-5xl mb-4">🥧</div>
-									<div class={typography.subsectionTitle}>Portfolio Pie Chart</div>
-									<div class={typography.meta}>Asset allocation by value</div>
+									<div class="text-lg font-extrabold text-black uppercase tracking-wider">Portfolio Pie Chart</div>
+									<div class="text-xs text-black opacity-70">Asset allocation by value</div>
 								</div>
 							</div>
 						</div>
 
-						<div class={layouts.card}>
+						<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
 							<SectionTitle level="h3" size="card">Allocation Breakdown</SectionTitle>
 							<div class="flex flex-col gap-4 mb-8">
 								{#each holdings as holding}
-									<div class="{layouts.flexBetween} p-4 bg-white border border-light-gray">
+									<div class="flex justify-between items-center p-4 bg-white border border-light-gray">
 										<div class="flex items-center gap-3">
 											<div class="text-xl">{holding.icon}</div>
 											<div class="flex-1">
 												<div class="font-extrabold text-black text-sm mb-1">{holding.name}</div>
-												<div class={typography.meta}>{holding.location}</div>
+												<div class="text-xs text-black opacity-70">{holding.location}</div>
 											</div>
 										</div>
 										<div class="text-right">
-											<div class="{typography.metricValueSmall} text-primary mb-1">{holding.allocation}%</div>
-											<div class={typography.meta}>{formatCurrency(holding.currentValue)}</div>
+											<div class="text-2xl font-extrabold text-primary mb-1">{holding.allocation}%</div>
+											<div class="text-xs text-black opacity-70">{formatCurrency(holding.currentValue)}</div>
 										</div>
 									</div>
 								{/each}
@@ -620,52 +562,52 @@
 			{:else if activeTab === 'analytics'}
 				<div class="bg-white">
 					<GridContainer columns={2} className="gap-8 p-8">
-						<div class={layouts.card}>
+						<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
 							<SectionTitle level="h3" size="subsection">Performance Metrics</SectionTitle>
 							<div class="flex flex-col gap-3">
-								<div class="{layouts.flexBetween} text-sm">
+								<div class="flex justify-between items-center text-sm">
 									<span class="text-black">Portfolio Beta</span>
 									<span class="font-extrabold">0.87</span>
 								</div>
-								<div class="{layouts.flexBetween} text-sm">
+								<div class="flex justify-between items-center text-sm">
 									<span class="text-black">Volatility (30d)</span>
 									<span class="font-extrabold">3.2%</span>
 								</div>
-								<div class="{layouts.flexBetween} text-sm">
+								<div class="flex justify-between items-center text-sm">
 									<span class="text-black">Sharpe Ratio</span>
 									<span class="font-extrabold text-primary">2.14</span>
 								</div>
-								<div class="{layouts.flexBetween} text-sm">
+								<div class="flex justify-between items-center text-sm">
 									<span class="text-black">Max Drawdown</span>
 									<span class="font-extrabold text-red-600">-2.1%</span>
 								</div>
-								<div class="{layouts.flexBetween} text-sm">
+								<div class="flex justify-between items-center text-sm">
 									<span class="text-black">Correlation to Oil</span>
 									<span class="font-extrabold">0.72</span>
 								</div>
 							</div>
 						</div>
 
-						<div class={layouts.card}>
+						<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
 							<SectionTitle level="h3" size="subsection">Payout Analytics</SectionTitle>
 							<div class="flex flex-col gap-3">
-								<div class="{layouts.flexBetween} text-sm">
+								<div class="flex justify-between items-center text-sm">
 									<span class="text-black">Weighted Avg Payout</span>
 									<span class="font-extrabold text-primary">{portfolioMetrics.averagePayout.toFixed(1)}%</span>
 								</div>
-								<div class="{layouts.flexBetween} text-sm">
+								<div class="flex justify-between items-center text-sm">
 									<span class="text-black">Monthly Income</span>
 									<span class="font-extrabold text-primary">{formatCurrency(portfolioMetrics.totalPayoutEarned / 6)}</span>
 								</div>
-								<div class="{layouts.flexBetween} text-sm">
+								<div class="flex justify-between items-center text-sm">
 									<span class="text-black">Payout Consistency</span>
 									<span class="font-extrabold text-primary">94.2%</span>
 								</div>
-								<div class="{layouts.flexBetween} text-sm">
+								<div class="flex justify-between items-center text-sm">
 									<span class="text-black">Payout Frequency</span>
 									<span class="font-extrabold">Monthly</span>
 								</div>
-								<div class="{layouts.flexBetween} text-sm">
+								<div class="flex justify-between items-center text-sm">
 									<span class="text-black">Reinvestment Rate</span>
 									<span class="font-extrabold">0%</span>
 								</div>
@@ -673,14 +615,14 @@
 						</div>
 					</GridContainer>
 
-					<div class="mt-8 p-8 {layouts.card}">
+					<div class="mt-8 p-8 bg-white border border-light-gray">
 						<SectionTitle level="h3" size="subsection">Scenario Analysis</SectionTitle>
 						<div class="border border-light-gray">
 							<div class="grid grid-cols-4 gap-0 bg-white border-b border-light-gray">
-								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 {typography.label}">Oil Price Scenario</div>
-								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 {typography.label}">Portfolio Value</div>
-								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 {typography.label}">Annual Payout</div>
-								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 {typography.label}">Total Return</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 text-xs font-bold text-black uppercase tracking-wider">Oil Price Scenario</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 text-xs font-bold text-black uppercase tracking-wider">Portfolio Value</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 text-xs font-bold text-black uppercase tracking-wider">Annual Payout</div>
+								<div class="p-4 text-sm border-r border-light-gray last:border-r-0 text-xs font-bold text-black uppercase tracking-wider">Total Return</div>
 							</div>
 							<div class="grid grid-cols-4 gap-0 border-b border-light-gray last:border-b-0">
 								<div class="p-4 text-sm border-r border-light-gray last:border-r-0">Bear Case ($60/bbl)</div>
@@ -708,28 +650,28 @@
 	</div>
 
 	<!-- Quick Actions -->
-	<div class={layouts.pageSection}>
+	<div class="py-16 px-8 md:py-12 md:px-8">
 		<GridContainer columns={3}>
-			<div class="{layouts.card} text-center">
+			<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200 text-center">
 				<div class="text-4xl mb-4">➕</div>
 				<SectionTitle level="h3" size="card" center>Add Investment</SectionTitle>
-				<p class="{typography.bodyTextSmall} mb-6 opacity-70">Diversify with new assets</p>
-				<a href="/assets" class="{buttons.base} {buttons.primary} inline-block">Browse Assets</a>
+				<p class="text-sm text-black mb-6 opacity-70">Diversify with new assets</p>
+				<a href="/assets" class="px-8 py-4 no-underline font-semibold text-sm uppercase tracking-wider transition-colors duration-200 inline-block bg-black text-white hover:bg-secondary inline-block">Browse Assets</a>
 			</div>
 
-			<div class="{layouts.card} text-center">
+			<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200 text-center">
 				<div class="text-4xl mb-4">💰</div>
 				<SectionTitle level="h3" size="card" center>Claim Payouts</SectionTitle>
-				<p class="{typography.bodyTextSmall} mb-6 opacity-70">{formatCurrency(unclaimedPayout)} available</p>
-				<a href="/claims" class="{buttons.base} {buttons.claim} inline-block">Claim Now</a>
+				<p class="text-sm text-black mb-6 opacity-70">{formatCurrency(unclaimedPayout)} available</p>
+				<a href="/claims" class="px-6 py-2 font-semibold text-sm uppercase tracking-wider transition-colors duration-200 bg-primary text-white hover:bg-primary-dark inline-block">Claim Now</a>
 			</div>
 
 
-			<div class="{layouts.card} text-center">
+			<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200 text-center">
 				<div class="text-4xl mb-4">📥</div>
 				<SectionTitle level="h3" size="card" center>Export Data</SectionTitle>
-				<p class="{typography.bodyTextSmall} mb-6 opacity-70">Tax & accounting reports</p>
-				<button class="{buttons.base} {buttons.secondary}">Download</button>
+				<p class="text-sm text-black mb-6 opacity-70">Tax & accounting reports</p>
+				<button class="px-8 py-4 no-underline font-semibold text-sm uppercase tracking-wider transition-colors duration-200 inline-block bg-white text-black border border-black hover:bg-black hover:text-white">Download</button>
 			</div>
 		</GridContainer>
 	</div>

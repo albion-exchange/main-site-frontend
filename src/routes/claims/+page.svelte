@@ -13,9 +13,6 @@
 	import PrimaryButton from '$lib/components/ui/PrimaryButton.svelte';
 	import SecondaryButton from '$lib/components/ui/SecondaryButton.svelte';
 	import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
-	import { layouts, layoutPatterns } from '$lib/styles/layouts';
-	import { typography } from '$lib/styles/typography';
-	import { buttons } from '$lib/styles/buttons';
 
 	let totalEarned = 0;
 	let totalClaimed = 0;
@@ -221,11 +218,11 @@
 </svelte:head>
 
 {#if !$walletStore.isConnected && !showWalletModal}
-	<main class={layouts.pageContainer}>
-		<div class="{layouts.flexCenter} min-h-[60vh] text-center p-8">
+	<main class="max-w-6xl mx-auto">
+		<div class="flex items-center justify-center min-h-[60vh] text-center p-8">
 			<div>
-				<h1 class="{typography.sectionTitle} mb-4">Wallet Connection Required</h1>
-				<p class="{typography.bodyText} mb-8">Please connect your wallet to view and claim your payouts.</p>
+				<h1 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-4">Wallet Connection Required</h1>
+				<p class="text-base text-black leading-relaxed mb-8">Please connect your wallet to view and claim your payouts.</p>
 				<PrimaryButton on:click={() => showWalletModal = true}>
 					Connect Wallet
 				</PrimaryButton>
@@ -233,12 +230,12 @@
 		</div>
 	</main>
 {:else if $walletStore.isConnected}
-<main class={layouts.pageContainer}>
+<main class="max-w-6xl mx-auto">
 	<!-- Hero Section -->
-	<section class={layoutPatterns.heroSection}>
+	<section class="py-24 px-8 text-center bg-white border-b border-light-gray">
 		<div class="max-w-3xl mx-auto">
-			<h1 class={typography.pageTitle}>Claim Payouts</h1>
-			<p class="{typography.bodyText} text-lg mb-8">Claim your earnings from oil & gas investments and track your payout history.</p>
+			<h1 class="text-4xl md:text-5xl font-extrabold text-black uppercase tracking-tight">Claim Payouts</h1>
+			<p class="text-base text-black leading-relaxed text-lg mb-8">Claim your earnings from oil & gas investments and track your payout history.</p>
 			<div class="inline-flex items-center gap-2 text-sm font-semibold text-black uppercase tracking-wider">
 				<div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
 				<span>Live Tracking: {isAccruing ? 'Active' : 'Paused'}</span>
@@ -247,15 +244,15 @@
 	</section>
 
 	{#if loading}
-		<div class="text-center {layouts.pageSection}">
-			<p class={typography.bodyText}>Loading payout information...</p>
+		<div class="text-center py-16 px-8 md:py-12 md:px-8">
+			<p class="text-base text-black leading-relaxed">Loading payout information...</p>
 		</div>
 	{:else}
 		<!-- Success Message -->
 		{#if claimSuccess}
 			<div class="bg-light-gray border border-primary text-primary p-6 mx-8 my-8 text-center">
-				<h3 class="{typography.cardTitle} mb-2">✅ Claim Successful!</h3>
-				<p class={typography.bodyText}>Your payouts have been successfully transferred to your wallet.</p>
+				<h3 class="text-xl font-extrabold text-black uppercase tracking-wider mb-2">✅ Claim Successful!</h3>
+				<p class="text-base text-black leading-relaxed">Your payouts have been successfully transferred to your wallet.</p>
 			</div>
 		{/if}
 
@@ -283,26 +280,26 @@
 
 		<!-- Quick Claim Section -->
 		<section class="px-8 pb-12">
-			<div class="{layouts.gridTwo} bg-light-gray border border-light-gray p-8 md:p-12">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-light-gray border border-light-gray p-8 md:p-12">
 				<div>
-					<h2 class={typography.cardTitle}>Quick Claim All</h2>
+					<h2 class="text-xl font-extrabold text-black uppercase tracking-wider">Quick Claim All</h2>
 					<div class="mb-8">
 						<div class="text-4xl font-extrabold text-primary mb-2">{formatCurrency(unclaimedPayout)}</div>
-						<div class="{typography.bodyTextSmall} font-semibold">Total Available</div>
+						<div class="text-sm text-black font-semibold">Total Available</div>
 					</div>
-					<div class="{layouts.flexColumn} gap-2 text-sm">
-						<div class={layouts.flexBetween}>
+					<div class="flex flex-col gap-2 text-sm">
+						<div class="flex justify-between items-center">
 							<span class="font-semibold">Estimated Gas:</span>
 							<span class="font-extrabold">~${marketData.gasFeesEstimate.medium}</span>
 						</div>
-						<div class={layouts.flexBetween}>
+						<div class="flex justify-between items-center">
 							<span class="font-semibold">Net Amount:</span>
-							<span class={typography.metricValuePrimary}>{formatCurrency(unclaimedPayout - marketData.gasFeesEstimate.medium)}</span>
+							<span class="text-primary font-extrabold">{formatCurrency(unclaimedPayout - marketData.gasFeesEstimate.medium)}</span>
 						</div>
 					</div>
 				</div>
 				
-				<div class="{layouts.flexColumn} gap-4 justify-center">
+				<div class="flex flex-col gap-4 justify-center">
 					<PrimaryButton 
 						on:click={handleClaim}
 						disabled={claiming || unclaimedPayout <= 0}
@@ -321,19 +318,19 @@
 		</section>
 
 		<!-- Asset-by-Asset Claiming -->
-		<section class="{layouts.pageSection} bg-white">
-			<div class={layouts.flexBetween}>
+		<section class="py-16 px-8 md:py-12 md:px-8 bg-white">
+			<div class="flex justify-between items-center">
 				<SectionTitle>Claim by Asset</SectionTitle>
 				<div class="flex md:flex-row flex-col gap-4">
 					<button 
-						class="{buttons.base} {buttons.control}"
+						class="px-6 py-3 font-semibold text-sm uppercase tracking-wider transition-all duration-200 border-2 bg-white text-black border-light-gray hover:bg-light-gray"
 						on:click={handleSelectAll}
 					>
 						{selectedAssets.length === holdings.length ? 'Deselect All' : 'Select All'}
 					</button>
 					{#if selectedAssets.length > 0}
 						<button 
-							class="{buttons.base} {buttons.controlPrimary}"
+							class="px-6 py-3 font-semibold text-sm uppercase tracking-wider transition-all duration-200 border-2 bg-primary text-white border-primary hover:bg-primary-dark"
 							on:click={handleClaim}
 							disabled={claiming}
 						>
@@ -347,9 +344,9 @@
 				</div>
 			</div>
 
-			<div class="{layouts.flexColumn} gap-4 mt-8">
+			<div class="flex flex-col gap-4 mt-8">
 				{#each holdings as holding}
-					<div class="{layouts.card} {selectedAssets.includes(holding.id) ? 'border-primary bg-light-gray' : ''}">
+					<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200 {selectedAssets.includes(holding.id) ? 'border-primary bg-light-gray' : ''}">
 						<div class="grid grid-cols-1 md:grid-cols-[auto_2fr_3fr_auto] gap-4 md:gap-8 items-center mb-4">
 							<div>
 								<input 
@@ -361,29 +358,29 @@
 							</div>
 							
 							<div>
-								<h3 class="{typography.subsectionTitle} mb-2">{holding.name}</h3>
-								<p class="{typography.meta} mb-2">{holding.location}</p>
+								<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2">{holding.name}</h3>
+								<p class="text-xs text-black opacity-70 mb-2">{holding.location}</p>
 								<StatusBadge status={holding.status} />
 							</div>
 							
-							<div class="{layouts.gridThree} text-center">
+							<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
 								<div>
-									<div class="{typography.metricValueSmall} text-primary">{formatCurrency(holding.unclaimedAmount)}</div>
-									<div class={typography.labelMuted}>Unclaimed</div>
+									<div class="text-2xl font-extrabold text-primary">{formatCurrency(holding.unclaimedAmount)}</div>
+									<div class="text-xs font-bold text-black uppercase tracking-wider opacity-70">Unclaimed</div>
 								</div>
 								<div>
-									<div class={typography.metricValueSmall}>{formatCurrency(holding.totalEarned)}</div>
-									<div class={typography.labelMuted}>Total Earned</div>
+									<div class="text-2xl font-extrabold">{formatCurrency(holding.totalEarned)}</div>
+									<div class="text-xs font-bold text-black uppercase tracking-wider opacity-70">Total Earned</div>
 								</div>
 								<div>
-									<div class={typography.metricValueSmall}>{holding.currentPayout}%</div>
-									<div class={typography.labelMuted}>Current Payout</div>
+									<div class="text-2xl font-extrabold">{holding.currentPayout}%</div>
+									<div class="text-xs font-bold text-black uppercase tracking-wider opacity-70">Current Payout</div>
 								</div>
 							</div>
 							
 							<div>
 								<button 
-									class="{buttons.base} {buttons.claim}"
+									class="px-6 py-2 font-semibold text-sm uppercase tracking-wider transition-colors duration-200 bg-primary text-white hover:bg-primary-dark"
 									on:click={() => handleAssetSelect(holding.id)}
 								>
 									Claim
@@ -392,7 +389,7 @@
 						</div>
 						
 						<div class="border-t border-light-gray pt-4">
-							<div class={typography.meta}>
+							<div class="text-xs text-black opacity-70">
 								<span>Last Payout: {formatDate(holding.lastPayout)}</span>
 							</div>
 						</div>
@@ -402,15 +399,15 @@
 		</section>
 
 		<!-- Claim Settings & History -->
-		<section class={layouts.pageSectionAlt}>
-			<div class={layouts.gridTwo}>
+		<section class="py-16 px-8 bg-light-gray">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 				<!-- Claim Settings -->
-				<div class={layouts.card}>
-					<h3 class={typography.cardTitle}>Claim Settings</h3>
+				<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
+					<h3 class="text-xl font-extrabold text-black uppercase tracking-wider">Claim Settings</h3>
 					
 					<div class="mb-8">
-						<div class="{typography.label} mb-4">Claim Method</div>
-						<div class="{layouts.flexColumn} gap-4">
+						<div class="text-xs font-bold text-black uppercase tracking-wider mb-4">Claim Method</div>
+						<div class="flex flex-col gap-4">
 							<label class="flex items-center gap-3 cursor-pointer">
 								<input 
 									type="radio" 
@@ -420,7 +417,7 @@
 								/>
 								<div class="flex-1">
 									<div class="font-extrabold text-black text-sm mb-1">Direct to Wallet</div>
-									<div class={typography.meta}>Instant transfer to connected wallet</div>
+									<div class="text-xs text-black opacity-70">Instant transfer to connected wallet</div>
 								</div>
 							</label>
 							<label class="flex items-center gap-3 cursor-pointer">
@@ -432,7 +429,7 @@
 								/>
 								<div class="flex-1">
 									<div class="font-extrabold text-black text-sm mb-1">Auto-Reinvest</div>
-									<div class={typography.meta}>Automatically purchase more tokens</div>
+									<div class="text-xs text-black opacity-70">Automatically purchase more tokens</div>
 								</div>
 							</label>
 						</div>
@@ -440,26 +437,26 @@
 				</div>
 
 				<!-- Statistics -->
-				<div class={layouts.card}>
-					<h3 class={typography.cardTitle}>Payout Statistics</h3>
+				<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
+					<h3 class="text-xl font-extrabold text-black uppercase tracking-wider">Payout Statistics</h3>
 					
-					<div class="{layouts.gridTwo} mb-6">
-						<div class={layouts.metricCompact}>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+						<div class="text-center p-4 bg-white border border-light-gray">
 							<div class="text-xl font-extrabold text-primary mb-1">{dataStoreService.getPlatformStats().averagePortfolioIRR?.formatted || '13.2%'}</div>
-							<div class={typography.labelMuted}>Avg Portfolio IRR</div>
+							<div class="text-xs font-bold text-black uppercase tracking-wider opacity-70">Avg Portfolio IRR</div>
 						</div>
-						<div class={layouts.metricCompact}>
+						<div class="text-center p-4 bg-white border border-light-gray">
 							<div class="text-xl font-extrabold text-primary mb-1">{formatCurrency(totalEarned / 12)}</div>
-							<div class={typography.labelMuted}>Avg Monthly Income</div>
+							<div class="text-xs font-bold text-black uppercase tracking-wider opacity-70">Avg Monthly Income</div>
 						</div>
 					</div>
 					
-					<div class="{layouts.flexColumn} gap-3">
-						<div class="{layouts.flexBetween} text-sm">
+					<div class="flex flex-col gap-3">
+						<div class="flex justify-between items-center text-sm">
 							<span class="opacity-70">Total Payouts This Year:</span>
 							<span class="font-extrabold">{dataStoreService.getPlatformStats().totalPayoutsThisYear?.formatted || '24'}</span>
 						</div>
-						<div class="{layouts.flexBetween} text-sm">
+						<div class="flex justify-between items-center text-sm">
 							<span class="opacity-70">Days Since Last Claim:</span>
 							<span class="font-extrabold">{dataStoreService.getPlatformStats().daysSinceLastClaim?.formatted || '3'}</span>
 						</div>
@@ -469,8 +466,8 @@
 		</section>
 
 		<!-- Claim History -->
-		<section class="{layouts.pageSection} bg-white">
-			<div class={layouts.flexBetween}>
+		<section class="py-16 px-8 md:py-12 md:px-8 bg-white">
+			<div class="flex justify-between items-center">
 				<SectionTitle>Claim History</SectionTitle>
 				<div class="flex gap-2">
 					<TabButton 
@@ -495,26 +492,26 @@
 			</div>
 			
 			<div class="border border-light-gray mt-8">
-				<div class="{layouts.tableHeader} grid-cols-1 md:grid-cols-[1fr_2fr_1fr_1.5fr_1fr]">
-					<div class="{typography.label} md:text-left text-center">Date</div>
-					<div class="{typography.label} md:text-left text-center">Asset</div>
-					<div class="{typography.label} md:text-left text-center">Amount</div>
-					<div class="{typography.label} md:text-left text-center">Transaction</div>
-					<div class="{typography.label} md:text-left text-center">Status</div>
+				<div class="grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr_1.5fr_1fr] gap-4 p-4 bg-light-gray border-b border-light-gray font-semibold text-xs uppercase tracking-wider">
+					<div class="text-xs font-bold text-black uppercase tracking-wider md:text-left text-center">Date</div>
+					<div class="text-xs font-bold text-black uppercase tracking-wider md:text-left text-center">Asset</div>
+					<div class="text-xs font-bold text-black uppercase tracking-wider md:text-left text-center">Amount</div>
+					<div class="text-xs font-bold text-black uppercase tracking-wider md:text-left text-center">Transaction</div>
+					<div class="text-xs font-bold text-black uppercase tracking-wider md:text-left text-center">Status</div>
 				</div>
 				
 				{#each claimHistory as claim}
-					<div class="{layouts.tableRow} grid-cols-1 md:grid-cols-[1fr_2fr_1fr_1.5fr_1fr]">
-						<div class="{typography.bodyTextSmall} md:text-left text-center">{formatDate(claim.date)}</div>
+					<div class="grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr_1.5fr_1fr] gap-4 p-4 border-b border-light-gray hover:bg-light-gray transition-colors duration-200">
+						<div class="text-sm text-black md:text-left text-center">{formatDate(claim.date)}</div>
 						<div class="md:text-left text-center">
-							<div class="font-extrabold {typography.bodyTextSmall}">{claim.asset}</div>
+							<div class="font-extrabold text-sm text-black">{claim.asset}</div>
 						</div>
-						<div class="{typography.bodyTextSmall} {typography.metricValuePrimary} md:text-left text-center">{formatCurrency(claim.amount)}</div>
+						<div class="text-sm text-black text-primary font-extrabold md:text-left text-center">{formatCurrency(claim.amount)}</div>
 						<div class="md:text-left text-center">
-							<div class="font-mono {typography.meta}">{claim.txHash}</div>
+							<div class="font-mono text-xs text-black">{claim.txHash}</div>
 						</div>
 						<div class="md:text-left text-center">
-							<span class="{typography.success} text-xs">✓ Completed</span>
+							<span class="text-green-600 font-semibold text-xs">✓ Completed</span>
 						</div>
 					</div>
 				{/each}

@@ -9,9 +9,6 @@
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
 	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
 	import GridContainer from '$lib/components/ui/GridContainer.svelte';
-	import { typography } from '$lib/styles/typography';
-	import { layouts } from '$lib/styles/layouts';
-	import { buttons } from '$lib/styles/buttons';
 	import marketData from '$lib/data/marketData.json';
 
 	let platformStats = {
@@ -139,13 +136,13 @@
 	<!-- Hero Section -->
 	<section class="py-24 px-8 text-center bg-white border-b border-light-gray">
 		<div class="max-w-4xl mx-auto">
-			<h1 class="md:text-5xl text-4xl font-extrabold mb-6 text-black uppercase tracking-tight leading-tight">Institutional Grade Oil & Gas DeFi</h1>
+			<h1 class="text-4xl md:text-5xl font-extrabold text-black uppercase tracking-tight mb-6">Institutional Grade Oil & Gas DeFi</h1>
 			<p class="text-xl leading-relaxed text-black max-w-3xl mx-auto mb-8">Real-world energy assets. Tokenized ownership. Transparent operations.<br>
 			Access institutional-quality oil & gas investments through blockchain technology.</p>
 		</div>
 		
 		<!-- Platform Stats -->
-		<div class="grid md:grid-cols-3 grid-cols-1 gap-6 max-w-4xl mx-auto mb-8">
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-4xl mx-auto mb-8">
 			{#if loading}
 				<div class="text-center p-6 bg-white">
 					<MetricDisplay
@@ -200,7 +197,7 @@
 		</div>
 
 		<!-- CTA Buttons -->
-		<div class="flex md:flex-row flex-col gap-4 justify-center items-center">
+		<div class="flex items-center justify-center flex-col md:flex-row gap-4">
 			<PrimaryButton href="/assets">Explore Investments</PrimaryButton>
 			<SecondaryButton href="/about">Learn How It Works</SecondaryButton>
 		</div>
@@ -216,27 +213,27 @@
 	</section>
 
 	<!-- How It Works -->
-	<section class="{layouts.pageSectionAlt} py-8 md:py-16 text-center">
-		<div class="{layouts.pageContainer} px-4 md:px-8">
+	<section class="py-16 px-8 bg-light-gray py-8 md:py-16 text-center">
+		<div class="max-w-6xl mx-auto px-4 md:px-8">
 			<SectionTitle level="h2" size="section" center className="mb-8 md:mb-12">How It Works</SectionTitle>
 			
 			<GridContainer columns={3} gap="large">
 				<div class="text-center">
 					<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">1</div>
-					<h3 class="{typography.subsectionTitle} mb-4">Browse Assets</h3>
-					<p class="{typography.bodyTextSmall}">Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
+					<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Browse Assets</h3>
+					<p class="text-sm text-black">Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
 				</div>
 				
 				<div class="text-center">
 					<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">2</div>
-					<h3 class="{typography.subsectionTitle} mb-4">Buy Tokens</h3>
-					<p class="{typography.bodyTextSmall}">Purchase royalty tokens using our smart payment system with automatic collateral management and instant settlement.</p>
+					<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Buy Tokens</h3>
+					<p class="text-sm text-black">Purchase royalty tokens using our smart payment system with automatic collateral management and instant settlement.</p>
 				</div>
 				
 				<div class="text-center">
 					<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">3</div>
-					<h3 class="{typography.subsectionTitle} mb-4">Earn Payout</h3>
-					<p class="{typography.bodyTextSmall}">Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
+					<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Earn Payout</h3>
+					<p class="text-sm text-black">Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
 				</div>
 			</GridContainer>
 		</div>
@@ -244,21 +241,21 @@
 
 	<!-- Trust Indicators -->
 	<section class="py-8 md:py-16 text-center">
-		<div class="{layouts.pageContainer} px-4 md:px-8">
+		<div class="max-w-6xl mx-auto px-4 md:px-8">
 			<SectionTitle level="h2" size="section" center className="mb-8 md:mb-12">Why Choose Albion</SectionTitle>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-			<div class="flex flex-col items-center">
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+			<div class="flex flex-col items-center text-center">
 				<div class="mb-6 text-black flex items-center justify-center w-16 h-16 relative">
 					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M24 2L30 14H42L32 22L36 34L24 26L12 34L16 22L6 14H18L24 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
 						<circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="2"/>
 					</svg>
 				</div>
-				<h3 class="{typography.subsectionTitle} mb-2 text-sm md:text-base">SEC Compliant</h3>
-				<p class="{typography.meta}">Full regulatory compliance</p>
+				<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2 text-sm md:text-base">SEC Compliant</h3>
+				<p class="text-xs text-black opacity-70">Full regulatory compliance</p>
 			</div>
 			
-			<div class="flex flex-col items-center">
+			<div class="flex flex-col items-center text-center">
 				<div class="mb-6 text-black flex items-center justify-center w-16 h-16 relative">
 					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M20 28L28 20M20 28L16 32L20 28ZM28 20L32 16L28 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -266,11 +263,11 @@
 						<path d="M15 24C15 24 18 30 24 30C30 30 33 24 33 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 					</svg>
 				</div>
-				<h3 class="{typography.subsectionTitle} mb-2 text-sm md:text-base">Audited Assets</h3>
-				<p class="{typography.meta}">Third-party verified</p>
+				<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2 text-sm md:text-base">Audited Assets</h3>
+				<p class="text-xs text-black opacity-70">Third-party verified</p>
 			</div>
 			
-			<div class="flex flex-col items-center">
+			<div class="flex flex-col items-center text-center">
 				<div class="mb-6 text-black flex items-center justify-center w-16 h-16 relative">
 					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<rect x="8" y="12" width="32" height="28" stroke="currentColor" stroke-width="2"/>
@@ -279,11 +276,11 @@
 						<path d="M16 28H24M16 32H32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 					</svg>
 				</div>
-				<h3 class="{typography.subsectionTitle} mb-2 text-sm md:text-base">Institutional Grade</h3>
-				<p class="{typography.meta}">Professional operators</p>
+				<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2 text-sm md:text-base">Institutional Grade</h3>
+				<p class="text-xs text-black opacity-70">Professional operators</p>
 			</div>
 			
-			<div class="flex flex-col items-center">
+			<div class="flex flex-col items-center text-center">
 				<div class="mb-6 text-black flex items-center justify-center w-16 h-16 relative">
 					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
@@ -292,8 +289,8 @@
 						<path d="M12 28L16 24L20 26L28 20L36 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
 				</div>
-				<h3 class="{typography.subsectionTitle} mb-2 text-sm md:text-base">Transparent</h3>
-				<p class="{typography.meta}">Real-time reporting</p>
+				<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2 text-sm md:text-base">Transparent</h3>
+				<p class="text-xs text-black opacity-70">Real-time reporting</p>
 			</div>
 		</div>
 		</div>
@@ -301,21 +298,21 @@
 
 	<!-- Market Insights -->
 	<section class="py-8 md:py-16 bg-secondary text-white hidden md:block">
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 {layouts.pageContainer} items-center px-8">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 max-w-6xl mx-auto items-center px-8">
 			<div class="space-y-6">
 				<h3 class="text-3xl font-extrabold mb-6 text-white">Market Indicators</h3>
 				<div class="flex flex-col gap-4">
-					<div class="{layouts.flexBetween} font-semibold">
+					<div class="flex justify-between items-center font-semibold">
 						<span>WTI Crude Oil</span>
-						<span class="{typography.metricValuePrimary}">${marketData.oilPrices.wti.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.wti.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.wti.change >= 0 ? '+' : ''}{marketData.oilPrices.wti.change}%</span></span>
+						<span class="text-primary font-extrabold">${marketData.oilPrices.wti.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.wti.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.wti.change >= 0 ? '+' : ''}{marketData.oilPrices.wti.change}%</span></span>
 					</div>
-					<div class="{layouts.flexBetween} font-semibold">
+					<div class="flex justify-between items-center font-semibold">
 						<span>Brent Crude</span>
-						<span class="{typography.metricValuePrimary}">${marketData.oilPrices.brent.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.brent.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.brent.change >= 0 ? '+' : ''}{marketData.oilPrices.brent.change}%</span></span>
+						<span class="text-primary font-extrabold">${marketData.oilPrices.brent.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.brent.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.brent.change >= 0 ? '+' : ''}{marketData.oilPrices.brent.change}%</span></span>
 					</div>
-					<div class="{layouts.flexBetween} font-semibold">
+					<div class="flex justify-between items-center font-semibold">
 						<span>Natural Gas</span>
-						<span class="{typography.metricValuePrimary}">${marketData.oilPrices.naturalGas.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.naturalGas.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.naturalGas.change >= 0 ? '+' : ''}{marketData.oilPrices.naturalGas.change}%</span></span>
+						<span class="text-primary font-extrabold">${marketData.oilPrices.naturalGas.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.naturalGas.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.naturalGas.change >= 0 ? '+' : ''}{marketData.oilPrices.naturalGas.change}%</span></span>
 					</div>
 				</div>
 			</div>

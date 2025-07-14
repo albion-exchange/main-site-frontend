@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import { buttons } from '$lib/styles/buttons';
 	
 	export let active = false;
 	export let variant: 'default' | 'primary' = 'default';
@@ -10,9 +9,10 @@
 	const dispatch = createEventDispatcher();
 	
 	$: sizeClasses = size === 'small' ? 'px-4 py-2 text-xs' : 'px-6 py-3 text-sm';
-	$: variantClasses = variant === 'primary' ? buttons.controlPrimary : buttons.control;
-	$: activeClasses = active && variant === 'default' ? buttons.controlActive : '';
-	$: classes = `${buttons.base} ${variantClasses} ${activeClasses} ${sizeClasses} ${disabled ? buttons.disabled : ''}`;
+	$: variantClasses = variant === 'primary' ? 'bg-primary text-white border-primary hover:bg-secondary hover:border-secondary' : 'px-6 py-3 font-semibold text-sm uppercase tracking-wider transition-all duration-200 border-2 bg-white text-black border-light-gray hover:bg-light-gray';
+	$: activeClasses = active && variant === 'default' ? 'px-6 py-3 font-semibold text-sm uppercase tracking-wider transition-all duration-200 border-2 bg-secondary text-white border-secondary' : '';
+	$: disabledClasses = disabled ? 'opacity-50 cursor-not-allowed' : '';
+	$: classes = `${variantClasses} ${activeClasses} ${sizeClasses} ${disabledClasses}`.trim();
 </script>
 
 <button
