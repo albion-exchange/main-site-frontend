@@ -136,8 +136,8 @@
 	<!-- Hero Section -->
 	<section class="py-24 px-8 text-center bg-white border-b border-light-gray">
 		<div class="max-w-4xl mx-auto">
-			<h1 class="text-4xl md:text-5xl font-extrabold text-black uppercase tracking-tight mb-6">Institutional Grade Oil & Gas DeFi</h1>
-			<p class="text-xl leading-relaxed text-black max-w-3xl mx-auto mb-8">Real-world energy assets. Tokenized ownership. Transparent operations.<br>
+			<h1 class="text-4xl md:text-5xl font-extrabold text-black uppercase tracking-tight mb-6 font-figtree">Institutional Grade Oil & Gas DeFi</h1>
+			<p class="text-lg md:text-xl leading-relaxed text-black max-w-3xl mx-auto mb-8 font-figtree">Real-world energy assets. Tokenized ownership. Transparent operations.<br>
 			Access institutional-quality oil & gas investments through blockchain technology.</p>
 		</div>
 		

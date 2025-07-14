@@ -480,12 +480,12 @@
 										{/each}
 										
 										<!-- Y-axis labels (Production in BOE) -->
-										<text x="70" y="55" text-anchor="end" font-size="12" fill="#000000">{Math.round(maxProduction)}</text>
-										<text x="70" y="95" text-anchor="end" font-size="12" fill="#000000">{Math.round(maxProduction * 0.8)}</text>
-										<text x="70" y="135" text-anchor="end" font-size="12" fill="#000000">{Math.round(maxProduction * 0.6)}</text>
-										<text x="70" y="175" text-anchor="end" font-size="12" fill="#000000">{Math.round(maxProduction * 0.4)}</text>
-										<text x="70" y="215" text-anchor="end" font-size="12" fill="#000000">{Math.round(maxProduction * 0.2)}</text>
-										<text x="70" y="255" text-anchor="end" font-size="12" fill="#000000">0</text>
+										<text x="70" y="55" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction)}</text>
+										<text x="70" y="95" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.8)}</text>
+										<text x="70" y="135" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.6)}</text>
+										<text x="70" y="175" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.4)}</text>
+										<text x="70" y="215" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.2)}</text>
+										<text x="70" y="255" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">0</text>
 										
 										<!-- X-axis labels (Months and years from real data) -->
 										{#each productionReports as report, i}
@@ -493,9 +493,9 @@
 											{@const monthLabel = date.toLocaleDateString('en-US', { month: 'short' })}
 											{@const year = date.getFullYear()}
 											{@const showYear = i === 0 || date.getMonth() === 0 || (i > 0 && new Date(productionReports[i-1].month + '-01').getFullYear() !== year)}
-											<text x={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y="270" text-anchor="middle" font-size="11" fill="#000000">{monthLabel}</text>
+											<text x={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y="270" text-anchor="middle" font-size="14" fill="#000000" font-family="Figtree" font-weight="medium">{monthLabel}</text>
 											{#if showYear}
-												<text x={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y="285" text-anchor="middle" font-size="10" fill="#666666" font-weight="bold">{year}</text>
+												<text x={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y="285" text-anchor="middle" font-size="12" fill="#666666" font-weight="bold" font-family="Figtree">{year}</text>
 											{/if}
 										{/each}
 										
@@ -527,20 +527,20 @@
 												stroke-width="2"
 											/>
 											<!-- Value label near point -->
-											<text x={x} y={y - 10} text-anchor="middle" font-size="10" fill="#000000" font-weight="semibold">
+											<text x={x} y={y - 10} text-anchor="middle" font-size="12" fill="#000000" font-weight="semibold" font-family="Figtree">
 												{Math.round(report.production)}
 											</text>
 										{/each}
 										
 										<!-- Chart title -->
-										<text x="400" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#000000">Production History</text>
+										<text x="400" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#000000" font-family="Figtree">Production History</text>
 										
 										<!-- Legend -->
 										<rect x="580" y="60" width="150" height="40" fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
 										<line x1="590" y1="70" x2="610" y2="70" stroke="#08bccc" stroke-width="3"/>
-										<text x="615" y="75" font-size="11" fill="#000000">Production Rate</text>
+										<text x="615" y="75" font-size="13" fill="#000000" font-family="Figtree" font-weight="medium">Production Rate</text>
 										<circle cx="600" cy="85" r="3" fill="#283c84"/>
-										<text x="615" y="90" font-size="11" fill="#000000">Monthly Data</text>
+										<text x="615" y="90" font-size="13" fill="#000000" font-family="Figtree" font-weight="medium">Monthly Data</text>
 									</svg>
 								</div>
 							</div>
@@ -593,12 +593,12 @@
 										{/each}
 										
 										<!-- Y-axis labels (Revenue amounts) -->
-										<text x="70" y="55" text-anchor="end" font-size="12" fill="#000000">${Math.round(maxRevenue)}</text>
-										<text x="70" y="95" text-anchor="end" font-size="12" fill="#000000">${Math.round(maxRevenue * 0.8)}</text>
-										<text x="70" y="135" text-anchor="end" font-size="12" fill="#000000">${Math.round(maxRevenue * 0.6)}</text>
-										<text x="70" y="175" text-anchor="end" font-size="12" fill="#000000">${Math.round(maxRevenue * 0.4)}</text>
-										<text x="70" y="215" text-anchor="end" font-size="12" fill="#000000">${Math.round(maxRevenue * 0.2)}</text>
-										<text x="70" y="255" text-anchor="end" font-size="12" fill="#000000">$0</text>
+										<text x="70" y="55" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue)}</text>
+										<text x="70" y="95" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.8)}</text>
+										<text x="70" y="135" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.6)}</text>
+										<text x="70" y="175" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.4)}</text>
+										<text x="70" y="215" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.2)}</text>
+										<text x="70" y="255" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">$0</text>
 										
 										<!-- X-axis labels (Months and years from monthly reports) -->
 										{#each monthlyReports as report, i}
@@ -606,9 +606,9 @@
 											{@const monthLabel = date.toLocaleDateString('en-US', { month: 'short' })}
 											{@const year = date.getFullYear()}
 											{@const showYear = i === 0 || date.getMonth() === 0 || (i > 0 && new Date(monthlyReports[i-1].month + '-01').getFullYear() !== year)}
-											<text x={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y="270" text-anchor="middle" font-size="11" fill="#000000">{monthLabel}</text>
+											<text x={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y="270" text-anchor="middle" font-size="14" fill="#000000" font-family="Figtree" font-weight="medium">{monthLabel}</text>
 											{#if showYear}
-												<text x={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y="285" text-anchor="middle" font-size="10" fill="#666666" font-weight="bold">{year}</text>
+												<text x={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y="285" text-anchor="middle" font-size="12" fill="#666666" font-weight="bold" font-family="Figtree">{year}</text>
 											{/if}
 										{/each}
 										
@@ -629,13 +629,13 @@
 												rx="2"
 											/>
 											<!-- Value label on top of bar -->
-											<text x={x + barWidth / 2} y={y - 5} text-anchor="middle" font-size="10" fill="#000000" font-weight="semibold">
+											<text x={x + barWidth / 2} y={y - 5} text-anchor="middle" font-size="12" fill="#000000" font-weight="semibold" font-family="Figtree">
 												${Math.round(report.revenue)}
 											</text>
 										{/each}
 										
 										<!-- Chart title -->
-										<text x="400" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#000000">Past Payments</text>
+										<text x="400" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#000000" font-family="Figtree">Past Payments</text>
 									</svg>
 								</div>
 							</div>
@@ -802,30 +802,34 @@
 								<div class="relative preserve-3d transform-gpu transition-transform duration-500 {isFlipped ? 'rotate-y-180' : ''}" style="min-height: 600px;">
 									<!-- Front of card -->
 									<div class="absolute inset-0 backface-hidden">
+										<!-- Full width availability banner -->
+										<div class="{!hasAvailableSupply ? 'text-base font-extrabold text-white bg-black text-center py-3 uppercase tracking-wider' : 'text-base font-extrabold text-black bg-primary text-center py-3 uppercase tracking-wider'} w-full">
+											{hasAvailableSupply ? 'Available for Purchase' : 'Currently Sold Out'}
+										</div>
+										
 										<div class="p-8 pb-0 relative">
-										<div class="flex-1">
-											<h4 class="text-xl font-extrabold mb-2 text-black">{token.name}</h4>
-											<p class="text-xs text-secondary font-medium break-all tracking-tight opacity-80">{token.contractAddress}</p>
+											<!-- % of Asset tag in top left -->
+											<div class="text-sm font-extrabold text-white bg-secondary px-4 py-2 uppercase tracking-wider inline-block rounded absolute top-0 left-8 -mt-6">
+												{token.sharePercentage || 25}% of Asset
+											</div>
+											
+											<div class="flex-1 mt-6">
+												<h4 class="text-2xl font-extrabold mb-3 text-black font-figtree uppercase tracking-wider">{token.name}</h4>
+												<p class="text-sm text-secondary font-medium break-all tracking-tight opacity-80 font-figtree">{token.contractAddress}</p>
+											</div>
 										</div>
-										<div class="{!hasAvailableSupply ? 'text-xs font-extrabold text-white bg-black px-3 py-1.5 uppercase tracking-wider rounded' : 'text-xs font-extrabold text-black bg-primary px-3 py-1.5 uppercase tracking-wider rounded'} absolute top-8 right-8">
-											{hasAvailableSupply ? 'Available' : 'Sold Out'}
-										</div>
-										<div class="text-xs font-extrabold text-white bg-secondary px-3 py-2 uppercase tracking-wider inline-block mt-4 rounded">
-											{token.sharePercentage || 25}% of Asset
-										</div>
-									</div>
 							
 									<div class="p-8 pt-6 space-y-4">
 										<div class="flex justify-between items-start">
-											<span class="text-sm font-medium text-black opacity-70 relative">Minted Supply</span>
-											<span class="text-sm font-extrabold text-black text-right">{supply?.mintedSupply.toLocaleString() || '0'}</span>
+											<span class="text-base font-medium text-black opacity-70 relative font-figtree">Minted Supply</span>
+											<span class="text-base font-extrabold text-black text-right font-figtree">{supply?.mintedSupply.toLocaleString() || '0'}</span>
 										</div>
 										<div class="flex justify-between items-start">
-											<span class="text-sm font-medium text-black opacity-70 relative">Max Supply</span>
-											<span class="text-sm font-extrabold text-black text-right">{supply?.maxSupply.toLocaleString() || '0'}</span>
+											<span class="text-base font-medium text-black opacity-70 relative font-figtree">Max Supply</span>
+											<span class="text-base font-extrabold text-black text-right font-figtree">{supply?.maxSupply.toLocaleString() || '0'}</span>
 										</div>
 										<div class="flex justify-between items-start relative">
-											<span class="text-sm font-medium text-black opacity-70 relative">
+											<span class="text-base font-medium text-black opacity-70 relative font-figtree">
 												Implied Barrels/Token
 												<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100" 
 													on:mouseenter={() => showTooltipWithDelay('barrels')}

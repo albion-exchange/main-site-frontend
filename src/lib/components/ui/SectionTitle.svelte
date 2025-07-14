@@ -6,10 +6,10 @@
 	export let className = '';
 	
 	const sizeClasses = {
-		page: 'text-4xl font-extrabold text-black mb-8',
-		section: 'text-3xl font-extrabold text-black mb-6',
-		card: 'text-xl font-extrabold text-black mb-4',
-		subsection: 'text-lg font-extrabold text-black uppercase tracking-wider',
+		page: 'text-3xl md:text-4xl font-extrabold text-black mb-8 font-figtree uppercase tracking-tight',
+		section: 'text-2xl md:text-3xl font-extrabold text-black mb-6 font-figtree uppercase tracking-wider',
+		card: 'text-xl md:text-2xl font-extrabold text-black mb-4 font-figtree uppercase tracking-wider',
+		subsection: 'text-lg md:text-xl font-extrabold text-black uppercase tracking-wider font-figtree',
 	};
 	
 	$: classes = `${sizeClasses[size]} ${center ? 'text-center' : ''} ${className}`;

@@ -67,7 +67,7 @@
 	<!-- Header Section -->
 	<section class="py-16 px-8 md:py-12 md:px-8 text-center">
 		<SectionTitle level="h1" size="page">Available Assets</SectionTitle>
-		<p class="text-base text-black leading-relaxed mt-4">Discover tokenized oil field investments</p>
+		<p class="text-2xl md:text-3xl text-black leading-relaxed mt-6 font-figtree">Discover tokenized oil field investments</p>
 	</section>
 
 	{#if loading}

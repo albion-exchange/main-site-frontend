@@ -464,8 +464,8 @@
 							<div class="h-80 flex items-center justify-center text-center">
 								<div class="text-center">
 									<div class="text-5xl mb-4">📈</div>
-									<div class="text-lg font-extrabold text-black uppercase tracking-wider">Portfolio Value Chart</div>
-									<div class="text-xs text-black opacity-70">Total value vs payout earnings over time</div>
+									<div class="text-2xl font-extrabold text-black uppercase tracking-wider font-figtree">Portfolio Value Chart</div>
+									<div class="text-base text-black opacity-70 font-figtree">Total value vs payout earnings over time</div>
 								</div>
 							</div>
 						</div>

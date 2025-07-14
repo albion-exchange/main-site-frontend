@@ -27,7 +27,7 @@
 	<section class="py-24 px-8 text-center bg-white">
 		<div class="max-w-6xl mx-auto">
 			<SectionTitle level="h1" size="page" center>About Albion</SectionTitle>
-			<p class="text-xl leading-relaxed text-black max-w-2xl mx-auto">Revolutionizing energy investment through blockchain technology and institutional-grade asset tokenization.</p>
+			<p class="text-xl leading-relaxed text-black max-w-3xl mx-auto font-figtree">Revolutionizing energy investment through blockchain technology and institutional-grade asset tokenization.</p>
 		</div>
 	</section>
 

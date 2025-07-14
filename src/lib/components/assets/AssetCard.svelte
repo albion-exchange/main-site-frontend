@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import type { Asset } from '$lib/types/dataStore';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/ui';
@@ -8,6 +8,41 @@
 	export let asset: Asset;
 	
 	const dispatch = createEventDispatcher();
+	
+	// Scroll state management
+	let scrollContainer: HTMLDivElement;
+	let canScrollUp = false;
+	let canScrollDown = false;
+	
+	function checkScrollPosition() {
+		if (!scrollContainer) return;
+		
+		const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+		
+		// Check if we can scroll up (not at top)
+		canScrollUp = scrollTop > 0;
+		
+		// Check if we can scroll down (not at bottom)
+		// Adding a small threshold (2px) to account for rounding errors
+		canScrollDown = scrollTop + clientHeight < scrollHeight - 2;
+	}
+	
+	function handleScroll() {
+		checkScrollPosition();
+	}
+	
+	onMount(() => {
+		// Initial check after a small delay to ensure DOM is ready
+		setTimeout(checkScrollPosition, 100);
+	});
+	
+	// Re-check scroll position when available tokens change
+	$: if (scrollContainer && hasAvailableTokens) {
+		// Use requestAnimationFrame to ensure DOM is updated
+		requestAnimationFrame(() => {
+			checkScrollPosition();
+		});
+	}
 
 	// Use asset data directly from the data store
 	$: latestReport = asset.monthlyReports[asset.monthlyReports.length - 1] || null;
@@ -57,53 +92,53 @@
 	// Tailwind class mappings
 	$: highlightedStatsClasses = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-4 p-4 bg-white rounded-lg';
 	$: highlightStatClasses = 'flex flex-col items-center text-center';
-	$: highlightValueClasses = 'text-xl font-bold text-secondary mb-1';
-	$: highlightLabelClasses = 'text-xs text-gray-500 uppercase font-medium tracking-wider';
+	$: highlightValueClasses = 'text-2xl font-extrabold text-secondary mb-1 font-figtree';
+	$: highlightLabelClasses = 'text-sm text-gray-500 uppercase font-medium tracking-wider font-figtree';
 	$: headerClasses = 'mb-4';
 	$: headerMainClasses = 'flex justify-between items-start gap-4';
 	$: nameLocationClasses = 'flex-1';
 	$: operatorClasses = 'flex flex-col items-end text-right';
-	$: operatorLabelClasses = 'text-xs text-gray-500 uppercase font-medium tracking-wider mb-1';
-	$: operatorNameClasses = 'text-sm text-black font-semibold';
-	$: assetNameClasses = 'text-xl font-semibold text-black m-0 mb-2 min-h-[3.125rem] leading-tight flex items-start';
-	$: assetLocationClasses = 'text-gray-500 text-sm m-0';
-	$: assetDescriptionClasses = 'text-gray-700 text-sm leading-relaxed m-0 mb-6 line-clamp-3 min-h-[4.5rem]';
+	$: operatorLabelClasses = 'text-sm text-gray-500 uppercase font-medium tracking-wider mb-1 font-figtree';
+	$: operatorNameClasses = 'text-base text-black font-extrabold font-figtree';
+	$: assetNameClasses = 'text-lg font-extrabold text-black m-0 mb-2 min-h-[3.125rem] leading-tight flex items-start uppercase tracking-wider font-figtree';
+	$: assetLocationClasses = 'text-gray-500 text-base m-0 font-figtree';
+	$: assetDescriptionClasses = 'text-gray-700 text-base leading-relaxed m-0 mb-6 line-clamp-3 min-h-[4.5rem] font-figtree';
 	$: viewDetailsSectionClasses = 'mt-6 mb-6';
 	$: tokensSectionClasses = 'my-6';
-	$: tokensTitleClasses = 'text-base font-semibold text-black m-0 mb-4 uppercase tracking-wider';
+	$: tokensTitleClasses = 'text-lg font-extrabold text-black m-0 mb-4 uppercase tracking-wider font-figtree';
 	$: tokensListClasses = 'flex flex-col gap-3';
 	$: tokensListScrollableClasses = 'flex flex-col gap-3 max-h-[13rem] overflow-y-auto pr-2 relative';
 	$: tokenButtonClasses = 'flex justify-between items-center w-full p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-gray-50';
 	$: tokenButtonLeftClasses = 'flex flex-col gap-1';
 	$: tokenButtonRightClasses = 'flex flex-col items-end gap-2';
-	$: tokenSymbolClasses = 'font-bold text-sm text-black uppercase';
-	$: tokenNameClasses = 'text-xs text-gray-500 leading-tight';
+	$: tokenSymbolClasses = 'font-extrabold text-base text-black uppercase tracking-wider font-figtree';
+	$: tokenNameClasses = 'text-sm text-gray-500 leading-tight font-figtree';
 	$: tokenPaymentDateClasses = 'text-xs text-secondary font-medium mt-1';
 	$: returnsDisplayClasses = 'flex items-center gap-2';
 	$: returnItemClasses = 'flex flex-col items-center text-center';
 	$: returnLabelClasses = 'text-xs text-gray-500 uppercase font-medium tracking-wider';
-	$: returnValueClasses = 'text-base text-primary font-bold';
-	$: returnValueBonusClasses = 'text-base text-primary font-bold';
+	$: returnValueClasses = 'text-lg text-primary font-extrabold font-figtree';
+	$: returnValueBonusClasses = 'text-lg text-primary font-extrabold font-figtree';
 	$: returnDividerClasses = 'text-sm text-gray-500 font-medium mx-1';
-	$: buyCtaClasses = 'text-sm font-bold text-black uppercase tracking-wider';
+	$: buyCtaClasses = 'text-base font-extrabold text-black uppercase tracking-wider font-figtree';
 	
 	// Mobile responsive classes using Tailwind
-	$: mobileHighlightedStatsClasses = 'grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 my-3 md:my-4 p-3 md:p-4 bg-white rounded-lg';
-	$: mobileHighlightValueClasses = 'text-lg md:text-xl font-bold text-secondary mb-1';
-	$: mobileHighlightLabelClasses = 'text-[0.7rem] md:text-xs text-gray-500 uppercase font-medium tracking-wider';
-	$: mobileAssetNameClasses = 'text-lg md:text-xl font-semibold text-black m-0 mb-2 min-h-[2.75rem] md:min-h-[3.125rem] leading-tight flex items-start';
-	$: mobileAssetDescriptionClasses = 'text-gray-700 text-xs md:text-sm leading-relaxed m-0 mb-4 md:mb-6 line-clamp-3 min-h-[4rem] md:min-h-[4.5rem]';
-	$: mobileTokensTitleClasses = 'text-sm md:text-base font-semibold text-black m-0 mb-4 uppercase tracking-wider';
+	$: mobileHighlightedStatsClasses = 'grid grid-cols-3 gap-1 md:gap-3 my-3 md:my-4 p-3 md:p-4 bg-white rounded-lg';
+	$: mobileHighlightValueClasses = 'text-xl md:text-2xl font-extrabold text-secondary mb-1 font-figtree';
+	$: mobileHighlightLabelClasses = 'text-xs md:text-sm text-gray-500 uppercase font-medium tracking-wider font-figtree';
+	$: mobileAssetNameClasses = 'text-base md:text-lg font-extrabold text-black m-0 mb-2 min-h-[2.75rem] md:min-h-[3.125rem] leading-tight flex items-start uppercase tracking-wider font-figtree';
+	$: mobileAssetDescriptionClasses = 'text-gray-700 text-sm md:text-base leading-relaxed m-0 mb-4 md:mb-6 line-clamp-3 h-[4rem] md:h-[4.5rem] font-figtree';
+	$: mobileTokensTitleClasses = 'text-base md:text-lg font-extrabold text-black m-0 mb-4 uppercase tracking-wider font-figtree';
 	$: mobileTokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 md:p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-gray-50 gap-3 sm:gap-0';
 	$: mobileTokenButtonRightClasses = 'flex flex-row sm:flex-col w-full sm:w-auto justify-between sm:justify-end items-center sm:items-end gap-2';
-	$: mobileTokenSymbolClasses = 'font-bold text-xs md:text-sm text-black uppercase';
-	$: mobileTokenNameClasses = 'text-[0.7rem] md:text-xs text-gray-500 leading-tight';
+	$: mobileTokenSymbolClasses = 'font-extrabold text-sm md:text-base text-black uppercase tracking-wider font-figtree';
+	$: mobileTokenNameClasses = 'text-xs md:text-sm text-gray-500 leading-tight font-figtree';
 	$: mobileTokenPaymentDateClasses = 'text-[0.65rem] md:text-xs text-secondary font-medium mt-1';
 	$: mobileReturnsDisplayClasses = 'flex items-center gap-1 md:gap-2';
-	$: mobileReturnValueClasses = 'text-xs md:text-base text-primary font-bold';
-	$: mobileReturnValueBonusClasses = 'text-xs md:text-base text-primary font-bold';
+	$: mobileReturnValueClasses = 'text-sm md:text-lg text-primary font-extrabold font-figtree';
+	$: mobileReturnValueBonusClasses = 'text-sm md:text-lg text-primary font-extrabold font-figtree';
 	$: mobileReturnLabelClasses = 'text-[0.55rem] md:text-xs text-gray-500 uppercase font-medium tracking-wider';
-	$: mobileBuyCtaClasses = 'text-xs md:text-sm font-bold text-black uppercase tracking-wider';
+	$: mobileBuyCtaClasses = 'text-sm md:text-base font-extrabold text-black uppercase tracking-wider font-figtree';
 	$: smallMobileHeaderMainClasses = 'flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4';
 	$: smallMobileOperatorClasses = 'flex flex-col items-start sm:items-end text-left sm:text-right';
 
@@ -130,23 +165,21 @@
 		<div class={mobileHighlightedStatsClasses}>
 			<div class={highlightStatClasses}>
 				<span class={mobileHighlightValueClasses}>{dataStoreService.getCalculatedRemainingProduction(asset.id)}</span>
-				<span class={mobileHighlightLabelClasses}>Expected Remaining</span>
+				<span class={mobileHighlightLabelClasses}>Exp. Remaining</span>
 			</div>
 			<div class={highlightStatClasses}>
 				<span class={mobileHighlightValueClasses}>{formatEndDate(asset.technical.expectedEndDate)}</span>
-				<span class={mobileHighlightLabelClasses}>Expected End Date</span>
+				<span class={mobileHighlightLabelClasses}>End Date</span>
 			</div>
 			{#if latestReport}
 				<div class={highlightStatClasses}>
 					<span class={mobileHighlightValueClasses}>{formatCurrency(latestReport.netIncome)}</span>
-					<span class={mobileHighlightLabelClasses}>Latest Payment</span>
+					<span class={mobileHighlightLabelClasses}>Last Payment</span>
 				</div>
 			{/if}
 		</div>
 		
 		<p class={mobileAssetDescriptionClasses}>{asset.description}</p>
-		
-		<div class="flex-grow"></div>
 		
 		<div>
 			<!-- View Details Button -->
@@ -165,7 +198,10 @@
 			<div class={tokensSectionClasses}>
 				<h4 class={mobileTokensTitleClasses}>Available Token Releases</h4>
 				<div class="relative">
-					<div class="{availableTokens.length > 2 ? tokensListScrollableClasses : tokensListClasses} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
+					<div 
+						bind:this={scrollContainer}
+						on:scroll={handleScroll}
+						class="{availableTokens.length > 2 ? tokensListScrollableClasses : tokensListClasses} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
 						{#each availableTokens as token}
 						{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
 						{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) : 0}
@@ -198,11 +234,23 @@
 					{/each}
 					</div>
 					{#if availableTokens.length > 2}
-						<div class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white via-white to-transparent pointer-events-none flex items-end justify-center pb-1">
-							<svg class="w-5 h-5 text-gray-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-							</svg>
-						</div>
+						<!-- Up arrow indicator -->
+						{#if canScrollUp}
+							<div class="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-white via-white to-transparent pointer-events-none flex items-start justify-center pt-1">
+								<svg class="w-5 h-5 text-gray-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+								</svg>
+							</div>
+						{/if}
+						
+						<!-- Down arrow indicator -->
+						{#if canScrollDown}
+							<div class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white via-white to-transparent pointer-events-none flex items-end justify-center pb-1">
+								<svg class="w-5 h-5 text-gray-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+								</svg>
+							</div>
+						{/if}
 					{/if}
 				</div>
 			</div>
