@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	
 	let formData = {
 		name: '',
@@ -49,18 +50,17 @@
 	<meta name="description" content="Get in touch with the Albion team for investment inquiries and support" />
 </svelte:head>
 
-<main class="pt-0">
+<PageLayout>
 	<!-- Hero Section -->
-	<section class="py-24 px-8 text-center bg-white border-b border-light-gray">
-		<div class="max-w-6xl mx-auto">
-			<SectionTitle level="h1" size="page" center>Contact Us</SectionTitle>
-			<p class="text-xl leading-relaxed text-black max-w-2xl mx-auto">Get in touch with our team for investment inquiries, platform support, or partnership opportunities.</p>
-		</div>
-	</section>
+	<HeroSection 
+		title="Contact Us"
+		subtitle="Get in touch with our team for investment inquiries, platform support, or partnership opportunities."
+		showBorder={true}
+	/>
 
 	<!-- Contact Form & Info -->
-	<section class="py-16 px-8 md:py-12 md:px-8">
-		<div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+	<ContentSection background="white" padding="standard">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 			<!-- Contact Form -->
 			<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200 md:p-12">
 				<SectionTitle level="h2" size="card" className="mb-8">Send us a Message</SectionTitle>
@@ -191,13 +191,13 @@
 
 			</div>
 		</div>
-	</section>
+	</ContentSection>
 
 	<!-- FAQ Section -->
-	<section class="py-16 px-8 md:py-12 md:px-8 text-center">
+	<ContentSection background="white" padding="standard" centered>
 		<SectionTitle level="h2" size="section" center className="mb-12">Frequently Asked Questions</SectionTitle>
 		
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 			<div class="bg-white p-8 text-left">
 				<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">How do I start investing?</h3>
 				<p class="text-sm text-black">Create an account, complete KYC verification, connect your wallet, and browse available assets to make your first investment.</p>
@@ -218,13 +218,13 @@
 				<p class="text-sm text-black">Secondary market trading will be available in Q2 2024. Currently, tokens can be held until asset maturity.</p>
 			</div>
 		</div>
-	</section>
+	</ContentSection>
 
 	<!-- Support Resources -->
-	<section class="py-16 px-8 bg-secondary text-white text-center">
+	<ContentSection background="secondary" padding="standard" centered>
 		<SectionTitle level="h2" size="section" center className="mb-12 text-white">Support Resources</SectionTitle>
 		
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
 			<div class="bg-white/10 border border-white/20 p-8 text-center">
 				<div class="text-5xl mb-4">📚</div>
 				<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4 text-white">Knowledge Base</h3>
@@ -246,6 +246,6 @@
 				<a href="/community" class="text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200">Join Discussion</a>
 			</div>
 		</div>
-	</section>
-</main>
+	</ContentSection>
+</PageLayout>
 

@@ -13,6 +13,7 @@
 	import PrimaryButton from '$lib/components/ui/PrimaryButton.svelte';
 	import SecondaryButton from '$lib/components/ui/SecondaryButton.svelte';
 	import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 
 	let totalEarned = 0;
 	let totalClaimed = 0;
@@ -218,8 +219,9 @@
 </svelte:head>
 
 {#if !$walletStore.isConnected && !showWalletModal}
-	<main class="max-w-6xl mx-auto">
-		<div class="flex items-center justify-center min-h-[60vh] text-center p-8">
+	<PageLayout variant="constrained">
+		<ContentSection background="white" padding="large" centered>
+			<div class="flex items-center justify-center min-h-[60vh]">
 			<div>
 				<h1 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-4">Wallet Connection Required</h1>
 				<p class="text-base text-black leading-relaxed mb-8">Please connect your wallet to view and claim your payouts.</p>
@@ -227,26 +229,27 @@
 					Connect Wallet
 				</PrimaryButton>
 			</div>
-		</div>
-	</main>
-{:else if $walletStore.isConnected}
-<main class="max-w-6xl mx-auto">
-	<!-- Hero Section -->
-	<section class="py-24 px-8 text-center bg-white border-b border-light-gray">
-		<div class="max-w-3xl mx-auto">
-			<h1 class="text-4xl md:text-5xl font-extrabold text-black uppercase tracking-tight">Claim Payouts</h1>
-			<p class="text-base text-black leading-relaxed text-lg mb-8">Claim your earnings from oil & gas investments and track your payout history.</p>
-			<div class="inline-flex items-center gap-2 text-sm font-semibold text-black uppercase tracking-wider">
-				<div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-				<span>Live Tracking: {isAccruing ? 'Active' : 'Paused'}</span>
 			</div>
+		</ContentSection>
+	</PageLayout>
+{:else if $walletStore.isConnected}
+<PageLayout variant="constrained">
+	<!-- Hero Section -->
+	<HeroSection 
+		title="Claim Payouts"
+		subtitle="Claim your earnings from oil & gas investments and track your payout history."
+		showBorder={true}
+	>
+		<div class="inline-flex items-center gap-2 text-sm font-semibold text-black uppercase tracking-wider">
+			<div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+			<span>Live Tracking: {isAccruing ? 'Active' : 'Paused'}</span>
 		</div>
-	</section>
+	</HeroSection>
 
 	{#if loading}
-		<div class="text-center py-16 px-8 md:py-12 md:px-8">
+		<ContentSection background="white" padding="standard" centered>
 			<p class="text-base text-black leading-relaxed">Loading payout information...</p>
-		</div>
+		</ContentSection>
 	{:else}
 		<!-- Success Message -->
 		{#if claimSuccess}
@@ -257,7 +260,7 @@
 		{/if}
 
 		<!-- Payout Overview -->
-		<section class="py-12 px-8">
+		<ContentSection background="white" padding="compact" maxWidth={false}>
 			<GridContainer>
 				<MetricDisplay 
 					value={formatCurrency(totalEarned)}
@@ -276,10 +279,10 @@
 					valueColor="primary"
 				/>
 			</GridContainer>
-		</section>
+		</ContentSection>
 
 		<!-- Quick Claim Section -->
-		<section class="px-8 pb-12">
+		<ContentSection background="white" padding="compact" maxWidth={false}>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-light-gray border border-light-gray p-8 md:p-12">
 				<div>
 					<h2 class="text-xl font-extrabold text-black uppercase tracking-wider">Quick Claim All</h2>
@@ -315,10 +318,10 @@
 					</SecondaryButton>
 				</div>
 			</div>
-		</section>
+		</ContentSection>
 
 		<!-- Asset-by-Asset Claiming -->
-		<section class="py-16 px-8 md:py-12 md:px-8 bg-white">
+		<ContentSection background="white" padding="standard" maxWidth={false}>
 			<div class="flex justify-between items-center">
 				<SectionTitle>Claim by Asset</SectionTitle>
 				<div class="flex md:flex-row flex-col gap-4">
@@ -396,10 +399,10 @@
 					</div>
 				{/each}
 			</div>
-		</section>
+		</ContentSection>
 
 		<!-- Claim Settings & History -->
-		<section class="py-16 px-8 bg-light-gray">
+		<ContentSection background="gray" padding="standard" maxWidth={false}>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 				<!-- Claim Settings -->
 				<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
@@ -463,10 +466,10 @@
 					</div>
 				</div>
 			</div>
-		</section>
+		</ContentSection>
 
 		<!-- Claim History -->
-		<section class="py-16 px-8 md:py-12 md:px-8 bg-white">
+		<ContentSection background="white" padding="standard" maxWidth={false}>
 			<div class="flex justify-between items-center">
 				<SectionTitle>Claim History</SectionTitle>
 				<div class="flex gap-2">
@@ -516,9 +519,9 @@
 					</div>
 				{/each}
 			</div>
-		</section>
+		</ContentSection>
 	{/if}
-</main>
+</PageLayout>
 {/if}
 
 <!-- Wallet Modal -->

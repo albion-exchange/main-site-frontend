@@ -12,6 +12,7 @@
 		PrimaryButton,
 		SecondaryButton
 	} from '$lib/components/ui';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	import { getMockPortfolioHoldings, calculatePortfolioSummary } from '$lib/utils/portfolioCalculations';
 
 	let totalPortfolioValue = 0;
@@ -226,21 +227,23 @@
 </svelte:head>
 
 {#if !$walletStore.isConnected}
-	<main class="max-w-6xl mx-auto">
-		<div class="flex items-center justify-center min-h-[60vh] text-center p-8">
-			<div>
-				<SectionTitle level="h1" size="section" center>Wallet Connection Required</SectionTitle>
-				<p class="text-lg text-black mb-8 opacity-80">Please connect your wallet to view your portfolio.</p>
-				<PrimaryButton on:click={() => showWalletModal = true}>
-					Connect Wallet
-				</PrimaryButton>
+	<PageLayout variant="constrained">
+		<ContentSection background="white" padding="large" centered>
+			<div class="flex items-center justify-center min-h-[60vh]">
+				<div>
+					<SectionTitle level="h1" size="section" center>Wallet Connection Required</SectionTitle>
+					<p class="text-lg text-black mb-8 opacity-80">Please connect your wallet to view your portfolio.</p>
+					<PrimaryButton on:click={() => showWalletModal = true}>
+						Connect Wallet
+					</PrimaryButton>
+				</div>
 			</div>
-		</div>
-	</main>
+		</ContentSection>
+	</PageLayout>
 {:else}
-<main class="max-w-6xl mx-auto">
+<PageLayout variant="constrained">
 	<!-- Portfolio Overview Header -->
-	<div class="py-16 px-8 md:py-12 md:px-8">
+	<ContentSection background="white" padding="standard" maxWidth={false}>
 		<GridContainer columns={2} gap="large" className="md:grid-cols-[2fr_1fr] mb-12">
 			<div>
 				<SectionTitle level="h1" size="page">Portfolio Overview</SectionTitle>
@@ -331,10 +334,10 @@
 				</div>
 			</div>
 		</GridContainer>
-	</div>
+	</ContentSection>
 
 	<!-- Portfolio Tabs -->
-	<div class="py-16 px-8 bg-light-gray">
+	<ContentSection background="gray" padding="standard" maxWidth={false}>
 		<div class="flex border-b border-light-gray mb-8">
 			<TabButton 
 				active={activeTab === 'overview'}
@@ -647,10 +650,10 @@
 				</div>
 			{/if}
 		</div>
-	</div>
+	</ContentSection>
 
 	<!-- Quick Actions -->
-	<div class="py-16 px-8 md:py-12 md:px-8">
+	<ContentSection background="white" padding="standard" maxWidth={false}>
 		<GridContainer columns={3}>
 			<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200 text-center">
 				<div class="text-4xl mb-4">➕</div>
@@ -674,8 +677,8 @@
 				<button class="px-8 py-4 no-underline font-semibold text-sm uppercase tracking-wider transition-colors duration-200 inline-block bg-white text-black border border-black hover:bg-black hover:text-white">Download</button>
 			</div>
 		</GridContainer>
-	</div>
-</main>
+	</ContentSection>
+</PageLayout>
 {/if}
 
 <!-- Wallet Modal -->

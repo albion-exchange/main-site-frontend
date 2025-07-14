@@ -1,6 +1,7 @@
 <script lang="ts">
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
 	import ControlButton from '$lib/components/ui/ControlButton.svelte';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	
 	let activeSection = 'terms';
 </script>
@@ -10,18 +11,17 @@
 	<meta name="description" content="Legal information, terms of service, and compliance details for Albion platform" />
 </svelte:head>
 
-<main class="pt-0">
+<PageLayout>
 	<!-- Hero Section -->
-	<section class="py-16 px-8 text-center bg-white border-b border-light-gray">
-		<div class="max-w-6xl mx-auto">
-			<h1 class="md:text-4xl text-3xl font-extrabold mb-4 text-black tracking-tight leading-tight">Legal Information</h1>
-			<p class="text-lg leading-relaxed text-black max-w-2xl mx-auto">Important legal documents and compliance information for the Albion platform.</p>
-		</div>
-	</section>
+	<HeroSection 
+		title="Legal Information"
+		subtitle="Important legal documents and compliance information for the Albion platform."
+		showBorder={true}
+	/>
 
 	<!-- Legal Navigation -->
-	<section class="bg-light-gray border-b border-light-gray px-8 py-8">
-		<div class="max-w-6xl mx-auto flex md:flex-row flex-col md:gap-4 gap-3 md:flex-wrap md:justify-center items-center">
+	<ContentSection background="gray" padding="compact" centered>
+		<div class="flex md:flex-row flex-col md:gap-4 gap-3 md:flex-wrap md:justify-center items-center">
 			<ControlButton 
 				active={activeSection === 'terms'}
 				on:click={() => activeSection = 'terms'}
@@ -47,10 +47,10 @@
 				Compliance
 			</ControlButton>
 		</div>
-	</section>
+	</ContentSection>
 
 	<!-- Legal Content -->
-	<section class="md:py-16 py-8 md:px-8 px-4 max-w-6xl mx-auto">
+	<ContentSection background="white" padding="standard">
 		{#if activeSection === 'terms'}
 			<div class="bg-white md:p-12 p-8">
 				<SectionTitle level="h2" size="section">Terms of Service</SectionTitle>
@@ -188,11 +188,10 @@
 				</div>
 			</div>
 		{/if}
-	</section>
+	</ContentSection>
 
 	<!-- Contact Section -->
-	<section class="bg-secondary text-white py-16 px-8 text-center">
-		<div class="max-w-6xl mx-auto">
+	<ContentSection background="secondary" padding="standard" centered>
 			<h2 class="text-[1.75rem] font-extrabold mb-4 text-white">Legal Questions?</h2>
 			<p class="text-lg mb-8 opacity-90">If you have questions about our legal documents or compliance procedures, please contact our legal team.</p>
 			<div class="flex flex-col gap-3 md:text-center text-left">
@@ -206,7 +205,6 @@
 					<strong class="text-white font-extrabold">Address:</strong> 123 Energy Plaza, Houston, TX 77002
 				</div>
 			</div>
-		</div>
-	</section>
-</main>
+	</ContentSection>
+</PageLayout>
 

@@ -8,6 +8,7 @@
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
 	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
 	import TabButton from '$lib/components/ui/TabButton.svelte';
+	import { PageLayout, ContentSection } from '$lib/components/layout';
 
 	let loading = true;
 	let error: string | null = null;
@@ -235,7 +236,7 @@
 	<meta name="description" content="Detailed information about {assetData?.name || 'asset'}" />
 </svelte:head>
 
-<main class="md:p-8 p-4 max-w-6xl mx-auto">
+<PageLayout variant="constrained">
 	{#if loading}
 		<div class="text-center py-16 px-8 text-black">
 			<p>Loading asset details...</p>
@@ -345,8 +346,9 @@
 
 		</div>
 
-		<!-- Tabs Navigation -->
-		<div class="bg-white border border-light-gray mb-8" id="asset-details-tabs">
+		<!-- Tabs Navigation and Content -->
+		<ContentSection background="white" padding="compact" maxWidth={false}>
+			<div class="bg-white border border-light-gray mb-8" id="asset-details-tabs">
 			<div class="flex flex-wrap border-b border-light-gray">
 				<TabButton
 					active={activeTab === 'overview'}
@@ -784,9 +786,11 @@
 				{/if}
 			</div>
 		</div>
+		</ContentSection>
 
 		<!-- Token Information Section -->
-		<div class="bg-white border border-light-gray md:p-12 p-6 mb-8" id="token-section">
+		<ContentSection background="white" padding="standard" maxWidth={false}>
+			<div class="bg-white border border-light-gray md:p-12 p-6" id="token-section">
 			<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 				{#each assetTokens as token}
@@ -1012,8 +1016,9 @@
 				{/if}
 			</div>
 		</div>
+		</ContentSection>
 	{/if}
-</main>
+</PageLayout>
 
 <!-- Token Purchase Widget -->
 {#if showPurchaseWidget}

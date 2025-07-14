@@ -3,6 +3,7 @@ export { default as Card } from './Card.svelte';
 export { default as CardImage } from './CardImage.svelte';
 export { default as CardContent } from './CardContent.svelte';
 export { default as CardActions } from './CardActions.svelte';
+export { default as IconCard } from './IconCard.svelte';
 
 // Button Components
 export { default as Button } from './Button.svelte';
@@ -28,6 +29,14 @@ export { default as Modal } from './Modal.svelte';
 export { default as GridContainer } from './GridContainer.svelte';
 export { default as DataTable } from './DataTable.svelte';
 export { default as TableRow } from './TableRow.svelte';
+export { default as ButtonGroup } from './ButtonGroup.svelte';
 
 // Typography Components
 export { default as SectionTitle } from './SectionTitle.svelte';
+export { default as Label } from './Label.svelte';
+export { default as PageHeader } from './PageHeader.svelte';
+export { default as TextBlock } from './TextBlock.svelte';
+
+// Stats Components
+export { default as StatsCard } from './StatsCard.svelte';
+export { default as DataRow } from './DataRow.svelte';

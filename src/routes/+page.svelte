@@ -5,10 +5,10 @@
 	import type { Token } from '$lib/types/dataStore';
 	import FeaturedTokenCarousel from '$lib/components/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
-	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { PrimaryButton, SecondaryButton, StatsCard, ButtonGroup } from '$lib/components/ui';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
-	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
 	import GridContainer from '$lib/components/ui/GridContainer.svelte';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	import marketData from '$lib/data/marketData.json';
 
 	let platformStats = {
@@ -132,92 +132,77 @@
 	<meta name="description" content="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality oil & gas investments through blockchain technology." />
 </svelte:head>
 
-<main class="pt-0">
+<PageLayout>
 	<!-- Hero Section -->
-	<section class="py-24 px-8 text-center bg-white border-b border-light-gray">
-		<div class="max-w-4xl mx-auto">
-			<h1 class="text-4xl md:text-5xl font-extrabold text-black uppercase tracking-tight mb-6 font-figtree">Institutional Grade Oil & Gas DeFi</h1>
-			<p class="text-lg md:text-xl leading-relaxed text-black max-w-3xl mx-auto mb-8 font-figtree">Real-world energy assets. Tokenized ownership. Transparent operations.<br>
-			Access institutional-quality oil & gas investments through blockchain technology.</p>
-		</div>
+	<HeroSection 
+		title="Institutional Grade Oil & Gas DeFi"
+		subtitle="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality oil & gas investments through blockchain technology."
+		showBorder={true}
+		showButtons={true}
+	>
 		
 		<!-- Platform Stats -->
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-4xl mx-auto mb-8">
 			{#if loading}
-				<div class="text-center p-6 bg-white">
-					<MetricDisplay
-						value="--"
-						label="Total Invested"
-						note="Loading..."
-						size="large"
-					/>
-				</div>
-				<div class="text-center p-6 bg-white">
-					<MetricDisplay
-						value="--"
-						label="Assets"
-						note="Loading..."
-						size="large"
-					/>
-				</div>
-				<div class="text-center p-6 bg-white">
-					<MetricDisplay
-						value="--"
-						label="Active Investors"
-						note="Loading..."
-						size="large"
-					/>
-				</div>
+				<StatsCard
+					title="Total Invested"
+					value="--"
+					subtitle="Loading..."
+					size="large"
+				/>
+				<StatsCard
+					title="Assets"
+					value="--"
+					subtitle="Loading..."
+					size="large"
+				/>
+				<StatsCard
+					title="Active Investors"
+					value="--"
+					subtitle="Loading..."
+					size="large"
+				/>
 			{:else}
-				<div class="text-center p-6 bg-white">
-					<MetricDisplay
-						value={`$${platformStats.totalInvested.toFixed(1)}M`}
-						label="Total Invested"
-						note={`${platformStats.monthlyGrowthRate >= 0 ? '+' : ''}${platformStats.monthlyGrowthRate.toFixed(1)}% this month`}
-						size="large"
-					/>
-				</div>
-				<div class="text-center p-6 bg-white">
-					<MetricDisplay
-						value={platformStats.totalAssets.toString()}
-						label="Assets"
-						note={`Across ${platformStats.totalRegions} regions`}
-						size="large"
-					/>
-				</div>
-				<div class="text-center p-6 bg-white">
-					<MetricDisplay
-						value={platformStats.activeInvestors.toLocaleString()}
-						label="Active Investors"
-						note="Token holders"
-						size="large"
-					/>
-				</div>
+				<StatsCard
+					title="Total Invested"
+					value={`$${platformStats.totalInvested.toFixed(1)}M`}
+					subtitle="this month"
+					trend={{ value: platformStats.monthlyGrowthRate, positive: platformStats.monthlyGrowthRate >= 0 }}
+					size="large"
+					valueColor="primary"
+				/>
+				<StatsCard
+					title="Assets"
+					value={platformStats.totalAssets.toString()}
+					subtitle={`Across ${platformStats.totalRegions} regions`}
+					size="large"
+				/>
+				<StatsCard
+					title="Active Investors"
+					value={platformStats.activeInvestors.toLocaleString()}
+					subtitle="Token holders"
+					size="large"
+				/>
 			{/if}
 		</div>
 
-		<!-- CTA Buttons -->
-		<div class="flex items-center justify-center flex-col md:flex-row gap-4">
+		<ButtonGroup centered direction="horizontal" slot="buttons">
 			<PrimaryButton href="/assets">Explore Investments</PrimaryButton>
 			<SecondaryButton href="/about">Learn How It Works</SecondaryButton>
-		</div>
-	</section>
+		</ButtonGroup>
+	</HeroSection>
 
 	<!-- Featured Tokens Carousel -->
-	<section class="py-16 px-8 bg-white">
-		<div class="max-w-6xl mx-auto text-center mb-12">
-			<SectionTitle level="h2" size="section" center>Featured Token Releases</SectionTitle>
-		</div>
-		
+	<ContentSection background="white" padding="standard" centered>
+		<SectionTitle level="h2" size="section" center className="mb-12">Featured Token Releases</SectionTitle>
 		<FeaturedTokenCarousel autoPlay={true} autoPlayInterval={6000} on:buyTokens={handleBuyTokensFromCarousel} />
-	</section>
+	</ContentSection>
 
 	<!-- How It Works -->
-	<section class="py-16 px-8 bg-light-gray py-8 md:py-16 text-center">
-		<div class="max-w-6xl mx-auto px-4 md:px-8">
-			<SectionTitle level="h2" size="section" center className="mb-8 md:mb-12">How It Works</SectionTitle>
-			
-			<GridContainer columns={3} gap="large">
+	<ContentSection background="gray" padding="standard" centered>
+		<SectionTitle level="h2" size="section" center className="mb-8 md:mb-12">How It Works</SectionTitle>
+		
+		<GridContainer columns={3} gap="large">
 				<div class="text-center">
 					<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">1</div>
 					<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Browse Assets</h3>
@@ -235,15 +220,13 @@
 					<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Earn Payout</h3>
 					<p class="text-sm text-black">Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
 				</div>
-			</GridContainer>
-		</div>
-	</section>
+		</GridContainer>
+	</ContentSection>
 
 	<!-- Trust Indicators -->
-	<section class="py-8 md:py-16 text-center">
-		<div class="max-w-6xl mx-auto px-4 md:px-8">
-			<SectionTitle level="h2" size="section" center className="mb-8 md:mb-12">Why Choose Albion</SectionTitle>
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+	<ContentSection background="white" padding="standard" centered>
+		<SectionTitle level="h2" size="section" center className="mb-8 md:mb-12">Why Choose Albion</SectionTitle>
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
 			<div class="flex flex-col items-center text-center">
 				<div class="mb-6 text-black flex items-center justify-center w-16 h-16 relative">
 					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -293,12 +276,11 @@
 				<p class="text-xs text-black opacity-70">Real-time reporting</p>
 			</div>
 		</div>
-		</div>
-	</section>
+	</ContentSection>
 
 	<!-- Market Insights -->
-	<section class="py-8 md:py-16 bg-secondary text-white hidden md:block">
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 max-w-6xl mx-auto items-center px-8">
+	<ContentSection background="secondary" padding="standard" className="hidden md:block">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 			<div class="space-y-6">
 				<h3 class="text-3xl font-extrabold mb-6 text-white">Market Indicators</h3>
 				<div class="flex flex-col gap-4">
@@ -323,9 +305,9 @@
 				<SecondaryButton href="/assets">Get Started Now</SecondaryButton>
 			</div>
 		</div>
-	</section>
+	</ContentSection>
 
-</main>
+</PageLayout>
 
 
 <!-- Token Purchase Widget -->

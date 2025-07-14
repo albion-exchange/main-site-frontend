@@ -5,6 +5,7 @@
 	import AssetCard from '$lib/components/assets/AssetCard.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
 	import { SecondaryButton, SectionTitle, Card, CardContent } from '$lib/components/ui';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 
 	let loading = true;
 	let allAssets: Asset[] = [];
@@ -63,21 +64,22 @@
 	<meta name="description" content="Browse available oil field assets for investment" />
 </svelte:head>
 
-<main class="max-w-6xl mx-auto">
+<PageLayout variant="constrained">
 	<!-- Header Section -->
-	<section class="py-16 px-8 md:py-12 md:px-8 text-center">
-		<SectionTitle level="h1" size="page">Available Assets</SectionTitle>
-		<p class="text-2xl md:text-3xl text-black leading-relaxed mt-6 font-figtree">Discover tokenized oil field investments</p>
-	</section>
+	<HeroSection 
+		title="Available Assets"
+		subtitle="Discover tokenized oil field investments"
+		showBorder={false}
+	/>
 
 	{#if loading}
 		<!-- Loading State -->
-		<div class="py-16 px-8 md:py-12 md:px-8 text-center">
+		<ContentSection background="white" padding="standard" centered>
 			<p class="text-base text-black leading-relaxed">Loading assets...</p>
-		</div>
+		</ContentSection>
 	{:else}
 		<!-- Assets Section -->
-		<section class="py-16 px-8 md:py-12 md:px-8">
+		<ContentSection background="white" padding="standard" maxWidth={false}>
 			{#if filteredAssets.length === 0 && !showSoldOutAssets}
 				<!-- No Available Assets -->
 				<Card>
@@ -121,9 +123,9 @@
 					</SecondaryButton>
 				</div>
 			{/if}
-		</section>
+		</ContentSection>
 	{/if}
-</main>
+</PageLayout>
 
 
 <!-- Token Purchase Widget -->
@@ -134,6 +136,3 @@
 	on:close={handleWidgetClose}
 />
 
-<style>
-	/* All styling handled by reusable components and utilities */
-</style>
