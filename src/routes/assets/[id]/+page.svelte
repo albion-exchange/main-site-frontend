@@ -4,7 +4,7 @@
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { Card, CardContent, PrimaryButton, SecondaryButton } from '$lib/components/ui';
-	import { getAssetCoverImage, getAssetGalleryImages } from '$lib/utils/assetImages';
+	import { getAssetCoverImage } from '$lib/utils/assetImages';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
 	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
 	import TabButton from '$lib/components/ui/TabButton.svelte';
@@ -758,16 +758,24 @@
 						</div>
 					</div>
 				{:else if activeTab === 'gallery'}
-					{@const galleryImages = getAssetGalleryImages(assetData?.id || '')}
+					{@const galleryImages = assetData?.images || []}
 					<div class="flex-1 flex flex-col">
 						<div class="grid grid-cols-1 gap-8">
 							<div class="bg-white border border-light-gray p-8">
 								<h4>Asset Gallery</h4>
 								{#if galleryImages.length > 0}
 									<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-										{#each galleryImages as image, index}
-											<div class="aspect-video overflow-hidden rounded border border-light-gray">
-												<img src={image} alt={`${assetData?.name} - Image ${index + 1}`} />
+										{#each galleryImages as image}
+											<div class="border border-light-gray rounded overflow-hidden">
+												<div class="aspect-video overflow-hidden">
+													<img src={image.url} alt={image.title} class="w-full h-full object-cover" />
+												</div>
+												<div class="p-4 bg-white">
+													<h5 class="font-bold text-black mb-1">{image.title}</h5>
+													{#if image.caption}
+														<p class="text-sm text-gray-600">{image.caption}</p>
+													{/if}
+												</div>
 											</div>
 										{/each}
 									</div>

@@ -99,7 +99,7 @@ class DataStoreService {
       id: assetId,
       name: assetMetadata.assetName,
       description: assetMetadata.asset.description,
-      images: [],
+      images: assetMetadata.galleryImages || [],
       location: {
         ...assetMetadata.asset.location,
         waterDepth: assetMetadata.asset.location.waterDepth

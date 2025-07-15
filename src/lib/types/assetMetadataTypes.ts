@@ -23,6 +23,12 @@ export enum DocumentType {
 
 type YearMonth = `${number}-${'' | '0'}${1|2|3|4|5|6|7|8|9|10|11|12}`;
 
+export interface GalleryImage {
+  title: string;
+  url: string;
+  caption?: string;
+}
+
 export interface AssetMetadata {
   contractAddress: string;
   symbol: string;
@@ -37,6 +43,7 @@ export interface AssetMetadata {
   asset: AssetData;
   documents: Document[];
   coverImage: string;
+  galleryImages: GalleryImage[];
   metadata: Metadata;
 }
 

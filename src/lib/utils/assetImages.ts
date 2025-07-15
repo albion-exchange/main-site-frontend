@@ -24,23 +24,3 @@ export const assetCoverImages: Record<string, string> = {
 export function getAssetCoverImage(assetId: string): string {
   return assetCoverImages[assetId] || europaWressleCover; // Default fallback
 }
-
-// Gallery images for each asset (empty for now - can be populated later)
-export const assetGalleryImages: Record<string, string[]> = {
-  'europa-wressle-release-1': [],
-  'bakken-horizon-field': [],
-  'permian-basin-venture': [],
-  'gulf-mexico-deep-water': [],
-  'eur-wr1': [],
-  'eur-wr2': [],
-  'eur-wr3': [],
-  'bak-hf1': [],
-  'bak-hf2': [],
-  'gom-dw1': [],
-  'per-bv1': []
-};
-
-// Function to get gallery images for an asset
-export function getAssetGalleryImages(assetId: string): string[] {
-  return assetGalleryImages[assetId] || [];
-}

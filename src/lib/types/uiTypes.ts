@@ -98,6 +98,12 @@ export interface AssetMetadata {
   updatedAt: string; // ISO date
 }
 
+export interface GalleryImage {
+  title: string;
+  url: string;
+  caption?: string;
+}
+
 /**
  * Complete Asset data structure for the static data store
  */
@@ -105,7 +111,7 @@ export interface Asset {
   id: string;
   name: string;
   description: string;
-  images: string[];
+  images: GalleryImage[];
   location: AssetLocation;
   operator: AssetOperator;
   technical: AssetTechnical;
