@@ -3,7 +3,6 @@
 	import type { Asset } from '$lib/types/uiTypes';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/ui';
-	import { getAssetCoverImage } from '$lib/utils/assetImages';
 
 	export let asset: Asset;
 	
@@ -81,9 +80,6 @@
 		return `${monthNames[parseInt(month) - 1]} ${year}`;
 	}
 
-	function getAssetImage(asset: Asset): string {
-		return getAssetCoverImage(asset.id);
-	}
 	
 	function handleBuyTokens() {
 		dispatch('buyTokens', { assetId: asset.id });
@@ -107,7 +103,7 @@
 	$: tokensSectionClasses = 'my-6';
 	$: tokensTitleClasses = 'text-lg font-extrabold text-black m-0 mb-4 font-figtree';
 	$: tokensListClasses = 'flex flex-col gap-3';
-	$: tokensListScrollableClasses = 'flex flex-col gap-3 max-h-[13rem] overflow-y-auto pr-2 relative';
+	$: tokensListScrollableClasses = 'flex flex-col gap-3 max-h-[13rem] overflow-y-auto pr-2';
 	$: tokenButtonClasses = 'flex justify-between items-center w-full p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-light-gray border border-light-gray hover:shadow-sm hover:-translate-y-0.5';
 	$: tokenButtonLeftClasses = 'flex flex-col gap-1';
 	$: tokenButtonRightClasses = 'flex flex-col items-end gap-2';
@@ -145,7 +141,7 @@
 </script>
 
 <Card hoverable clickable heightClass="h-full flex flex-col" on:click={() => window.location.href = `/assets/${asset.id}`}>
-	<CardImage src={getAssetImage(asset)} alt={asset.name} zoomOnHover />
+	<CardImage src={asset.coverImage} alt={asset.name} zoomOnHover />
 	
 	<CardContent paddingClass="p-8 flex-1 flex flex-col">
 		<header class={headerClasses}>
@@ -197,7 +193,20 @@
 			})}
 			<div class={tokensSectionClasses}>
 				<h4 class={mobileTokensTitleClasses}>Available Token Releases</h4>
-				<div class="relative">
+				<div class="flex flex-col">
+					{#if availableTokens.length > 2 && canScrollUp}
+						<!-- Top scroll indicator -->
+						<button 
+							class="w-full py-1 flex items-center justify-center hover:bg-gray-50 transition-colors"
+							on:click|stopPropagation={() => scrollContainer.scrollBy({ top: -100, behavior: 'smooth' })}
+							aria-label="Scroll up to see more tokens"
+						>
+							<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+							</svg>
+						</button>
+					{/if}
+					
 					<div 
 						bind:this={scrollContainer}
 						on:scroll={handleScroll}
@@ -236,23 +245,18 @@
 						</button>
 					{/each}
 					</div>
-					{#if availableTokens.length > 2}
-						<!-- Scroll indicators -->
-						{#if canScrollUp}
-							<div class="absolute top-0 left-0 right-0 h-8 bg-white border-b border-light-gray pointer-events-none flex items-center justify-center">
-								<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-								</svg>
-							</div>
-						{/if}
-						
-						{#if canScrollDown}
-							<div class="absolute bottom-0 left-0 right-0 h-8 bg-white border-t border-light-gray pointer-events-none flex items-center justify-center">
-								<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-								</svg>
-							</div>
-						{/if}
+					
+					{#if availableTokens.length > 2 && canScrollDown}
+						<!-- Bottom scroll indicator -->
+						<button 
+							class="w-full py-1 flex items-center justify-center hover:bg-gray-50 transition-colors"
+							on:click|stopPropagation={() => scrollContainer.scrollBy({ top: 100, behavior: 'smooth' })}
+							aria-label="Scroll down to see more tokens"
+						>
+							<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+							</svg>
+						</button>
 					{/if}
 				</div>
 			</div>

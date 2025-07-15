@@ -97,6 +97,7 @@ export interface Asset {
   id: string;
   name: string;
   description: string;
+  coverImage: string;
   images: GalleryImage[];
   location: AssetLocation;
   operator: AssetOperator;

@@ -4,7 +4,6 @@
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { Card, CardContent, PrimaryButton, SecondaryButton } from '$lib/components/ui';
-	import { getAssetCoverImage } from '$lib/utils/assetImages';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
 	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
 	import TabButton from '$lib/components/ui/TabButton.svelte';
@@ -102,8 +101,8 @@
 	}
 
 	function getAssetImage(assetData: Asset | null): string {
-		if (!assetData?.id) return getAssetCoverImage('europa-wressle-release-1');
-		return getAssetCoverImage(assetData.id);
+		// Use the coverImage from the asset data
+		return assetData?.coverImage || '/src/lib/data/images/eur-wr-cover.jpg';
 	}
 
 	function formatPricing(benchmarkPremium: string): string {
