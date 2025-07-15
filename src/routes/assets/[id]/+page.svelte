@@ -460,8 +460,8 @@
 					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map((r: any) => r.production)) : 100}
 					{@const defaults = dataStoreService.getDefaultValues()}
 					<div class="flex-1 flex flex-col">
-						<div class="grid md:grid-cols-3 grid-cols-1 gap-8">
-							<div class="bg-white border border-light-gray p-6 md:col-span-2">
+						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">
+							<div class="bg-white border border-light-gray p-6 md:col-span-3">
 								<div class="flex justify-between items-center mb-6">
 									<h4 class="text-lg font-extrabold text-black mb-0">Production History</h4>
 									<SecondaryButton on:click={exportProductionData}>
@@ -469,25 +469,25 @@
 									</SecondaryButton>
 								</div>
 								<div class="w-full overflow-x-auto">
-									<svg class="w-full h-auto min-w-[600px]" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+									<svg class="w-full h-auto min-w-[750px]" viewBox="0 0 950 400" xmlns="http://www.w3.org/2000/svg">
 										<!-- Chart background -->
-										<rect width="800" height="300" fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
+										<rect width="950" height="400" fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
 										
 										<!-- Grid lines -->
-										{#each Array(6) as _, i}
-											<line x1="80" y1={50 + i * 40} x2="750" y2={50 + i * 40} stroke="#f8f4f4" stroke-width="0.5" opacity="0.5"/>
+										{#each Array(7) as _, i}
+											<line x1="90" y1={70 + i * 50} x2="870" y2={70 + i * 50} stroke="#f8f4f4" stroke-width="0.5" opacity="0.5"/>
 										{/each}
 										{#each productionReports as _, i}
-											<line x1={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y1="50" x2={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y2="250" stroke="#f8f4f4" stroke-width="0.5" opacity="0.3"/>
+											<line x1={90 + (i + 1) * (780 / Math.max(productionReports.length, 1))} y1="70" x2={90 + (i + 1) * (780 / Math.max(productionReports.length, 1))} y2="320" stroke="#f8f4f4" stroke-width="0.5" opacity="0.3"/>
 										{/each}
 										
 										<!-- Y-axis labels (Production in BOE) -->
-										<text x="70" y="55" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction)}</text>
-										<text x="70" y="95" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.8)}</text>
-										<text x="70" y="135" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.6)}</text>
-										<text x="70" y="175" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.4)}</text>
-										<text x="70" y="215" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.2)}</text>
-										<text x="70" y="255" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">0</text>
+										<text x="80" y="75" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction)}</text>
+										<text x="80" y="125" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.8)}</text>
+										<text x="80" y="175" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.6)}</text>
+										<text x="80" y="225" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.4)}</text>
+										<text x="80" y="275" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.2)}</text>
+										<text x="80" y="325" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">0</text>
 										
 										<!-- X-axis labels (Months and years from real data) -->
 										{#each productionReports as report, i}
@@ -495,17 +495,17 @@
 											{@const monthLabel = date.toLocaleDateString('en-US', { month: 'short' })}
 											{@const year = date.getFullYear()}
 											{@const showYear = i === 0 || date.getMonth() === 0 || (i > 0 && new Date(productionReports[i-1].month + '-01').getFullYear() !== year)}
-											<text x={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y="270" text-anchor="middle" font-size="14" fill="#000000" font-family="Figtree" font-weight="medium">{monthLabel}</text>
+											<text x={90 + (i + 1) * (780 / Math.max(productionReports.length, 1))} y="345" text-anchor="middle" font-size="14" fill="#000000" font-family="Figtree" font-weight="medium">{monthLabel}</text>
 											{#if showYear}
-												<text x={80 + (i + 1) * (670 / Math.max(productionReports.length, 1))} y="285" text-anchor="middle" font-size="12" fill="#666666" font-weight="bold" font-family="Figtree">{year}</text>
+												<text x={90 + (i + 1) * (780 / Math.max(productionReports.length, 1))} y="365" text-anchor="middle" font-size="12" fill="#666666" font-weight="bold" font-family="Figtree">{year}</text>
 											{/if}
 										{/each}
 										
 										<!-- Production line chart (from real data) -->
 										{#if productionReports.length > 1}
 											{@const points = productionReports.map((report: any, i: number) => {
-												const x = 80 + (i + 1) * (670 / Math.max(productionReports.length, 1));
-												const y = 250 - (report.production / maxProduction) * 200;
+												const x = 90 + (i + 1) * (780 / Math.max(productionReports.length, 1));
+												const y = 320 - (report.production / maxProduction) * 250;
 												return `${x},${y}`;
 											}).join(' ')}
 											<polyline 
@@ -518,8 +518,8 @@
 										
 										<!-- Data points (from real data) -->
 										{#each productionReports as report, i}
-											{@const x = 80 + (i + 1) * (670 / Math.max(productionReports.length, 1))}
-											{@const y = 250 - (report.production / maxProduction) * 200}
+											{@const x = 90 + (i + 1) * (780 / Math.max(productionReports.length, 1))}
+											{@const y = 320 - (report.production / maxProduction) * 250}
 											<circle 
 												cx={x} 
 												cy={y} 
@@ -535,14 +535,14 @@
 										{/each}
 										
 										<!-- Chart title -->
-										<text x="400" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#000000" font-family="Figtree">Production History</text>
+										<text x="475" y="35" text-anchor="middle" font-size="18" font-weight="bold" fill="#000000" font-family="Figtree">Production History</text>
 										
 										<!-- Legend -->
-										<rect x="580" y="60" width="150" height="40" fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
-										<line x1="590" y1="70" x2="610" y2="70" stroke="#08bccc" stroke-width="3"/>
-										<text x="615" y="75" font-size="13" fill="#000000" font-family="Figtree" font-weight="medium">Production Rate</text>
-										<circle cx="600" cy="85" r="3" fill="#283c84"/>
-										<text x="615" y="90" font-size="13" fill="#000000" font-family="Figtree" font-weight="medium">Monthly Data</text>
+										<rect x="680" y="80" width="160" height="45" fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
+										<line x1="690" y1="95" x2="715" y2="95" stroke="#08bccc" stroke-width="3"/>
+										<text x="720" y="100" font-size="13" fill="#000000" font-family="Figtree" font-weight="medium">Production Rate</text>
+										<circle cx="702" cy="110" r="3" fill="#283c84"/>
+										<text x="720" y="115" font-size="13" fill="#000000" font-family="Figtree" font-weight="medium">Monthly Data</text>
 									</svg>
 								</div>
 							</div>
@@ -573,8 +573,8 @@
 					{@const nextMonth = latestReport ? new Date(new Date(latestReport.month + '-01').getTime() + 32 * 24 * 60 * 60 * 1000) : new Date()}
 					{@const avgRevenue = monthlyReports.length > 0 ? monthlyReports.reduce((sum, r) => sum + r.revenue, 0) / monthlyReports.length : dataStoreService.getDefaultValues().revenue.averageMonthly}
 					<div class="flex-1 flex flex-col">
-						<div class="grid md:grid-cols-3 grid-cols-1 gap-8">
-							<div class="bg-white border border-light-gray p-6 md:col-span-2">
+						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">
+							<div class="bg-white border border-light-gray p-6 md:col-span-3">
 								<div class="flex justify-between items-center mb-6">
 									<h4 class="text-lg font-extrabold text-black mb-0">Past Payments</h4>
 									<SecondaryButton on:click={exportPaymentsData}>
@@ -582,25 +582,25 @@
 									</SecondaryButton>
 								</div>
 								<div class="w-full overflow-x-auto">
-									<svg class="w-full h-auto min-w-[600px]" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+									<svg class="w-full h-auto min-w-[750px]" viewBox="0 0 950 400" xmlns="http://www.w3.org/2000/svg">
 										<!-- Chart background -->
-										<rect width="800" height="300" fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
+										<rect width="950" height="400" fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
 										
 										<!-- Grid lines -->
-										{#each Array(6) as _, i}
-											<line x1="80" y1={50 + i * 40} x2="750" y2={50 + i * 40} stroke="#f8f4f4" stroke-width="0.5" opacity="0.5"/>
+										{#each Array(7) as _, i}
+											<line x1="90" y1={70 + i * 50} x2="870" y2={70 + i * 50} stroke="#f8f4f4" stroke-width="0.5" opacity="0.5"/>
 										{/each}
 										{#each monthlyReports as _, i}
-											<line x1={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y1="50" x2={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y2="250" stroke="#f8f4f4" stroke-width="0.5" opacity="0.3"/>
+											<line x1={90 + (i + 1) * (780 / Math.max(monthlyReports.length, 1))} y1="70" x2={90 + (i + 1) * (780 / Math.max(monthlyReports.length, 1))} y2="320" stroke="#f8f4f4" stroke-width="0.5" opacity="0.3"/>
 										{/each}
 										
 										<!-- Y-axis labels (Revenue amounts) -->
-										<text x="70" y="55" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue)}</text>
-										<text x="70" y="95" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.8)}</text>
-										<text x="70" y="135" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.6)}</text>
-										<text x="70" y="175" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.4)}</text>
-										<text x="70" y="215" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.2)}</text>
-										<text x="70" y="255" text-anchor="end" font-size="12" fill="#000000" font-family="Figtree" font-weight="semibold">$0</text>
+										<text x="80" y="75" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue)}</text>
+										<text x="80" y="125" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.8)}</text>
+										<text x="80" y="175" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.6)}</text>
+										<text x="80" y="225" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.4)}</text>
+										<text x="80" y="275" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.2)}</text>
+										<text x="80" y="325" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">$0</text>
 										
 										<!-- X-axis labels (Months and years from monthly reports) -->
 										{#each monthlyReports as report, i}
@@ -608,18 +608,18 @@
 											{@const monthLabel = date.toLocaleDateString('en-US', { month: 'short' })}
 											{@const year = date.getFullYear()}
 											{@const showYear = i === 0 || date.getMonth() === 0 || (i > 0 && new Date(monthlyReports[i-1].month + '-01').getFullYear() !== year)}
-											<text x={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y="270" text-anchor="middle" font-size="14" fill="#000000" font-family="Figtree" font-weight="medium">{monthLabel}</text>
+											<text x={90 + (i + 1) * (780 / Math.max(monthlyReports.length, 1))} y="345" text-anchor="middle" font-size="14" fill="#000000" font-family="Figtree" font-weight="medium">{monthLabel}</text>
 											{#if showYear}
-												<text x={80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1))} y="285" text-anchor="middle" font-size="12" fill="#666666" font-weight="bold" font-family="Figtree">{year}</text>
+												<text x={90 + (i + 1) * (780 / Math.max(monthlyReports.length, 1))} y="365" text-anchor="middle" font-size="12" fill="#666666" font-weight="bold" font-family="Figtree">{year}</text>
 											{/if}
 										{/each}
 										
 										<!-- Column chart bars (from monthly reports) -->
 										{#each monthlyReports as report, i}
-											{@const barWidth = 30}
-											{@const x = 80 + (i + 1) * (670 / Math.max(monthlyReports.length, 1)) - barWidth / 2}
-											{@const barHeight = (report.revenue / maxRevenue) * 200}
-											{@const y = 250 - barHeight}
+											{@const barWidth = 35}
+											{@const x = 90 + (i + 1) * (780 / Math.max(monthlyReports.length, 1)) - barWidth / 2}
+											{@const barHeight = (report.revenue / maxRevenue) * 250}
+											{@const y = 320 - barHeight}
 											<rect 
 												x={x} 
 												y={y} 
@@ -637,7 +637,7 @@
 										{/each}
 										
 										<!-- Chart title -->
-										<text x="400" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#000000" font-family="Figtree">Past Payments</text>
+										<text x="475" y="35" text-anchor="middle" font-size="18" font-weight="bold" fill="#000000" font-family="Figtree">Past Payments</text>
 									</svg>
 								</div>
 							</div>
@@ -812,13 +812,13 @@
 										</div>
 										
 										<div class="p-8 pb-0 relative">
-											<!-- % of Asset tag in top left -->
-											<div class="text-sm font-extrabold text-white bg-secondary px-4 py-2 uppercase tracking-wider inline-block rounded absolute top-0 left-8 -mt-6">
-												{token.sharePercentage || 25}% of Asset
-											</div>
-											
 											<div class="flex-1 mt-6">
-												<h4 class="text-2xl font-extrabold mb-3 text-black font-figtree uppercase tracking-wider">{token.name}</h4>
+												<div class="flex justify-between items-start mb-3 gap-4">
+													<h4 class="text-2xl font-extrabold text-black font-figtree flex-1">{token.name}</h4>
+													<div class="text-sm font-extrabold text-white bg-secondary px-3 py-1 tracking-wider rounded whitespace-nowrap">
+														{token.sharePercentage || 25}% of Asset
+													</div>
+												</div>
 												<p class="text-sm text-secondary font-medium break-all tracking-tight opacity-80 font-figtree">{token.contractAddress}</p>
 											</div>
 										</div>

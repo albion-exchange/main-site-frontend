@@ -212,7 +212,10 @@
 							on:click|stopPropagation={() => handleBuyTokens()}
 						>
 							<div class={tokenButtonLeftClasses}>
-								<span class={mobileTokenSymbolClasses}>{token.symbol}</span>
+								<div class="flex justify-between items-center w-full gap-2">
+									<span class={mobileTokenSymbolClasses}>{token.symbol}</span>
+									<span class="text-xs font-extrabold text-white bg-secondary px-2 py-1 tracking-wider rounded whitespace-nowrap">{token.sharePercentage || shareOfAsset} of Asset</span>
+								</div>
 								<span class={mobileTokenNameClasses}>{token.name}</span>
 								<span class={mobileTokenPaymentDateClasses}>First payment: {firstPaymentMonth}</span>
 							</div>

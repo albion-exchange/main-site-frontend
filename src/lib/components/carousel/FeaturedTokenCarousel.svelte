@@ -203,8 +203,8 @@
 	$: tokenSectionClasses = 'p-12 bg-white border-b md:border-b-0 md:border-r border-light-gray flex flex-col justify-between';
 	$: assetSectionClasses = 'p-12 bg-light-gray flex flex-col justify-between';
 	$: tokenHeaderClasses = 'mb-6';
-	$: tokenNameClasses = 'text-2xl font-extrabold text-black lowercase tracking-wider mb-3 leading-tight font-figtree';
-	$: tokenContractClasses = 'text-base font-medium text-secondary break-all leading-relaxed py-1 opacity-80 tracking-tight font-figtree';
+	$: tokenNameClasses = 'text-2xl font-extrabold text-black tracking-wider mb-3 leading-tight font-figtree text-left';
+	$: tokenContractClasses = 'text-base font-medium text-secondary break-all leading-relaxed py-1 opacity-80 tracking-tight font-figtree text-left';
 	$: assetHeaderClasses = 'mb-6';
 	$: assetStatusClasses = 'flex items-center gap-2 mb-4';
 	$: statusIndicatorClasses = 'w-2 h-2 bg-secondary';
@@ -212,14 +212,14 @@
 	$: statusIndicatorFundingClasses = 'w-2 h-2 bg-yellow-500';
 	$: statusIndicatorCompletedClasses = 'w-2 h-2 bg-secondary';
 	$: statusTextClasses = 'text-sm font-medium text-black font-figtree';
-	$: assetNameClasses = 'text-4xl font-extrabold text-black mb-2 leading-tight font-figtree';
+	$: assetNameClasses = 'text-2xl font-extrabold text-black mb-2 leading-tight font-figtree';
 	$: assetLocationClasses = 'text-lg text-black leading-relaxed font-figtree';
 	$: assetDescriptionClasses = 'text-lg text-black leading-relaxed mb-8 font-figtree';
 	$: tokenStatsClasses = 'grid grid-cols-2 gap-4 mb-8';
 	$: assetStatsClasses = 'grid grid-cols-1 gap-4 mb-8';
 	$: statItemClasses = 'text-left';
 	$: statLabelClasses = 'text-sm font-medium text-gray-500 mb-1 font-figtree';
-	$: statValueClasses = 'text-2xl md:text-3xl font-extrabold text-black font-figtree';
+	$: statValueClasses = 'text-xl md:text-2xl font-extrabold text-black font-figtree';
 	$: tokenActionsClasses = 'flex gap-4';
 	$: assetMetaClasses = 'flex flex-col gap-2';
 	$: assetMetaItemClasses = 'flex gap-2';
@@ -318,9 +318,8 @@
 							<!-- Token Section -->
 							<div class={mobileTokenSectionClasses}>
 								<div class={tokenHeaderClasses}>
-									<div class="flex items-start justify-between gap-4 mb-3">
+									<div class="mb-3">
 										<h3 class={tokenNameClasses}>{item.token.name}</h3>
-										<div class="bg-primary text-white px-3 py-1 text-sm font-extrabold font-figtree flex-shrink-0">{item.token.sharePercentage || 25}% of asset</div>
 									</div>
 									<div class={tokenContractClasses}>{item.token.contractAddress}</div>
 								</div>
