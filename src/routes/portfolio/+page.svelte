@@ -1,47 +1,24 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import dataStoreService from '$lib/services/DataStoreService';
+	import walletDataService from '$lib/services/WalletDataService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/WalletModal.svelte';
-	import { getMockPortfolioHoldings, calculatePortfolioSummary } from '$lib/utils/portfolioCalculations';
 	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, TabNavigation } from '$lib/components/ui';
+	import { getAssetCoverImage } from '$lib/utils/assetImages';
 
-	let totalPortfolioValue = 0;
 	let totalInvested = 0;
-	let unrealizedGains = 0;
+	let totalPayoutsEarned = 0;
 	let unclaimedPayout = 0;
+	let activeAssetsCount = 0;
 	let activeTab = 'overview';
 	let timeframe = '1M';
-	let portfolioInterval: number;
 	let holdings: any[] = [];
+	let monthlyPayouts: any[] = [];
+	let tokenAllocations: any[] = [];
 	let loading = true;
 	let showWalletModal = false;
-
-	// Mock portfolio data based on real assets
-	const mockPortfolioBalances = [
-		{ assetId: 'europa-wressle-release-1', tokensOwned: 18750, investmentAmount: 18750, totalEarned: 2847.15, lastPayout: '2024-12-15' },
-		{ assetId: 'bakken-horizon-field', tokensOwned: 12500, investmentAmount: 12500, totalEarned: 2156.47, lastPayout: '2024-12-10' },
-		{ assetId: 'permian-basin-venture', tokensOwned: 8750, investmentAmount: 8750, totalEarned: 1847.21, lastPayout: '2024-12-20' },
-		{ assetId: 'gulf-mexico-deep-water', tokensOwned: 2000, investmentAmount: 2000, totalEarned: 621.32, lastPayout: '2024-12-05' }
-	];
-
-	const performanceData = [
-		{ month: 'Jul 2024', value: 42000, payout: 0 },
-		{ month: 'Aug 2024', value: 42450, payout: 450 },
-		{ month: 'Sep 2024', value: 43120, payout: 890 },
-		{ month: 'Oct 2024', value: 44200, payout: 1340 },
-		{ month: 'Nov 2024', value: 45800, payout: 1820 },
-		{ month: 'Dec 2024', value: 47250, payout: 2280 }
-	];
-
-	// Map asset icons
-	const assetIcons: Record<string, string> = {
-		'europa-wressle-release-1': '🌊',
-		'bakken-horizon-field': '⛰️',
-		'permian-basin-venture': '⛽',
-		'gulf-mexico-deep-water': '💧'
-	};
 
 	onMount(async () => {
 		// Check if wallet is connected
@@ -50,88 +27,55 @@
 			return;
 		}
 		
+		loadPortfolioData();
+	});
+
+	function loadPortfolioData() {
 		try {
-			// Load portfolio holdings and calculate summary
-			const portfolioHoldings = getMockPortfolioHoldings();
-			const summary = calculatePortfolioSummary(portfolioHoldings);
+			// Load data from walletDataService
+			totalInvested = walletDataService.getTotalInvested();
+			totalPayoutsEarned = walletDataService.getTotalPayoutsEarned();
+			unclaimedPayout = walletDataService.getUnclaimedPayouts();
 			
-			// Update summary values
-			totalPortfolioValue = summary.totalPortfolioValue;
-			totalInvested = summary.totalInvested;
-			unrealizedGains = summary.unrealizedGains;
-			unclaimedPayout = summary.unclaimedPayout;
-			
-			// Load real assets and create portfolio holdings
+			// Get holdings with asset info
+			const assetPayouts = walletDataService.getHoldingsByAsset();
 			const allAssets = dataStoreService.getAllAssets();
 			
-			holdings = portfolioHoldings.map(balance => {
-				const asset = allAssets.find(a => a.id === balance.assetId);
+			// Count active assets
+			activeAssetsCount = assetPayouts.length;
+			
+			// Transform holdings data
+			holdings = assetPayouts.map(holding => {
+				const asset = allAssets.find(a => a.id === holding.assetId);
 				if (!asset) return null;
 				
-				// Use calculated values from portfolio holdings
-				const unrealizedGain = balance.currentValue - balance.investmentAmount;
-				const unrealizedGainPercent = (unrealizedGain / balance.investmentAmount) * 100;
-				const allocation = (balance.currentValue / totalPortfolioValue) * 100;
-				
 				return {
-					id: asset.id,
-					name: asset.name,
-					location: `${asset.location.state}, ${asset.location.country}`,
-					tokensOwned: balance.tokensOwned,
-					investmentAmount: balance.investmentAmount,
-					currentValue: balance.currentValue,
-					unrealizedGain: unrealizedGain,
-					unrealizedGainPercent: unrealizedGainPercent,
-					currentPayout: asset.monthlyReports.length > 0 ? asset.monthlyReports[asset.monthlyReports.length - 1].payoutPerToken : 0,
-					totalEarned: balance.totalEarned,
-					lastPayout: balance.lastPayout,
-					status: asset.production.status,
-					allocation: allocation,
-					icon: assetIcons[asset.id] || '🏭'
+					id: holding.assetId,
+					name: holding.assetName,
+					location: asset ? `${asset.location.state}, ${asset.location.country}` : '',
+					totalInvested: holding.totalInvested,
+					totalPayoutsEarned: holding.totalEarned,
+					unclaimedAmount: holding.unclaimedAmount,
+					lastPayoutAmount: holding.lastPayoutAmount,
+					lastPayoutDate: holding.lastPayoutDate,
+					status: asset ? asset.production.status : 'unknown'
 				};
 			}).filter(Boolean);
 			
-			loading = false;
+			// Get monthly payout history
+			monthlyPayouts = walletDataService.getMonthlyPayoutHistory();
 			
-			// Simulate portfolio value updates
-			portfolioInterval = setInterval(() => {
-				totalPortfolioValue = totalPortfolioValue + (Math.random() * 10 - 5);
-				unrealizedGains = totalPortfolioValue - totalInvested;
-			}, 5000);
+			// Get token allocations
+			tokenAllocations = walletDataService.getTokenAllocation();
+			
+			loading = false;
 		} catch (error) {
 			console.error('Error loading portfolio data:', error);
 			loading = false;
 		}
-	});
+	}
 
-	onDestroy(() => {
-		if (portfolioInterval) {
-			clearInterval(portfolioInterval);
-		}
-	});
 
-	// Calculated portfolio metrics
-	$: portfolioMetrics = holdings.length > 0 ? {
-		totalReturn: ((totalPortfolioValue - totalInvested) / totalInvested) * 100,
-		payoutReturn: (holdings.reduce((sum, h) => sum + h.totalEarned, 0) / totalInvested) * 100,
-		averagePayout: holdings.reduce((acc, h) => acc + h.currentPayout, 0) / holdings.length,
-		bestPerformer: holdings.reduce((best, current) => 
-			current.unrealizedGainPercent > best.unrealizedGainPercent ? current : best
-		),
-		worstPerformer: holdings.reduce((worst, current) => 
-			current.unrealizedGainPercent < worst.unrealizedGainPercent ? current : worst
-		),
-		totalTokens: holdings.reduce((sum, h) => sum + h.tokensOwned, 0),
-		totalPayoutEarned: holdings.reduce((sum, h) => sum + h.totalEarned, 0)
-	} : {
-		totalReturn: 0,
-		payoutReturn: 0,
-		averagePayout: 0,
-		bestPerformer: null,
-		worstPerformer: null,
-		totalTokens: 0,
-		totalPayoutEarned: 0
-	};
 
 	function formatCurrency(amount: number): string {
 		return new Intl.NumberFormat('en-US', {
@@ -158,48 +102,7 @@
 		// Reload the page content now that wallet is connected
 		if ($walletStore.isConnected) {
 			loading = true;
-			try {
-				const allAssets = dataStoreService.getAllAssets();
-				
-				holdings = mockPortfolioBalances.map(balance => {
-					const asset = allAssets.find(a => a.id === balance.assetId);
-					if (!asset) return null;
-					
-					const pricePerToken = 1.25;
-					const currentValue = balance.tokensOwned * pricePerToken;
-					const unrealizedGain = currentValue - balance.investmentAmount;
-					const unrealizedGainPercent = (unrealizedGain / balance.investmentAmount) * 100;
-					const allocation = (currentValue / totalPortfolioValue) * 100;
-					
-					return {
-						id: asset.id,
-						name: asset.name,
-						location: `${asset.location.state}, ${asset.location.country}`,
-						tokensOwned: balance.tokensOwned,
-						investmentAmount: balance.investmentAmount,
-						currentValue: currentValue,
-						unrealizedGain: unrealizedGain,
-						unrealizedGainPercent: unrealizedGainPercent,
-						currentPayout: asset.monthlyReports.length > 0 ? asset.monthlyReports[asset.monthlyReports.length - 1].payoutPerToken : 0,
-						totalEarned: balance.totalEarned,
-						lastPayout: balance.lastPayout,
-						status: asset.production.status,
-						allocation: allocation,
-						icon: assetIcons[asset.id] || '🏭'
-					};
-				}).filter(Boolean);
-				
-				loading = false;
-				
-				// Start portfolio updates
-				portfolioInterval = setInterval(() => {
-					totalPortfolioValue = totalPortfolioValue + (Math.random() * 10 - 5);
-					unrealizedGains = totalPortfolioValue - totalInvested;
-				}, 5000);
-			} catch (error) {
-				console.error('Error loading portfolio data:', error);
-				loading = false;
-			}
+			loadPortfolioData();
 		}
 	}
 	
@@ -244,9 +147,8 @@
 						note="Principal" 
 					/>
 					<Metric 
-						value={formatCurrency(portfolioMetrics.totalPayoutEarned)} 
-						label="Payout Earned" 
-						note={formatPercent(portfolioMetrics.payoutReturn)}
+						value={formatCurrency(totalPayoutsEarned)} 
+						label="Payout Earned (Lifetime)" 
 						variant="positive"
 					/>
 				</div>
@@ -267,20 +169,20 @@
 				
 				<div class="stats-list">
 					<div class="stat-row">
-						<span>Average Payout</span>
-						<span class="payout">{portfolioMetrics.averagePayout.toFixed(1)}%</span>
+						<span>Return Calc TBD</span>
+						<span class="payout">--</span>
 					</div>
 					<div class="stat-row">
-						<span>Total Tokens</span>
-						<span>{portfolioMetrics.totalTokens.toLocaleString()}</span>
+						<span>Unclaimed Payouts</span>
+						<span class="payout">{formatCurrency(unclaimedPayout)}</span>
 					</div>
 					<div class="stat-row">
 						<span>Active Assets</span>
-						<span>{holdings.length}</span>
+						<span>{activeAssetsCount}</span>
 					</div>
 					<div class="stat-row">
 						<span>Monthly Income</span>
-						<span class="payout">{formatCurrency(portfolioMetrics.totalPayoutEarned / 6)}</span>
+						<span class="payout">{formatCurrency(monthlyPayouts.length > 0 ? monthlyPayouts[monthlyPayouts.length - 1].totalPayout : 0)}</span>
 					</div>
 				</div>
 
@@ -315,7 +217,9 @@
 								<Card padding="2rem" hoverable>
 									<div class="holding-main">
 										<div class="holding-info">
-											<div class="holding-icon">{holding.icon}</div>
+											<div class="holding-icon">
+												<img src={getAssetCoverImage(holding.id)} alt={holding.name} />
+											</div>
 											<div class="holding-details">
 												<h4>{holding.name}</h4>
 												<div class="holding-location">{holding.location}</div>
@@ -331,15 +235,14 @@
 										</div>
 
 										<div class="holding-tokens">
-											<div class="tokens-value">{holding.tokensOwned.toLocaleString()}</div>
-											<div class="tokens-label">Tokens</div>
-											<div class="allocation-info">{holding.allocation}% allocation</div>
+											<div class="tokens-value">{formatCurrency(holding.totalInvested)}</div>
+											<div class="tokens-label">Invested</div>
 										</div>
 
 
 										<div class="holding-payout">
-											<div class="payout-value">{holding.currentPayout}%</div>
-											<div class="payout-label">Payout</div>
+											<div class="payout-value">{formatCurrency(holding.totalPayoutsEarned)}</div>
+											<div class="payout-label">Earned</div>
 										</div>
 
 										<div class="holding-actions">
@@ -349,12 +252,12 @@
 
 									<div class="holding-footer">
 										<div class="footer-item">
-											<span>Total Earned:</span>
-											<span class="payout">{formatCurrency(holding.totalEarned)}</span>
+											<span>Unclaimed:</span>
+											<span class="payout">{formatCurrency(holding.unclaimedAmount)}</span>
 										</div>
 										<div class="footer-item">
 											<span>Last Payout:</span>
-											<span>{holding.lastPayout}</span>
+											<span>{holding.lastPayoutDate ? new Date(holding.lastPayoutDate).toLocaleDateString() : 'N/A'}</span>
 										</div>
 										<div class="footer-item">
 											<span>Status:</span>
@@ -396,31 +299,30 @@
 
 						<div class="performance-stats">
 							<div class="perf-stat">
-								<div class="perf-value positive">{formatPercent(portfolioMetrics.payoutReturn)}</div>
-								<div class="perf-label">Payout Return</div>
-								<div class="perf-note">Income only</div>
+								<div class="perf-value positive">{formatCurrency(totalPayoutsEarned)}</div>
+								<div class="perf-label">Total Payouts</div>
+								<div class="perf-note">Lifetime</div>
 							</div>
 							<div class="perf-stat">
-								<div class="perf-value">{portfolioMetrics.averagePayout.toFixed(1)}%</div>
-								<div class="perf-label">Average Payout</div>
-								<div class="perf-note">Monthly</div>
+								<div class="perf-value">{formatCurrency(monthlyPayouts.length > 0 ? monthlyPayouts[monthlyPayouts.length - 1].totalPayout : 0)}</div>
+								<div class="perf-label">Last Month</div>
+								<div class="perf-note">Payout</div>
 							</div>
 							<div class="perf-stat">
-								<div class="perf-value positive">{formatCurrency(portfolioMetrics.totalPayoutEarned)}</div>
-								<div class="perf-label">Total Earned</div>
-								<div class="perf-note">All time</div>
+								<div class="perf-value positive">{formatCurrency(walletDataService.getEstimatedAnnualIncome())}</div>
+								<div class="perf-label">Est. Annual</div>
+								<div class="perf-note">Income</div>
 							</div>
 						</div>
 					</div>
 
 					<div class="monthly-performance">
-						<h4>Monthly Performance</h4>
+						<h4>Monthly Payouts</h4>
 						<div class="monthly-grid">
-							{#each performanceData as month}
+							{#each monthlyPayouts.slice(-6) as month}
 								<div class="monthly-item">
-									<div class="month-label">{month.month.split(' ')[0]}</div>
-									<div class="month-value">{formatCurrency(month.value)}</div>
-									<div class="month-payout">{formatCurrency(month.payout)} payout</div>
+									<div class="month-label">{month.month.slice(0, 7)}</div>
+									<div class="month-value">{formatCurrency(month.totalPayout)}</div>
 								</div>
 							{/each}
 						</div>
@@ -443,32 +345,36 @@
 						<div class="allocation-breakdown">
 							<h3>Allocation Breakdown</h3>
 							<div class="allocation-list">
-								{#each holdings as holding}
+								{#each tokenAllocations as allocation}
 									<div class="allocation-item">
 										<div class="allocation-asset">
-											<div class="asset-icon">{holding.icon}</div>
+											<div class="asset-icon">
+												<img src={getAssetCoverImage(allocation.tokenSymbol.toLowerCase().replace(/_/g, '-').replace(/\d+$/, ''))} alt={allocation.assetName} />
+											</div>
 											<div class="asset-info">
-												<div class="asset-name">{holding.name}</div>
-												<div class="asset-location">{holding.location}</div>
+												<div class="asset-name">{allocation.assetName}</div>
+												<div class="asset-location">{allocation.tokensOwned} tokens</div>
 											</div>
 										</div>
 										<div class="allocation-stats">
-											<div class="allocation-percent">{holding.allocation}%</div>
-											<div class="allocation-value">{formatCurrency(holding.currentValue)}</div>
+											<div class="allocation-percent">{allocation.percentageOfPortfolio.toFixed(1)}%</div>
+											<div class="allocation-value">{formatCurrency(allocation.currentValue)}</div>
 										</div>
 									</div>
 								{/each}
 							</div>
 
+							{#if tokenAllocations.length > 0 && tokenAllocations[0].percentageOfPortfolio > 40}
 							<div class="diversification-tip">
 								<div class="tip-icon">⚠️</div>
 								<div class="tip-content">
 									<div class="tip-title">Diversification Tip</div>
 									<div class="tip-text">
-										Consider diversifying: 49.6% allocation to single asset (Europa Wressle) may impact portfolio balance.
+										Consider diversifying: {tokenAllocations[0].percentageOfPortfolio.toFixed(1)}% allocation to single asset ({tokenAllocations[0].assetName}) may impact portfolio balance.
 									</div>
 								</div>
 							</div>
+							{/if}
 						</div>
 					</div>
 				</div>
@@ -668,6 +574,13 @@
 		align-items: center;
 		justify-content: center;
 		font-size: 1.25rem;
+		overflow: hidden;
+	}
+
+	.holding-icon img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.holding-details h4 {
@@ -718,11 +631,6 @@
 		margin-bottom: 0.25rem;
 	}
 
-	.allocation-info {
-		font-size: 0.65rem;
-		color: var(--color-secondary);
-		font-weight: var(--font-weight-medium);
-	}
 
 
 	.holding-footer {
@@ -916,11 +824,6 @@
 		margin-bottom: 0.25rem;
 	}
 
-	.month-payout {
-		font-size: 0.75rem;
-		color: var(--color-primary);
-		font-weight: var(--font-weight-medium);
-	}
 
 	/* Allocation Tab */
 	.allocation-grid {
@@ -974,6 +877,13 @@
 		align-items: center;
 		justify-content: center;
 		font-size: 1rem;
+		overflow: hidden;
+	}
+
+	.asset-icon img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.asset-name {
