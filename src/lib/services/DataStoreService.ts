@@ -16,6 +16,7 @@ import type {
   MarketData,
   UserTokenBalance 
 } from '$lib/types/uiTypes';
+import type { AssetTokenMapping } from '$lib/types/assetTokenMapping';
 import { getTokenReturns, type TokenReturns } from '$lib/utils/returnCalculations';
 
 // Import configuration data
@@ -23,6 +24,7 @@ import marketData from '$lib/data/marketData.json';
 import platformStats from '$lib/data/platformStats.json';
 import companyInfo from '$lib/data/companyInfo.json';
 import defaultValues from '$lib/data/defaultValues.json';
+import assetTokenMapping from '$lib/data/assetTokenMapping.json';
 
 // Import all mock asset metadata
 import bakHf1Metadata from '$lib/data/mockAssetMetadata/bak-hf1.json';
@@ -43,8 +45,18 @@ class DataStoreService {
   private assetMetadata: Record<string, AssetMetadata>;
   private assetsCache: Map<string, Asset> = new Map();
   private tokensCache: Map<string, Token> = new Map();
+  private assetTokenMap: AssetTokenMapping;
+  private tokenToAssetMap: Map<string, string> = new Map();
 
   constructor() {
+    this.assetTokenMap = assetTokenMapping as AssetTokenMapping;
+    
+    // Build reverse mapping on initialization
+    Object.entries(this.assetTokenMap.assets).forEach(([assetId, assetInfo]) => {
+      assetInfo.tokens.forEach(tokenAddress => {
+        this.tokenToAssetMap.set(tokenAddress, assetId);
+      });
+    });
     // Initialize asset metadata with proper date conversions
     this.assetMetadata = {
       [bakHf1Metadata.contractAddress]: this.convertJsonToAssetMetadata(bakHf1Metadata as any),
@@ -88,7 +100,7 @@ class DataStoreService {
 
   // Helper method to convert AssetMetadata to legacy Asset format
   private assetMetadataToAsset(assetMetadata: AssetMetadata): Asset {
-    const assetId = this.getAssetIdFromToken(assetMetadata);
+    const assetId = assetMetadata.assetId;
     
     // Check cache first
     if (this.assetsCache.has(assetId)) {
@@ -183,7 +195,7 @@ class DataStoreService {
       symbol: assetMetadata.symbol,
       decimals: assetMetadata.decimals,
       tokenType: assetMetadata.tokenType === TokenType.Royalty ? 'royalty' : 'payment',
-      assetId: this.getAssetIdFromToken(assetMetadata),
+      assetId: assetMetadata.assetId,
       isActive: true,
       supply: {
         maxSupply: assetMetadata.supply.maxSupply,
@@ -212,24 +224,14 @@ class DataStoreService {
     return token;
   }
 
-  // Helper to get asset ID from token
-  private getAssetIdFromToken(assetMetadata: AssetMetadata): string {
-    // Extract asset ID from token name or use a mapping
-    const assetNameMapping: Record<string, string> = {
-      'Bakken Horizon-2 Royalty Stream': 'bakken-horizon-field',
-      'Wressle-1 Royalty Stream': 'europa-wressle-release-1',
-      'Permian Basin-3 Royalty Stream': 'permian-basin-venture',
-      'Gulf of Mexico-4 Royalty Stream': 'gulf-mexico-deep-water'
-    };
-    
-    return assetNameMapping[assetMetadata.assetName] || assetMetadata.assetName.toLowerCase().replace(/\s+/g, '-');
-  }
-
   // Helper to get all token contracts for an asset
   private getTokenContractsByAssetId(assetId: string): string[] {
-    return Object.values(this.assetMetadata)
-      .filter(token => this.getAssetIdFromToken(token) === assetId)
-      .map(token => token.contractAddress);
+    return this.assetTokenMap.assets[assetId]?.tokens || [];
+  }
+  
+  // Helper to get asset ID from token address
+  private getAssetIdFromTokenAddress(tokenAddress: string): string | undefined {
+    return this.tokenToAssetMap.get(tokenAddress);
   }
 
   // Helper to convert ProductionStatus enum to string
@@ -255,8 +257,20 @@ class DataStoreService {
    */
   getAllAssets(): Asset[] {
     const assetMap = new Map<string, Asset>();
+    const assetMetadataMap = new Map<string, AssetMetadata>();
     
-    Object.values(this.assetMetadata).forEach(assetMetadata => {
+    // Group tokens by asset ID and keep the one with most recent updatedAt
+    Object.values(this.assetMetadata).forEach(tokenMetadata => {
+      const assetId = tokenMetadata.assetId;
+      const existing = assetMetadataMap.get(assetId);
+      
+      if (!existing || new Date(tokenMetadata.metadata.updatedAt) > new Date(existing.metadata.updatedAt)) {
+        assetMetadataMap.set(assetId, tokenMetadata);
+      }
+    });
+    
+    // Convert to Asset objects
+    assetMetadataMap.forEach(assetMetadata => {
       const asset = this.assetMetadataToAsset(assetMetadata);
       assetMap.set(asset.id, asset);
     });
@@ -268,8 +282,28 @@ class DataStoreService {
    * Get asset by ID
    */
   getAssetById(assetId: string): Asset | null {
-    const assets = this.getAllAssets();
-    return assets.find(asset => asset.id === assetId) || null;
+    // Check cache first
+    if (this.assetsCache.has(assetId)) {
+      return this.assetsCache.get(assetId)!;
+    }
+    
+    // Get all token addresses for this asset
+    const assetInfo = this.assetTokenMap.assets[assetId];
+    if (!assetInfo || assetInfo.tokens.length === 0) return null;
+    
+    const tokenAddresses = assetInfo.tokens;
+    
+    // Find the token metadata with the most recent updatedAt
+    let mostRecentMetadata: AssetMetadata | null = null;
+    tokenAddresses.forEach(address => {
+      const metadata = this.assetMetadata[address];
+      if (metadata && (!mostRecentMetadata || 
+          new Date(metadata.metadata.updatedAt) > new Date(mostRecentMetadata.metadata.updatedAt))) {
+        mostRecentMetadata = metadata;
+      }
+    });
+    
+    return mostRecentMetadata ? this.assetMetadataToAsset(mostRecentMetadata) : null;
   }
 
   /**
@@ -338,9 +372,13 @@ class DataStoreService {
    * Get tokens by asset ID
    */
   getTokensByAssetId(assetId: string): Token[] {
-    return Object.values(this.assetMetadata)
-      .filter(token => this.getAssetIdFromToken(token) === assetId)
-      .map(token => this.assetMetadataToToken(token));
+    const assetInfo = this.assetTokenMap.assets[assetId];
+    if (!assetInfo) return [];
+    
+    return assetInfo.tokens
+      .map(address => this.assetMetadata[address])
+      .filter(metadata => metadata !== undefined)
+      .map(metadata => this.assetMetadataToToken(metadata));
   }
 
   /**

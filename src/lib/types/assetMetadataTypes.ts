@@ -31,6 +31,7 @@ export interface GalleryImage {
 
 export interface AssetMetadata {
   contractAddress: string;
+  assetId: string;
   symbol: string;
   releaseName: string;
   assetName: string;

@@ -1,5 +1,6 @@
 {
   "contractAddress": "0x6789012345f012345678901234ef067890123",
+  "assetId": "00486bf8-c66b-4943-9004-b8549f4fb416",
   "symbol": "PER-BV1",
   "releaseName": "Permian Basin-3 Release 1",
   "assetName": "Permian Basin-3 Royalty Stream",
