@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import dataStoreService from '$lib/services/DataStoreService';
+	import walletDataService from '$lib/services/WalletDataService';
 	import type { Asset } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/WalletModal.svelte';
-	import marketData from '$lib/data/marketData.json';
-	import { getMockPortfolioHoldings, calculatePortfolioSummary } from '$lib/utils/portfolioCalculations';
 	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge } from '$lib/components/ui';
 
 	let totalEarned = 0;
@@ -18,24 +17,10 @@
 	let claimMethod = 'wallet';
 	let isAccruing = true;
 	let showWalletModal = false;
-
-	// Mock portfolio data based on real assets
-	const mockPortfolioBalances = [
-		{ assetId: 'europa-wressle-release-1', unclaimedAmount: 487.32, totalEarned: 2847.15, lastPayout: '2024-12-15' },
-		{ assetId: 'bakken-horizon-field', unclaimedAmount: 342.18, totalEarned: 2156.47, lastPayout: '2024-12-10' },
-		{ assetId: 'permian-basin-venture', unclaimedAmount: 286.74, totalEarned: 1847.21, lastPayout: '2024-12-20' },
-		{ assetId: 'gulf-mexico-deep-water', unclaimedAmount: 131.58, totalEarned: 1621.32, lastPayout: '2024-12-05' }
-	];
+	let estimatedGas = 0;
 
 	let holdings: any[] = [];
-
-	const claimHistory = [
-		{ date: '2024-12-15', amount: 487.32, asset: 'Europa Wressle Release 1', txHash: '0x7d8f...a2b1', status: 'completed' },
-		{ date: '2024-12-10', amount: 342.18, asset: 'Bakken Horizon Field', txHash: '0x9c3e...f5d2', status: 'completed' },
-		{ date: '2024-11-15', amount: 456.89, asset: 'Europa Wressle Release 1', txHash: '0x2f1a...c7e3', status: 'completed' },
-		{ date: '2024-11-10', amount: 298.45, asset: 'Bakken Horizon Field', txHash: '0x8b4d...x9f4', status: 'completed' },
-		{ date: '2024-10-20', amount: 312.67, asset: 'Permian Basin Venture', txHash: '0x5e2c...b8a5', status: 'completed' }
-	];
+	let claimHistory: any[] = [];
 
 	onMount(async () => {
 		// Check if wallet is connected
@@ -45,33 +30,54 @@
 		}
 		
 		try {
-			// Load portfolio holdings and calculate summary
-			const portfolioHoldings = getMockPortfolioHoldings();
-			const summary = calculatePortfolioSummary(portfolioHoldings);
+			// Generate random gas fee between $0.50 and $2.00
+			estimatedGas = Math.random() * 1.5 + 0.5;
 			
-			// Update summary values
-			totalEarned = summary.totalEarned;
-			totalClaimed = summary.totalClaimed;
-			unclaimedPayout = summary.unclaimedPayout;
+			// Load data from wallet service
+			totalEarned = walletDataService.getTotalPayoutsEarned();
+			unclaimedPayout = walletDataService.getUnclaimedPayouts();
 			
-			// Load real assets and create portfolio holdings
-			const allAssets = dataStoreService.getAllAssets();
+			// Calculate total claimed from claim transactions
+			const allTransactions = walletDataService.getAllTransactions();
+			const claimTransactions = allTransactions.filter(tx => tx.type === 'claim');
+			totalClaimed = claimTransactions.reduce((sum, tx) => sum + tx.amount, 0);
 			
-			holdings = portfolioHoldings.map(balance => {
-				const asset = allAssets.find(a => a.id === balance.assetId);
+			// Get holdings by asset
+			const assetPayouts = walletDataService.getHoldingsByAsset();
+			holdings = assetPayouts.map(assetPayout => {
+				const asset = dataStoreService.getAssetById(assetPayout.assetId);
 				if (!asset) return null;
 				
+				// Find last payout date from monthly payouts
+				const lastPayoutMonth = assetPayout.monthlyPayouts
+					.filter(p => p.amount > 0)
+					.sort((a, b) => b.month.localeCompare(a.month))[0];
+				
 				return {
-					id: asset.id,
-					name: asset.name,
-					location: `${asset.location.state}, ${asset.location.country}`,
-					unclaimedAmount: balance.unclaimedAmount,
-					totalEarned: balance.totalEarned,
-					lastPayout: balance.lastPayout,
-					currentPayout: asset.monthlyReports.length > 0 ? asset.monthlyReports[asset.monthlyReports.length - 1].payoutPerToken : 0,
-					status: asset.production.status
+					id: assetPayout.assetId,
+					name: assetPayout.assetName,
+					location: asset ? `${asset.location.state}, ${asset.location.country}` : '',
+					unclaimedAmount: assetPayout.unclaimedAmount,
+					totalEarned: assetPayout.totalEarned,
+					lastPayout: lastPayoutMonth ? lastPayoutMonth.month : null,
+					status: asset ? asset.production.status : 'unknown'
 				};
 			}).filter(Boolean);
+			
+			// Get claim history from transactions
+			claimHistory = claimTransactions.map(tx => {
+				// Find the asset name for this transaction
+				const token = dataStoreService.getTokenByAddress(tx.address);
+				const asset = token ? dataStoreService.getAssetById(token.assetId) : null;
+				
+				return {
+					date: tx.timestamp,
+					amount: tx.amount,
+					asset: asset ? asset.name : 'Unknown Asset',
+					txHash: tx.txHash,
+					status: 'completed'
+				};
+			});
 			
 			loading = false;
 			
@@ -162,23 +168,54 @@
 		if ($walletStore.isConnected) {
 			loading = true;
 			try {
-				const allAssets = dataStoreService.getAllAssets();
+				// Generate random gas fee between $0.50 and $2.00
+				estimatedGas = Math.random() * 1.5 + 0.5;
 				
-				holdings = mockPortfolioBalances.map(balance => {
-					const asset = allAssets.find(a => a.id === balance.assetId);
+				// Load data from wallet service
+				totalEarned = walletDataService.getTotalPayoutsEarned();
+				unclaimedPayout = walletDataService.getUnclaimedPayouts();
+				
+				// Calculate total claimed from claim transactions
+				const allTransactions = walletDataService.getAllTransactions();
+				const claimTransactions = allTransactions.filter(tx => tx.type === 'claim');
+				totalClaimed = claimTransactions.reduce((sum, tx) => sum + tx.amount, 0);
+				
+				// Get holdings by asset
+				const assetPayouts = walletDataService.getHoldingsByAsset();
+				holdings = assetPayouts.map(assetPayout => {
+					const asset = dataStoreService.getAssetById(assetPayout.assetId);
 					if (!asset) return null;
 					
+					// Find last payout date from monthly payouts
+					const lastPayoutMonth = assetPayout.monthlyPayouts
+						.filter(p => p.amount > 0)
+						.sort((a, b) => b.month.localeCompare(a.month))[0];
+					
 					return {
-						id: asset.id,
-						name: asset.name,
-						location: `${asset.location.state}, ${asset.location.country}`,
-						unclaimedAmount: balance.unclaimedAmount,
-						totalEarned: balance.totalEarned,
-						lastPayout: balance.lastPayout,
-						currentPayout: asset.monthlyReports.length > 0 ? asset.monthlyReports[asset.monthlyReports.length - 1].payoutPerToken : 0,
-						status: asset.production.status
+						id: assetPayout.assetId,
+						name: assetPayout.assetName,
+						location: asset ? `${asset.location.state}, ${asset.location.country}` : '',
+						unclaimedAmount: assetPayout.unclaimedAmount,
+						totalEarned: assetPayout.totalEarned,
+						lastPayout: lastPayoutMonth ? lastPayoutMonth.month : null,
+						status: asset ? asset.production.status : 'unknown'
 					};
 				}).filter(Boolean);
+				
+				// Get claim history from transactions
+				claimHistory = claimTransactions.map(tx => {
+					// Find the asset name for this transaction
+					const token = dataStoreService.getTokenByAddress(tx.address);
+					const asset = token ? dataStoreService.getAssetById(token.assetId) : null;
+					
+					return {
+						date: tx.timestamp,
+						amount: tx.amount,
+						asset: asset ? asset.name : 'Unknown Asset',
+						txHash: tx.txHash,
+						status: 'completed'
+					};
+				});
 				
 				loading = false;
 				
@@ -290,11 +327,11 @@
 					<div class="gas-info">
 						<div class="gas-row">
 							<span>Estimated Gas:</span>
-							<span>~${marketData.gasFeesEstimate.medium}</span>
+							<span>{formatCurrency(estimatedGas)}</span>
 						</div>
 						<div class="gas-row">
 							<span>Net Amount:</span>
-							<span class="net-amount">{formatCurrency(unclaimedPayout - marketData.gasFeesEstimate.medium)}</span>
+							<span class="net-amount">{formatCurrency(unclaimedPayout - estimatedGas)}</span>
 						</div>
 					</div>
 				</div>
@@ -374,10 +411,6 @@
 									<div class="metric-value">{formatCurrency(holding.totalEarned)}</div>
 									<div class="metric-label">Total Earned</div>
 								</div>
-								<div class="metric">
-									<div class="metric-value">{holding.currentPayout}%</div>
-									<div class="metric-label">Current Payout</div>
-								</div>
 							</div>
 							
 							<div class="asset-actions">
@@ -392,7 +425,7 @@
 						
 						<div class="asset-footer">
 							<div class="footer-info">
-								<span>Last Payout: {formatDate(holding.lastPayout)}</span>
+								<span>Last Payout: {holding.lastPayout ? formatDate(holding.lastPayout) : 'No payouts yet'}</span>
 							</div>
 						</div>
 					</div>
@@ -441,17 +474,6 @@
 				<!-- Statistics -->
 				<div class="stats-card">
 					<h3>Payout Statistics</h3>
-					
-					<div class="stats-grid">
-						<div class="stat-item">
-							<div class="stat-value">{dataStoreService.getPlatformStats().averagePortfolioIRR?.formatted || '13.2%'}</div>
-							<div class="stat-label">Avg Portfolio IRR</div>
-						</div>
-						<div class="stat-item">
-							<div class="stat-value">{formatCurrency(totalEarned / 12)}</div>
-							<div class="stat-label">Avg Monthly Income</div>
-						</div>
-					</div>
 					
 					<div class="stats-list">
 						<div class="stats-row">
@@ -890,7 +912,7 @@
 
 	.asset-metrics {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-columns: repeat(2, 1fr);
 		gap: 1rem;
 		text-align: center;
 	}
@@ -1014,36 +1036,6 @@
 		font-size: 0.8rem;
 		color: var(--color-black);
 		opacity: 0.7;
-	}
-
-	.stats-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 1rem;
-		margin-bottom: 1.5rem;
-	}
-
-	.stat-item {
-		text-align: center;
-		padding: 1rem;
-		background: var(--color-light-gray);
-		border: 1px solid var(--color-light-gray);
-	}
-
-	.stat-value {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-primary);
-		margin-bottom: 0.25rem;
-	}
-
-	.stat-label {
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		opacity: 0.7;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
 	}
 
 	.stats-list {
@@ -1183,10 +1175,6 @@
 		}
 
 		.bottom-grid {
-			grid-template-columns: 1fr;
-		}
-
-		.stats-grid {
 			grid-template-columns: 1fr;
 		}
 
