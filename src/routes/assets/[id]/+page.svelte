@@ -392,27 +392,27 @@
 								<div class="flex flex-col gap-4">
 									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Field Type</span>
-										<span class="font-extrabold text-black">{assetData?.technical.fieldType}</span>
+										<span class="text-black">{assetData?.technical.fieldType}</span>
 									</div>
 									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Crude Benchmark</span>
-										<span class="font-extrabold text-black">{assetData?.technical.crudeBenchmark}</span>
+										<span class="text-black">{assetData?.technical.crudeBenchmark}</span>
 									</div>
 									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Pricing</span>
-										<span class="font-extrabold text-black">{formatPricing(assetData?.technical.pricing?.benchmarkPremium || '')}, {assetData?.technical.pricing?.transportCosts}</span>
+										<span class="text-black">{formatPricing(assetData?.technical.pricing?.benchmarkPremium || '')}, {assetData?.technical.pricing?.transportCosts}</span>
 									</div>
 									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">First Oil</span>
-										<span class="font-extrabold text-black">{assetData?.technical.firstOil}</span>
+										<span class="text-black">{assetData?.technical.firstOil}</span>
 									</div>
 									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Estimated End Date</span>
-										<span class="font-extrabold text-black">{formatEndDate(assetData?.technical.expectedEndDate || '')}</span>
+										<span class="text-black">{formatEndDate(assetData?.technical.expectedEndDate || '')}</span>
 									</div>
 									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Coordinates</span>
-										<span class="font-extrabold text-black">{assetData?.location.coordinates.lat}°, {assetData?.location.coordinates.lng}°</span>
+										<span class="text-black">{assetData?.location.coordinates.lat}°, {assetData?.location.coordinates.lng}°</span>
 									</div>
 								</div>
 							</div>
@@ -422,7 +422,7 @@
 								<div class="flex flex-col gap-4">
 									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Interest Type</span>
-										<span class="font-extrabold text-black">{assetData?.assetTerms?.interestType}</span>
+										<span class="text-black">{assetData?.assetTerms?.interestType}</span>
 									</div>
 									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black relative">
@@ -440,15 +440,15 @@
 												{/if}
 											{/if}
 										</span>
-										<span class="font-extrabold text-black">{assetData?.assetTerms?.amount}</span>
+										<span class="text-black">{assetData?.assetTerms?.amount}</span>
 									</div>
 									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Payment Frequency</span>
-										<span class="font-extrabold text-black">{assetData?.assetTerms?.paymentFrequency}</span>
+										<span class="text-black">{assetData?.assetTerms?.paymentFrequency}</span>
 									</div>
 									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 										<span class="font-semibold text-black">Infrastructure</span>
-										<span class="font-extrabold text-black">{assetData?.technical.infrastructure}</span>
+										<span class="text-black">{assetData?.technical.infrastructure}</span>
 									</div>
 								</div>
 							</div>

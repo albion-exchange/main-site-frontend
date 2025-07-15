@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import { fly, fade } from 'svelte/transition';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Asset, Token } from '$lib/types/dataStore';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
@@ -147,7 +148,7 @@
 	
 	// Tailwind class mappings
 	$: overlayClasses = 'fixed inset-0 bg-black/50 flex items-center justify-end z-[1000] p-8';
-	$: containerClasses = 'bg-white w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl animate-slide-in-right';
+	$: containerClasses = 'bg-white w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl';
 	$: headerClasses = 'flex justify-between items-center p-8 border-b border-light-gray';
 	$: titleClasses = 'flex-1';
 	$: titleRowClasses = 'flex justify-between items-center gap-4';
@@ -190,8 +191,8 @@
 
 <!-- Widget Overlay -->
 {#if isOpen}
-	<div class={overlayClasses} on:click={handleBackdropClick} on:keydown={handleKeydown} role="dialog" aria-modal="true" tabindex="-1">
-		<div class={containerClasses}>
+	<div class={overlayClasses} on:click={handleBackdropClick} on:keydown={handleKeydown} role="dialog" aria-modal="true" tabindex="-1" transition:fade={{ duration: 200 }}>
+		<div class={containerClasses} transition:fly={{ x: 500, duration: 300 }}>
 			<!-- Header -->
 			<div class={headerClasses}>
 				<div class={titleClasses}>

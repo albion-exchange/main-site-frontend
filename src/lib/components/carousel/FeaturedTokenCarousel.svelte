@@ -206,15 +206,15 @@
 	$: tokenNameClasses = 'text-2xl font-extrabold text-black tracking-wider mb-3 leading-tight font-figtree text-left';
 	$: tokenContractClasses = 'text-base font-medium text-secondary break-all leading-relaxed py-1 opacity-80 tracking-tight font-figtree text-left';
 	$: assetHeaderClasses = 'mb-6';
-	$: assetStatusClasses = 'flex items-center gap-2 mb-4';
-	$: statusIndicatorClasses = 'w-2 h-2 bg-secondary';
-	$: statusIndicatorProducingClasses = 'w-2 h-2 bg-green-500 animate-pulse-status';
-	$: statusIndicatorFundingClasses = 'w-2 h-2 bg-yellow-500';
-	$: statusIndicatorCompletedClasses = 'w-2 h-2 bg-secondary';
+	$: assetStatusClasses = 'flex items-center gap-2 mb-2';
+	$: statusIndicatorClasses = 'w-2 h-2 bg-secondary rounded-full';
+	$: statusIndicatorProducingClasses = 'w-2 h-2 bg-green-500 rounded-full animate-pulse-status';
+	$: statusIndicatorFundingClasses = 'w-2 h-2 bg-yellow-500 rounded-full';
+	$: statusIndicatorCompletedClasses = 'w-2 h-2 bg-secondary rounded-full';
 	$: statusTextClasses = 'text-sm font-medium text-black font-figtree';
 	$: assetNameClasses = 'text-2xl font-extrabold text-black mb-2 leading-tight font-figtree';
 	$: assetLocationClasses = 'text-lg text-black leading-relaxed font-figtree';
-	$: assetDescriptionClasses = 'text-lg text-black leading-relaxed mb-8 font-figtree';
+	$: assetDescriptionClasses = 'text-base text-black leading-relaxed mb-8 font-figtree';
 	$: tokenStatsClasses = 'grid grid-cols-2 gap-4 mb-8';
 	$: assetStatsClasses = 'grid grid-cols-1 gap-4 mb-8';
 	$: statItemClasses = 'text-left';
@@ -362,7 +362,7 @@
 							<!-- Asset Section -->
 							<div class={mobileAssetSectionClasses}>
 								<div class={assetHeaderClasses}>
-									<div class={assetStatusClasses}>
+									<div class="flex items-center gap-2 mb-2">
 										<div class={getStatusIndicatorClasses(item.asset.production.status)}></div>
 										<span class={statusTextClasses}>{item.asset.production.status.toUpperCase()}</span>
 									</div>

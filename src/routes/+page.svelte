@@ -194,13 +194,13 @@
 
 	<!-- Featured Tokens Carousel -->
 	<ContentSection background="white" padding="standard" centered>
-		<SectionTitle level="h2" size="section" center className="mb-12">Featured Token Releases</SectionTitle>
+		<SectionTitle level="h2" size="section" center className="mb-6">Featured Token Releases</SectionTitle>
 		<FeaturedTokenCarousel autoPlay={true} autoPlayInterval={6000} on:buyTokens={handleBuyTokensFromCarousel} />
 	</ContentSection>
 
 	<!-- How It Works -->
 	<ContentSection background="gray" padding="standard" centered>
-		<SectionTitle level="h2" size="section" center className="mb-8 md:mb-12">How It Works</SectionTitle>
+		<SectionTitle level="h2" size="section" center className="mb-4 md:mb-6">How It Works</SectionTitle>
 		
 		<GridContainer columns={3} gap="large">
 				<div class="text-center">
@@ -225,7 +225,7 @@
 
 	<!-- Trust Indicators -->
 	<ContentSection background="white" padding="standard" centered>
-		<SectionTitle level="h2" size="section" center className="mb-8 md:mb-12">Why Choose Albion</SectionTitle>
+		<SectionTitle level="h2" size="section" center className="mb-4 md:mb-6">Why Choose Albion</SectionTitle>
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
 			<div class="flex flex-col items-center text-center">
 				<div class="mb-6 text-black flex items-center justify-center w-16 h-16 relative">
