@@ -3,7 +3,7 @@
  * Calculates real portfolio values based on user holdings and asset data
  */
 
-import type { Asset, Token } from '$lib/types/dataStore';
+import type { Asset, Token } from '$lib/types/uiTypes';
 import dataStoreService from '$lib/services/DataStoreService';
 
 export interface PortfolioHolding {

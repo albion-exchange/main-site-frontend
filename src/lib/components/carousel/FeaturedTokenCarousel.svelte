@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import dataStoreService from '$lib/services/DataStoreService';
-	import type { Token, Asset } from '$lib/types/dataStore';
+	import type { Token, Asset } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
 
 	export let autoPlay = true;

@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import dataStoreService from '$lib/services/DataStoreService';
-	import type { Token } from '$lib/types/dataStore';
+	import type { Token } from '$lib/types/uiTypes';
 	import FeaturedTokenCarousel from '$lib/components/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
 	import { PrimaryButton, SecondaryButton, StatsCard, ButtonGroup } from '$lib/components/ui';
@@ -43,13 +43,8 @@
 				return sum + (mintedTokens * estimatedTokenValue);
 			}, 0);
 			
-			// Count unique holders across all tokens
-			const uniqueHolders = new Set();
-			allTokens.forEach(token => {
-				token.holders.forEach(holder => {
-					uniqueHolders.add(holder.address.toLowerCase());
-				});
-			});
+			// Get total holders from platform statistics
+			const totalHolders = stats.totalHolders;
 			
 			// Count unique regions from asset locations
 			const uniqueRegions = new Set(allAssets.map(asset => `${asset.location.state}, ${asset.location.country}`));
@@ -81,7 +76,7 @@
 			platformStats = {
 				totalAssets: stats.totalAssets,
 				totalInvested: totalInvested / 1000000, // Convert to millions
-				activeInvestors: uniqueHolders.size,
+				activeInvestors: totalHolders,
 				totalRegions: uniqueRegions.size,
 				monthlyGrowthRate: Number(monthlyGrowthRate.toFixed(1))
 			};

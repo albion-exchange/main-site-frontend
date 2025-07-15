@@ -3,7 +3,7 @@
  * Based on planned production data and token supply metrics
  */
 
-import type { Asset, Token, PlannedProductionProjection } from '$lib/types/dataStore';
+import type { Asset, Token, PlannedProductionProjection } from '$lib/types/uiTypes';
 
 export interface TokenReturns {
   baseReturn: number; // Annual percentage

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import dataStoreService from '$lib/services/DataStoreService';
-	import type { Asset } from '$lib/types/dataStore';
+	import type { Asset } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/WalletModal.svelte';
 	import marketData from '$lib/data/marketData.json';

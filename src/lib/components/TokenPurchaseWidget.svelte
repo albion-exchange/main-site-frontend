@@ -2,7 +2,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { fly, fade } from 'svelte/transition';
 	import dataStoreService from '$lib/services/DataStoreService';
-	import type { Asset, Token } from '$lib/types/dataStore';
+	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
 
 	export let isOpen = false;
