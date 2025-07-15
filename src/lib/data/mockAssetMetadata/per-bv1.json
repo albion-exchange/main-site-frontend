@@ -1,0 +1,626 @@
+{
+  "contractAddress": "0x6789012345f012345678901234ef067890123",
+  "symbol": "PER-BV1",
+  "releaseName": "Permian Basin-3 Release 1",
+  "assetName": "Permian Basin-3 Royalty Stream",
+  "tokenType": "royalty",
+  "firstPaymentDate": "2025-03",
+  "sharePercentage": 72,
+  "decimals": 18,
+  "supply": {
+    "maxSupply": "3000000000000000000000000",
+    "mintedSupply": "1731250000000000000000000"
+  },
+  "monthlyData": [
+    {
+      "month": "2025-06",
+      "assetData": {
+        "production": 1894.2,
+        "revenue": 132594,
+        "expenses": 0,
+        "netIncome": 132594
+      },
+      "tokenPayout": {
+        "date": "2025-06-15T00:00:00.000Z",
+        "totalPayout": 95467.7,
+        "payoutPerToken": 0.05514,
+        "txHash": "0xffffffffffffffffffffffffe39f432be71497cc"
+      },
+      "realisedPrice": {
+        "oilPrice": 70,
+        "gasPrice": 3.1
+      }
+    },
+    {
+      "month": "2025-05",
+      "assetData": {
+        "production": 2029.5,
+        "revenue": 142065,
+        "expenses": 0,
+        "netIncome": 142065
+      },
+      "tokenPayout": {
+        "date": "2025-05-15T00:00:00.000Z",
+        "totalPayout": 102286.8,
+        "payoutPerToken": 0.05908,
+        "txHash": "0xffffffffffffffffffffffffbd40abda9db7a44a"
+      },
+      "realisedPrice": {
+        "oilPrice": 70,
+        "gasPrice": 3.1
+      }
+    },
+    {
+      "month": "2025-04",
+      "assetData": {
+        "production": 1855.6,
+        "revenue": 129892,
+        "expenses": 0,
+        "netIncome": 129892
+      },
+      "tokenPayout": {
+        "date": "2025-04-15T00:00:00.000Z",
+        "totalPayout": 93522.2,
+        "payoutPerToken": 0.05402,
+        "txHash": "0x00000000000000000000000033cc0aae6221c10f"
+      },
+      "realisedPrice": {
+        "oilPrice": 70,
+        "gasPrice": 3.1
+      }
+    },
+    {
+      "month": "2025-03",
+      "assetData": {
+        "production": 1952.2,
+        "revenue": 136654,
+        "expenses": 0,
+        "netIncome": 136654
+      },
+      "tokenPayout": {
+        "date": "2025-03-15T00:00:00.000Z",
+        "totalPayout": 98390.9,
+        "payoutPerToken": 0.05683,
+        "txHash": "0x00000000000000000000000066ea1a24c381c01a"
+      },
+      "realisedPrice": {
+        "oilPrice": 70,
+        "gasPrice": 3.1
+      }
+    }
+  ],
+  "asset": {
+    "description": "Major unconventional oil development in the heart of the Permian Basin with cutting-edge fracking technology and exceptional reservoir quality.",
+    "location": {
+      "state": "Texas",
+      "county": "Midland County",
+      "country": "United States",
+      "coordinates": {
+        "lat": 32,
+        "lng": -102.1
+      },
+      "waterDepth": null
+    },
+    "operator": {
+      "name": "Permian Energy Corp",
+      "website": "https://permiancorp.com",
+      "experienceYears": 25
+    },
+    "technical": {
+      "fieldType": "Unconventional Oil",
+      "depth": 2800,
+      "license": "TX-4921",
+      "firstOil": "2019-01",
+      "infrastructure": "Direct pipeline to refineries",
+      "environmental": "State compliance with emissions monitoring",
+      "expectedEndDate": "2029-02",
+      "crudeBenchmark": "WTI",
+      "pricing": {
+        "benchmarkPremium": -0.95,
+        "transportCosts": 0
+      },
+      "estimatedLifeMonths": 48
+    },
+    "assetTerms": {
+      "interestType": "Royalty",
+      "amount": 2.8,
+      "amountTooltip": "All numbers shown have already been adjusted for the royalty percentage and represent the net amounts payable to token holders",
+      "paymentFrequencyDays": 30
+    },
+    "production": {
+      "current": "2700 boe/day",
+      "status": "producing",
+      "units": {
+        "production": 1,
+        "revenue": 1
+      }
+    },
+    "plannedProduction": {
+      "oilPriceAssumption": 68,
+      "oilPriceAssumptionCurrency": "USD",
+      "projections": [
+        {
+          "month": "2025-07",
+          "production": 2760.3
+        },
+        {
+          "month": "2025-08",
+          "production": 2626.56
+        },
+        {
+          "month": "2025-09",
+          "production": 2668.86
+        },
+        {
+          "month": "2025-10",
+          "production": 2624.4
+        },
+        {
+          "month": "2025-11",
+          "production": 2497.5
+        },
+        {
+          "month": "2025-12",
+          "production": 2538
+        },
+        {
+          "month": "2026-01",
+          "production": 2415.24
+        },
+        {
+          "month": "2026-02",
+          "production": 2403.9
+        },
+        {
+          "month": "2026-03",
+          "production": 2363.4
+        },
+        {
+          "month": "2026-04",
+          "production": 2005.92
+        },
+        {
+          "month": "2026-05",
+          "production": 2223
+        },
+        {
+          "month": "2026-06",
+          "production": 1081.44
+        },
+        {
+          "month": "2026-07",
+          "production": 3152.52
+        },
+        {
+          "month": "2026-08",
+          "production": 2696.94
+        },
+        {
+          "month": "2026-09",
+          "production": 2604.42
+        },
+        {
+          "month": "2026-10",
+          "production": 2421.72
+        },
+        {
+          "month": "2026-11",
+          "production": 2391.84
+        },
+        {
+          "month": "2026-12",
+          "production": 2516.58
+        },
+        {
+          "month": "2027-01",
+          "production": 2442.6
+        },
+        {
+          "month": "2027-02",
+          "production": 2471.4
+        },
+        {
+          "month": "2027-03",
+          "production": 2174.58
+        },
+        {
+          "month": "2027-04",
+          "production": 1758.78
+        },
+        {
+          "month": "2027-05",
+          "production": 1818.9
+        },
+        {
+          "month": "2027-06",
+          "production": 1741.14
+        },
+        {
+          "month": "2027-07",
+          "production": 1807.2
+        },
+        {
+          "month": "2027-08",
+          "production": 1723.32
+        },
+        {
+          "month": "2027-09",
+          "production": 1728.54
+        },
+        {
+          "month": "2027-10",
+          "production": 1618.02
+        },
+        {
+          "month": "2027-11",
+          "production": 1464.12
+        },
+        {
+          "month": "2027-12",
+          "production": 1412.1
+        },
+        {
+          "month": "2028-01",
+          "production": 1268.82
+        },
+        {
+          "month": "2028-02",
+          "production": 1198.8
+        },
+        {
+          "month": "2028-03",
+          "production": 1156.5
+        },
+        {
+          "month": "2028-04",
+          "production": 1074.6
+        },
+        {
+          "month": "2028-05",
+          "production": 973.8
+        },
+        {
+          "month": "2028-06",
+          "production": 850.5
+        },
+        {
+          "month": "2028-07",
+          "production": 831.6
+        },
+        {
+          "month": "2028-08",
+          "production": 747
+        },
+        {
+          "month": "2028-09",
+          "production": 691.2
+        },
+        {
+          "month": "2028-10",
+          "production": 653.4
+        },
+        {
+          "month": "2028-11",
+          "production": 561.6
+        },
+        {
+          "month": "2028-12",
+          "production": 536.4
+        },
+        {
+          "month": "2029-01",
+          "production": 459
+        },
+        {
+          "month": "2029-02",
+          "production": 410.4
+        }
+      ]
+    },
+    "productionHistory": [
+      {
+        "month": "2019-01",
+        "production": 3168.72
+      },
+      {
+        "month": "2019-02",
+        "production": 2920.2
+      },
+      {
+        "month": "2019-03",
+        "production": 2930.58
+      },
+      {
+        "month": "2019-04",
+        "production": 2936.34
+      },
+      {
+        "month": "2019-05",
+        "production": 1484.04
+      },
+      {
+        "month": "2019-06",
+        "production": 3235.5
+      },
+      {
+        "month": "2019-07",
+        "production": 3418.42
+      },
+      {
+        "month": "2019-08",
+        "production": 3165.34
+      },
+      {
+        "month": "2019-09",
+        "production": 3161.34
+      },
+      {
+        "month": "2019-10",
+        "production": 3164.34
+      },
+      {
+        "month": "2019-11",
+        "production": 3196.94
+      },
+      {
+        "month": "2019-12",
+        "production": 3195.16
+      },
+      {
+        "month": "2020-01",
+        "production": 2541.66
+      },
+      {
+        "month": "2020-02",
+        "production": 988.72
+      },
+      {
+        "month": "2020-03",
+        "production": 9.59
+      },
+      {
+        "month": "2020-04",
+        "production": 0
+      },
+      {
+        "month": "2020-05",
+        "production": 1881.64
+      },
+      {
+        "month": "2020-06",
+        "production": 1804.34
+      },
+      {
+        "month": "2020-07",
+        "production": 2500.28
+      },
+      {
+        "month": "2020-08",
+        "production": 1922.48
+      },
+      {
+        "month": "2020-09",
+        "production": 2097.54
+      },
+      {
+        "month": "2020-10",
+        "production": 1791.12
+      },
+      {
+        "month": "2020-11",
+        "production": 1573.86
+      },
+      {
+        "month": "2020-12",
+        "production": 1463.22
+      },
+      {
+        "month": "2021-01",
+        "production": 1601.5
+      },
+      {
+        "month": "2021-02",
+        "production": 1569.42
+      },
+      {
+        "month": "2021-03",
+        "production": 1522.56
+      },
+      {
+        "month": "2021-04",
+        "production": 1272.18
+      },
+      {
+        "month": "2021-05",
+        "production": 1353.32
+      },
+      {
+        "month": "2021-06",
+        "production": 985.98
+      },
+      {
+        "month": "2021-07",
+        "production": 1122.28
+      },
+      {
+        "month": "2021-08",
+        "production": 1367.28
+      },
+      {
+        "month": "2021-09",
+        "production": 1307.34
+      },
+      {
+        "month": "2021-10",
+        "production": 1264.92
+      },
+      {
+        "month": "2021-11",
+        "production": 1418
+      },
+      {
+        "month": "2021-12",
+        "production": 1687.17
+      },
+      {
+        "month": "2022-01",
+        "production": 1634.13
+      },
+      {
+        "month": "2022-02",
+        "production": 1735.26
+      },
+      {
+        "month": "2022-03",
+        "production": 1767.39
+      },
+      {
+        "month": "2022-04",
+        "production": 1805.52
+      },
+      {
+        "month": "2022-05",
+        "production": 1933.71
+      },
+      {
+        "month": "2022-06",
+        "production": 1901.84
+      },
+      {
+        "month": "2022-07",
+        "production": 2104.33
+      },
+      {
+        "month": "2022-08",
+        "production": 1928.58
+      },
+      {
+        "month": "2022-09",
+        "production": 1851.24
+      },
+      {
+        "month": "2022-10",
+        "production": 1734.72
+      },
+      {
+        "month": "2022-11",
+        "production": 1647.36
+      },
+      {
+        "month": "2022-12",
+        "production": 1634.04
+      },
+      {
+        "month": "2023-01",
+        "production": 1735.17
+      },
+      {
+        "month": "2023-02",
+        "production": 1687.56
+      },
+      {
+        "month": "2023-03",
+        "production": 1647.52
+      },
+      {
+        "month": "2023-04",
+        "production": 1634.16
+      },
+      {
+        "month": "2023-05",
+        "production": 1418.98
+      },
+      {
+        "month": "2023-06",
+        "production": 1634.44
+      },
+      {
+        "month": "2023-07",
+        "production": 1600.84
+      },
+      {
+        "month": "2023-08",
+        "production": 1735.52
+      },
+      {
+        "month": "2023-09",
+        "production": 1634.68
+      },
+      {
+        "month": "2023-10",
+        "production": 1536.22
+      },
+      {
+        "month": "2023-11",
+        "production": 1647.28
+      },
+      {
+        "month": "2024-01",
+        "production": 1573.86
+      },
+      {
+        "month": "2024-02",
+        "production": 1463.22
+      },
+      {
+        "month": "2024-03",
+        "production": 1601.5
+      },
+      {
+        "month": "2024-04",
+        "production": 1569.42
+      },
+      {
+        "month": "2024-05",
+        "production": 1522.56
+      },
+      {
+        "month": "2024-06",
+        "production": 1272.18
+      },
+      {
+        "month": "2024-07",
+        "production": 1353.32
+      },
+      {
+        "month": "2024-08",
+        "production": 985.98
+      },
+      {
+        "month": "2024-09",
+        "production": 1122.28
+      },
+      {
+        "month": "2024-10",
+        "production": 1367.28
+      },
+      {
+        "month": "2024-11",
+        "production": 1307.34
+      }
+    ],
+    "operationalMetrics": {
+      "uptime": {
+        "percentage": 97.3,
+        "unit": "percent",
+        "period": "last_30_days"
+      },
+      "dailyProduction": {
+        "current": 2748,
+        "target": 2820,
+        "unit": "boe"
+      },
+      "hseMetrics": {
+        "incidentFreeDays": 542,
+        "lastIncidentDate": "2023-07-08T00:00:00.000Z",
+        "safetyRating": "Excellent"
+      }
+    }
+  },
+  "documents": [],
+  "coverImage": "/src/lib/data/images/per-bv-cover.jpg",
+  "metadata": {
+    "createdAt": "2019-01-15T10:00:00.000Z",
+    "updatedAt": "2025-01-07T10:00:00.000Z"
+  }
+}

@@ -1,0 +1,546 @@
+{
+  "contractAddress": "0x4567890123def0123456789012cdef045678901",
+  "symbol": "BAK-HF1",
+  "releaseName": "Bakken Horizon-2 Release 1",
+  "assetName": "Bakken Horizon-2 Royalty Stream",
+  "tokenType": "royalty",
+  "firstPaymentDate": "2025-03",
+  "sharePercentage": 48,
+  "decimals": 18,
+  "supply": {
+    "maxSupply": "1000000000000000000000000",
+    "mintedSupply": "487500000000000000000000"
+  },
+  "monthlyData": [
+    {
+      "month": "2025-06",
+      "assetData": {
+        "production": 1112.8,
+        "revenue": 77896,
+        "expenses": 0,
+        "netIncome": 77896
+      },
+      "tokenPayout": {
+        "date": "2025-06-15T00:00:00.000Z",
+        "totalPayout": 37390.1,
+        "payoutPerToken": 0.0767,
+        "txHash": "0x00000000000000000000000041edb16a6f48b35c"
+      },
+      "realisedPrice": {
+        "oilPrice": 70,
+        "gasPrice": 3.1
+      }
+    },
+    {
+      "month": "2025-05",
+      "assetData": {
+        "production": 1192.3,
+        "revenue": 83461,
+        "expenses": 0,
+        "netIncome": 83461
+      },
+      "tokenPayout": {
+        "date": "2025-05-15T00:00:00.000Z",
+        "totalPayout": 40061.3,
+        "payoutPerToken": 0.08218,
+        "txHash": "0x0000000000000000000000004cf2533875715664"
+      },
+      "realisedPrice": {
+        "oilPrice": 70,
+        "gasPrice": 3.1
+      }
+    },
+    {
+      "month": "2025-04",
+      "assetData": {
+        "production": 1090.1,
+        "revenue": 76307,
+        "expenses": 0,
+        "netIncome": 76307
+      },
+      "tokenPayout": {
+        "date": "2025-04-15T00:00:00.000Z",
+        "totalPayout": 36627.4,
+        "payoutPerToken": 0.07513,
+        "txHash": "0xffffffffffffffffffffffff88abf860376117fb"
+      },
+      "realisedPrice": {
+        "oilPrice": 70,
+        "gasPrice": 3.1
+      }
+    },
+    {
+      "month": "2025-03",
+      "assetData": {
+        "production": 1146.9,
+        "revenue": 80283,
+        "expenses": 0,
+        "netIncome": 80283
+      },
+      "tokenPayout": {
+        "date": "2025-03-15T00:00:00.000Z",
+        "totalPayout": 38535.8,
+        "payoutPerToken": 0.07905,
+        "txHash": "0x0000000000000000000000000cf0e298e556f6dc"
+      },
+      "realisedPrice": {
+        "oilPrice": 70,
+        "gasPrice": 3.1
+      }
+    }
+  ],
+  "asset": {
+    "description": "High-production shale oil development in the heart of the Bakken formation with advanced horizontal drilling technology and multiple producing wells.",
+    "location": {
+      "state": "North Dakota",
+      "county": "McKenzie County",
+      "country": "United States",
+      "coordinates": {
+        "lat": 47.8,
+        "lng": -103.2
+      },
+      "waterDepth": null
+    },
+    "operator": {
+      "name": "Horizon Energy Partners LLC",
+      "website": "https://horizonenergypartners.com",
+      "experienceYears": 20
+    },
+    "technical": {
+      "fieldType": "Shale Oil",
+      "depth": 3200,
+      "license": "ND-2847",
+      "firstOil": "2020-04",
+      "infrastructure": "Rail and pipeline access",
+      "environmental": "EPA compliant with reduced emissions technology",
+      "expectedEndDate": "2028-06",
+      "crudeBenchmark": "WTI",
+      "pricing": {
+        "benchmarkPremium": -1.25,
+        "transportCosts": 0
+      },
+      "estimatedLifeMonths": 36
+    },
+    "assetTerms": {
+      "interestType": "Royalty",
+      "amount": 3.2,
+      "amountTooltip": "All numbers shown have already been adjusted for the royalty percentage and represent the net amounts payable to token holders",
+      "paymentFrequencyDays": 30
+    },
+    "production": {
+      "current": "1200 boe/day",
+      "status": "producing",
+      "units": {
+        "production": 1,
+        "revenue": 1
+      }
+    },
+    "plannedProduction": {
+      "oilPriceAssumption": 70,
+      "oilPriceAssumptionCurrency": "USD",
+      "projections": [
+        {
+          "month": "2025-07",
+          "production": 1226.8
+        },
+        {
+          "month": "2025-08",
+          "production": 1167.36
+        },
+        {
+          "month": "2025-09",
+          "production": 1186.16
+        },
+        {
+          "month": "2025-10",
+          "production": 1166.4
+        },
+        {
+          "month": "2025-11",
+          "production": 1110
+        },
+        {
+          "month": "2025-12",
+          "production": 1128
+        },
+        {
+          "month": "2026-01",
+          "production": 1073.44
+        },
+        {
+          "month": "2026-02",
+          "production": 1068.4
+        },
+        {
+          "month": "2026-03",
+          "production": 1050.4
+        },
+        {
+          "month": "2026-04",
+          "production": 891.52
+        },
+        {
+          "month": "2026-05",
+          "production": 988
+        },
+        {
+          "month": "2026-06",
+          "production": 480.64
+        },
+        {
+          "month": "2026-07",
+          "production": 1401.12
+        },
+        {
+          "month": "2026-08",
+          "production": 1198.64
+        },
+        {
+          "month": "2026-09",
+          "production": 1157.52
+        },
+        {
+          "month": "2026-10",
+          "production": 1076.32
+        },
+        {
+          "month": "2026-11",
+          "production": 1063.04
+        },
+        {
+          "month": "2026-12",
+          "production": 1118.48
+        },
+        {
+          "month": "2027-01",
+          "production": 1085.6
+        },
+        {
+          "month": "2027-02",
+          "production": 1098.4
+        },
+        {
+          "month": "2027-03",
+          "production": 966.48
+        },
+        {
+          "month": "2027-04",
+          "production": 781.68
+        },
+        {
+          "month": "2027-05",
+          "production": 808.4
+        },
+        {
+          "month": "2027-06",
+          "production": 773.84
+        },
+        {
+          "month": "2027-07",
+          "production": 803.2
+        },
+        {
+          "month": "2027-08",
+          "production": 765.92
+        },
+        {
+          "month": "2027-09",
+          "production": 768.24
+        },
+        {
+          "month": "2027-10",
+          "production": 719.12
+        },
+        {
+          "month": "2027-11",
+          "production": 650.72
+        },
+        {
+          "month": "2027-12",
+          "production": 627.6
+        },
+        {
+          "month": "2028-01",
+          "production": 563.92
+        },
+        {
+          "month": "2028-02",
+          "production": 532.8
+        },
+        {
+          "month": "2028-03",
+          "production": 514
+        },
+        {
+          "month": "2028-04",
+          "production": 477.6
+        },
+        {
+          "month": "2028-05",
+          "production": 432.8
+        },
+        {
+          "month": "2028-06",
+          "production": 378
+        }
+      ]
+    },
+    "productionHistory": [
+      {
+        "month": "2020-02",
+        "production": 2112.48
+      },
+      {
+        "month": "2020-03",
+        "production": 1946.8
+      },
+      {
+        "month": "2020-04",
+        "production": 1953.72
+      },
+      {
+        "month": "2020-05",
+        "production": 1957.56
+      },
+      {
+        "month": "2020-06",
+        "production": 989.36
+      },
+      {
+        "month": "2020-07",
+        "production": 2157
+      },
+      {
+        "month": "2020-08",
+        "production": 2278.94
+      },
+      {
+        "month": "2020-09",
+        "production": 2110.22
+      },
+      {
+        "month": "2020-10",
+        "production": 2107.56
+      },
+      {
+        "month": "2020-11",
+        "production": 2109.56
+      },
+      {
+        "month": "2020-12",
+        "production": 2131.3
+      },
+      {
+        "month": "2021-01",
+        "production": 2130.1
+      },
+      {
+        "month": "2021-02",
+        "production": 1694.44
+      },
+      {
+        "month": "2021-03",
+        "production": 659.14
+      },
+      {
+        "month": "2021-04",
+        "production": 6.4
+      },
+      {
+        "month": "2021-05",
+        "production": 0
+      },
+      {
+        "month": "2021-06",
+        "production": 1254.42
+      },
+      {
+        "month": "2021-07",
+        "production": 1202.9
+      },
+      {
+        "month": "2021-08",
+        "production": 1666.86
+      },
+      {
+        "month": "2021-09",
+        "production": 1281.66
+      },
+      {
+        "month": "2021-10",
+        "production": 1398.36
+      },
+      {
+        "month": "2021-11",
+        "production": 1194.08
+      },
+      {
+        "month": "2021-12",
+        "production": 1049.24
+      },
+      {
+        "month": "2022-01",
+        "production": 975.48
+      },
+      {
+        "month": "2022-02",
+        "production": 1067.66
+      },
+      {
+        "month": "2022-03",
+        "production": 1046.28
+      },
+      {
+        "month": "2022-04",
+        "production": 1015.04
+      },
+      {
+        "month": "2022-05",
+        "production": 848.12
+      },
+      {
+        "month": "2022-06",
+        "production": 902.22
+      },
+      {
+        "month": "2022-07",
+        "production": 657.32
+      },
+      {
+        "month": "2022-08",
+        "production": 748.18
+      },
+      {
+        "month": "2022-09",
+        "production": 911.52
+      },
+      {
+        "month": "2022-10",
+        "production": 871.56
+      },
+      {
+        "month": "2022-11",
+        "production": 812.64
+      },
+      {
+        "month": "2022-12",
+        "production": 945.32
+      },
+      {
+        "month": "2023-01",
+        "production": 1124.78
+      },
+      {
+        "month": "2023-02",
+        "production": 1089.42
+      },
+      {
+        "month": "2023-03",
+        "production": 1156.84
+      },
+      {
+        "month": "2023-04",
+        "production": 1178.26
+      },
+      {
+        "month": "2023-05",
+        "production": 1203.68
+      },
+      {
+        "month": "2023-06",
+        "production": 1289.14
+      },
+      {
+        "month": "2023-07",
+        "production": 1267.56
+      },
+      {
+        "month": "2023-08",
+        "production": 1402.88
+      },
+      {
+        "month": "2023-09",
+        "production": 1285.72
+      },
+      {
+        "month": "2023-10",
+        "production": 1234.16
+      },
+      {
+        "month": "2023-11",
+        "production": 1156.48
+      },
+      {
+        "month": "2023-12",
+        "production": 1098.24
+      },
+      {
+        "month": "2024-01",
+        "production": 1089.36
+      },
+      {
+        "month": "2024-02",
+        "production": 1156.78
+      },
+      {
+        "month": "2024-03",
+        "production": 1124.52
+      },
+      {
+        "month": "2024-04",
+        "production": 1098.84
+      },
+      {
+        "month": "2024-05",
+        "production": 1089.72
+      },
+      {
+        "month": "2024-06",
+        "production": 945.32
+      },
+      {
+        "month": "2024-07",
+        "production": 1089.48
+      },
+      {
+        "month": "2024-08",
+        "production": 1067.28
+      },
+      {
+        "month": "2024-09",
+        "production": 1156.84
+      },
+      {
+        "month": "2024-10",
+        "production": 1089.56
+      },
+      {
+        "month": "2024-11",
+        "production": 1023.74
+      }
+    ],
+    "operationalMetrics": {
+      "uptime": {
+        "percentage": 94.5,
+        "unit": "percent",
+        "period": "last_30_days"
+      },
+      "dailyProduction": {
+        "current": 1216,
+        "target": 1280,
+        "unit": "boe"
+      },
+      "hseMetrics": {
+        "incidentFreeDays": 198,
+        "lastIncidentDate": "2024-05-22T00:00:00.000Z",
+        "safetyRating": "Good"
+      }
+    }
+  },
+  "documents": [],
+  "coverImage": "/src/lib/data/images/bak-hf-cover.jpeg",
+  "metadata": {
+    "createdAt": "2020-02-15T10:00:00.000Z",
+    "updatedAt": "2025-01-07T10:00:00.000Z"
+  }
+}

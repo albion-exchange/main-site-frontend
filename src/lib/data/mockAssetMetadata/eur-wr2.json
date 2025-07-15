@@ -1,0 +1,430 @@
+{
+  "contractAddress": "0x5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e",
+  "symbol": "EUR-WR2",
+  "releaseName": "Wressle-1 Release 2",
+  "assetName": "Wressle-1 Royalty Stream",
+  "tokenType": "royalty",
+  "firstPaymentDate": "2025-07",
+  "sharePercentage": 20,
+  "decimals": 18,
+  "supply": {
+    "maxSupply": "154999999999999970000000",
+    "mintedSupply": "128000000000000000000000"
+  },
+  "monthlyData": [
+    {
+      "month": "2025-06",
+      "assetData": {
+        "production": 310.5,
+        "revenue": 21735,
+        "expenses": 0,
+        "netIncome": 21735
+      },
+      "tokenPayout": {
+        "date": "2025-06-15T00:00:00.000Z",
+        "totalPayout": 4347,
+        "payoutPerToken": 0.03396,
+        "txHash": "0xffffffffffffffffffffffff8164edcb70bbebae"
+      },
+      "realisedPrice": {
+        "oilPrice": 70,
+        "gasPrice": 3.1
+      }
+    },
+    {
+      "month": "2025-05",
+      "assetData": {
+        "production": 325.2,
+        "revenue": 22764,
+        "expenses": 0,
+        "netIncome": 22764
+      },
+      "tokenPayout": {
+        "date": "2025-05-15T00:00:00.000Z",
+        "totalPayout": 4552.8,
+        "payoutPerToken": 0.03557,
+        "txHash": "0xffffffffffffffffffffffffced74aeb4b022672"
+      },
+      "realisedPrice": {
+        "oilPrice": 70,
+        "gasPrice": 3.1
+      }
+    },
+    {
+      "month": "2025-04",
+      "assetData": {
+        "production": 298.7,
+        "revenue": 20909,
+        "expenses": 0,
+        "netIncome": 20909
+      },
+      "tokenPayout": {
+        "date": "2025-04-15T00:00:00.000Z",
+        "totalPayout": 4181.8,
+        "payoutPerToken": 0.03267,
+        "txHash": "0xffffffffffffffffffffffffa4945e18bc813b57"
+      },
+      "realisedPrice": {
+        "oilPrice": 70,
+        "gasPrice": 3.1
+      }
+    },
+    {
+      "month": "2025-03",
+      "assetData": {
+        "production": 315.8,
+        "revenue": 22106,
+        "expenses": 0,
+        "netIncome": 22106
+      },
+      "tokenPayout": {
+        "date": "2025-03-15T00:00:00.000Z",
+        "totalPayout": 4421.2,
+        "payoutPerToken": 0.03454,
+        "txHash": "0xffffffffffffffffffffffffbe216dfc5fedde41"
+      },
+      "realisedPrice": {
+        "oilPrice": 70,
+        "gasPrice": 3.1
+      }
+    }
+  ],
+  "asset": {
+    "description": "Onshore conventional oil field located in the North Sea Sector 7B with proven reserves and established infrastructure.",
+    "location": {
+      "state": "East Midlands",
+      "county": "Lincolnshire",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 53.2,
+        "lng": 0.2
+      },
+      "waterDepth": "0m"
+    },
+    "operator": {
+      "name": "Egdon Resources",
+      "website": "https://www.egdon-resources.com",
+      "experienceYears": 28
+    },
+    "technical": {
+      "fieldType": "Conventional Oil",
+      "depth": 1800,
+      "license": "PEDL180/PEDL182",
+      "firstOil": "2022-07",
+      "infrastructure": "Existing pipeline connection",
+      "environmental": "Full environmental compliance",
+      "expectedEndDate": "2027-12",
+      "crudeBenchmark": "Brent",
+      "pricing": {
+        "benchmarkPremium": -1.3,
+        "transportCosts": 0
+      },
+      "estimatedLifeMonths": 24
+    },
+    "assetTerms": {
+      "interestType": "Royalty",
+      "amount": 4.5,
+      "amountTooltip": "All numbers shown have already been adjusted for the royalty percentage and represent the net amounts payable to token holders",
+      "paymentFrequencyDays": 30
+    },
+    "production": {
+      "current": "300 boe/day",
+      "status": "producing",
+      "units": {
+        "production": 1,
+        "revenue": 1
+      }
+    },
+    "plannedProduction": {
+      "oilPriceAssumption": 65,
+      "oilPriceAssumptionCurrency": "USD",
+      "projections": [
+        {
+          "month": "2025-07",
+          "production": 306.7
+        },
+        {
+          "month": "2025-08",
+          "production": 291.84
+        },
+        {
+          "month": "2025-09",
+          "production": 296.54
+        },
+        {
+          "month": "2025-10",
+          "production": 291.6
+        },
+        {
+          "month": "2025-11",
+          "production": 277.5
+        },
+        {
+          "month": "2025-12",
+          "production": 282
+        },
+        {
+          "month": "2026-01",
+          "production": 268.36
+        },
+        {
+          "month": "2026-02",
+          "production": 267.1
+        },
+        {
+          "month": "2026-03",
+          "production": 262.6
+        },
+        {
+          "month": "2026-04",
+          "production": 222.88
+        },
+        {
+          "month": "2026-05",
+          "production": 247
+        },
+        {
+          "month": "2026-06",
+          "production": 120.16
+        },
+        {
+          "month": "2026-07",
+          "production": 350.28
+        },
+        {
+          "month": "2026-08",
+          "production": 299.66
+        },
+        {
+          "month": "2026-09",
+          "production": 289.38
+        },
+        {
+          "month": "2026-10",
+          "production": 269.08
+        },
+        {
+          "month": "2026-11",
+          "production": 265.76
+        },
+        {
+          "month": "2026-12",
+          "production": 279.62
+        },
+        {
+          "month": "2027-01",
+          "production": 271.4
+        },
+        {
+          "month": "2027-02",
+          "production": 274.6
+        },
+        {
+          "month": "2027-03",
+          "production": 241.62
+        },
+        {
+          "month": "2027-04",
+          "production": 195.42
+        },
+        {
+          "month": "2027-05",
+          "production": 202.1
+        },
+        {
+          "month": "2027-06",
+          "production": 193.46
+        },
+        {
+          "month": "2027-07",
+          "production": 200.8
+        },
+        {
+          "month": "2027-08",
+          "production": 191.48
+        },
+        {
+          "month": "2027-09",
+          "production": 192.06
+        },
+        {
+          "month": "2027-10",
+          "production": 179.78
+        },
+        {
+          "month": "2027-11",
+          "production": 162.68
+        },
+        {
+          "month": "2027-12",
+          "production": 156.9
+        },
+        {
+          "month": "2028-01",
+          "production": 140.98
+        },
+        {
+          "month": "2028-02",
+          "production": 133.2
+        }
+      ]
+    },
+    "productionHistory": [
+      {
+        "month": "2022-03",
+        "production": 1056.24
+      },
+      {
+        "month": "2022-04",
+        "production": 973.4
+      },
+      {
+        "month": "2022-05",
+        "production": 976.86
+      },
+      {
+        "month": "2022-06",
+        "production": 978.78
+      },
+      {
+        "month": "2022-07",
+        "production": 494.68
+      },
+      {
+        "month": "2022-08",
+        "production": 1078.5
+      },
+      {
+        "month": "2022-09",
+        "production": 1139.47
+      },
+      {
+        "month": "2022-10",
+        "production": 1055.11
+      },
+      {
+        "month": "2022-11",
+        "production": 1053.78
+      },
+      {
+        "month": "2022-12",
+        "production": 1054.78
+      },
+      {
+        "month": "2023-01",
+        "production": 1065.65
+      },
+      {
+        "month": "2023-02",
+        "production": 1065.05
+      },
+      {
+        "month": "2023-03",
+        "production": 847.22
+      },
+      {
+        "month": "2023-04",
+        "production": 329.57
+      },
+      {
+        "month": "2023-05",
+        "production": 3.2
+      },
+      {
+        "month": "2023-06",
+        "production": 0
+      },
+      {
+        "month": "2023-07",
+        "production": 627.21
+      },
+      {
+        "month": "2023-08",
+        "production": 601.45
+      },
+      {
+        "month": "2023-09",
+        "production": 833.43
+      },
+      {
+        "month": "2023-10",
+        "production": 640.83
+      },
+      {
+        "month": "2023-11",
+        "production": 699.18
+      },
+      {
+        "month": "2023-12",
+        "production": 597.04
+      },
+      {
+        "month": "2024-01",
+        "production": 524.62
+      },
+      {
+        "month": "2024-02",
+        "production": 487.74
+      },
+      {
+        "month": "2024-03",
+        "production": 533.83
+      },
+      {
+        "month": "2024-04",
+        "production": 523.14
+      },
+      {
+        "month": "2024-05",
+        "production": 507.52
+      },
+      {
+        "month": "2024-06",
+        "production": 424.06
+      },
+      {
+        "month": "2024-07",
+        "production": 451.11
+      },
+      {
+        "month": "2024-08",
+        "production": 328.66
+      },
+      {
+        "month": "2024-09",
+        "production": 374.09
+      },
+      {
+        "month": "2024-10",
+        "production": 455.76
+      },
+      {
+        "month": "2024-11",
+        "production": 435.78
+      }
+    ],
+    "operationalMetrics": {
+      "uptime": {
+        "percentage": 99.8,
+        "unit": "percent",
+        "period": "last_30_days"
+      },
+      "dailyProduction": {
+        "current": 304,
+        "target": 310,
+        "unit": "boe"
+      },
+      "hseMetrics": {
+        "incidentFreeDays": 407,
+        "lastIncidentDate": "2023-12-15T00:00:00.000Z",
+        "safetyRating": "Excellent"
+      }
+    }
+  },
+  "documents": [],
+  "coverImage": "/src/lib/data/images/eur-wr-cover.jpg",
+  "metadata": {
+    "createdAt": "2024-03-15T11:30:00.000Z",
+    "updatedAt": "2024-12-01T18:00:00.000Z"
+  }
+}

@@ -1,14 +1,21 @@
 /**
  * DataStoreService - Service layer for accessing static asset and token data
- * This service provides a unified interface to the folder-based data structure
+ * This service uses the unified asset metadata structure
  */
 
+import type { 
+  AssetMetadata,
+  MonthlyData,
+  AssetData,
+  PlannedProductionProjection
+} from '$lib/types/assetMetadataTypes';
+import { TokenType, ProductionStatus } from '$lib/types/assetMetadataTypes';
 import type { 
   Asset, 
   Token, 
   MarketData,
   UserTokenBalance 
-} from '$lib/types/dataStore';
+} from '$lib/types/uiTypes';
 import { getTokenReturns, type TokenReturns } from '$lib/utils/returnCalculations';
 
 // Import configuration data
@@ -17,50 +24,228 @@ import platformStats from '$lib/data/platformStats.json';
 import companyInfo from '$lib/data/companyInfo.json';
 import defaultValues from '$lib/data/defaultValues.json';
 
-// Import all asset data
-import europaWressleAsset from '$lib/data/assets/europa-wressle-release-1/asset.json';
-import bakkenHorizonAsset from '$lib/data/assets/bakken-horizon-field/asset.json';
-import permianBasinAsset from '$lib/data/assets/permian-basin-venture/asset.json';
-import gulfMexicoAsset from '$lib/data/assets/gulf-mexico-deep-water/asset.json';
+// Import all mock asset metadata
+import bakHf1Metadata from '$lib/data/mockAssetMetadata/bak-hf1.json';
+import bakHf2Metadata from '$lib/data/mockAssetMetadata/bak-hf2.json';
+import eurWr1Metadata from '$lib/data/mockAssetMetadata/eur-wr1.json';
+import eurWr2Metadata from '$lib/data/mockAssetMetadata/eur-wr2.json';
+import eurWr3Metadata from '$lib/data/mockAssetMetadata/eur-wr3.json';
+import perBv1Metadata from '$lib/data/mockAssetMetadata/per-bv1.json';
+import gomDw1Metadata from '$lib/data/mockAssetMetadata/gom-dw1.json';
 
-// Import all token data
-import eurWr1Token from '$lib/data/assets/europa-wressle-release-1/tokens/eur_wr1.json';
-import eurWr2Token from '$lib/data/assets/europa-wressle-release-1/tokens/eur_wr2.json';
-import eurWr3Token from '$lib/data/assets/europa-wressle-release-1/tokens/eur_wr3.json';
-import bakHfToken from '$lib/data/assets/bakken-horizon-field/tokens/bak_hf.json';
-import bakHf2Token from '$lib/data/assets/bakken-horizon-field/tokens/bak_hf2.json';
-import perBvToken from '$lib/data/assets/permian-basin-venture/tokens/per_bv.json';
-import gomDwToken from '$lib/data/assets/gulf-mexico-deep-water/tokens/gom_dw.json';
-
-// Import future release data
-import eurWr4Future from '$lib/data/assets/europa-wressle-release-1/tokens/eur_wr4_future.json';
-import bakHf3Future from '$lib/data/assets/bakken-horizon-field/tokens/bak_hf3_future.json';
-import perBv2Future from '$lib/data/assets/permian-basin-venture/tokens/per_bv2_future.json';
-import gomDw2Future from '$lib/data/assets/gulf-mexico-deep-water/tokens/gom_dw2_future.json';
+// Future release data (mock data for now)
+const eurWr4Future = [{ whenRelease: "Q2 2025", description: "Additional Wressle release" }];
+const bakHf3Future = [{ whenRelease: "Q3 2025", description: "Additional Bakken release" }];
+const perBv2Future = [{ whenRelease: "Q4 2025", description: "Additional Permian release" }];
+const gomDw2Future = [{ whenRelease: "Q1 2026", description: "Additional Gulf of Mexico release" }];
 
 class DataStoreService {
-  private assets: Record<string, Asset>;
-  private tokens: Record<string, Token>;
+  private assetMetadata: Record<string, AssetMetadata>;
+  private assetsCache: Map<string, Asset> = new Map();
+  private tokensCache: Map<string, Token> = new Map();
 
   constructor() {
-    // Initialize assets
-    this.assets = {
-      'europa-wressle-release-1': europaWressleAsset as Asset,
-      'bakken-horizon-field': bakkenHorizonAsset as Asset,
-      'permian-basin-venture': permianBasinAsset as Asset,
-      'gulf-mexico-deep-water': gulfMexicoAsset as Asset,
+    // Initialize asset metadata with proper date conversions
+    this.assetMetadata = {
+      [bakHf1Metadata.contractAddress]: this.convertJsonToAssetMetadata(bakHf1Metadata as any),
+      [bakHf2Metadata.contractAddress]: this.convertJsonToAssetMetadata(bakHf2Metadata as any),
+      [eurWr1Metadata.contractAddress]: this.convertJsonToAssetMetadata(eurWr1Metadata as any),
+      [eurWr2Metadata.contractAddress]: this.convertJsonToAssetMetadata(eurWr2Metadata as any),
+      [eurWr3Metadata.contractAddress]: this.convertJsonToAssetMetadata(eurWr3Metadata as any),
+      [perBv1Metadata.contractAddress]: this.convertJsonToAssetMetadata(perBv1Metadata as any),
+      [gomDw1Metadata.contractAddress]: this.convertJsonToAssetMetadata(gomDw1Metadata as any),
+    };
+  }
+
+  // Helper method to convert JSON data to AssetMetadata with proper Date objects
+  private convertJsonToAssetMetadata(jsonData: any): AssetMetadata {
+    return {
+      ...jsonData,
+      monthlyData: jsonData.monthlyData.map((data: any) => ({
+        ...data,
+        tokenPayout: {
+          ...data.tokenPayout,
+          date: new Date(data.tokenPayout.date)
+        }
+      })),
+      asset: {
+        ...jsonData.asset,
+        operationalMetrics: jsonData.asset.operationalMetrics ? {
+          ...jsonData.asset.operationalMetrics,
+          hseMetrics: {
+            ...jsonData.asset.operationalMetrics.hseMetrics,
+            lastIncidentDate: new Date(jsonData.asset.operationalMetrics.hseMetrics.lastIncidentDate)
+          }
+        } : jsonData.asset.operationalMetrics
+      },
+      metadata: {
+        ...jsonData.metadata,
+        createdAt: new Date(jsonData.metadata.createdAt),
+        updatedAt: new Date(jsonData.metadata.updatedAt)
+      }
+    };
+  }
+
+  // Helper method to convert AssetMetadata to legacy Asset format
+  private assetMetadataToAsset(assetMetadata: AssetMetadata): Asset {
+    const assetId = this.getAssetIdFromToken(assetMetadata);
+    
+    // Check cache first
+    if (this.assetsCache.has(assetId)) {
+      return this.assetsCache.get(assetId)!;
+    }
+
+    const asset: Asset = {
+      id: assetId,
+      name: assetMetadata.assetName,
+      description: assetMetadata.asset.description,
+      images: [],
+      location: {
+        ...assetMetadata.asset.location,
+        waterDepth: assetMetadata.asset.location.waterDepth
+      },
+      operator: {
+        ...assetMetadata.asset.operator,
+        experience: `${assetMetadata.asset.operator.experienceYears}+ years`
+      },
+      technical: {
+        ...assetMetadata.asset.technical,
+        depth: `${assetMetadata.asset.technical.depth}m`,
+        estimatedLife: `${Math.ceil(assetMetadata.asset.technical.estimatedLifeMonths / 12)}+ years`,
+        pricing: {
+          benchmarkPremium: assetMetadata.asset.technical.pricing.benchmarkPremium < 0 
+            ? `-$${Math.abs(assetMetadata.asset.technical.pricing.benchmarkPremium)}`
+            : `+$${assetMetadata.asset.technical.pricing.benchmarkPremium}`,
+          transportCosts: assetMetadata.asset.technical.pricing.transportCosts === 0
+            ? "Title transfer at well head"
+            : `$${assetMetadata.asset.technical.pricing.transportCosts}`
+        }
+      },
+      production: {
+        ...assetMetadata.asset.production,
+        status: this.convertProductionStatus(assetMetadata.asset.production.status),
+        units: {
+          production: assetMetadata.asset.production.units.production === 1 ? "BOE (Barrels of Oil Equivalent)" : "MCF (Thousand Cubic Feet)",
+          revenue: "USD"
+        }
+      },
+      assetTerms: {
+        ...assetMetadata.asset.assetTerms,
+        amount: `${assetMetadata.asset.assetTerms.amount}% of gross`,
+        paymentFrequency: `Monthly within ${assetMetadata.asset.assetTerms.paymentFrequencyDays} days`
+      },
+      tokenContracts: this.getTokenContractsByAssetId(assetId),
+      monthlyReports: assetMetadata.monthlyData.map(data => ({
+        month: data.month,
+        production: data.assetData.production,
+        revenue: data.assetData.revenue,
+        expenses: data.assetData.expenses,
+        netIncome: data.assetData.netIncome,
+        payoutPerToken: data.tokenPayout.payoutPerToken
+      })),
+      productionHistory: assetMetadata.asset.productionHistory,
+      plannedProduction: assetMetadata.asset.plannedProduction,
+      operationalMetrics: assetMetadata.asset.operationalMetrics ? {
+        ...assetMetadata.asset.operationalMetrics,
+        dailyProduction: {
+          ...assetMetadata.asset.operationalMetrics.dailyProduction,
+          unit: assetMetadata.asset.operationalMetrics.dailyProduction.unit
+        },
+        uptime: {
+          ...assetMetadata.asset.operationalMetrics.uptime,
+          period: assetMetadata.asset.operationalMetrics.uptime.period
+        },
+        hseMetrics: {
+          ...assetMetadata.asset.operationalMetrics.hseMetrics,
+          incidentFreeDays: assetMetadata.asset.operationalMetrics.hseMetrics.incidentFreeDays
+        }
+      } : undefined,
+      metadata: {
+        createdAt: assetMetadata.metadata.createdAt.toISOString(),
+        updatedAt: assetMetadata.metadata.updatedAt.toISOString()
+      }
     };
 
-    // Initialize tokens
-    this.tokens = {
-      [eurWr1Token.contractAddress]: eurWr1Token as Token,
-      [eurWr2Token.contractAddress]: eurWr2Token as Token,
-      [eurWr3Token.contractAddress]: eurWr3Token as Token,
-      [bakHfToken.contractAddress]: bakHfToken as Token,
-      [bakHf2Token.contractAddress]: bakHf2Token as Token,
-      [perBvToken.contractAddress]: perBvToken as Token,
-      [gomDwToken.contractAddress]: gomDwToken as Token,
+    this.assetsCache.set(assetId, asset);
+    return asset;
+  }
+
+  // Helper method to convert AssetMetadata to legacy Token format
+  private assetMetadataToToken(assetMetadata: AssetMetadata): Token {
+    // Check cache first
+    if (this.tokensCache.has(assetMetadata.contractAddress)) {
+      return this.tokensCache.get(assetMetadata.contractAddress)!;
+    }
+
+    const token: Token = {
+      contractAddress: assetMetadata.contractAddress,
+      name: assetMetadata.releaseName,
+      symbol: assetMetadata.symbol,
+      decimals: assetMetadata.decimals,
+      tokenType: assetMetadata.tokenType === TokenType.Royalty ? 'royalty' : 'payment',
+      assetId: this.getAssetIdFromToken(assetMetadata),
+      isActive: true,
+      supply: {
+        maxSupply: assetMetadata.supply.maxSupply,
+        mintedSupply: assetMetadata.supply.mintedSupply
+      },
+      holders: [], // Not included in merged token format
+      payoutHistory: assetMetadata.monthlyData.map(data => ({
+        month: data.month,
+        date: data.tokenPayout.date.toISOString().split('T')[0],
+        totalPayout: data.tokenPayout.totalPayout,
+        payoutPerToken: data.tokenPayout.payoutPerToken,
+        oilPrice: data.realisedPrice.oilPrice,
+        gasPrice: data.realisedPrice.gasPrice,
+        productionVolume: data.assetData.production,
+        txHash: data.tokenPayout.txHash
+      })),
+      sharePercentage: assetMetadata.sharePercentage,
+      firstPaymentDate: assetMetadata.firstPaymentDate,
+      metadata: {
+        createdAt: assetMetadata.metadata.createdAt.toISOString(),
+        updatedAt: assetMetadata.metadata.updatedAt.toISOString()
+      }
     };
+
+    this.tokensCache.set(assetMetadata.contractAddress, token);
+    return token;
+  }
+
+  // Helper to get asset ID from token
+  private getAssetIdFromToken(assetMetadata: AssetMetadata): string {
+    // Extract asset ID from token name or use a mapping
+    const assetNameMapping: Record<string, string> = {
+      'Bakken Horizon-2 Royalty Stream': 'bakken-horizon-field',
+      'Wressle-1 Royalty Stream': 'europa-wressle-release-1',
+      'Permian Basin-3 Royalty Stream': 'permian-basin-venture',
+      'Gulf of Mexico-4 Royalty Stream': 'gulf-mexico-deep-water'
+    };
+    
+    return assetNameMapping[assetMetadata.assetName] || assetMetadata.assetName.toLowerCase().replace(/\s+/g, '-');
+  }
+
+  // Helper to get all token contracts for an asset
+  private getTokenContractsByAssetId(assetId: string): string[] {
+    return Object.values(this.assetMetadata)
+      .filter(token => this.getAssetIdFromToken(token) === assetId)
+      .map(token => token.contractAddress);
+  }
+
+  // Helper to convert ProductionStatus enum to string
+  private convertProductionStatus(status: ProductionStatus): 'funding' | 'producing' | 'completed' {
+    switch (status) {
+      case ProductionStatus.Producing:
+        return 'producing';
+      case ProductionStatus.Development:
+      case ProductionStatus.Exploration:
+        return 'funding';
+      case ProductionStatus.Suspended:
+      case ProductionStatus.Decommissioned:
+        return 'completed';
+      default:
+        return 'producing';
+    }
   }
 
   // Asset-related methods
@@ -69,14 +254,22 @@ class DataStoreService {
    * Get all assets
    */
   getAllAssets(): Asset[] {
-    return Object.values(this.assets);
+    const assetMap = new Map<string, Asset>();
+    
+    Object.values(this.assetMetadata).forEach(assetMetadata => {
+      const asset = this.assetMetadataToAsset(assetMetadata);
+      assetMap.set(asset.id, asset);
+    });
+    
+    return Array.from(assetMap.values());
   }
 
   /**
    * Get asset by ID
    */
   getAssetById(assetId: string): Asset | null {
-    return this.assets[assetId] || null;
+    const assets = this.getAllAssets();
+    return assets.find(asset => asset.id === assetId) || null;
   }
 
   /**
@@ -113,42 +306,58 @@ class DataStoreService {
    * Get all tokens
    */
   getAllTokens(): Token[] {
-    return Object.values(this.tokens);
+    return Object.values(this.assetMetadata).map(assetMetadata => 
+      this.assetMetadataToToken(assetMetadata)
+    );
   }
 
   /**
    * Get token by contract address
    */
   getTokenByAddress(contractAddress: string): Token | null {
-    return this.tokens[contractAddress] || null;
+    const assetMetadata = this.assetMetadata[contractAddress];
+    return assetMetadata ? this.assetMetadataToToken(assetMetadata) : null;
+  }
+
+  /**
+   * Get asset metadata by contract address
+   */
+  getAssetMetadataByAddress(contractAddress: string): AssetMetadata | null {
+    return this.assetMetadata[contractAddress] || null;
   }
 
   /**
    * Get token by symbol
    */
   getTokenBySymbol(symbol: string): Token | null {
-    return this.getAllTokens().find(token => token.symbol === symbol) || null;
+    const assetMetadata = Object.values(this.assetMetadata).find(token => token.symbol === symbol);
+    return assetMetadata ? this.assetMetadataToToken(assetMetadata) : null;
   }
 
   /**
    * Get tokens by asset ID
    */
   getTokensByAssetId(assetId: string): Token[] {
-    return this.getAllTokens().filter(token => token.assetId === assetId);
+    return Object.values(this.assetMetadata)
+      .filter(token => this.getAssetIdFromToken(token) === assetId)
+      .map(token => this.assetMetadataToToken(token));
   }
 
   /**
    * Get tokens by type
    */
   getTokensByType(tokenType: 'royalty' | 'payment'): Token[] {
-    return this.getAllTokens().filter(token => token.tokenType === tokenType);
+    const assetMetadataType = tokenType === 'royalty' ? TokenType.Royalty : TokenType.WorkingInterest;
+    return Object.values(this.assetMetadata)
+      .filter(token => token.tokenType === assetMetadataType)
+      .map(token => this.assetMetadataToToken(token));
   }
 
   /**
    * Get active trading tokens only
    */
   getActiveTokens(): Token[] {
-    return this.getAllTokens().filter(token => token.isActive);
+    return this.getAllTokens(); // All tokens are active in the merged format
   }
 
   /**
@@ -169,9 +378,7 @@ class DataStoreService {
    * Get selectable tokens (available for purchase)
    */
   getSelectableTokens(): Token[] {
-    return this.getAllTokens().filter(token => 
-      token.isActive
-    );
+    return this.getAllTokens();
   }
 
   // Combined asset-token methods
@@ -224,7 +431,7 @@ class DataStoreService {
    */
   getTokenMarketData(symbol: string): MarketData | null {
     const token = this.getTokenBySymbol(symbol);
-    if (!token || !token.isActive) return null;
+    if (!token) return null;
 
     // Generate mock market data based on token
     const basePrice = 1.0;
@@ -273,8 +480,6 @@ class DataStoreService {
 
   /**
    * Calculate expected remaining production from planned production data
-   * @param assetId Asset ID
-   * @returns Formatted string with calculated remaining production
    */
   getCalculatedRemainingProduction(assetId: string): string {
     const asset = this.getAssetById(assetId);
@@ -357,8 +562,6 @@ class DataStoreService {
     }).format(value);
   }
 
-  // New token data structure methods
-
   /**
    * Get token supply information
    */
@@ -375,28 +578,6 @@ class DataStoreService {
       mintedSupply,
       supplyUtilization,
       availableSupply: maxSupply - mintedSupply
-    };
-  }
-
-  /**
-   * Get token holder information
-   */
-  getTokenHolders(contractAddress: string) {
-    const token = this.getTokenByAddress(contractAddress);
-    if (!token) return null;
-
-    const totalHolders = token.holders.length;
-    const totalBalance = token.holders.reduce((sum, holder) => 
-      sum + parseFloat(holder.balance), 0
-    );
-
-    return {
-      totalHolders,
-      averageBalance: totalBalance / totalHolders,
-      holders: token.holders.map(holder => ({
-        ...holder,
-        formattedBalance: this.formatTokenAmount(holder.balance, token.decimals)
-      }))
     };
   }
 
@@ -422,8 +603,8 @@ class DataStoreService {
       return sum + asset.monthlyReports.reduce((assetSum, report) => assetSum + report.netIncome, 0);
     }, 0);
     
-    // Get active token holders count
-    const totalHolders = allTokens.reduce((sum, token) => sum + token.holders.length, 0);
+    // Get active token holders count (using a default since holders data is not in merged format)
+    const totalHolders = 1000; // Mock value
     
     return {
       totalAssets,
@@ -437,11 +618,19 @@ class DataStoreService {
    * Get token payout history data
    */
   getTokenPayoutHistory(contractAddress: string) {
-    const token = this.getTokenByAddress(contractAddress);
-    if (!token) return null;
+    const assetMetadata = this.assetMetadata[contractAddress];
+    if (!assetMetadata) return null;
 
-    // Use actual payout history from token data
-    const recentPayouts = token.payoutHistory || [];
+    const recentPayouts = assetMetadata.monthlyData.map(data => ({
+      month: data.month,
+      date: data.tokenPayout.date.toISOString().split('T')[0],
+      totalPayout: data.tokenPayout.totalPayout,
+      payoutPerToken: data.tokenPayout.payoutPerToken,
+      oilPrice: data.realisedPrice.oilPrice,
+      gasPrice: data.realisedPrice.gasPrice,
+      productionVolume: data.assetData.production,
+      txHash: data.tokenPayout.txHash
+    }));
 
     const totalPayouts = recentPayouts.length;
     const averageMonthlyPayout = recentPayouts.length > 0 

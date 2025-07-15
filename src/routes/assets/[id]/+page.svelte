@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import dataStoreService from '$lib/services/DataStoreService';
-	import type { Asset, Token } from '$lib/types/dataStore';
+	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { Card, CardContent, PrimaryButton, SecondaryButton } from '$lib/components/ui';
 	import { getAssetCoverImage, getAssetGalleryImages } from '$lib/utils/assetImages';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';

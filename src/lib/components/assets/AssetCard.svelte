@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
-	import type { Asset } from '$lib/types/dataStore';
+	import type { Asset } from '$lib/types/uiTypes';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/ui';
 	import { getAssetCoverImage } from '$lib/utils/assetImages';

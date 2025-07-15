@@ -18,18 +18,20 @@
 </script>
 
 <Card {hoverable} roundedClass="rounded-lg">
-	<CardContent paddingClass="p-8" className={centered ? 'text-center' : ''}>
-		{#if iconType === 'emoji'}
-			<div class={iconSizeClasses.emoji}>{icon}</div>
-		{:else if iconType === 'number'}
-			<div class={iconSizeClasses.number}>{icon}</div>
-		{:else}
-			<div class={iconSizeClasses.custom}>
-				<slot name="icon" />
-			</div>
-		{/if}
-		
-		<Label size="base" variant="strong" className="mb-4 block">{title}</Label>
-		<TextBlock size="small" color="muted">{description}</TextBlock>
+	<CardContent paddingClass="p-8">
+		<div class={centered ? 'text-center' : ''}>
+			{#if iconType === 'emoji'}
+				<div class={iconSizeClasses.emoji}>{icon}</div>
+			{:else if iconType === 'number'}
+				<div class={iconSizeClasses.number}>{icon}</div>
+			{:else}
+				<div class={iconSizeClasses.custom}>
+					<slot name="icon" />
+				</div>
+			{/if}
+			
+			<Label size="base" variant="strong" className="mb-4 block">{title}</Label>
+			<TextBlock size="small" color="muted">{description}</TextBlock>
+		</div>
 	</CardContent>
 </Card>
