@@ -543,31 +543,8 @@
 		opacity: 0.8;
 	}
 
-	.wallet-required .connect-btn {
-		background: var(--color-primary);
-		color: var(--color-white);
-		border: none;
-		padding: 1rem 2rem;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-extrabold);
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: background-color 0.2s ease;
-	}
-
-	.wallet-required .connect-btn:hover {
-		background: var(--color-secondary);
-	}
 
 	/* Portfolio Overview */
-	.portfolio-overview {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 3rem;
-		margin-bottom: 2rem;
-	}
 
 	.overview-content {
 		display: grid;
@@ -591,58 +568,6 @@
 		margin-bottom: 2rem;
 	}
 
-	.metric {
-		text-align: center;
-		padding-right: 2rem;
-		border-right: 1px solid var(--color-light-gray);
-	}
-
-	.metric:last-child {
-		border-right: none;
-		padding-right: 0;
-	}
-
-	.metric-value {
-		font-size: 1.75rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.metric-value.positive {
-		color: var(--color-primary);
-	}
-
-	.metric-value.negative {
-		color: #dc2626;
-	}
-
-	.metric-value.payout {
-		color: var(--color-primary);
-	}
-
-	.metric-label {
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin-bottom: 0.25rem;
-	}
-
-	.metric-note {
-		font-size: 0.65rem;
-		color: var(--color-secondary);
-		font-weight: var(--font-weight-medium);
-	}
-
-	.metric-note.positive {
-		color: var(--color-primary);
-	}
-
-	.metric-note.negative {
-		color: #dc2626;
-	}
 
 	.portfolio-info {
 		display: flex;
@@ -659,20 +584,6 @@
 	}
 
 	/* Quick Stats */
-	.quick-stats {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-	}
-
-	.quick-stats h3 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1.5rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
 
 	.stats-list {
 		display: flex;
@@ -703,80 +614,8 @@
 		color: var(--color-primary);
 	}
 
-	.performance-summary {
-		border-top: 1px solid var(--color-light-gray);
-		padding-top: 1.5rem;
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
-
-	.performer-header {
-		display: flex;
-		justify-content: space-between;
-		font-size: 0.85rem;
-		margin-bottom: 0.25rem;
-	}
-
-	.performer-header span:first-child {
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		opacity: 0.8;
-	}
-
-	.performer-header .positive {
-		color: var(--color-primary);
-		font-weight: var(--font-weight-extrabold);
-	}
-
-	.performer-header .negative {
-		color: #dc2626;
-		font-weight: var(--font-weight-extrabold);
-	}
-
-	.performer-name {
-		font-size: 0.75rem;
-		color: var(--color-black);
-		opacity: 0.6;
-	}
 
 	/* Tabs */
-	.tabs-container {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		margin-bottom: 2rem;
-	}
-
-	.tabs-nav {
-		display: flex;
-		border-bottom: 1px solid var(--color-light-gray);
-	}
-
-	.tab-btn {
-		padding: 1rem 1.5rem;
-		background: none;
-		border: none;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-extrabold);
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		color: var(--color-black);
-		cursor: pointer;
-		transition: all 0.2s ease;
-		opacity: 0.6;
-	}
-
-	.tab-btn:hover {
-		opacity: 1;
-		background: var(--color-light-gray);
-	}
-
-	.tab-btn.active {
-		background: var(--color-black);
-		color: var(--color-white);
-		opacity: 1;
-	}
 
 	.tab-content {
 		padding: 2rem;
@@ -798,29 +637,6 @@
 		letter-spacing: 0.05em;
 	}
 
-	.view-controls {
-		display: flex;
-		gap: 0.5rem;
-	}
-
-	.view-btn {
-		padding: 0.5rem 1rem;
-		border: 1px solid var(--color-black);
-		background: var(--color-white);
-		color: var(--color-black);
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-bold);
-		font-size: 0.75rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
-
-	.view-btn:hover {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
 
 	.holdings-list {
 		display: flex;

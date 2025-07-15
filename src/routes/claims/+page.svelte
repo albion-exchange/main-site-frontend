@@ -549,23 +549,6 @@
 		opacity: 0.8;
 	}
 
-	.wallet-required .connect-btn {
-		background: var(--color-primary);
-		color: var(--color-white);
-		border: none;
-		padding: 1rem 2rem;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-extrabold);
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: background-color 0.2s ease;
-	}
-
-	.wallet-required .connect-btn:hover {
-		background: var(--color-secondary);
-	}
 
 	/* Hero Section */
 	.hero {
