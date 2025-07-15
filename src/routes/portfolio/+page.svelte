@@ -5,7 +5,8 @@
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/WalletModal.svelte';
-	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, TabNavigation } from '$lib/components/ui';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, TabNavigation, MetricDisplay, StatsCard, SectionTitle, ActionCard, TabButton } from '$lib/components/ui';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	import { getAssetCoverImage } from '$lib/utils/assetImages';
 
 	let totalInvested = 0;
@@ -121,292 +122,303 @@
 </svelte:head>
 
 {#if !$walletStore.isConnected && !showWalletModal}
-	<main class="portfolio-page">
-		<div class="wallet-required">
-			<div class="wallet-required-content">
-				<h1>Wallet Connection Required</h1>
-				<p>Please connect your wallet to view your portfolio.</p>
+	<PageLayout variant="constrained">
+		<ContentSection background="white" padding="large" centered>
+			<div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
+				<SectionTitle level="h1" size="page" center>Wallet Connection Required</SectionTitle>
+				<p class="text-lg text-black opacity-80 mb-8 max-w-md">Please connect your wallet to view your portfolio.</p>
 				<PrimaryButton on:click={() => showWalletModal = true}>
 					Connect Wallet
 				</PrimaryButton>
 			</div>
-		</div>
-	</main>
+		</ContentSection>
+	</PageLayout>
 {:else if $walletStore.isConnected}
-<main class="portfolio-page">
+<PageLayout variant="constrained">
 	<!-- Portfolio Overview Header -->
-	<Card padding="3rem">
-		<div class="overview-content">
-			<div class="overview-main">
-				<h1>Portfolio Overview</h1>
-				
-				<div class="portfolio-metrics">
-					<Metric 
-						value={formatCurrency(totalInvested)} 
-						label="Invested" 
-						note="Principal" 
-					/>
-					<Metric 
-						value={formatCurrency(totalPayoutsEarned)} 
-						label="Payout Earned (Lifetime)" 
-						variant="positive"
-					/>
-				</div>
-
-				<div class="portfolio-info">
-					<div class="update-time">
-						Last updated: {getCurrentTime()}
-					</div>
-					<div class="inception-info">
-						Portfolio inception: Jul 2024 (6 months)
-					</div>
-				</div>
-			</div>
-
-			<!-- Quick Stats Panel -->
-			<Card padding="2rem">
-				<h3>Quick Stats</h3>
-				
-				<div class="stats-list">
-					<div class="stat-row">
-						<span>Return Calc TBD</span>
-						<span class="payout">--</span>
-					</div>
-					<div class="stat-row">
-						<span>Unclaimed Payouts</span>
-						<span class="payout">{formatCurrency(unclaimedPayout)}</span>
-					</div>
-					<div class="stat-row">
-						<span>Active Assets</span>
-						<span>{activeAssetsCount}</span>
-					</div>
-					<div class="stat-row">
-						<span>Monthly Income</span>
-						<span class="payout">{formatCurrency(monthlyPayouts.length > 0 ? monthlyPayouts[monthlyPayouts.length - 1].totalPayout : 0)}</span>
-					</div>
-				</div>
-
-			</Card>
+	<HeroSection 
+		title="My Portfolio"
+		subtitle="Track your investment portfolio performance and history"
+		showBorder={true}
+		showButtons={false}
+	>
+		<!-- Platform Stats -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto mb-12">
+			{#if loading}
+				<StatsCard
+					title="Total Invested"
+					value="--"
+					subtitle="Loading..."
+					size="large"
+				/>
+				<StatsCard
+					title="Payouts Earned"
+					value="--"
+					subtitle="Loading..."
+					size="large"
+				/>
+				<StatsCard
+					title="Active Assets"
+					value="--"
+					subtitle="Loading..."
+					size="large"
+				/>
+			{:else}
+				<StatsCard
+					title="Total Invested"
+					value={formatCurrency(totalInvested)}
+					subtitle="Principal"
+					size="large"
+				/>
+				<StatsCard
+					title="Payouts Earned"
+					value={formatCurrency(totalPayoutsEarned)}
+					subtitle="Lifetime earnings"
+					valueColor="primary"
+					size="large"
+				/>
+				<StatsCard
+					title="Active Assets"
+					value={activeAssetsCount.toString()}
+					subtitle="In portfolio"
+					size="large"
+				/>
+			{/if}
 		</div>
-	</Card>
+	</HeroSection>
 
 	<!-- Portfolio Tabs -->
-	<Card>
-		<TabNavigation 
-			tabs={[
-				{ id: 'overview', label: 'Holdings' },
-				{ id: 'performance', label: 'Performance' },
-				{ id: 'allocation', label: 'Allocation' }
-			]}
-			bind:activeTab
-			on:tabChange={(e) => activeTab = e.detail.tabId}
-		/>
+	<ContentSection background="white" padding="standard">
+		<div class="bg-white border border-light-gray rounded-lg overflow-hidden">
+			<div class="flex flex-wrap border-b border-light-gray">
+				<TabButton
+					active={activeTab === 'overview'}
+					on:click={() => activeTab = 'overview'}
+				>
+					Holdings
+				</TabButton>
+				<TabButton
+					active={activeTab === 'performance'}
+					on:click={() => activeTab = 'performance'}
+				>
+					Performance
+				</TabButton>
+				<TabButton
+					active={activeTab === 'allocation'}
+					on:click={() => activeTab = 'allocation'}
+				>
+					Allocation
+				</TabButton>
+			</div>
 
-		<div class="tab-content">
-			{#if activeTab === 'overview'}
-				<div class="holdings-content">
-					<div class="holdings-header">
-						<h3>My Holdings</h3>
-					</div>
-
-					<div class="holdings-list">
+			<div class="p-8">
+				{#if activeTab === 'overview'}
+					<SectionTitle level="h3" size="subsection" className="mb-6">My Holdings</SectionTitle>
+					
+					<div class="space-y-6">
 						{#if loading}
-							<div class="loading-message">Loading portfolio holdings...</div>
+							<div class="text-center py-12 text-black opacity-70">Loading portfolio holdings...</div>
 						{:else}
 							{#each holdings as holding}
-								<Card padding="2rem" hoverable>
-									<div class="holding-main">
-										<div class="holding-info">
-											<div class="holding-icon">
-												<img src={getAssetCoverImage(holding.id)} alt={holding.name} />
-											</div>
-											<div class="holding-details">
-												<h4>{holding.name}</h4>
-												<div class="holding-location">{holding.location}</div>
-												<div class="holding-badges">
+								<Card hoverable showBorder>
+									<CardContent paddingClass="p-8">
+										<div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-center mb-6">
+											<div class="flex items-center gap-4">
+												<div class="w-12 h-12 bg-light-gray rounded-lg overflow-hidden flex items-center justify-center">
+													<img src={getAssetCoverImage(holding.id)} alt={holding.name} class="w-full h-full object-cover" />
+												</div>
+												<div>
+													<h4 class="font-extrabold text-black text-sm mb-1">{holding.name}</h4>
+													<div class="text-xs text-black opacity-70 mb-2">{holding.location}</div>
 													<StatusBadge 
 														status={holding.status} 
 														variant={holding.status === 'producing' ? 'available' : 'default'}
-													>
-														{holding.status.toUpperCase()}
-													</StatusBadge>
+													/>
 												</div>
+											</div>
+
+											<div class="text-center">
+												<div class="text-lg font-extrabold text-black mb-1">{formatCurrency(holding.totalInvested)}</div>
+												<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Invested</div>
+											</div>
+
+											<div class="text-center">
+												<div class="text-lg font-extrabold text-primary mb-1">{formatCurrency(holding.totalPayoutsEarned)}</div>
+												<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Earned</div>
+											</div>
+
+											<div class="flex gap-2">
+												<SecondaryButton size="small" href="/claims">Claims</SecondaryButton>
+												<SecondaryButton size="small" on:click={() => alert('Payout history chart coming soon!')}>History</SecondaryButton>
 											</div>
 										</div>
 
-										<div class="holding-tokens">
-											<div class="tokens-value">{formatCurrency(holding.totalInvested)}</div>
-											<div class="tokens-label">Invested</div>
+										<div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-light-gray">
+											<div class="flex justify-between items-center">
+												<span class="text-sm text-black opacity-70 font-semibold">Unclaimed:</span>
+												<span class="text-sm font-extrabold text-primary">{formatCurrency(holding.unclaimedAmount)}</span>
+											</div>
+											<div class="flex justify-between items-center">
+												<span class="text-sm text-black opacity-70 font-semibold">Last Payout:</span>
+												<span class="text-sm font-extrabold text-black">{holding.lastPayoutDate ? new Date(holding.lastPayoutDate).toLocaleDateString() : 'N/A'}</span>
+											</div>
+											<div class="flex justify-between items-center">
+												<span class="text-sm text-black opacity-70 font-semibold">Status:</span>
+												<span class="text-sm font-extrabold text-primary">Active</span>
+											</div>
 										</div>
-
-
-										<div class="holding-payout">
-											<div class="payout-value">{formatCurrency(holding.totalPayoutsEarned)}</div>
-											<div class="payout-label">Earned</div>
-										</div>
-
-										<div class="holding-actions">
-											<SecondaryButton size="small">Manage</SecondaryButton>
-										</div>
-									</div>
-
-									<div class="holding-footer">
-										<div class="footer-item">
-											<span>Unclaimed:</span>
-											<span class="payout">{formatCurrency(holding.unclaimedAmount)}</span>
-										</div>
-										<div class="footer-item">
-											<span>Last Payout:</span>
-											<span>{holding.lastPayoutDate ? new Date(holding.lastPayoutDate).toLocaleDateString() : 'N/A'}</span>
-										</div>
-										<div class="footer-item">
-											<span>Status:</span>
-											<span class="positive">Active</span>
-										</div>
-									</div>
+									</CardContent>
 								</Card>
 							{/each}
 						{/if}
 					</div>
-				</div>
-			{:else if activeTab === 'performance'}
-				<div class="performance-content">
-					<div class="performance-header">
-						<h3>Performance Analytics</h3>
-						<div class="timeframe-controls">
+				{:else if activeTab === 'performance'}
+					<div class="flex justify-between items-center mb-6">
+						<SectionTitle level="h3" size="subsection">Performance Analytics</SectionTitle>
+						<div class="flex gap-2">
 							{#each ['1M', '3M', '6M', 'YTD'] as period}
-								<button 
-									class="timeframe-btn"
-									class:active={timeframe === period}
+								<TabButton 
+									active={timeframe === period}
 									on:click={() => timeframe = period}
 								>
 									{period}
-								</button>
+								</TabButton>
 							{/each}
 						</div>
 					</div>
 
-					<div class="performance-grid">
-						<div class="chart-section">
-							<div class="chart-placeholder">
-								<div class="chart-content">
-									<div class="chart-icon">📈</div>
-									<div class="chart-label">Portfolio Value Chart</div>
-									<div class="chart-note">Total value vs payout earnings over time</div>
-								</div>
+					<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+						<div class="bg-light-gray border border-light-gray rounded-lg h-64 flex items-center justify-center">
+							<div class="text-center">
+								<div class="text-3xl mb-2 opacity-50">📈</div>
+								<div class="font-bold text-black uppercase tracking-wider mb-1">Portfolio Value Chart</div>
+								<div class="text-xs text-black opacity-70">Total value vs payout earnings over time</div>
 							</div>
 						</div>
 
-						<div class="performance-stats">
-							<div class="perf-stat">
-								<div class="perf-value positive">{formatCurrency(totalPayoutsEarned)}</div>
-								<div class="perf-label">Total Payouts</div>
-								<div class="perf-note">Lifetime</div>
-							</div>
-							<div class="perf-stat">
-								<div class="perf-value">{formatCurrency(monthlyPayouts.length > 0 ? monthlyPayouts[monthlyPayouts.length - 1].totalPayout : 0)}</div>
-								<div class="perf-label">Last Month</div>
-								<div class="perf-note">Payout</div>
-							</div>
-							<div class="perf-stat">
-								<div class="perf-value positive">{formatCurrency(walletDataService.getEstimatedAnnualIncome())}</div>
-								<div class="perf-label">Est. Annual</div>
-								<div class="perf-note">Income</div>
-							</div>
+						<div class="space-y-4">
+							<StatsCard
+								title="Total Payouts"
+								value={formatCurrency(totalPayoutsEarned)}
+								subtitle="Lifetime"
+								valueColor="primary"
+								size="medium"
+							/>
+							<StatsCard
+								title="Last Month"
+								value={formatCurrency(monthlyPayouts.length > 0 ? monthlyPayouts[monthlyPayouts.length - 1].totalPayout : 0)}
+								subtitle="Payout"
+								size="medium"
+							/>
+							<StatsCard
+								title="Est. Annual"
+								value={formatCurrency(walletDataService.getEstimatedAnnualIncome())}
+								subtitle="Income"
+								valueColor="primary"
+								size="medium"
+							/>
 						</div>
 					</div>
 
-					<div class="monthly-performance">
-						<h4>Monthly Payouts</h4>
-						<div class="monthly-grid">
+					<div class="bg-light-gray border border-light-gray rounded-lg p-8">
+						<SectionTitle level="h3" size="subsection" className="mb-6">Monthly Payouts</SectionTitle>
+						<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
 							{#each monthlyPayouts.slice(-6) as month}
-								<div class="monthly-item">
-									<div class="month-label">{month.month.slice(0, 7)}</div>
-									<div class="month-value">{formatCurrency(month.totalPayout)}</div>
+								<div class="text-center">
+									<div class="text-xs font-bold text-black opacity-70 mb-2">{month.month.slice(0, 7)}</div>
+									<div class="text-base font-extrabold text-black">{formatCurrency(month.totalPayout)}</div>
 								</div>
 							{/each}
 						</div>
 					</div>
-				</div>
-			{:else if activeTab === 'allocation'}
-				<div class="allocation-content">
-					<div class="allocation-grid">
-						<div class="allocation-chart">
-							<h3>Asset Allocation</h3>
-							<div class="chart-placeholder">
-								<div class="chart-content">
-									<div class="chart-icon">🥧</div>
-									<div class="chart-label">Portfolio Pie Chart</div>
-									<div class="chart-note">Asset allocation by value</div>
+				{:else if activeTab === 'allocation'}
+					<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+						<div>
+							<SectionTitle level="h3" size="subsection" className="mb-6">Asset Allocation</SectionTitle>
+							<div class="bg-light-gray border border-light-gray rounded-lg h-64 flex items-center justify-center">
+								<div class="text-center">
+									<div class="text-3xl mb-2 opacity-50">🥧</div>
+									<div class="font-bold text-black uppercase tracking-wider mb-1">Portfolio Pie Chart</div>
+									<div class="text-xs text-black opacity-70">Asset allocation by value</div>
 								</div>
 							</div>
 						</div>
 
-						<div class="allocation-breakdown">
-							<h3>Allocation Breakdown</h3>
-							<div class="allocation-list">
+						<div>
+							<SectionTitle level="h3" size="subsection" className="mb-6">Allocation Breakdown</SectionTitle>
+							<div class="space-y-4 mb-8">
 								{#each tokenAllocations as allocation}
-									<div class="allocation-item">
-										<div class="allocation-asset">
-											<div class="asset-icon">
-												<img src={getAssetCoverImage(allocation.tokenSymbol.toLowerCase().replace(/_/g, '-').replace(/\d+$/, ''))} alt={allocation.assetName} />
+									<div class="flex justify-between items-center pb-4 border-b border-light-gray last:border-b-0 last:pb-0">
+										<div class="flex items-center gap-3">
+											<div class="w-8 h-8 bg-light-gray rounded overflow-hidden flex items-center justify-center">
+												<img src={getAssetCoverImage(allocation.assetId)} alt={allocation.assetName} class="w-full h-full object-cover" />
 											</div>
-											<div class="asset-info">
-												<div class="asset-name">{allocation.assetName}</div>
-												<div class="asset-location">{allocation.tokensOwned} tokens</div>
+											<div>
+												<div class="font-extrabold text-black text-sm">{allocation.assetName}</div>
+												<div class="text-xs text-black opacity-70">{allocation.tokensOwned} tokens</div>
 											</div>
 										</div>
-										<div class="allocation-stats">
-											<div class="allocation-percent">{allocation.percentageOfPortfolio.toFixed(1)}%</div>
-											<div class="allocation-value">{formatCurrency(allocation.currentValue)}</div>
+										<div class="text-right">
+											<div class="font-extrabold text-black text-sm">{allocation.percentageOfPortfolio.toFixed(1)}%</div>
+											<div class="text-xs text-black opacity-70">{formatCurrency(allocation.currentValue)}</div>
 										</div>
 									</div>
 								{/each}
 							</div>
 
 							{#if tokenAllocations.length > 0 && tokenAllocations[0].percentageOfPortfolio > 40}
-							<div class="diversification-tip">
-								<div class="tip-icon">⚠️</div>
-								<div class="tip-content">
-									<div class="tip-title">Diversification Tip</div>
-									<div class="tip-text">
-										Consider diversifying: {tokenAllocations[0].percentageOfPortfolio.toFixed(1)}% allocation to single asset ({tokenAllocations[0].assetName}) may impact portfolio balance.
+								<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex gap-3">
+									<div class="text-xl flex-shrink-0 mt-0.5">⚠️</div>
+									<div>
+										<div class="font-bold text-black text-sm mb-1">Diversification Tip</div>
+										<div class="text-xs text-black opacity-80 leading-relaxed">
+											Consider diversifying: {tokenAllocations[0].percentageOfPortfolio.toFixed(1)}% allocation to single asset ({tokenAllocations[0].assetName}) may impact portfolio balance.
+										</div>
 									</div>
 								</div>
-							</div>
 							{/if}
 						</div>
 					</div>
-				</div>
-			{/if}
+				{/if}
+			</div>
 		</div>
-	</Card>
+	</ContentSection>
 
 	<!-- Quick Actions -->
-	<div class="quick-actions">
-		<div class="action-card">
-			<div class="action-icon">➕</div>
-			<h4>Add Investment</h4>
-			<p>Diversify with new assets</p>
-			<a href="/assets" class="action-btn primary">Browse Assets</a>
-		</div>
+	<ContentSection background="gray" padding="standard" centered>
+		<SectionTitle level="h2" size="section" center className="mb-12">Quick Actions</SectionTitle>
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+			<ActionCard
+				title="Add Investment"
+				description="Diversify with new assets"
+				icon="➕"
+				actionText="Browse Assets"
+				actionVariant="primary"
+				href="/assets"
+				size="medium"
+			/>
 
-		<div class="action-card">
-			<div class="action-icon">💰</div>
-			<h4>Claim Payouts</h4>
-			<p>{formatCurrency(unclaimedPayout)} available</p>
-			<a href="/claims" class="action-btn claim">Claim Now</a>
-		</div>
+			<ActionCard
+				title="Claim Payouts"
+				description="{formatCurrency(unclaimedPayout)} available"
+				icon="💰"
+				actionText="Claim Now"
+				actionVariant="claim"
+				href="/claims"
+				size="medium"
+			/>
 
-
-		<div class="action-card">
-			<div class="action-icon">📥</div>
-			<h4>Export Data</h4>
-			<p>Tax & accounting reports</p>
-			<button class="action-btn secondary">Download</button>
+			<ActionCard
+				title="Export Data"
+				description="Tax & accounting reports"
+				icon="📥"
+				actionText="Download"
+				actionVariant="secondary"
+				size="medium"
+			/>
 		</div>
-	</div>
-</main>
+	</ContentSection>
+</PageLayout>
 {/if}
 
 <!-- Wallet Modal -->
@@ -417,668 +429,3 @@
 	on:close={handleWalletModalClose}
 />
 
-<style>
-	.portfolio-page {
-		padding: 2rem;
-		max-width: 1024px;
-		margin: 0 auto;
-	}
-
-	/* Wallet Required Screen */
-	.wallet-required {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		min-height: 60vh;
-		text-align: center;
-	}
-
-	.wallet-required-content h1 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.wallet-required-content p {
-		font-size: 1.1rem;
-		color: var(--color-black);
-		margin-bottom: 2rem;
-		opacity: 0.8;
-	}
-
-
-	/* Portfolio Overview */
-
-	.overview-content {
-		display: grid;
-		grid-template-columns: 2fr 1fr;
-		gap: 3rem;
-	}
-
-	.overview-main h1 {
-		font-size: 2.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 2rem;
-		text-transform: uppercase;
-		letter-spacing: 0.02em;
-	}
-
-	.portfolio-metrics {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 2rem;
-		margin-bottom: 2rem;
-	}
-
-
-	.portfolio-info {
-		display: flex;
-		align-items: center;
-		gap: 2rem;
-		font-size: 0.85rem;
-		font-weight: var(--font-weight-semibold);
-	}
-
-	.update-time,
-	.inception-info {
-		color: var(--color-black);
-		opacity: 0.7;
-	}
-
-	/* Quick Stats */
-
-	.stats-list {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		margin-bottom: 2rem;
-	}
-
-	.stat-row {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		font-size: 0.9rem;
-	}
-
-	.stat-row span:first-child {
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		opacity: 0.8;
-	}
-
-	.stat-row span:last-child {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-	}
-
-	.stat-row .payout {
-		color: var(--color-primary);
-	}
-
-
-	/* Tabs */
-
-	.tab-content {
-		padding: 2rem;
-	}
-
-	/* Holdings Tab */
-	.holdings-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 2rem;
-	}
-
-	.holdings-header h3 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-
-	.holdings-list {
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
-	}
-
-
-	.holding-main {
-		display: grid;
-		grid-template-columns: 2fr 1fr 1fr 0.5fr;
-		gap: 2rem;
-		align-items: center;
-		margin-bottom: 1.5rem;
-	}
-
-	.holding-info {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-	}
-
-	.holding-icon {
-		width: 2.5rem;
-		height: 2.5rem;
-		background: var(--color-light-gray);
-		border-radius: 0.5rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 1.25rem;
-		overflow: hidden;
-	}
-
-	.holding-icon img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.holding-details h4 {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.25rem;
-		font-size: 0.9rem;
-	}
-
-	.holding-location {
-		font-size: 0.8rem;
-		color: var(--color-black);
-		opacity: 0.7;
-		margin-bottom: 0.5rem;
-	}
-
-	.holding-badges {
-		display: flex;
-		gap: 0.5rem;
-	}
-
-
-	.holding-tokens,
-	.holding-payout {
-		text-align: center;
-	}
-
-	.tokens-value,
-	.payout-value {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.25rem;
-	}
-
-	.payout-value {
-		color: var(--color-primary);
-	}
-
-	.tokens-label,
-	.payout-label {
-		font-size: 0.65rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		opacity: 0.7;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin-bottom: 0.25rem;
-	}
-
-
-
-	.holding-footer {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 2rem;
-		padding-top: 1.5rem;
-		border-top: 1px solid var(--color-light-gray);
-	}
-
-	.footer-item {
-		display: flex;
-		justify-content: space-between;
-		font-size: 0.85rem;
-	}
-
-	.footer-item span:first-child {
-		color: var(--color-black);
-		opacity: 0.7;
-		font-weight: var(--font-weight-semibold);
-	}
-
-	.footer-item span:last-child {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-	}
-
-	.footer-item .payout {
-		color: var(--color-primary);
-	}
-
-	.footer-item .positive {
-		color: var(--color-primary);
-	}
-
-	/* Performance Tab */
-	.performance-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 2rem;
-	}
-
-	.performance-header h3 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.timeframe-controls {
-		display: flex;
-		gap: 0.5rem;
-	}
-
-	.timeframe-btn {
-		padding: 0.5rem 0.75rem;
-		border: 1px solid var(--color-light-gray);
-		background: var(--color-white);
-		color: var(--color-black);
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-bold);
-		font-size: 0.75rem;
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
-
-	.timeframe-btn:hover,
-	.timeframe-btn.active {
-		background: var(--color-black);
-		color: var(--color-white);
-		border-color: var(--color-black);
-	}
-
-	.performance-grid {
-		display: grid;
-		grid-template-columns: 2fr 1fr;
-		gap: 2rem;
-		margin-bottom: 2rem;
-	}
-
-	.chart-placeholder {
-		height: 16rem;
-		background: linear-gradient(135deg, var(--color-light-gray), var(--color-white));
-		border: 1px solid var(--color-light-gray);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.chart-content {
-		text-align: center;
-	}
-
-	.chart-icon {
-		font-size: 3rem;
-		margin-bottom: 0.5rem;
-		opacity: 0.5;
-	}
-
-	.chart-label {
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		margin-bottom: 0.25rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.chart-note {
-		font-size: 0.75rem;
-		color: var(--color-black);
-		opacity: 0.7;
-	}
-
-	.performance-stats {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
-
-	.perf-stat {
-		border: 1px solid var(--color-light-gray);
-		padding: 1.5rem;
-		text-align: center;
-	}
-
-	.perf-value {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.perf-value.positive {
-		color: var(--color-primary);
-	}
-
-	.perf-label {
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin-bottom: 0.25rem;
-	}
-
-	.perf-note {
-		font-size: 0.65rem;
-		color: var(--color-black);
-		opacity: 0.6;
-	}
-
-	.monthly-performance {
-		background: var(--color-light-gray);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-	}
-
-	.monthly-performance h4 {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1.5rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.monthly-grid {
-		display: grid;
-		grid-template-columns: repeat(6, 1fr);
-		gap: 1.5rem;
-	}
-
-	.monthly-item {
-		text-align: center;
-	}
-
-	.month-label {
-		font-size: 0.8rem;
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		opacity: 0.7;
-		margin-bottom: 0.5rem;
-	}
-
-	.month-value {
-		font-size: 1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.25rem;
-	}
-
-
-	/* Allocation Tab */
-	.allocation-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 3rem;
-	}
-
-	.allocation-chart h3,
-	.allocation-breakdown h3 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1.5rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.allocation-list {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		margin-bottom: 2rem;
-	}
-
-	.allocation-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding-bottom: 1rem;
-		border-bottom: 1px solid var(--color-light-gray);
-	}
-
-	.allocation-item:last-child {
-		border-bottom: none;
-		padding-bottom: 0;
-	}
-
-	.allocation-asset {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-	}
-
-	.asset-icon {
-		width: 2rem;
-		height: 2rem;
-		background: var(--color-light-gray);
-		border-radius: 0.25rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 1rem;
-		overflow: hidden;
-	}
-
-	.asset-icon img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.asset-name {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		font-size: 0.85rem;
-	}
-
-	.asset-location {
-		font-size: 0.75rem;
-		color: var(--color-black);
-		opacity: 0.7;
-	}
-
-	.allocation-stats {
-		text-align: right;
-	}
-
-	.allocation-percent {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		font-size: 0.9rem;
-	}
-
-	.allocation-value {
-		font-size: 0.75rem;
-		color: var(--color-black);
-		opacity: 0.7;
-	}
-
-	.diversification-tip {
-		background: #fef3c7;
-		border: 1px solid #fbbf24;
-		padding: 1rem;
-		display: flex;
-		gap: 0.75rem;
-	}
-
-	.tip-icon {
-		font-size: 1.25rem;
-		flex-shrink: 0;
-		margin-top: 0.125rem;
-	}
-
-	.tip-title {
-		font-weight: var(--font-weight-bold);
-		color: var(--color-black);
-		font-size: 0.85rem;
-		margin-bottom: 0.25rem;
-	}
-
-	.tip-text {
-		font-size: 0.75rem;
-		color: var(--color-black);
-		opacity: 0.8;
-		line-height: 1.4;
-	}
-
-	/* Analytics Tab - unused styles removed */
-
-	/* Quick Actions */
-	.quick-actions {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 2rem;
-	}
-
-	.action-card {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-		text-align: center;
-	}
-
-	.action-icon {
-		font-size: 2rem;
-		margin: 0 auto 1rem;
-	}
-
-	.action-card h4 {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-		text-transform: uppercase;
-		font-size: 0.9rem;
-		letter-spacing: 0.05em;
-	}
-
-	.action-card p {
-		font-size: 0.85rem;
-		color: var(--color-black);
-		opacity: 0.7;
-		margin-bottom: 1.5rem;
-	}
-
-	.action-btn {
-		padding: 0.75rem 1.5rem;
-		border: none;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-bold);
-		font-size: 0.75rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		width: 100%;
-		text-decoration: none;
-		display: inline-block;
-		text-align: center;
-	}
-
-	.action-btn.primary {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	.action-btn.primary:hover {
-		background: var(--color-secondary);
-	}
-
-	.action-btn.claim {
-		background: var(--color-primary);
-		color: var(--color-white);
-	}
-
-	.action-btn.claim:hover {
-		opacity: 0.9;
-	}
-
-	.action-btn.secondary {
-		background: var(--color-white);
-		color: var(--color-black);
-		border: 1px solid var(--color-black);
-	}
-
-	.action-btn.secondary:hover {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	/* Mobile Responsive */
-	@media (max-width: 768px) {
-		.portfolio-page {
-			padding: 1rem;
-		}
-
-		.overview-content {
-			grid-template-columns: 1fr;
-			gap: 2rem;
-		}
-
-		.portfolio-metrics {
-			grid-template-columns: 1fr;
-		}
-
-
-		.portfolio-info {
-			flex-direction: column;
-			gap: 0.5rem;
-			align-items: flex-start;
-		}
-
-		.holdings-header {
-			flex-direction: column;
-			gap: 1rem;
-			align-items: stretch;
-		}
-
-		.holding-main {
-			grid-template-columns: 1fr;
-			gap: 1rem;
-			text-align: center;
-		}
-
-		.holding-info {
-			justify-content: center;
-		}
-
-		.holding-footer {
-			grid-template-columns: 1fr;
-			gap: 1rem;
-		}
-
-		.performance-grid,
-		.allocation-grid {
-			grid-template-columns: 1fr;
-		}
-
-		.monthly-grid {
-			grid-template-columns: repeat(3, 1fr);
-		}
-
-		.quick-actions {
-			grid-template-columns: 1fr;
-		}
-
-	}
-</style>

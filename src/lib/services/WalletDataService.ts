@@ -381,6 +381,7 @@ class WalletDataService {
 
       return {
         tokenSymbol: holding.symbol,
+        assetId: holding.assetId,
         assetName: holding.assetName,
         tokensOwned: holding.formattedBalance,
         percentageOfPortfolio,

@@ -128,6 +128,7 @@ export interface WalletMetrics {
 
 export interface TokenAllocation {
   tokenSymbol: string;
+  assetId: string;
   assetName: string;
   tokensOwned: number;
   percentageOfPortfolio: number;
