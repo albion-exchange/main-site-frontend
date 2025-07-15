@@ -22,8 +22,8 @@ import walletDataJson from '$lib/data/mockWallet/wallet.json';
 
 interface SimpleWalletData {
   walletAddress: string;
-  transactions: Array<WalletTransaction & { tokenSymbol?: string; assetId?: string }>;
-  payouts: Array<WalletPayout & { tokenSymbol?: string; assetId?: string }>;
+  transactions: WalletTransaction[];
+  payouts: WalletPayout[];
 }
 
 class WalletDataService {
@@ -45,8 +45,8 @@ class WalletDataService {
       walletAddress: this.rawData.walletAddress,
       holdings,
       summary,
-      transactions: this.rawData.transactions as WalletTransaction[],
-      payouts: this.rawData.payouts as WalletPayout[]
+      transactions: this.rawData.transactions,
+      payouts: this.rawData.payouts
     };
   }
 
@@ -88,13 +88,16 @@ class WalletDataService {
   getActiveAssetsCount(): number {
     const activeAssets = new Set<string>();
     
-    // Get unique assets from transactions
+    // Get unique assets from transactions by looking up tokens
     this.rawData.transactions
-      .filter(tx => tx.type === 'mint' && tx.assetId)
+      .filter(tx => tx.type === 'mint')
       .forEach(tx => {
-        const asset = dataStoreService.getAssetById(tx.assetId!);
-        if (asset && (asset.production.status === 'producing' || asset.production.status === 'funding')) {
-          activeAssets.add(tx.assetId!);
+        const token = dataStoreService.getTokenByAddress(tx.address);
+        if (token) {
+          const asset = dataStoreService.getAssetById(token.assetId);
+          if (asset && (asset.production.status === 'producing' || asset.production.status === 'funding')) {
+            activeAssets.add(token.assetId);
+          }
         }
       });
     
@@ -107,8 +110,8 @@ class WalletDataService {
   private computeHoldings(): WalletHolding[] {
     // Group transactions by contract address
     const holdingsByAddress = new Map<string, {
-      transactions: typeof this.rawData.transactions,
-      payouts: typeof this.rawData.payouts
+      transactions: WalletTransaction[],
+      payouts: WalletPayout[]
     }>();
 
     // Group mint transactions

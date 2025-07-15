@@ -8,9 +8,7 @@
       "type": "mint",
       "amount": 5000,
       "amountUSD": 5000.00,
-      "txHash": "0x1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890",
-      "tokenSymbol": "BAK-HF",
-      "assetId": "bakken-horizon-field"
+      "txHash": "0x1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890"
     },
     {
       "id": "tx_002",
@@ -19,9 +17,7 @@
       "type": "mint",
       "amount": 2500,
       "amountUSD": 2500.00,
-      "txHash": "0x2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890ab",
-      "tokenSymbol": "EUR-WR1",
-      "assetId": "europa-wressle-release-1"
+      "txHash": "0x2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890ab"
     },
     {
       "id": "tx_003",
@@ -30,9 +26,7 @@
       "type": "mint",
       "amount": 3000,
       "amountUSD": 3000.00,
-      "txHash": "0x3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcd",
-      "tokenSymbol": "BAK-HF",
-      "assetId": "bakken-horizon-field"
+      "txHash": "0x3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcd"
     },
     {
       "id": "tx_004",
@@ -41,9 +35,7 @@
       "type": "claim",
       "amount": 395.28,
       "amountUSD": 395.28,
-      "txHash": "0x4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-      "tokenSymbol": "BAK-HF",
-      "assetId": "bakken-horizon-field"
+      "txHash": "0x4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
     },
     {
       "id": "tx_005",
@@ -52,9 +44,7 @@
       "type": "claim",
       "amount": 375.68,
       "amountUSD": 375.68,
-      "txHash": "0x5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12",
-      "tokenSymbol": "BAK-HF",
-      "assetId": "bakken-horizon-field"
+      "txHash": "0x5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12"
     },
     {
       "id": "tx_006",
@@ -63,9 +53,7 @@
       "type": "claim",
       "amount": 81.60,
       "amountUSD": 81.60,
-      "txHash": "0x890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567",
-      "tokenSymbol": "EUR-WR1",
-      "assetId": "europa-wressle-release-1"
+      "txHash": "0x890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567"
     },
     {
       "id": "tx_007",
@@ -74,9 +62,7 @@
       "type": "claim",
       "amount": 410.90,
       "amountUSD": 410.90,
-      "txHash": "0x6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234",
-      "tokenSymbol": "BAK-HF",
-      "assetId": "bakken-horizon-field"
+      "txHash": "0x6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234"
     },
     {
       "id": "tx_008",
@@ -85,9 +71,7 @@
       "type": "claim",
       "amount": 88.83,
       "amountUSD": 88.83,
-      "txHash": "0x90abcdef1234567890abcdef1234567890abcdef1234567890abcdef12345678",
-      "tokenSymbol": "EUR-WR1",
-      "assetId": "europa-wressle-release-1"
+      "txHash": "0x90abcdef1234567890abcdef1234567890abcdef1234567890abcdef12345678"
     },
     {
       "id": "tx_009",
@@ -96,9 +80,7 @@
       "type": "claim",
       "amount": 613.60,
       "amountUSD": 613.60,
-      "txHash": "0x7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef123456",
-      "tokenSymbol": "BAK-HF",
-      "assetId": "bakken-horizon-field"
+      "txHash": "0x7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef123456"
     },
     {
       "id": "tx_010",
@@ -107,9 +89,7 @@
       "type": "claim",
       "amount": 84.83,
       "amountUSD": 84.83,
-      "txHash": "0x0abcdef1234567890abcdef1234567890abcdef123456789",
-      "tokenSymbol": "EUR-WR1",
-      "assetId": "europa-wressle-release-1"
+      "txHash": "0x0abcdef1234567890abcdef1234567890abcdef123456789"
     }
   ],
   "payouts": [
@@ -123,9 +103,7 @@
       "walletTokens": 5000,
       "walletShare": 0.010256,
       "amount": 395.28,
-      "txHash": "0x0000000000000000000000000cf0e298e556f6dc",
-      "tokenSymbol": "BAK-HF",
-      "assetId": "bakken-horizon-field"
+      "txHash": "0x0000000000000000000000000cf0e298e556f6dc"
     },
     {
       "id": "payout_002",
@@ -137,9 +115,7 @@
       "walletTokens": 0,
       "walletShare": 0.000000,
       "amount": 0.00,
-      "txHash": "0xffffffffffffffffffffffff827a44b013d79ff4",
-      "tokenSymbol": "EUR-WR1",
-      "assetId": "europa-wressle-release-1"
+      "txHash": "0xffffffffffffffffffffffff827a44b013d79ff4"
     },
     {
       "id": "payout_003",
@@ -151,9 +127,7 @@
       "walletTokens": 5000,
       "walletShare": 0.010256,
       "amount": 375.68,
-      "txHash": "0xffffffffffffffffffffffff88abf860376117fb",
-      "tokenSymbol": "BAK-HF",
-      "assetId": "bakken-horizon-field"
+      "txHash": "0xffffffffffffffffffffffff88abf860376117fb"
     },
     {
       "id": "payout_004",
@@ -165,9 +139,7 @@
       "walletTokens": 2500,
       "walletShare": 0.016260,
       "amount": 81.60,
-      "txHash": "0x00000000000000000000000046833666e2ab4f26",
-      "tokenSymbol": "EUR-WR1",
-      "assetId": "europa-wressle-release-1"
+      "txHash": "0x00000000000000000000000046833666e2ab4f26"
     },
     {
       "id": "payout_005",
@@ -179,9 +151,7 @@
       "walletTokens": 5000,
       "walletShare": 0.010256,
       "amount": 410.90,
-      "txHash": "0x0000000000000000000000004cf2533875715664",
-      "tokenSymbol": "BAK-HF",
-      "assetId": "bakken-horizon-field"
+      "txHash": "0x0000000000000000000000004cf2533875715664"
     },
     {
       "id": "payout_006",
@@ -193,9 +163,7 @@
       "walletTokens": 2500,
       "walletShare": 0.016260,
       "amount": 88.83,
-      "txHash": "0xffffffffffffffffffffffffdfe92cfd40c660ed",
-      "tokenSymbol": "EUR-WR1",
-      "assetId": "europa-wressle-release-1"
+      "txHash": "0xffffffffffffffffffffffffdfe92cfd40c660ed"
     },
     {
       "id": "payout_007",
@@ -207,9 +175,7 @@
       "walletTokens": 8000,
       "walletShare": 0.016410,
       "amount": 613.60,
-      "txHash": "0x00000000000000000000000041edb16a6f48b35c",
-      "tokenSymbol": "BAK-HF",
-      "assetId": "bakken-horizon-field"
+      "txHash": "0x00000000000000000000000041edb16a6f48b35c"
     },
     {
       "id": "payout_008",
@@ -221,9 +187,7 @@
       "walletTokens": 2500,
       "walletShare": 0.016260,
       "amount": 84.83,
-      "txHash": "0xffffffffffffffffffffffffe791cdaa42d67777",
-      "tokenSymbol": "EUR-WR1",
-      "assetId": "europa-wressle-release-1"
+      "txHash": "0xffffffffffffffffffffffffe791cdaa42d67777"
     }
   ]
 }
