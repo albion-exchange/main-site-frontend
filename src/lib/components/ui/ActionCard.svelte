@@ -18,35 +18,65 @@
 			dispatch('action');
 		}
 	}
+	
+	// Tailwind class mappings
+	const sizeClasses = {
+		small: {
+			card: 'p-4 md:p-6',
+			icon: 'text-2xl mb-3 md:text-xl md:mb-3',
+			title: 'text-xs mb-1.5 md:text-xs',
+			description: 'text-xs mb-4 md:text-xs',
+			button: 'px-4 py-2 text-xs min-w-[100px] md:w-full md:min-w-0'
+		},
+		medium: {
+			card: 'p-8 md:p-6',
+			icon: 'text-3xl mb-4 md:text-2xl md:mb-3',
+			title: 'text-sm mb-2 md:text-sm',
+			description: 'text-sm mb-6 md:text-xs',
+			button: 'px-6 py-3 text-sm min-w-[120px] md:w-full md:min-w-0'
+		},
+		large: {
+			card: 'p-10 md:p-8',
+			icon: 'text-4xl mb-5 md:text-2xl md:mb-3',
+			title: 'text-base mb-2.5 md:text-sm',
+			description: 'text-sm mb-7 md:text-xs',
+			button: 'px-8 py-4 text-sm min-w-[140px] md:w-full md:min-w-0'
+		}
+	};
+	
+	const buttonVariants = {
+		primary: 'bg-black text-white hover:bg-secondary',
+		secondary: 'bg-white text-black border border-black hover:bg-black hover:text-white',
+		claim: 'bg-primary text-white hover:bg-secondary',
+		manage: 'bg-black text-white w-full hover:bg-secondary'
+	};
+	
+	$: cardClasses = `bg-white border border-light-gray rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-action-hover ${sizeClasses[size].card} ${centered ? 'text-center' : ''}`;
+	$: iconClasses = `block mx-auto ${sizeClasses[size].icon}`;
+	$: titleClasses = `font-extrabold text-black uppercase tracking-wide leading-tight ${sizeClasses[size].title}`;
+	$: descriptionClasses = `text-black opacity-70 leading-relaxed ${sizeClasses[size].description}`;
+	$: buttonClasses = `inline-block font-extrabold uppercase tracking-wide cursor-pointer transition-all duration-200 text-center rounded font-figtree focus:outline-primary focus:outline-2 focus:outline-offset-2 ${sizeClasses[size].button} ${buttonVariants[actionVariant]} ${disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`;
 </script>
 
-<div 
-	class="action-card" 
-	class:small={size === 'small'}
-	class:medium={size === 'medium'}
-	class:large={size === 'large'}
-	class:centered
->
+<div class={cardClasses}>
 	{#if icon}
-		<div class="action-icon">{icon}</div>
+		<div class={iconClasses}>{icon}</div>
 	{/if}
 	
-	<h4 class="action-title">{title}</h4>
+	<h4 class={titleClasses}>{title}</h4>
 	
-	<p class="action-description">{description}</p>
+	<p class={descriptionClasses}>{description}</p>
 	
 	{#if href}
 		<a 
 			{href} 
-			class="action-btn {actionVariant}"
-			class:disabled
+			class={buttonClasses}
 		>
 			{actionText}
 		</a>
 	{:else}
 		<button 
-			class="action-btn {actionVariant}"
-			class:disabled
+			class={buttonClasses}
 			{disabled}
 			on:click={handleAction}
 		>
@@ -55,197 +85,3 @@
 	{/if}
 </div>
 
-<style>
-	.action-card {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-		border-radius: 8px;
-		transition: all 0.2s ease;
-	}
-
-	.action-card:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-	}
-
-	.action-card.centered {
-		text-align: center;
-	}
-
-	/* Size variants */
-	.action-card.small {
-		padding: 1rem;
-	}
-
-	.action-card.medium {
-		padding: 2rem;
-	}
-
-	.action-card.large {
-		padding: 2.5rem;
-	}
-
-	.action-icon {
-		font-size: 2rem;
-		margin: 0 auto 1rem;
-		display: block;
-	}
-
-	.action-card.small .action-icon {
-		font-size: 1.5rem;
-		margin-bottom: 0.75rem;
-	}
-
-	.action-card.large .action-icon {
-		font-size: 2.5rem;
-		margin-bottom: 1.25rem;
-	}
-
-	.action-title {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-		text-transform: uppercase;
-		font-size: 0.9rem;
-		letter-spacing: 0.05em;
-		line-height: 1.2;
-	}
-
-	.action-card.small .action-title {
-		font-size: 0.8rem;
-		margin-bottom: 0.375rem;
-	}
-
-	.action-card.large .action-title {
-		font-size: 1rem;
-		margin-bottom: 0.625rem;
-	}
-
-	.action-description {
-		font-size: 0.85rem;
-		color: var(--color-black);
-		opacity: 0.7;
-		margin-bottom: 1.5rem;
-		line-height: 1.4;
-	}
-
-	.action-card.small .action-description {
-		font-size: 0.8rem;
-		margin-bottom: 1rem;
-	}
-
-	.action-card.large .action-description {
-		font-size: 0.9rem;
-		margin-bottom: 1.75rem;
-	}
-
-	.action-btn {
-		display: inline-block;
-		padding: 0.75rem 1.5rem;
-		border: none;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-extrabold);
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		text-decoration: none;
-		border-radius: 4px;
-		text-align: center;
-		min-width: 120px;
-	}
-
-	.action-card.small .action-btn {
-		padding: 0.5rem 1rem;
-		font-size: 0.75rem;
-		min-width: 100px;
-	}
-
-	.action-card.large .action-btn {
-		padding: 1rem 2rem;
-		font-size: 0.85rem;
-		min-width: 140px;
-	}
-
-	/* Button variants */
-	.action-btn.primary {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	.action-btn.primary:hover:not(.disabled) {
-		background: var(--color-secondary);
-	}
-
-	.action-btn.secondary {
-		background: var(--color-white);
-		color: var(--color-black);
-		border: 1px solid var(--color-black);
-	}
-
-	.action-btn.secondary:hover:not(.disabled) {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	.action-btn.claim {
-		background: var(--color-primary);
-		color: var(--color-white);
-	}
-
-	.action-btn.claim:hover:not(.disabled) {
-		background: var(--color-secondary);
-	}
-
-	.action-btn.manage {
-		background: var(--color-black);
-		color: var(--color-white);
-		width: 100%;
-	}
-
-	.action-btn.manage:hover:not(.disabled) {
-		background: var(--color-secondary);
-	}
-
-	.action-btn.disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-		pointer-events: none;
-	}
-
-	/* Focus states for accessibility */
-	.action-btn:focus {
-		outline: 2px solid var(--color-primary);
-		outline-offset: 2px;
-	}
-
-	/* Responsive design */
-	@media (max-width: 768px) {
-		.action-card {
-			padding: 1.5rem;
-		}
-
-		.action-card.large {
-			padding: 2rem;
-		}
-
-		.action-icon {
-			font-size: 1.75rem;
-		}
-
-		.action-title {
-			font-size: 0.85rem;
-		}
-
-		.action-description {
-			font-size: 0.8rem;
-		}
-
-		.action-btn {
-			width: 100%;
-			min-width: auto;
-		}
-	}
-</style>

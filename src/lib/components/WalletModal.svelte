@@ -27,87 +27,129 @@
 			handleClose();
 		}
 	}
+	
+	// Tailwind class mappings
+	$: backdropClasses = 'fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-4';
+	$: modalClasses = 'bg-white border-2 border-black w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl';
+	$: headerClasses = 'flex justify-between items-center px-8 py-6 border-b border-light-gray';
+	$: titleClasses = 'text-2xl font-extrabold text-black uppercase tracking-wide';
+	$: closeClasses = 'bg-transparent border-none text-3xl text-black cursor-pointer w-10 h-10 flex items-center justify-center hover:text-primary transition-colors duration-200';
+	$: bodyClasses = 'p-8';
+	$: footerClasses = 'px-8 py-6 border-t border-light-gray';
+	
+	// Placeholder banner classes
+	$: placeholderBannerClasses = 'bg-light-gray border border-light-gray p-6 mb-8 text-center';
+	$: placeholderIconClasses = 'text-4xl mb-3';
+	$: placeholderTitleClasses = 'font-extrabold text-black uppercase tracking-wide mb-2';
+	$: placeholderTextClasses = 'text-sm text-black';
+	
+	// Wallet options classes
+	$: walletOptionsClasses = 'space-y-4 mb-8';
+	$: walletOptionClasses = 'border border-light-gray p-6 hover:border-primary transition-colors duration-200 cursor-pointer flex justify-between items-center';
+	$: walletOptionContentClasses = 'flex items-center gap-4';
+	$: walletIconClasses = 'text-3xl';
+	$: walletNameClasses = 'font-extrabold text-black text-base uppercase tracking-wide';
+	$: walletDescClasses = 'text-sm text-black mt-1';
+	$: walletBadgeClasses = 'px-3 py-1 text-xs font-bold uppercase tracking-wide text-white';
+	$: walletBadgePrimaryClasses = 'bg-primary';
+	$: walletBadgeSecondaryClasses = 'bg-secondary';
+	$: walletBadgeSecureClasses = 'bg-primary';
+	
+	// Info section classes
+	$: infoSectionClasses = 'bg-white border border-light-gray p-6';
+	$: infoTitleClasses = 'font-extrabold text-black text-base uppercase tracking-wide mb-4';
+	$: infoListClasses = 'space-y-3 text-sm text-black';
+	$: infoItemClasses = 'flex items-start gap-3';
+	$: infoBulletClasses = 'text-primary';
+	
+	// Button classes
+	$: connectButtonClasses = 'w-full bg-black text-white py-3 px-6 font-semibold uppercase tracking-wide border-2 border-black hover:bg-secondary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2';
+	$: spinnerClasses = 'w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin';
+	
+	// Security notice classes
+	$: securityNoticeClasses = 'flex items-center justify-center gap-2 mt-4 text-xs text-black';
+	$: securityIconClasses = 'text-primary';
 </script>
 
 {#if isOpen}
-	<div class="modal-backdrop" on:click={handleBackdropClick} on:keydown={handleKeydown} role="dialog" aria-modal="true" tabindex="-1">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h2>Connect Your Wallet</h2>
+	<div class={backdropClasses} on:click={handleBackdropClick} on:keydown={handleKeydown} role="dialog" aria-modal="true" tabindex="-1">
+		<div class={modalClasses}>
+			<div class={headerClasses}>
+				<h2 class={titleClasses}>Connect Your Wallet</h2>
 				{#if !isConnecting}
-					<button class="close-btn" on:click={handleClose}>&times;</button>
+					<button class={closeClasses} on:click={handleClose}>&times;</button>
 				{/if}
 			</div>
 			
-			<div class="modal-body">
-				<div class="placeholder-notice">
-					<div class="placeholder-icon">🚧</div>
-					<h3>PLACEHOLDER MODAL</h3>
-					<p>This is a mock wallet connection interface for demonstration purposes.</p>
+			<div class={bodyClasses}>
+				<div class={placeholderBannerClasses}>
+					<div class={placeholderIconClasses}>🚧</div>
+					<h3 class={placeholderTitleClasses}>PLACEHOLDER MODAL</h3>
+					<p class={placeholderTextClasses}>This is a mock wallet connection interface for demonstration purposes.</p>
 				</div>
 				
-				<div class="wallet-options">
-					<div class="wallet-option">
-						<div class="wallet-info">
-							<div class="wallet-icon">🦊</div>
-							<div class="wallet-details">
-								<h4>MetaMask</h4>
-								<p>Connect using browser extension</p>
+				<div class={walletOptionsClasses}>
+					<div class={walletOptionClasses}>
+						<div class={walletOptionContentClasses}>
+							<div class={walletIconClasses}>🦊</div>
+							<div>
+								<h4 class={walletNameClasses}>MetaMask</h4>
+								<p class={walletDescClasses}>Connect using browser extension</p>
 							</div>
 						</div>
-						<span class="status-indicator">Most Popular</span>
+						<span class="{walletBadgeClasses} {walletBadgePrimaryClasses}">Most Popular</span>
 					</div>
 					
-					<div class="wallet-option">
-						<div class="wallet-info">
-							<div class="wallet-icon">👛</div>
-							<div class="wallet-details">
-								<h4>WalletConnect</h4>
-								<p>Connect using mobile wallet</p>
+					<div class={walletOptionClasses}>
+						<div class={walletOptionContentClasses}>
+							<div class={walletIconClasses}>👛</div>
+							<div>
+								<h4 class={walletNameClasses}>WalletConnect</h4>
+								<p class={walletDescClasses}>Connect using mobile wallet</p>
 							</div>
 						</div>
-						<span class="status-indicator">Mobile</span>
+						<span class="{walletBadgeClasses} {walletBadgeSecondaryClasses}">Mobile</span>
 					</div>
 					
-					<div class="wallet-option">
-						<div class="wallet-info">
-							<div class="wallet-icon">🔗</div>
-							<div class="wallet-details">
-								<h4>Coinbase Wallet</h4>
-								<p>Connect using Coinbase</p>
+					<div class={walletOptionClasses}>
+						<div class={walletOptionContentClasses}>
+							<div class={walletIconClasses}>🔗</div>
+							<div>
+								<h4 class={walletNameClasses}>Coinbase Wallet</h4>
+								<p class={walletDescClasses}>Connect using Coinbase</p>
 							</div>
 						</div>
-						<span class="status-indicator">Secure</span>
+						<span class="{walletBadgeClasses} {walletBadgeSecureClasses}">Secure</span>
 					</div>
 				</div>
 				
-				<div class="connection-info">
-					<h4>Why Connect a Wallet?</h4>
-					<ul>
-						<li>View your token holdings and portfolio</li>
-						<li>Claim payouts and distributions</li>
-						<li>Purchase and manage investments</li>
-						<li>Access transaction history</li>
+				<div class={infoSectionClasses}>
+					<h4 class={infoTitleClasses}>Why Connect a Wallet?</h4>
+					<ul class={infoListClasses}>
+						<li class={infoItemClasses}><span class={infoBulletClasses}>•</span>View your token holdings and portfolio</li>
+						<li class={infoItemClasses}><span class={infoBulletClasses}>•</span>Claim payouts and distributions</li>
+						<li class={infoItemClasses}><span class={infoBulletClasses}>•</span>Purchase and manage investments</li>
+						<li class={infoItemClasses}><span class={infoBulletClasses}>•</span>Access transaction history</li>
 					</ul>
 				</div>
 			</div>
 			
-			<div class="modal-footer">
+			<div class={footerClasses}>
 				<button 
-					class="connect-btn"
+					class={connectButtonClasses}
 					on:click={handleConnect}
 					disabled={isConnecting}
 				>
 					{#if isConnecting}
-						<span class="spinner"></span>
+						<span class={spinnerClasses}></span>
 						Connecting...
 					{:else}
 						Confirm Mock Connection
 					{/if}
 				</button>
 				
-				<div class="security-notice">
-					<span class="security-icon">🔒</span>
+				<div class={securityNoticeClasses}>
+					<span class={securityIconClasses}>🔒</span>
 					<span>Your wallet connection is secure and encrypted</span>
 				</div>
 			</div>
@@ -115,279 +157,3 @@
 	</div>
 {/if}
 
-<style>
-	.modal-backdrop {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background: rgba(0, 0, 0, 0.5);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		z-index: 1000;
-		padding: 1rem;
-	}
-	
-	.modal-content {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		max-width: 500px;
-		width: 100%;
-		max-height: 90vh;
-		overflow-y: auto;
-	}
-	
-	.modal-header {
-		padding: 2rem 2rem 1rem;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		border-bottom: 1px solid var(--color-light-gray);
-	}
-	
-	.modal-header h2 {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin: 0;
-	}
-	
-	.close-btn {
-		background: none;
-		border: none;
-		font-size: 2rem;
-		color: var(--color-black);
-		cursor: pointer;
-		opacity: 0.6;
-		transition: opacity 0.2s ease;
-		line-height: 1;
-		padding: 0;
-		width: 2rem;
-		height: 2rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-	
-	.close-btn:hover {
-		opacity: 1;
-	}
-	
-	.modal-body {
-		padding: 2rem;
-	}
-	
-	.placeholder-notice {
-		background: #fef3c7;
-		border: 1px solid #fbbf24;
-		padding: 1.5rem;
-		text-align: center;
-		margin-bottom: 2rem;
-	}
-	
-	.placeholder-icon {
-		font-size: 2rem;
-		margin-bottom: 0.5rem;
-	}
-	
-	.placeholder-notice h3 {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: #92400e;
-		margin-bottom: 0.5rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-	
-	.placeholder-notice p {
-		color: #92400e;
-		font-weight: var(--font-weight-semibold);
-		margin: 0;
-	}
-	
-	.wallet-options {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		margin-bottom: 2rem;
-	}
-	
-	.wallet-option {
-		border: 1px solid var(--color-light-gray);
-		padding: 1rem;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		transition: border-color 0.2s ease;
-		cursor: pointer;
-	}
-	
-	.wallet-option:hover {
-		border-color: var(--color-primary);
-	}
-	
-	.wallet-info {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-	}
-	
-	.wallet-icon {
-		font-size: 1.5rem;
-		width: 2.5rem;
-		height: 2.5rem;
-		background: var(--color-light-gray);
-		border-radius: 0.5rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-	
-	.wallet-details h4 {
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.25rem;
-		font-size: 0.9rem;
-	}
-	
-	.wallet-details p {
-		font-size: 0.8rem;
-		color: var(--color-black);
-		opacity: 0.7;
-		margin: 0;
-	}
-	
-	.status-indicator {
-		background: var(--color-primary);
-		color: var(--color-white);
-		padding: 0.25rem 0.5rem;
-		font-size: 0.7rem;
-		font-weight: var(--font-weight-bold);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-	
-	.connection-info {
-		background: var(--color-light-gray);
-		padding: 1.5rem;
-		margin-bottom: 2rem;
-	}
-	
-	.connection-info h4 {
-		font-size: 0.9rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-	
-	.connection-info ul {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-	}
-	
-	.connection-info li {
-		font-size: 0.85rem;
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-		padding-left: 1.5rem;
-		position: relative;
-	}
-	
-	.connection-info li::before {
-		content: '✓';
-		position: absolute;
-		left: 0;
-		color: var(--color-primary);
-		font-weight: var(--font-weight-bold);
-	}
-	
-	.modal-footer {
-		padding: 1rem 2rem 2rem;
-		border-top: 1px solid var(--color-light-gray);
-	}
-	
-	.connect-btn {
-		width: 100%;
-		background: var(--color-black);
-		color: var(--color-white);
-		border: none;
-		padding: 1rem 2rem;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-extrabold);
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: background-color 0.2s ease;
-		margin-bottom: 1rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
-	}
-	
-	.connect-btn:hover:not(:disabled) {
-		background: var(--color-secondary);
-	}
-	
-	.connect-btn:disabled {
-		opacity: 0.7;
-		cursor: not-allowed;
-	}
-	
-	.spinner {
-		width: 1rem;
-		height: 1rem;
-		border: 2px solid transparent;
-		border-top: 2px solid currentColor;
-		border-radius: 50%;
-		animation: spin 1s linear infinite;
-	}
-	
-	@keyframes spin {
-		to {
-			transform: rotate(360deg);
-		}
-	}
-	
-	.security-notice {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
-		font-size: 0.8rem;
-		color: var(--color-black);
-		opacity: 0.7;
-	}
-	
-	.security-icon {
-		color: var(--color-primary);
-	}
-	
-	@media (max-width: 768px) {
-		.modal-content {
-			margin: 1rem;
-			max-height: calc(100vh - 2rem);
-		}
-		
-		.modal-header,
-		.modal-body,
-		.modal-footer {
-			padding-left: 1rem;
-			padding-right: 1rem;
-		}
-		
-		.wallet-option {
-			flex-direction: column;
-			gap: 1rem;
-			text-align: center;
-		}
-	}
-</style>

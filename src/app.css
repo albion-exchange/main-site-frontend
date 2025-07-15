@@ -1,102 +1,134 @@
-@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap');
+/* stylelint-disable at-rule-no-unknown */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-	--color-black: #000000;
-	--color-white: #ffffff;
-	--color-primary: #08bccc;
-	--color-secondary: #283c84;
-	--color-light-gray: #f8f4f4;
-	
-	--font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-	--font-weight-regular: 400;
-	--font-weight-medium: 500;
-	--font-weight-semibold: 600;
-	--font-weight-bold: 700;
-	--font-weight-extrabold: 800;
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    color: #000000;
+    background-color: #ffffff;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #000000;
+  }
+
+  a {
+    color: #08bccc;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  button {
+    font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 500;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    body {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    h1 {
+      font-size: 1.75rem;
+      line-height: 1.2;
+    }
+    
+    h2 {
+      font-size: 1.5rem;
+      line-height: 1.25;
+    }
+    
+    h3 {
+      font-size: 1.25rem;
+      line-height: 1.3;
+    }
+    
+    h4 {
+      font-size: 1.1rem;
+      line-height: 1.3;
+    }
+    
+    h5, h6 {
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+  }
+
+  @media (max-width: 480px) {
+    body {
+      font-size: 13px;
+    }
+    
+    h1 {
+      font-size: 1.5rem;
+    }
+    
+    h2 {
+      font-size: 1.25rem;
+    }
+    
+    h3 {
+      font-size: 1.1rem;
+    }
+  }
 }
 
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
+/* 3D Transform Utilities */
+@layer utilities {
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
 }
 
-body {
-	font-family: var(--font-family);
-	font-weight: var(--font-weight-regular);
-	line-height: 1.6;
-	color: var(--color-black);
-	background-color: var(--color-white);
+/* Slide Animations */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
-h1, h2, h3, h4, h5, h6 {
-	font-family: var(--font-family);
-	font-weight: var(--font-weight-extrabold);
-	line-height: 1.2;
-	color: var(--color-black);
+@keyframes slide-out-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
 }
 
-a {
-	color: var(--color-primary);
-	text-decoration: none;
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out forwards;
 }
 
-a:hover {
-	text-decoration: underline;
-}
-
-button {
-	font-family: var(--font-family);
-	font-weight: var(--font-weight-medium);
-}
-
-/* Mobile optimizations */
-@media (max-width: 768px) {
-	body {
-		font-size: 14px;
-		line-height: 1.5;
-	}
-	
-	h1 {
-		font-size: 1.75rem;
-		line-height: 1.2;
-	}
-	
-	h2 {
-		font-size: 1.5rem;
-		line-height: 1.25;
-	}
-	
-	h3 {
-		font-size: 1.25rem;
-		line-height: 1.3;
-	}
-	
-	h4 {
-		font-size: 1.1rem;
-		line-height: 1.3;
-	}
-	
-	h5, h6 {
-		font-size: 1rem;
-		line-height: 1.4;
-	}
-}
-
-@media (max-width: 480px) {
-	body {
-		font-size: 13px;
-	}
-	
-	h1 {
-		font-size: 1.5rem;
-	}
-	
-	h2 {
-		font-size: 1.25rem;
-	}
-	
-	h3 {
-		font-size: 1.1rem;
-	}
+.animate-slide-out-right {
+  animation: slide-out-right 0.3s ease-in forwards;
 }

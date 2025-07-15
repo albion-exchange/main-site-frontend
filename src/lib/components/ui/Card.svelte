@@ -4,9 +4,11 @@
 	// Props
 	export let hoverable = true;
 	export let clickable = false;
-	export let padding = '0';
-	export let borderRadius = '0';
-	export let overflow = 'hidden';
+	export let paddingClass = 'p-0';
+	export let roundedClass = 'rounded-none';
+	export let overflowClass = 'overflow-hidden';
+	export let heightClass = '';
+	export let showBorder = true;
 	
 	const dispatch = createEventDispatcher();
 	
@@ -15,15 +17,13 @@
 			dispatch('click', event);
 		}
 	}
+	
+	// Generate Tailwind classes
+	$: classes = `${showBorder ? 'border border-light-gray' : ''} bg-white shadow-sm transition-all duration-200 relative ${paddingClass} ${roundedClass} ${overflowClass} ${heightClass} ${hoverable ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-card-hover' : ''} ${clickable ? 'active:translate-y-0 active:shadow-sm focus:outline-primary focus:outline-2 focus:outline-offset-2' : ''}`;
 </script>
 
 <article 
-	class="card"
-	class:hoverable
-	class:clickable
-	style:padding={padding}
-	style:border-radius={borderRadius}
-	style:overflow={overflow}
+	class={classes}
 	on:click={handleClick}
 	on:keydown
 	role={clickable ? 'button' : 'article'}
@@ -32,52 +32,3 @@
 	<slot />
 </article>
 
-<style>
-	.card {
-		border: 1px solid var(--color-light-gray, #e2e8f0);
-		background: white;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-		transition: transform 0.2s ease, box-shadow 0.2s ease;
-		position: relative;
-	}
-	
-	.card.hoverable {
-		cursor: pointer;
-	}
-	
-	.card.hoverable:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-	}
-	
-	.card.clickable:active {
-		transform: translateY(0);
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-	}
-	
-	/* Focus styles for accessibility */
-	.card.clickable:focus {
-		outline: 2px solid var(--color-primary-blue, #08bccc);
-		outline-offset: 2px;
-	}
-	
-	/* Disable hover effects on touch devices */
-	@media (hover: none) {
-		.card.hoverable:hover {
-			transform: none;
-			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-		}
-	}
-	
-	/* Mobile responsiveness */
-	@media (max-width: 768px) {
-		.card {
-			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-		}
-		
-		.card.hoverable:hover {
-			transform: translateY(-1px);
-			box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
-		}
-	}
-</style>

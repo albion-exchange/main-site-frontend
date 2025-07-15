@@ -1,4 +1,8 @@
 <script lang="ts">
+	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
+	import ControlButton from '$lib/components/ui/ControlButton.svelte';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
+	
 	let activeSection = 'terms';
 </script>
 
@@ -7,88 +11,83 @@
 	<meta name="description" content="Legal information, terms of service, and compliance details for Albion platform" />
 </svelte:head>
 
-<main class="legal-page">
+<PageLayout>
 	<!-- Hero Section -->
-	<section class="hero">
-		<div class="hero-content">
-			<h1>Legal Information</h1>
-			<p>Important legal documents and compliance information for the Albion platform.</p>
-		</div>
-	</section>
+	<HeroSection 
+		title="Legal Information"
+		subtitle="Important legal documents and compliance information for the Albion platform."
+		showBorder={true}
+	/>
 
 	<!-- Legal Navigation -->
-	<section class="legal-nav">
-		<div class="nav-container">
-			<button 
-				class="nav-btn"
-				class:active={activeSection === 'terms'}
+	<ContentSection background="gray" padding="compact" centered>
+		<div class="flex md:flex-row flex-col md:gap-4 gap-3 md:flex-wrap md:justify-center items-center">
+			<ControlButton 
+				active={activeSection === 'terms'}
 				on:click={() => activeSection = 'terms'}
 			>
 				Terms of Service
-			</button>
-			<button 
-				class="nav-btn"
-				class:active={activeSection === 'privacy'}
+			</ControlButton>
+			<ControlButton 
+				active={activeSection === 'privacy'}
 				on:click={() => activeSection = 'privacy'}
 			>
 				Privacy Policy
-			</button>
-			<button 
-				class="nav-btn"
-				class:active={activeSection === 'disclosures'}
+			</ControlButton>
+			<ControlButton 
+				active={activeSection === 'disclosures'}
 				on:click={() => activeSection = 'disclosures'}
 			>
 				Investment Disclosures
-			</button>
-			<button 
-				class="nav-btn"
-				class:active={activeSection === 'compliance'}
+			</ControlButton>
+			<ControlButton 
+				active={activeSection === 'compliance'}
 				on:click={() => activeSection = 'compliance'}
 			>
 				Compliance
-			</button>
+			</ControlButton>
 		</div>
-	</section>
+	</ContentSection>
 
 	<!-- Legal Content -->
-	<section class="legal-content">
+	<ContentSection background="white" padding="standard">
 		{#if activeSection === 'terms'}
-			<div class="document">
-				<h2>Terms of Service</h2>
-				<p class="last-updated">Last updated: December 2024</p>
+			<div class="bg-white md:p-12 p-8">
+				<SectionTitle level="h2" size="section">Terms of Service</SectionTitle>
+				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
-				<div class="document-content">
-					<h3>1. Acceptance of Terms</h3>
-					<p>By accessing and using the Albion platform, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use our services.</p>
+				<div class="space-y-4">
+					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">1. Acceptance of Terms</h3>
+					<p class="leading-relaxed mb-4 text-black">By accessing and using the Albion platform, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use our services.</p>
 					
-					<h3>2. Platform Description</h3>
-					<p>Albion provides a blockchain-based platform for investing in tokenized oil & gas assets. Our platform enables users to purchase royalty tokens representing fractional ownership in energy production revenue.</p>
+					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">2. Platform Description</h3>
+					<p class="leading-relaxed mb-4 text-black">Albion provides a blockchain-based platform for investing in tokenized oil & gas assets. Our platform enables users to purchase royalty tokens representing fractional ownership in energy production revenue.</p>
 					
-					<h3>3. User Eligibility</h3>
-					<p>You must be at least 18 years old and legally capable of entering into binding contracts. You must also comply with all applicable laws and regulations in your jurisdiction.</p>
+					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">3. User Eligibility</h3>
+					<p class="leading-relaxed mb-4 text-black">You must be at least 18 years old and legally capable of entering into binding contracts. You must also comply with all applicable laws and regulations in your jurisdiction.</p>
 					
-					<h3>4. Account Registration</h3>
-					<p>To use our platform, you must create an account and complete our Know Your Customer (KYC) verification process. You are responsible for maintaining the security of your account credentials.</p>
+					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">4. Account Registration</h3>
+					<p class="leading-relaxed mb-4 text-black">To use our platform, you must create an account and complete our Know Your Customer (KYC) verification process. You are responsible for maintaining the security of your account credentials.</p>
 					
-					<h3>5. Investment Terms</h3>
-					<p>All investments are subject to specific terms outlined in the respective token offering documents. Past performance does not guarantee future results. Investments may lose value.</p>
+					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">5. Investment Terms</h3>
+					<p class="leading-relaxed mb-4 text-black">All investments are subject to specific terms outlined in the respective token offering documents. Past performance does not guarantee future results. Investments may lose value.</p>
 					
-					<h3>6. Platform Fees</h3>
-					<p>Albion charges management fees and transaction fees as disclosed in the relevant offering materials. All fees are clearly outlined before investment.</p>
+					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">6. Platform Fees</h3>
+					<p class="leading-relaxed mb-4 text-black">Albion charges management fees and transaction fees as disclosed in the relevant offering materials. All fees are clearly outlined before investment.</p>
 					
-					<h3>7. Limitation of Liability</h3>
-					<p>Albion's liability is limited to the maximum extent permitted by law. We are not liable for investment losses, market volatility, or technical issues beyond our control.</p>
+					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">7. Limitation of Liability</h3>
+					<p class="leading-relaxed mb-4 text-black">Albion's liability is limited to the maximum extent permitted by law. We are not liable for investment losses, market volatility, or technical issues beyond our control.</p>
 					
-					<h3>8. Termination</h3>
-					<p>We may terminate or suspend your account at any time for violation of these terms or applicable laws. You may close your account at any time subject to existing investment commitments.</p>
+					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">8. Termination</h3>
+					<p class="leading-relaxed mb-4 text-black">We may terminate or suspend your account at any time for violation of these terms or applicable laws. You may close your account at any time subject to existing investment commitments.</p>
 				</div>
 			</div>
 		{:else if activeSection === 'privacy'}
-			<div class="document">
-				<h2>Privacy Policy</h2>
-				<p class="last-updated">Last updated: December 2024</p>
+			<div class="bg-white md:p-12 p-8">
+				<SectionTitle level="h2" size="section">Privacy Policy</SectionTitle>
+				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
-				<div class="document-content">
+				<div class="space-y-4">
 					<h3>1. Information We Collect</h3>
 					<p>We collect personal information necessary for KYC compliance, including name, address, identification documents, and financial information. We also collect usage data and technical information about your interaction with our platform.</p>
 					
@@ -115,15 +114,15 @@
 				</div>
 			</div>
 		{:else if activeSection === 'disclosures'}
-			<div class="document">
-				<h2>Investment Disclosures</h2>
-				<p class="last-updated">Last updated: December 2024</p>
+			<div class="bg-white md:p-12 p-8">
+				<SectionTitle level="h2" size="section">Investment Disclosures</SectionTitle>
+				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
-				<div class="document-content">
+				<div class="space-y-4">
 					<h3>Important Investment Warnings</h3>
-					<div class="warning-box">
-						<h4>⚠️ High-Return Investment Warning</h4>
-						<p>Oil & gas investments carry significant operational, market, and regulatory risks. Returns are not guaranteed and you may lose your entire investment.</p>
+					<div class="bg-yellow-50 border border-yellow-400 p-6 my-8">
+						<h4 class="text-yellow-800 font-extrabold mb-3 text-base">⚠️ High-Return Investment Warning</h4>
+						<p class="text-yellow-800 mb-0 font-semibold">Oil & gas investments carry significant operational, market, and regulatory risks. Returns are not guaranteed and you may lose your entire investment.</p>
 					</div>
 					
 					<h3>1. Nature of Investment</h3>
@@ -152,11 +151,11 @@
 				</div>
 			</div>
 		{:else if activeSection === 'compliance'}
-			<div class="document">
-				<h2>Regulatory Compliance</h2>
-				<p class="last-updated">Last updated: December 2024</p>
+			<div class="bg-white md:p-12 p-8">
+				<SectionTitle level="h2" size="section">Regulatory Compliance</SectionTitle>
+				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
-				<div class="document-content">
+				<div class="space-y-4">
 					<h3>1. Regulatory Framework</h3>
 					<p>Albion operates in compliance with applicable securities, commodities, and financial services regulations. Our legal framework is designed to protect investors while enabling innovation.</p>
 					
@@ -189,250 +188,23 @@
 				</div>
 			</div>
 		{/if}
-	</section>
+	</ContentSection>
 
 	<!-- Contact Section -->
-	<section class="legal-contact">
-		<div class="contact-content">
-			<h2>Legal Questions?</h2>
-			<p>If you have questions about our legal documents or compliance procedures, please contact our legal team.</p>
-			<div class="contact-options">
-				<div class="contact-option">
-					<strong>Email:</strong> legal@albion.com
+	<ContentSection background="secondary" padding="standard" centered>
+			<h2 class="text-[1.75rem] font-extrabold mb-4 text-white">Legal Questions?</h2>
+			<p class="text-lg mb-8 opacity-90">If you have questions about our legal documents or compliance procedures, please contact our legal team.</p>
+			<div class="flex flex-col gap-3 md:text-center text-left">
+				<div class="text-sm px-3 py-3 bg-white/10 border border-white/20">
+					<strong class="text-white font-extrabold">Email:</strong> legal@albion.com
 				</div>
-				<div class="contact-option">
-					<strong>Phone:</strong> +1 (555) 123-4567
+				<div class="text-sm px-3 py-3 bg-white/10 border border-white/20">
+					<strong class="text-white font-extrabold">Phone:</strong> +1 (555) 123-4567
 				</div>
-				<div class="contact-option">
-					<strong>Address:</strong> 123 Energy Plaza, Houston, TX 77002
+				<div class="text-sm px-3 py-3 bg-white/10 border border-white/20">
+					<strong class="text-white font-extrabold">Address:</strong> 123 Energy Plaza, Houston, TX 77002
 				</div>
 			</div>
-		</div>
-	</section>
-</main>
+	</ContentSection>
+</PageLayout>
 
-<style>
-	.legal-page {
-		padding-top: 0;
-	}
-
-	.hero {
-		padding: 4rem 2rem;
-		text-align: center;
-		background: var(--color-white);
-		border-bottom: 1px solid var(--color-light-gray);
-	}
-
-	.hero-content {
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.hero h1 {
-		font-size: 2.5rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 1rem;
-		color: var(--color-black);
-		letter-spacing: -0.02em;
-		line-height: 1.1;
-	}
-
-	.hero p {
-		font-size: 1.1rem;
-		line-height: 1.6;
-		color: var(--color-black);
-		max-width: 600px;
-		margin: 0 auto;
-	}
-
-	.legal-nav {
-		background: var(--color-light-gray);
-		border-bottom: 1px solid var(--color-light-gray);
-		padding: 2rem;
-	}
-
-	.nav-container {
-		max-width: 1200px;
-		margin: 0 auto;
-		display: flex;
-		gap: 1rem;
-		flex-wrap: wrap;
-		justify-content: center;
-	}
-
-	.nav-btn {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 0.75rem 1.5rem;
-		font-family: var(--font-family);
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.9rem;
-		color: var(--color-black);
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
-
-	.nav-btn:hover {
-		background: var(--color-black);
-		color: var(--color-white);
-		border-color: var(--color-black);
-	}
-
-	.nav-btn.active {
-		background: var(--color-black);
-		color: var(--color-white);
-		border-color: var(--color-black);
-	}
-
-	.legal-content {
-		padding: 4rem 2rem;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.document {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 3rem;
-	}
-
-	.document h2 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.last-updated {
-		color: var(--color-black);
-		opacity: 0.7;
-		font-size: 0.9rem;
-		margin-bottom: 2rem;
-	}
-
-	.document-content h3 {
-		font-size: 1.25rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin: 2rem 0 1rem 0;
-	}
-
-	.document-content h4 {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin: 1.5rem 0 0.75rem 0;
-	}
-
-	.document-content p {
-		line-height: 1.6;
-		margin-bottom: 1rem;
-		color: var(--color-black);
-	}
-
-	.document-content ul {
-		margin: 1rem 0;
-		padding-left: 2rem;
-	}
-
-	.document-content li {
-		margin-bottom: 0.5rem;
-		line-height: 1.5;
-		color: var(--color-black);
-	}
-
-	.document-content li strong {
-		font-weight: var(--font-weight-extrabold);
-	}
-
-	.warning-box {
-		background: #fef3c7;
-		border: 1px solid #fbbf24;
-		padding: 1.5rem;
-		margin: 2rem 0;
-	}
-
-	.warning-box h4 {
-		color: #92400e;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 0.75rem;
-		font-size: 1rem;
-	}
-
-	.warning-box p {
-		color: #92400e;
-		margin-bottom: 0;
-		font-weight: var(--font-weight-semibold);
-	}
-
-	.legal-contact {
-		background: var(--color-secondary);
-		color: var(--color-white);
-		padding: 4rem 2rem;
-		text-align: center;
-	}
-
-	.contact-content {
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.legal-contact h2 {
-		font-size: 1.75rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 1rem;
-	}
-
-	.legal-contact p {
-		font-size: 1.1rem;
-		margin-bottom: 2rem;
-		opacity: 0.9;
-	}
-
-	.contact-options {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-	}
-
-	.contact-option {
-		font-size: 0.95rem;
-		padding: 0.75rem;
-		background: rgba(255, 255, 255, 0.1);
-		border: 1px solid rgba(255, 255, 255, 0.2);
-	}
-
-	.contact-option strong {
-		color: var(--color-primary);
-		font-weight: var(--font-weight-extrabold);
-	}
-
-	@media (max-width: 768px) {
-		.hero h1 {
-			font-size: 2rem;
-		}
-
-		.nav-container {
-			flex-direction: column;
-			align-items: center;
-		}
-
-		.nav-btn {
-			width: 100%;
-			max-width: 300px;
-			text-align: center;
-		}
-
-		.document {
-			padding: 2rem;
-		}
-
-		.legal-content {
-			padding: 2rem 1rem;
-		}
-
-		.contact-options {
-			text-align: left;
-		}
-	}
-</style>

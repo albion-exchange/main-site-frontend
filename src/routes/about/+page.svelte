@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import dataStoreService from '$lib/services/DataStoreService';
+	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
+	import PrimaryButton from '$lib/components/ui/PrimaryButton.svelte';
+	import SecondaryButton from '$lib/components/ui/SecondaryButton.svelte';
+	import Card from '$lib/components/ui/Card.svelte';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	
 	let platformStats: any = {};
 	let loading = true;
@@ -21,497 +26,168 @@
 	<meta name="description" content="Learn about Albion's institutional-grade oil & gas tokenization platform" />
 </svelte:head>
 
-<main class="about-page">
+<PageLayout>
 	<!-- Hero Section -->
-	<section class="hero">
-		<div class="hero-content">
-			<h1>About Albion</h1>
-			<p>Revolutionizing energy investment through blockchain technology and institutional-grade asset tokenization.</p>
-		</div>
-	</section>
+	<HeroSection 
+		title="About Albion"
+		subtitle="Revolutionizing energy investment through blockchain technology and institutional-grade asset tokenization."
+		showBorder={false}
+	/>
 
 	<!-- Mission Section -->
-	<section class="mission">
-		<div class="mission-content">
-			<h2>Our Mission</h2>
-			<p>We democratize access to institutional-quality oil & gas investments by leveraging blockchain technology to create transparent, liquid, and accessible energy assets for investors worldwide.</p>
-		</div>
-	</section>
+	<ContentSection background="gray" padding="standard" centered>
+		<SectionTitle level="h2" size="section" center className="mb-8">Our Mission</SectionTitle>
+		<p class="text-lg leading-relaxed text-black">We democratize access to institutional-quality oil & gas investments by leveraging blockchain technology to create transparent, liquid, and accessible energy assets for investors worldwide.</p>
+	</ContentSection>
 
 	<!-- How It Works -->
-	<section class="how-it-works">
-		<h2>How Albion Works</h2>
-		
-		<div class="process-grid">
-			<div class="process-step">
-				<div class="step-number">1</div>
-				<h3>Asset Acquisition</h3>
-				<p>We acquire proven oil & gas assets with established production and clear revenue streams from institutional operators.</p>
-			</div>
+	<ContentSection background="white" padding="standard" centered>
+			<SectionTitle level="h2" size="section" center className="mb-12">How Albion Works</SectionTitle>
 			
-			<div class="process-step">
-				<div class="step-number">2</div>
-				<h3>Tokenization</h3>
-				<p>Assets are tokenized on blockchain, creating fractional ownership opportunities with transparent smart contract governance.</p>
-			</div>
-			
-			<div class="process-step">
-				<div class="step-number">3</div>
-				<h3>Investment Access</h3>
-				<p>Investors can purchase royalty tokens representing fractional ownership in real oil & gas production revenue.</p>
-			</div>
-			
-			<div class="process-step">
-				<div class="step-number">4</div>
-				<h3>Revenue Distribution</h3>
-				<p>Monthly payouts are automatically distributed to token holders based on actual production and oil prices.</p>
-			</div>
+			<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+					<div class="text-center">
+						<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">1</div>
+						<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Asset Acquisition</h3>
+						<p class="text-sm text-black">We acquire proven oil & gas assets with established production and clear revenue streams from institutional operators.</p>
+					</div>
+				</Card>
+				
+				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+					<div class="text-center">
+						<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">2</div>
+						<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Tokenization</h3>
+						<p class="text-sm text-black">Assets are tokenized on blockchain, creating fractional ownership opportunities with transparent smart contract governance.</p>
+					</div>
+				</Card>
+				
+				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+					<div class="text-center">
+						<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">3</div>
+						<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Investment Access</h3>
+						<p class="text-sm text-black">Investors can purchase royalty tokens representing fractional ownership in real oil & gas production revenue.</p>
+					</div>
+				</Card>
+				
+				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+					<div class="text-center">
+						<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">4</div>
+						<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Revenue Distribution</h3>
+						<p class="text-sm text-black">Monthly payouts are automatically distributed to token holders based on actual production and oil prices.</p>
+					</div>
+				</Card>
 		</div>
-	</section>
+	</ContentSection>
 
 	<!-- Platform Benefits -->
-	<section class="benefits">
-		<h2>Platform Benefits</h2>
+	<ContentSection background="gray" padding="standard" centered>
+		<SectionTitle level="h2" size="section" center className="mb-12">Platform Benefits</SectionTitle>
 		
-		<div class="benefits-grid">
-			<div class="benefit">
-				<div class="benefit-icon">🔒</div>
-				<h3>Institutional Grade</h3>
-				<p>All assets are vetted by professional operators with proven track records and regulatory compliance.</p>
-			</div>
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+				<div class="text-center">
+					<div class="text-5xl mb-4">🔒</div>
+					<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Institutional Grade</h3>
+					<p class="text-sm text-black">All assets are vetted by professional operators with proven track records and regulatory compliance.</p>
+				</div>
+			</Card>
 			
-			<div class="benefit">
-				<div class="benefit-icon">💰</div>
-				<h3>Direct Revenue Share</h3>
-				<p>Token holders receive proportional revenue from real oil & gas production with transparent accounting.</p>
-			</div>
+			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+				<div class="text-center">
+					<div class="text-5xl mb-4">💰</div>
+					<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Direct Revenue Share</h3>
+					<p class="text-sm text-black">Token holders receive proportional revenue from real oil & gas production with transparent accounting.</p>
+				</div>
+			</Card>
 			
-			<div class="benefit">
-				<div class="benefit-icon">📊</div>
-				<h3>Real-Time Transparency</h3>
-				<p>Live production data, financial reporting, and market metrics provide complete investment visibility.</p>
-			</div>
+			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+				<div class="text-center">
+					<div class="text-5xl mb-4">📊</div>
+					<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Real-Time Transparency</h3>
+					<p class="text-sm text-black">Live production data, financial reporting, and market metrics provide complete investment visibility.</p>
+				</div>
+			</Card>
 			
-			<div class="benefit">
-				<div class="benefit-icon">🌐</div>
-				<h3>Global Access</h3>
-				<p>Blockchain technology enables worldwide access to premium energy investments previously reserved for institutions.</p>
-			</div>
+			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+				<div class="text-center">
+					<div class="text-5xl mb-4">🌐</div>
+					<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Global Access</h3>
+					<p class="text-sm text-black">Blockchain technology enables worldwide access to premium energy investments previously reserved for institutions.</p>
+				</div>
+			</Card>
 		</div>
-	</section>
+	</ContentSection>
 
 	<!-- Team Section -->
-	<section class="team">
-		<h2>Leadership Team</h2>
-		
-		<div class="team-grid">
-			<div class="team-member">
-				<div class="member-avatar">JD</div>
-				<h3>John Doe</h3>
-				<p class="member-title">CEO & Founder</p>
-				<p class="member-bio">Former energy sector executive with 15+ years experience in oil & gas operations and financial markets.</p>
-			</div>
+	<ContentSection background="white" padding="standard" centered>
+			<SectionTitle level="h2" size="section" center className="mb-12">Leadership Team</SectionTitle>
 			
-			<div class="team-member">
-				<div class="member-avatar">JS</div>
-				<h3>Jane Smith</h3>
-				<p class="member-title">CTO</p>
-				<p class="member-bio">Blockchain technology expert specializing in smart contract development and decentralized finance protocols.</p>
-			</div>
-			
-			<div class="team-member">
-				<div class="member-avatar">MB</div>
-				<h3>Mike Brown</h3>
-				<p class="member-title">Head of Operations</p>
-				<p class="member-bio">Petroleum engineer with extensive experience in asset evaluation, production optimization, and regulatory compliance.</p>
-			</div>
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+					<div class="text-center">
+						<div class="w-20 h-20 bg-secondary text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-4">JD</div>
+						<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2">John Doe</h3>
+						<p class="text-sm text-primary font-semibold mb-4">CEO & Founder</p>
+						<p class="text-sm text-black">Former energy sector executive with 15+ years experience in oil & gas operations and financial markets.</p>
+					</div>
+				</Card>
+				
+				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+					<div class="text-center">
+						<div class="w-20 h-20 bg-secondary text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-4">JS</div>
+						<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2">Jane Smith</h3>
+						<p class="text-sm text-primary font-semibold mb-4">CTO</p>
+						<p class="text-sm text-black">Blockchain technology expert specializing in smart contract development and decentralized finance protocols.</p>
+					</div>
+				</Card>
+				
+				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+					<div class="text-center">
+						<div class="w-20 h-20 bg-secondary text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-4">MB</div>
+						<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2">Mike Brown</h3>
+						<p class="text-sm text-primary font-semibold mb-4">Head of Operations</p>
+						<p class="text-sm text-black">Petroleum engineer with extensive experience in asset evaluation, production optimization, and regulatory compliance.</p>
+					</div>
+				</Card>
 		</div>
-	</section>
+	</ContentSection>
 
 	<!-- Company Stats -->
-	<section class="stats">
-		<h2>Platform Statistics</h2>
+	<ContentSection background="secondary" padding="standard" centered>
+		<SectionTitle level="h2" size="section" center className="mb-12 text-white">Platform Statistics</SectionTitle>
 		
-		<div class="stats-grid">
+		<div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
 			{#if loading}
-				<div class="loading">Loading statistics...</div>
+				<div class="text-center py-8 col-span-full">Loading statistics...</div>
 			{:else}
-				<div class="stat">
-					<div class="stat-value">{platformStats.totalInvestmentVolume?.formatted || 'N/A'}</div>
-					<div class="stat-label">Total Investment Volume</div>
+				<div class="text-center">
+					<div class="text-4xl font-extrabold text-primary mb-2">{platformStats.totalInvestmentVolume?.formatted || 'N/A'}</div>
+					<div class="text-sm font-semibold opacity-90">Total Investment Volume</div>
 				</div>
-				<div class="stat">
-					<div class="stat-value">{platformStats.activeInvestors?.formatted || 'N/A'}</div>
-					<div class="stat-label">Active Investors</div>
+				<div class="text-center">
+					<div class="text-4xl font-extrabold text-primary mb-2">{platformStats.activeInvestors?.formatted || 'N/A'}</div>
+					<div class="text-sm font-semibold opacity-90">Active Investors</div>
 				</div>
-				<div class="stat">
-					<div class="stat-value">{platformStats.activeAssets?.formatted || 'N/A'}</div>
-					<div class="stat-label">Active Assets</div>
+				<div class="text-center">
+					<div class="text-4xl font-extrabold text-primary mb-2">{platformStats.activeAssets?.formatted || 'N/A'}</div>
+					<div class="text-sm font-semibold opacity-90">Active Assets</div>
 				</div>
-				<div class="stat">
-					<div class="stat-value">{platformStats.averagePayout?.formatted || 'N/A'}</div>
-					<div class="stat-label">Average Payout</div>
+				<div class="text-center">
+					<div class="text-4xl font-extrabold text-primary mb-2">{platformStats.averagePayout?.formatted || 'N/A'}</div>
+					<div class="text-sm font-semibold opacity-90">Average Payout</div>
 				</div>
 			{/if}
 		</div>
-	</section>
+	</ContentSection>
 
 	<!-- Contact CTA -->
-	<section class="contact-cta">
-		<div class="cta-content">
-			<h2>Ready to Start Investing?</h2>
-			<p>Join thousands of investors earning from institutional-grade energy assets.</p>
-			<div class="cta-buttons">
-				<a href="/assets" class="btn-primary">Browse Assets</a>
-				<a href="/contact" class="btn-secondary">Contact Us</a>
-			</div>
+	<ContentSection background="white" padding="standard" centered>
+			<SectionTitle level="h2" size="section" center className="mb-4">Ready to Start Investing?</SectionTitle>
+			<p class="text-lg text-black mb-8">Join thousands of investors earning from institutional-grade energy assets.</p>
+			<div class="flex md:flex-row flex-col gap-4 justify-center items-center">
+				<PrimaryButton href="/assets" size="large">Browse Assets</PrimaryButton>
+				<SecondaryButton href="/contact" size="large">Contact Us</SecondaryButton>
 		</div>
-	</section>
-</main>
+	</ContentSection>
+</PageLayout>
 
-<style>
-	.about-page {
-		padding-top: 0;
-	}
-
-	.hero {
-		padding: 6rem 2rem;
-		text-align: center;
-		background: var(--color-white);
-		border-bottom: 1px solid var(--color-light-gray);
-	}
-
-	.hero-content {
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.hero h1 {
-		font-size: 3.5rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 2rem;
-		color: var(--color-black);
-		letter-spacing: -0.02em;
-		line-height: 1.1;
-	}
-
-	.hero p {
-		font-size: 1.25rem;
-		line-height: 1.6;
-		color: var(--color-black);
-		max-width: 600px;
-		margin: 0 auto;
-	}
-
-	.mission {
-		padding: 4rem 2rem;
-		background: var(--color-light-gray);
-		text-align: center;
-	}
-
-	.mission-content {
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.mission h2 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 2rem;
-	}
-
-	.mission p {
-		font-size: 1.1rem;
-		line-height: 1.6;
-		color: var(--color-black);
-	}
-
-	.how-it-works {
-		padding: 4rem 2rem;
-		max-width: 1200px;
-		margin: 0 auto;
-		text-align: center;
-	}
-
-	.how-it-works h2 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 3rem;
-	}
-
-	.process-grid {
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: 2rem;
-	}
-
-	.process-step {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-		text-align: center;
-	}
-
-	.step-number {
-		width: 60px;
-		height: 60px;
-		background: var(--color-black);
-		color: var(--color-white);
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		margin: 0 auto 1.5rem;
-	}
-
-	.process-step h3 {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1rem;
-	}
-
-	.process-step p {
-		font-size: 0.9rem;
-		line-height: 1.5;
-		color: var(--color-black);
-	}
-
-	.benefits {
-		padding: 4rem 2rem;
-		background: var(--color-light-gray);
-		text-align: center;
-	}
-
-	.benefits h2 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 3rem;
-	}
-
-	.benefits-grid {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 2rem;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.benefit {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-		text-align: center;
-	}
-
-	.benefit-icon {
-		font-size: 3rem;
-		margin-bottom: 1rem;
-	}
-
-	.benefit h3 {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1rem;
-	}
-
-	.benefit p {
-		font-size: 0.9rem;
-		line-height: 1.5;
-		color: var(--color-black);
-	}
-
-	.team {
-		padding: 4rem 2rem;
-		max-width: 1200px;
-		margin: 0 auto;
-		text-align: center;
-	}
-
-	.team h2 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 3rem;
-	}
-
-	.team-grid {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 2rem;
-	}
-
-	.team-member {
-		background: var(--color-white);
-		border: 1px solid var(--color-light-gray);
-		padding: 2rem;
-		text-align: center;
-	}
-
-	.member-avatar {
-		width: 80px;
-		height: 80px;
-		background: var(--color-secondary);
-		color: var(--color-white);
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		margin: 0 auto 1rem;
-	}
-
-	.team-member h3 {
-		font-size: 1.1rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-	}
-
-	.member-title {
-		font-size: 0.9rem;
-		color: var(--color-primary);
-		font-weight: var(--font-weight-semibold);
-		margin-bottom: 1rem;
-	}
-
-	.member-bio {
-		font-size: 0.85rem;
-		line-height: 1.5;
-		color: var(--color-black);
-	}
-
-	.stats {
-		padding: 4rem 2rem;
-		background: var(--color-secondary);
-		color: var(--color-white);
-		text-align: center;
-	}
-
-	.stats h2 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 3rem;
-	}
-
-	.stats-grid {
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: 2rem;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.stat {
-		text-align: center;
-	}
-
-	.stat-value {
-		font-size: 2.5rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-primary);
-		margin-bottom: 0.5rem;
-	}
-
-	.stat-label {
-		font-size: 0.9rem;
-		font-weight: var(--font-weight-semibold);
-		opacity: 0.9;
-	}
-
-	.contact-cta {
-		padding: 4rem 2rem;
-		background: var(--color-white);
-		text-align: center;
-	}
-
-	.cta-content {
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.contact-cta h2 {
-		font-size: 2rem;
-		font-weight: var(--font-weight-extrabold);
-		color: var(--color-black);
-		margin-bottom: 1rem;
-	}
-
-	.contact-cta p {
-		font-size: 1.1rem;
-		color: var(--color-black);
-		margin-bottom: 2rem;
-	}
-
-	.cta-buttons {
-		display: flex;
-		gap: 1rem;
-		justify-content: center;
-	}
-
-	.btn-primary,
-	.btn-secondary {
-		padding: 1rem 2rem;
-		text-decoration: none;
-		font-weight: var(--font-weight-semibold);
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		transition: background-color 0.2s ease;
-		display: inline-block;
-	}
-
-	.btn-primary {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	.btn-primary:hover {
-		background: var(--color-secondary);
-	}
-
-	.btn-secondary {
-		background: var(--color-white);
-		color: var(--color-black);
-		border: 1px solid var(--color-black);
-	}
-
-	.btn-secondary:hover {
-		background: var(--color-black);
-		color: var(--color-white);
-	}
-
-	@media (max-width: 768px) {
-		.hero h1 {
-			font-size: 2.5rem;
-		}
-
-		.process-grid {
-			grid-template-columns: 1fr;
-		}
-
-		.benefits-grid {
-			grid-template-columns: 1fr;
-		}
-
-		.team-grid {
-			grid-template-columns: 1fr;
-		}
-
-		.stats-grid {
-			grid-template-columns: repeat(2, 1fr);
-		}
-
-		.cta-buttons {
-			flex-direction: column;
-			align-items: center;
-		}
-	}
-</style>

@@ -4,9 +4,9 @@
 	import type { Asset } from '$lib/types/dataStore';
 	import AssetCard from '$lib/components/assets/AssetCard.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
-	import { SecondaryButton } from '$lib/components/ui';
+	import { SecondaryButton, SectionTitle, Card, CardContent } from '$lib/components/ui';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 
-	let viewMode = 'grid';
 	let loading = true;
 	let allAssets: Asset[] = [];
 	let showSoldOutAssets = false;
@@ -25,15 +25,6 @@
 			loading = false;
 		}
 	});
-
-	function formatCurrency(amount: number): string {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD',
-			minimumFractionDigits: 2,
-			maximumFractionDigits: 2
-		}).format(amount);
-	}
 
 	// Check if an asset has available tokens
 	function hasAvailableTokens(asset: Asset): boolean {
@@ -73,165 +64,69 @@
 	<meta name="description" content="Browse available oil field assets for investment" />
 </svelte:head>
 
-<main class="assets-page">
-	<header class="page-header">
-		<h1>Available Assets</h1>
-		<p>Discover tokenized oil field investments</p>
-	</header>
+<PageLayout variant="constrained">
+	<!-- Header Section -->
+	<HeroSection 
+		title="Available Assets"
+		subtitle="Discover tokenized oil field investments"
+		showBorder={false}
+	/>
 
 	{#if loading}
-		<div class="loading-state">
-			<p>Loading assets...</p>
-		</div>
+		<!-- Loading State -->
+		<ContentSection background="white" padding="standard" centered>
+			<p class="text-base text-black leading-relaxed">Loading assets...</p>
+		</ContentSection>
 	{:else}
-
-		<!-- Assets Display -->
-		{#if filteredAssets.length === 0 && !showSoldOutAssets}
-			<div class="empty-state">
-				<h3>No Available Assets</h3>
-				<p>All assets are currently sold out.</p>
-			</div>
-		{:else if filteredAssets.length === 0}
-			<div class="empty-state">
-				<h3>No Assets Found</h3>
-				<p>Try adjusting your search criteria or filters to find assets.</p>
-			</div>
-		{:else}
-			<div class="assets-grid">
-				{#each filteredAssets as asset}
-					<AssetCard {asset} on:buyTokens={handleBuyTokens} />
-				{/each}
-			</div>
-		{/if}
-		
-		<!-- View Previous Assets Button -->
-		{#if soldOutCount > 0 && !showSoldOutAssets}
-			<div class="view-previous-section">
-				<SecondaryButton on:click={() => showSoldOutAssets = true}>
-					View Sold Out Assets ({soldOutCount})
-				</SecondaryButton>
-			</div>
-		{:else if showSoldOutAssets && soldOutCount > 0}
-			<div class="view-previous-section">
-				<SecondaryButton on:click={() => showSoldOutAssets = false}>
-					Hide Sold Out Assets
-				</SecondaryButton>
-			</div>
-		{/if}
+		<!-- Assets Section -->
+		<ContentSection background="white" padding="standard" maxWidth={false}>
+			{#if filteredAssets.length === 0 && !showSoldOutAssets}
+				<!-- No Available Assets -->
+				<Card>
+					<CardContent>
+						<div class="text-center">
+							<SectionTitle level="h3" size="card">No Available Assets</SectionTitle>
+							<p class="text-base text-black leading-relaxed mt-4">All assets are currently sold out.</p>
+						</div>
+					</CardContent>
+				</Card>
+			{:else if filteredAssets.length === 0}
+				<!-- No Assets Found -->
+				<Card>
+					<CardContent>
+						<div class="text-center">
+							<SectionTitle level="h3" size="card">No Assets Found</SectionTitle>
+							<p class="text-base text-black leading-relaxed mt-4">Try adjusting your search criteria or filters to find assets.</p>
+						</div>
+					</CardContent>
+				</Card>
+			{:else}
+				<!-- Assets Grid -->
+				<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+					{#each filteredAssets as asset}
+						<AssetCard {asset} on:buyTokens={handleBuyTokens} />
+					{/each}
+				</div>
+			{/if}
+			
+			<!-- View Sold Out Assets Toggle -->
+			{#if soldOutCount > 0 && !showSoldOutAssets}
+				<div class="text-center mt-12">
+					<SecondaryButton on:click={() => showSoldOutAssets = true}>
+						View Sold Out Assets ({soldOutCount})
+					</SecondaryButton>
+				</div>
+			{:else if showSoldOutAssets && soldOutCount > 0}
+				<div class="text-center mt-12">
+					<SecondaryButton on:click={() => showSoldOutAssets = false}>
+						Hide Sold Out Assets
+					</SecondaryButton>
+				</div>
+			{/if}
+		</ContentSection>
 	{/if}
-</main>
+</PageLayout>
 
-<style>
-	.assets-page {
-		padding: 4rem 2rem;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.page-header {
-		text-align: center;
-		margin-bottom: 4rem;
-	}
-
-	.page-header h1 {
-		font-size: 3rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 1rem;
-		color: var(--color-black);
-	}
-
-	.page-header p {
-		font-size: 1.25rem;
-		color: var(--color-black);
-	}
-
-	.loading-state {
-		text-align: center;
-		padding: 4rem 2rem;
-		color: var(--color-black);
-	}
-
-
-	.empty-state {
-		text-align: center;
-		padding: 4rem 2rem;
-		border: 1px solid var(--color-light-gray);
-		background: var(--color-white);
-	}
-
-	.empty-state h3 {
-		font-size: 1.5rem;
-		font-weight: var(--font-weight-extrabold);
-		margin-bottom: 1rem;
-		color: var(--color-black);
-	}
-
-	.empty-state p {
-		margin-bottom: 2rem;
-		color: var(--color-black);
-	}
-
-	.assets-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-		gap: 2rem;
-	}
-
-	.view-previous-section {
-		text-align: center;
-		margin-top: 3rem;
-		padding: 2rem 0;
-	}
-
-
-	@media (max-width: 768px) {
-		.assets-page {
-			padding: 2rem 1rem;
-		}
-
-		.page-header {
-			margin-bottom: 2rem;
-		}
-
-		.page-header h1 {
-			font-size: 2rem;
-			margin-bottom: 0.75rem;
-		}
-
-		.page-header p {
-			font-size: 1rem;
-		}
-
-		.assets-grid {
-			grid-template-columns: 1fr;
-			gap: 1.5rem;
-		}
-
-		.loading-state,
-		.empty-state {
-			padding: 2rem 1rem;
-		}
-
-		.view-previous-section {
-			margin-top: 2rem;
-			padding: 1.5rem 0;
-		}
-	}
-
-	@media (max-width: 480px) {
-		.assets-page {
-			padding: 1.5rem 0.75rem;
-		}
-
-		.page-header h1 {
-			font-size: 1.75rem;
-		}
-
-		.assets-grid {
-			gap: 1rem;
-		}
-	}
-</style>
 
 <!-- Token Purchase Widget -->
 <TokenPurchaseWidget 
@@ -240,3 +135,4 @@
 	on:purchaseSuccess={handlePurchaseSuccess}
 	on:close={handleWidgetClose}
 />
+

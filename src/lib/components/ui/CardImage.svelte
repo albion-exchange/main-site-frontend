@@ -1,46 +1,20 @@
 <script lang="ts">
 	export let src: string;
 	export let alt: string;
-	export let height = '200px';
+	export let heightClass = 'h-[200px]';
 	export let zoomOnHover = true;
+	
+	// Tailwind class mappings
+	$: wrapperClasses = `overflow-hidden relative w-full ${heightClass}`;
+	$: imageClasses = `w-full h-full object-cover transition-transform duration-300 ${zoomOnHover ? 'will-change-transform group-hover:scale-105 [@media(hover:none)]:group-hover:transform-none' : ''}`;
 </script>
 
-<div class="card-image" style:height={height}>
+<div class={wrapperClasses}>
 	<img 
 		{src} 
 		{alt} 
-		class:zoom-on-hover={zoomOnHover}
+		class={imageClasses}
 		loading="lazy"
 	/>
 </div>
 
-<style>
-	.card-image {
-		overflow: hidden;
-		position: relative;
-		width: 100%;
-	}
-	
-	.card-image img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		transition: transform 0.3s ease;
-	}
-	
-	.card-image img.zoom-on-hover {
-		will-change: transform;
-	}
-	
-	/* Parent card hover triggers image zoom */
-	:global(.card:hover) .card-image img.zoom-on-hover {
-		transform: scale(1.05);
-	}
-	
-	/* Disable zoom on touch devices */
-	@media (hover: none) {
-		:global(.card:hover) .card-image img.zoom-on-hover {
-			transform: none;
-		}
-	}
-</style>

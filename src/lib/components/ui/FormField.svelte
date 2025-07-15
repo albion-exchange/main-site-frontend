@@ -41,29 +41,40 @@
 	function handleFocus(event: FocusEvent) {
 		dispatch('focus', { value, event });
 	}
+	
+	// Tailwind class mappings
+	const sizeClasses = {
+		small: 'px-3 py-2 text-sm',
+		medium: 'px-4 py-3 text-base',
+		large: 'px-5 py-4 text-lg'
+	};
+	
+	const variantClasses = {
+		default: 'border border-light-gray bg-white focus:border-primary focus:ring-1 focus:ring-primary',
+		minimal: 'border-0 border-b border-light-gray bg-transparent focus:border-primary rounded-none',
+		bordered: 'border-2 border-black bg-white focus:border-primary'
+	};
+	
+	$: containerClasses = `flex flex-col mb-4 ${fullWidth ? 'w-full' : ''} ${disabled ? 'opacity-60 pointer-events-none' : ''}`;
+	$: labelClasses = 'block font-semibold text-black text-sm mb-2 uppercase tracking-wide';
+	$: inputClasses = `w-full font-figtree font-medium transition-all duration-200 outline-none ${sizeClasses[size]} ${variantClasses[variant]} ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''} ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}`;
+	$: helpTextClasses = 'text-xs text-black opacity-60 mt-1';
+	$: errorTextClasses = 'text-xs text-red-600 mt-1';
+	$: requiredAsteriskClasses = 'text-red-500 ml-1';
+	$: fieldWrapperClasses = 'relative';
 </script>
 
-<div 
-	class="form-field" 
-	class:small={size === 'small'}
-	class:medium={size === 'medium'}
-	class:large={size === 'large'}
-	class:full-width={fullWidth}
-	class:minimal={variant === 'minimal'}
-	class:bordered={variant === 'bordered'}
-	class:has-error={error}
-	class:disabled
->
+<div class={containerClasses}>
 	{#if label}
-		<label for={fieldId} class="field-label">
+		<label for={fieldId} class={labelClasses}>
 			{label}
 			{#if required}
-				<span class="required-indicator">*</span>
+				<span class={requiredAsteriskClasses}>*</span>
 			{/if}
 		</label>
 	{/if}
 
-	<div class="field-wrapper">
+	<div class={fieldWrapperClasses}>
 		{#if type === 'textarea'}
 			<textarea
 				{...$$restProps}
@@ -75,7 +86,7 @@
 				{readonly}
 				{rows}
 				{value}
-				class="field-input"
+				class="{inputClasses} resize-vertical"
 				on:input={handleInput}
 				on:change={handleChange}
 				on:blur={handleBlur}
@@ -89,7 +100,7 @@
 				{required}
 				{disabled}
 				{value}
-				class="field-input"
+				class={inputClasses}
 				on:change={handleChange}
 				on:blur={handleBlur}
 				on:focus={handleFocus}
@@ -114,7 +125,7 @@
 				{disabled}
 				{readonly}
 				{value}
-				class="field-input"
+				class={inputClasses}
 				on:input={handleInput}
 				on:change={handleChange}
 				on:blur={handleBlur}
@@ -124,208 +135,11 @@
 	</div>
 
 	{#if helpText && !error}
-		<div class="help-text">{helpText}</div>
+		<div class={helpTextClasses}>{helpText}</div>
 	{/if}
 
 	{#if error}
-		<div class="error-text" role="alert">{error}</div>
+		<div class={errorTextClasses} role="alert">{error}</div>
 	{/if}
 </div>
 
-<style>
-	.form-field {
-		display: flex;
-		flex-direction: column;
-		margin-bottom: 1rem;
-	}
-
-	.form-field.full-width {
-		width: 100%;
-	}
-
-	.form-field.disabled {
-		opacity: 0.6;
-		pointer-events: none;
-	}
-
-	.field-label {
-		font-weight: var(--font-weight-semibold);
-		color: var(--color-black);
-		margin-bottom: 0.5rem;
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
-	}
-
-	.form-field.small .field-label {
-		font-size: 0.8rem;
-		margin-bottom: 0.375rem;
-	}
-
-	.form-field.large .field-label {
-		font-size: 1rem;
-		margin-bottom: 0.625rem;
-	}
-
-	.required-indicator {
-		color: #dc2626;
-		font-weight: var(--font-weight-bold);
-	}
-
-	.field-wrapper {
-		position: relative;
-	}
-
-	.field-input {
-		width: 100%;
-		border: 1px solid var(--color-light-gray);
-		font-family: var(--font-family);
-		font-size: 0.9rem;
-		color: var(--color-black);
-		background: var(--color-white);
-		transition: all 0.2s ease;
-		box-sizing: border-box;
-	}
-
-	/* Size variants */
-	.form-field.small .field-input {
-		padding: 0.5rem 0.75rem;
-		font-size: 0.8rem;
-	}
-
-	.form-field.medium .field-input {
-		padding: 0.75rem 1rem;
-		font-size: 0.9rem;
-	}
-
-	.form-field.large .field-input {
-		padding: 1rem 1.25rem;
-		font-size: 1rem;
-	}
-
-	/* Style variants */
-	.form-field:not(.minimal):not(.bordered) .field-input {
-		border-radius: 0;
-		border: 1px solid var(--color-light-gray);
-	}
-
-	.form-field.minimal .field-input {
-		border: none;
-		border-bottom: 1px solid var(--color-light-gray);
-		border-radius: 0;
-		background: transparent;
-	}
-
-	.form-field.bordered .field-input {
-		border: 2px solid var(--color-light-gray);
-		border-radius: 4px;
-	}
-
-	/* Focus states */
-	.field-input:focus {
-		outline: none;
-		border-color: var(--color-primary);
-	}
-
-	.form-field.minimal .field-input:focus {
-		border-bottom-color: var(--color-primary);
-	}
-
-	.form-field.bordered .field-input:focus {
-		border-color: var(--color-primary);
-		box-shadow: 0 0 0 2px rgba(8, 188, 204, 0.1);
-	}
-
-	/* Error states */
-	.form-field.has-error .field-input {
-		border-color: #dc2626;
-	}
-
-	.form-field.has-error.bordered .field-input {
-		box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
-	}
-
-	/* Disabled states */
-	.field-input:disabled {
-		background: #f9fafb;
-		color: #6b7280;
-		cursor: not-allowed;
-	}
-
-	/* Textarea specific */
-	textarea.field-input {
-		resize: vertical;
-		min-height: 100px;
-		line-height: 1.5;
-	}
-
-	/* Select specific */
-	select.field-input {
-		cursor: pointer;
-		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='6,9 12,15 18,9'%3E%3C/polyline%3E%3C/svg%3E");
-		background-repeat: no-repeat;
-		background-position: right 0.75rem center;
-		background-size: 1rem;
-		appearance: none;
-		padding-right: 2.5rem;
-	}
-
-	/* Help and error text */
-	.help-text,
-	.error-text {
-		font-size: 0.75rem;
-		margin-top: 0.375rem;
-		line-height: 1.4;
-	}
-
-	.help-text {
-		color: var(--color-secondary);
-	}
-
-	.error-text {
-		color: #dc2626;
-		font-weight: var(--font-weight-medium);
-	}
-
-	/* Placeholder styling */
-	.field-input::placeholder {
-		color: #9ca3af;
-		opacity: 1;
-	}
-
-	/* Responsive adjustments */
-	@media (max-width: 768px) {
-		.form-field {
-			margin-bottom: 1.25rem;
-		}
-
-		.field-label {
-			font-size: 0.85rem;
-		}
-
-		.field-input {
-			font-size: 16px; /* Prevents zoom on iOS */
-		}
-	}
-
-	/* High contrast mode support */
-	@media (prefers-contrast: high) {
-		.field-input {
-			border-width: 2px;
-		}
-		
-		.field-input:focus {
-			border-width: 3px;
-		}
-	}
-
-	/* Reduced motion support */
-	@media (prefers-reduced-motion: reduce) {
-		.field-input {
-			transition: none;
-		}
-	}
-</style>

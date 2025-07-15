@@ -485,7 +485,7 @@ class DataStoreService {
     if (!asset) return marketData.tokenPricing.defaultEstimatedValue;
 
     // Determine region based on asset location or ID
-    let regionKey = 'europe'; // default
+    let regionKey: 'europe' | 'bakken' | 'permian' | 'gulf-mexico' = 'europe'; // default
     if (assetId.includes('bakken')) regionKey = 'bakken';
     else if (assetId.includes('permian')) regionKey = 'permian';
     else if (assetId.includes('gulf')) regionKey = 'gulf-mexico';
@@ -518,8 +518,8 @@ class DataStoreService {
   /**
    * Get future token releases (flattened from all assets)
    */
-  getFutureReleases() {
-    const allReleases = [];
+  getFutureReleases(): Array<{assetId: string, tokenId: string, whenRelease: string, description?: string, emoji?: string}> {
+    const allReleases: Array<{assetId: string, tokenId: string, whenRelease: string, description?: string, emoji?: string}> = [];
     
     // Add Europa Wressle releases
     eurWr4Future.forEach(release => {
