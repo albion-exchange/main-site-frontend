@@ -1,5 +1,7 @@
 // Type definitions based on merged-token-schema.json
 
+import type { GalleryImage, TokenSupply, ISOYearMonthString, Location, Metadata, ISODateTimeString, ISODateOnlyString } from './sharedTypes';
+
 export enum TokenType {
   Royalty = 'royalty',
   WorkingInterest = 'working-interest',
@@ -21,14 +23,6 @@ export enum DocumentType {
   ZIP = 'zip'
 }
 
-type YearMonth = `${number}-${'' | '0'}${1|2|3|4|5|6|7|8|9|10|11|12}`;
-
-export interface GalleryImage {
-  title: string;
-  url: string;
-  caption?: string;
-}
-
 export interface AssetMetadata {
   contractAddress: string;
   assetId: string;
@@ -36,7 +30,7 @@ export interface AssetMetadata {
   releaseName: string;
   assetName: string;
   tokenType: TokenType;
-  firstPaymentDate: YearMonth;
+  firstPaymentDate: ISOYearMonthString;
   sharePercentage: number;
   decimals: number;
   supply: TokenSupply;
@@ -54,13 +48,10 @@ export interface Document {
   ipfs: string;
 }
 
-export interface TokenSupply {
-  maxSupply: string; // BigInt as string to preserve precision
-  mintedSupply: string; // BigInt as string to preserve precision
-}
+// TokenSupply is imported from sharedTypes.ts
 
 export interface MonthlyData {
-  month: YearMonth; // Format: "YYYY-MM"
+  month: ISOYearMonthString; // Format: "YYYY-MM"
   assetData: {
     production: number;
     revenue: number;
@@ -68,7 +59,7 @@ export interface MonthlyData {
     netIncome: number;
   };
   tokenPayout: {
-    date: Date; // Date object
+    date: ISODateTimeString; // ISO datetime string
     totalPayout: number;
     payoutPerToken: number;
     txHash: string;
@@ -91,16 +82,6 @@ export interface AssetData {
   operationalMetrics: OperationalMetrics;
 }
 
-export interface Location {
-  state: string;
-  county: string;
-  country: string;
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
-  waterDepth: string | null;
-}
 
 export interface Operator {
   name: string;
@@ -113,10 +94,10 @@ export interface TechnicalDetails {
   depth: number;
   license: string;
   estimatedLifeMonths: number;
-  firstOil: YearMonth;
+  firstOil: ISOYearMonthString;
   infrastructure: string;
   environmental: string;
-  expectedEndDate: YearMonth; // Format: "YYYY-MM"
+  expectedEndDate: ISOYearMonthString; // Format: "YYYY-MM"
   crudeBenchmark: string;
   pricing: {
     benchmarkPremium: number; // negative means discount
@@ -147,12 +128,12 @@ export interface PlannedProduction {
 }
 
 export interface PlannedProductionProjection {
-  month: YearMonth; // Format: "YYYY-MM"
+  month: ISOYearMonthString; // Format: "YYYY-MM"
   production: number;
 }
 
 export interface ProductionHistoryRecord {
-  month: YearMonth; // Format: "YYYY-MM"
+  month: ISOYearMonthString; // Format: "YYYY-MM"
   production: number;
 }
 
@@ -169,12 +150,8 @@ export interface OperationalMetrics {
   };
   hseMetrics: {
     incidentFreeDays: number;
-    lastIncidentDate: Date; // Date object
+    lastIncidentDate: ISODateTimeString; // ISO datetime string
     safetyRating: string;
   };
 }
 
-export interface Metadata {
-  createdAt: Date; // Date object
-  updatedAt: Date; // Date object
-}

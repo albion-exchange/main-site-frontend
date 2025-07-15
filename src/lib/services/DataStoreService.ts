@@ -16,7 +16,7 @@ import type {
   MarketData,
   UserTokenBalance 
 } from '$lib/types/uiTypes';
-import type { AssetTokenMapping } from '$lib/types/assetTokenMapping';
+import type { AssetTokenMapping, ISODateOnlyString } from '$lib/types/sharedTypes';
 import { getTokenReturns, type TokenReturns } from '$lib/utils/returnCalculations';
 
 // Import configuration data
@@ -69,33 +69,10 @@ class DataStoreService {
     };
   }
 
-  // Helper method to convert JSON data to AssetMetadata with proper Date objects
+  // Helper method to convert JSON data to AssetMetadata (no longer needs date conversion)
   private convertJsonToAssetMetadata(jsonData: any): AssetMetadata {
-    return {
-      ...jsonData,
-      monthlyData: jsonData.monthlyData.map((data: any) => ({
-        ...data,
-        tokenPayout: {
-          ...data.tokenPayout,
-          date: new Date(data.tokenPayout.date)
-        }
-      })),
-      asset: {
-        ...jsonData.asset,
-        operationalMetrics: jsonData.asset.operationalMetrics ? {
-          ...jsonData.asset.operationalMetrics,
-          hseMetrics: {
-            ...jsonData.asset.operationalMetrics.hseMetrics,
-            lastIncidentDate: new Date(jsonData.asset.operationalMetrics.hseMetrics.lastIncidentDate)
-          }
-        } : jsonData.asset.operationalMetrics
-      },
-      metadata: {
-        ...jsonData.metadata,
-        createdAt: new Date(jsonData.metadata.createdAt),
-        updatedAt: new Date(jsonData.metadata.updatedAt)
-      }
-    };
+    // Since we're now using ISO strings in the type definitions, we can just return the JSON data as-is
+    return jsonData as AssetMetadata;
   }
 
   // Helper method to convert AssetMetadata to legacy Asset format
@@ -173,8 +150,8 @@ class DataStoreService {
         }
       } : undefined,
       metadata: {
-        createdAt: assetMetadata.metadata.createdAt.toISOString(),
-        updatedAt: assetMetadata.metadata.updatedAt.toISOString()
+        createdAt: assetMetadata.metadata.createdAt,
+        updatedAt: assetMetadata.metadata.updatedAt
       }
     };
 
@@ -204,7 +181,7 @@ class DataStoreService {
       holders: [], // Not included in merged token format
       payoutHistory: assetMetadata.monthlyData.map(data => ({
         month: data.month,
-        date: data.tokenPayout.date.toISOString().split('T')[0],
+        date: data.tokenPayout.date.split('T')[0] as ISODateOnlyString,
         totalPayout: data.tokenPayout.totalPayout,
         payoutPerToken: data.tokenPayout.payoutPerToken,
         oilPrice: data.realisedPrice.oilPrice,
@@ -215,8 +192,8 @@ class DataStoreService {
       sharePercentage: assetMetadata.sharePercentage,
       firstPaymentDate: assetMetadata.firstPaymentDate,
       metadata: {
-        createdAt: assetMetadata.metadata.createdAt.toISOString(),
-        updatedAt: assetMetadata.metadata.updatedAt.toISOString()
+        createdAt: assetMetadata.metadata.createdAt,
+        updatedAt: assetMetadata.metadata.updatedAt
       }
     };
 
@@ -264,7 +241,7 @@ class DataStoreService {
       const assetId = tokenMetadata.assetId;
       const existing = assetMetadataMap.get(assetId);
       
-      if (!existing || new Date(tokenMetadata.metadata.updatedAt) > new Date(existing.metadata.updatedAt)) {
+      if (!existing || tokenMetadata.metadata.updatedAt > existing.metadata.updatedAt) {
         assetMetadataMap.set(assetId, tokenMetadata);
       }
     });
@@ -298,7 +275,7 @@ class DataStoreService {
     tokenAddresses.forEach(address => {
       const metadata = this.assetMetadata[address];
       if (metadata && (!mostRecentMetadata || 
-          new Date(metadata.metadata.updatedAt) > new Date(mostRecentMetadata.metadata.updatedAt))) {
+          metadata.metadata.updatedAt > mostRecentMetadata.metadata.updatedAt)) {
         mostRecentMetadata = metadata;
       }
     });
@@ -661,7 +638,7 @@ class DataStoreService {
 
     const recentPayouts = assetMetadata.monthlyData.map(data => ({
       month: data.month,
-      date: data.tokenPayout.date.toISOString().split('T')[0],
+      date: data.tokenPayout.date.split('T')[0],
       totalPayout: data.tokenPayout.totalPayout,
       payoutPerToken: data.tokenPayout.payoutPerToken,
       oilPrice: data.realisedPrice.oilPrice,

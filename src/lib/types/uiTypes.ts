@@ -3,14 +3,10 @@
  * These interfaces define the structure for the static JSON data stores
  */
 
-export interface AssetLocation {
-  state: string;
-  county: string;
-  country: string;
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
+import type { GalleryImage, TokenSupply, Coordinates, Location, Metadata, ISODateOnlyString, ISOYearMonthString } from './sharedTypes';
+
+// AssetLocation extends the shared Location type with optional waterDepth
+export interface AssetLocation extends Omit<Location, 'waterDepth'> {
   waterDepth?: string | null;
 }
 
@@ -93,16 +89,6 @@ export interface OperationalMetrics {
   };
 }
 
-export interface AssetMetadata {
-  createdAt: string; // ISO date
-  updatedAt: string; // ISO date
-}
-
-export interface GalleryImage {
-  title: string;
-  url: string;
-  caption?: string;
-}
 
 /**
  * Complete Asset data structure for the static data store
@@ -122,7 +108,7 @@ export interface Asset {
   productionHistory?: ProductionHistoryRecord[]; // Historical production data without financial details
   plannedProduction?: PlannedProduction;
   operationalMetrics?: OperationalMetrics;
-  metadata: AssetMetadata;
+  metadata: Metadata;
 }
 
 /**
@@ -133,12 +119,7 @@ export interface AssetsStore {
 }
 
 // Token-related interfaces
-
-export interface TokenSupply {
-  maxSupply: string; // BigInt as string
-  mintedSupply: string; // BigInt as string
-}
-
+// TokenSupply is imported from sharedTypes.ts
 
 export interface TokenHolder {
   address: string;
@@ -146,8 +127,8 @@ export interface TokenHolder {
 }
 
 export interface TokenPayoutRecord {
-  month: string; // YYYY-MM format
-  date: string; // YYYY-MM-DD format
+  month: ISOYearMonthString; // YYYY-MM format
+  date: ISODateOnlyString; // YYYY-MM-DD format
   totalPayout: number; // USD
   payoutPerToken: number; // USD per token
   oilPrice: number; // USD per barrel
@@ -156,10 +137,6 @@ export interface TokenPayoutRecord {
   txHash: string; // Transaction hash
 }
 
-export interface TokenMetadata {
-  createdAt: string; // ISO date
-  updatedAt: string; // ISO date
-}
 
 export interface TokenReturns {
   baseReturn: number; // Base return percentage
@@ -184,7 +161,7 @@ export interface Token {
   payoutHistory: TokenPayoutRecord[];
   sharePercentage?: number; // Percentage of asset ownership (for royalty tokens)
   firstPaymentDate?: string; // YYYY-MM format or "Month YYYY" format
-  metadata: TokenMetadata;
+  metadata: Metadata;
 }
 
 /**
@@ -206,7 +183,7 @@ export interface UserTokenBalance {
   unrealizedGainPercent: number; // Percentage gain/loss
   totalEarned: number; // Total payouts received
   tokensOwned: number; // Formatted token count
-  lastPayout: string; // Date of last payout
+  lastPayout: ISODateOnlyString; // Date of last payout
   allocation: number; // Percentage of total portfolio
 }
 
@@ -347,7 +324,7 @@ export interface TokenTemplate {
   }[];
   payoutHistory: {
     month: string; // YYYY-MM format
-    date: string; // YYYY-MM-DD format
+    date: ISODateOnlyString; // YYYY-MM-DD format
     totalPayout: number; // USD
     payoutPerToken: number; // USD per token
     oilPrice: number; // USD per barrel
