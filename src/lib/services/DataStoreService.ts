@@ -616,7 +616,7 @@ class DataStoreService {
     
     // Calculate total payouts from monthly reports
     const totalPayouts = allAssets.reduce((sum, asset) => {
-      return sum + asset.monthlyReports.reduce((assetSum, report) => assetSum + report.netIncome, 0);
+      return sum + asset.monthlyReports.reduce((assetSum, report) => assetSum + (report.netIncome ?? 0), 0);
     }, 0);
     
     // Get active token holders count (using a default since holders data is not in merged format)

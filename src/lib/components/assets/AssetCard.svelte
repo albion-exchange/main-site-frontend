@@ -169,7 +169,7 @@
 			</div>
 			{#if latestReport}
 				<div class={highlightStatClasses}>
-					<span class={mobileHighlightValueClasses}>{formatCurrency(latestReport.netIncome)}</span>
+					<span class={mobileHighlightValueClasses}>{formatCurrency(latestReport.netIncome ?? 0)}</span>
 					<span class={mobileHighlightLabelClasses}>Last Payment</span>
 				</div>
 			{/if}

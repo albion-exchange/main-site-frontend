@@ -57,8 +57,8 @@
 					const reports = asset.monthlyReports;
 					const latest = reports[reports.length - 1];
 					const previous = reports[reports.length - 2];
-					if (previous.netIncome > 0) {
-						return ((latest.netIncome - previous.netIncome) / previous.netIncome) * 100;
+					if ((previous.netIncome ?? 0) > 0) {
+						return (((latest.netIncome ?? 0) - (previous.netIncome ?? 0)) / (previous.netIncome ?? 0)) * 100;
 					}
 					return 0;
 				});
