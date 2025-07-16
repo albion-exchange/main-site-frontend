@@ -40,3 +40,8 @@ export { default as TextBlock } from "./TextBlock.svelte";
 // Stats Components
 export { default as StatsCard } from "./StatsCard.svelte";
 export { default as DataRow } from "./DataRow.svelte";
+
+// Chart Components
+export { default as ChartTooltip } from "./ChartTooltip.svelte";
+export { default as LineChart } from "./LineChart.svelte";
+export { default as BarChart } from "./BarChart.svelte";

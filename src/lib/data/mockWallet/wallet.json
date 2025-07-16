@@ -260,6 +260,30 @@
       "walletShare": 0.01,
       "amount": 150.0,
       "txHash": "0xffffffffffffffffffffffffe791cdaa42d67780"
+    },
+    {
+      "id": "payout_012",
+      "timestamp": "2025-07-15T00:00:00Z",
+      "address": "0x4567890123def0123456789012cdef045678901",
+      "month": "2025-07",
+      "totalPayout": 42875.3,
+      "mintedSupply": 487500,
+      "walletTokens": 8000,
+      "walletShare": 0.01641,
+      "amount": 703.87,
+      "txHash": "0xffffffffffffffffffffffffe791cdaa42d67781"
+    },
+    {
+      "id": "payout_013",
+      "timestamp": "2025-07-15T00:00:00Z",
+      "address": "0x2a7e3f8b921a6c4e8d5f9c2b1a8e7d6c5b4a3f2e",
+      "month": "2025-07",
+      "totalPayout": 5983.2,
+      "mintedSupply": 153750,
+      "walletTokens": 2500,
+      "walletShare": 0.01626,
+      "amount": 97.29,
+      "txHash": "0xffffffffffffffffffffffffe791cdaa42d67782"
     }
   ]
 }

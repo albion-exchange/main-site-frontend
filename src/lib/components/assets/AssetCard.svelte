@@ -96,8 +96,8 @@
 	$: operatorClasses = 'flex flex-col items-end text-right';
 	$: operatorLabelClasses = 'text-sm text-gray-500 font-medium mb-1 font-figtree';
 	$: operatorNameClasses = 'text-base text-black font-extrabold font-figtree';
-	$: assetNameClasses = 'text-lg font-extrabold text-black m-0 mb-2 min-h-[3.125rem] leading-tight flex items-start font-figtree';
-	$: assetLocationClasses = 'text-gray-500 text-base m-0 font-figtree';
+	$: assetNameClasses = 'text-lg font-extrabold text-black m-0 mb-2 min-h-[3.125rem] leading-tight text-left font-figtree';
+	$: assetLocationClasses = 'text-gray-500 text-base m-0 text-left font-figtree';
 	$: assetDescriptionClasses = 'text-gray-700 text-base leading-relaxed m-0 mb-6 line-clamp-3 min-h-[4.5rem] font-figtree';
 	$: viewDetailsSectionClasses = 'mt-6 mb-6';
 	$: tokensSectionClasses = 'my-6';
@@ -122,7 +122,7 @@
 	$: mobileHighlightedStatsClasses = 'grid grid-cols-3 gap-1 md:gap-3 my-3 md:my-4 p-3 md:p-4 bg-white rounded-lg';
 	$: mobileHighlightValueClasses = 'text-xl md:text-2xl font-extrabold text-secondary mb-1 font-figtree';
 	$: mobileHighlightLabelClasses = 'text-xs md:text-sm text-gray-500 font-medium font-figtree';
-	$: mobileAssetNameClasses = 'text-base md:text-lg font-extrabold text-black m-0 mb-2 min-h-[2.75rem] md:min-h-[3.125rem] leading-tight flex items-start font-figtree';
+	$: mobileAssetNameClasses = 'text-base md:text-lg font-extrabold text-black m-0 mb-2 min-h-[2.75rem] md:min-h-[3.125rem] leading-tight text-left font-figtree';
 	$: mobileAssetDescriptionClasses = 'text-gray-700 text-sm md:text-base leading-relaxed m-0 mb-4 md:mb-6 line-clamp-3 h-[4rem] md:h-[4.5rem] font-figtree';
 	$: mobileTokensTitleClasses = 'text-base md:text-lg font-extrabold text-black m-0 mb-4 font-figtree';
 	$: mobileTokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 md:p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-light-gray border border-light-gray hover:shadow-sm hover:-translate-y-0.5 gap-3 sm:gap-0';

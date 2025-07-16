@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
-	import { Card, CardContent, PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { Card, CardContent, PrimaryButton, SecondaryButton, BarChart } from '$lib/components/ui';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
 	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
 	import TabButton from '$lib/components/ui/TabButton.svelte';
@@ -467,82 +467,26 @@
 										📊 Export Data
 									</SecondaryButton>
 								</div>
-								<div class="w-full overflow-x-auto">
-									<svg class="w-full h-auto min-w-[750px]" viewBox="0 0 950 400" xmlns="http://www.w3.org/2000/svg">
-										<!-- Chart background -->
-										<rect width="950" height="400" fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
-										
-										<!-- Grid lines -->
-										{#each Array(7) as _, i}
-											<line x1="90" y1={70 + i * 50} x2="870" y2={70 + i * 50} stroke="#f8f4f4" stroke-width="0.5" opacity="0.5"/>
-										{/each}
-										{#each productionReports as _, i}
-											<line x1={90 + (i + 1) * (780 / Math.max(productionReports.length, 1))} y1="70" x2={90 + (i + 1) * (780 / Math.max(productionReports.length, 1))} y2="320" stroke="#f8f4f4" stroke-width="0.5" opacity="0.3"/>
-										{/each}
-										
-										<!-- Y-axis labels (Production in BOE) -->
-										<text x="80" y="75" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction)}</text>
-										<text x="80" y="125" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.8)}</text>
-										<text x="80" y="175" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.6)}</text>
-										<text x="80" y="225" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.4)}</text>
-										<text x="80" y="275" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">{Math.round(maxProduction * 0.2)}</text>
-										<text x="80" y="325" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">0</text>
-										
-										<!-- X-axis labels (Months and years from real data) -->
-										{#each productionReports as report, i}
-											{@const date = new Date(report.month + '-01')}
-											{@const monthLabel = date.toLocaleDateString('en-US', { month: 'short' })}
-											{@const year = date.getFullYear()}
-											{@const showYear = i === 0 || date.getMonth() === 0 || (i > 0 && new Date(productionReports[i-1].month + '-01').getFullYear() !== year)}
-											<text x={90 + (i + 1) * (780 / Math.max(productionReports.length, 1))} y="345" text-anchor="middle" font-size="14" fill="#000000" font-family="Figtree" font-weight="medium">{monthLabel}</text>
-											{#if showYear}
-												<text x={90 + (i + 1) * (780 / Math.max(productionReports.length, 1))} y="365" text-anchor="middle" font-size="12" fill="#666666" font-weight="bold" font-family="Figtree">{year}</text>
-											{/if}
-										{/each}
-										
-										<!-- Production line chart (from real data) -->
-										{#if productionReports.length > 1}
-											{@const points = productionReports.map((report: any, i: number) => {
-												const x = 90 + (i + 1) * (780 / Math.max(productionReports.length, 1));
-												const y = 320 - (report.production / maxProduction) * 250;
-												return `${x},${y}`;
-											}).join(' ')}
-											<polyline 
-												points={points}
-												fill="none" 
-												stroke="#08bccc" 
-												stroke-width="3"
-											/>
-										{/if}
-										
-										<!-- Data points (from real data) -->
-										{#each productionReports as report, i}
-											{@const x = 90 + (i + 1) * (780 / Math.max(productionReports.length, 1))}
-											{@const y = 320 - (report.production / maxProduction) * 250}
-											<circle 
-												cx={x} 
-												cy={y} 
-												r="4" 
-												fill="#283c84"
-												stroke="#ffffff"
-												stroke-width="2"
-											/>
-											<!-- Value label near point -->
-											<text x={x} y={y - 10} text-anchor="middle" font-size="12" fill="#000000" font-weight="semibold" font-family="Figtree">
-												{Math.round(report.production)}
-											</text>
-										{/each}
-										
-										<!-- Chart title -->
-										<text x="475" y="35" text-anchor="middle" font-size="18" font-weight="bold" fill="#000000" font-family="Figtree">Production History</text>
-										
-										<!-- Legend -->
-										<rect x="680" y="80" width="160" height="45" fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
-										<line x1="690" y1="95" x2="715" y2="95" stroke="#08bccc" stroke-width="3"/>
-										<text x="720" y="100" font-size="13" fill="#000000" font-family="Figtree" font-weight="medium">Production Rate</text>
-										<circle cx="702" cy="110" r="3" fill="#283c84"/>
-										<text x="720" y="115" font-size="13" fill="#000000" font-family="Figtree" font-weight="medium">Monthly Data</text>
-									</svg>
+								<div class="w-full">
+									<BarChart
+										data={productionReports.map(report => {
+											// Handle different date formats
+											let dateStr = report.month || report.date || '';
+											if (dateStr && !dateStr.includes('-01')) {
+												dateStr = dateStr + '-01';
+											}
+											return {
+												label: dateStr,
+												value: report.production
+											};
+										})}
+										width={700}
+										height={350}
+										title="Production History"
+										valueSuffix=" BOE"
+										showLine={false}
+										showValues={false}
+									/>
 								</div>
 							</div>
 
@@ -581,63 +525,27 @@
 									</SecondaryButton>
 								</div>
 								<div class="w-full overflow-x-auto">
-									<svg class="w-full h-auto min-w-[750px]" viewBox="0 0 950 400" xmlns="http://www.w3.org/2000/svg">
-										<!-- Chart background -->
-										<rect width="950" height="400" fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
-										
-										<!-- Grid lines -->
-										{#each Array(7) as _, i}
-											<line x1="90" y1={70 + i * 50} x2="870" y2={70 + i * 50} stroke="#f8f4f4" stroke-width="0.5" opacity="0.5"/>
-										{/each}
-										{#each monthlyReports as _, i}
-											<line x1={90 + (i + 1) * (780 / Math.max(monthlyReports.length, 1))} y1="70" x2={90 + (i + 1) * (780 / Math.max(monthlyReports.length, 1))} y2="320" stroke="#f8f4f4" stroke-width="0.5" opacity="0.3"/>
-										{/each}
-										
-										<!-- Y-axis labels (Revenue amounts) -->
-										<text x="80" y="75" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue)}</text>
-										<text x="80" y="125" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.8)}</text>
-										<text x="80" y="175" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.6)}</text>
-										<text x="80" y="225" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.4)}</text>
-										<text x="80" y="275" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">${Math.round(maxRevenue * 0.2)}</text>
-										<text x="80" y="325" text-anchor="end" font-size="13" fill="#000000" font-family="Figtree" font-weight="semibold">$0</text>
-										
-										<!-- X-axis labels (Months and years from monthly reports) -->
-										{#each monthlyReports as report, i}
-											{@const date = new Date(report.month + '-01')}
-											{@const monthLabel = date.toLocaleDateString('en-US', { month: 'short' })}
-											{@const year = date.getFullYear()}
-											{@const showYear = i === 0 || date.getMonth() === 0 || (i > 0 && new Date(monthlyReports[i-1].month + '-01').getFullYear() !== year)}
-											<text x={90 + (i + 1) * (780 / Math.max(monthlyReports.length, 1))} y="345" text-anchor="middle" font-size="14" fill="#000000" font-family="Figtree" font-weight="medium">{monthLabel}</text>
-											{#if showYear}
-												<text x={90 + (i + 1) * (780 / Math.max(monthlyReports.length, 1))} y="365" text-anchor="middle" font-size="12" fill="#666666" font-weight="bold" font-family="Figtree">{year}</text>
-											{/if}
-										{/each}
-										
-										<!-- Column chart bars (from monthly reports) -->
-										{#each monthlyReports as report, i}
-											{@const barWidth = 35}
-											{@const x = 90 + (i + 1) * (780 / Math.max(monthlyReports.length, 1)) - barWidth / 2}
-											{@const barHeight = ((report.revenue ?? 0) / maxRevenue) * 250}
-											{@const y = 320 - barHeight}
-											<rect 
-												x={x} 
-												y={y} 
-												width={barWidth} 
-												height={barHeight}
-												fill="#08bccc"
-												stroke="#ffffff"
-												stroke-width="1"
-												rx="2"
-											/>
-											<!-- Value label on top of bar -->
-											<text x={x + barWidth / 2} y={y - 5} text-anchor="middle" font-size="12" fill="#000000" font-weight="semibold" font-family="Figtree">
-												${Math.round(report.revenue ?? 0)}
-											</text>
-										{/each}
-										
-										<!-- Chart title -->
-										<text x="475" y="35" text-anchor="middle" font-size="18" font-weight="bold" fill="#000000" font-family="Figtree">Past Payments</text>
-									</svg>
+									<BarChart
+										data={monthlyReports.map(report => {
+											// Handle different date formats
+											let dateStr = report.month || report.date || '';
+											if (dateStr && !dateStr.includes('-01')) {
+												dateStr = dateStr + '-01';
+											}
+											return {
+												label: dateStr,
+												value: report.revenue ?? 0
+											};
+										})}
+										width={950}
+										height={400}
+										title="Past Payments"
+										valuePrefix="$"
+										barColor="#283c84"
+										lineColor="#08bccc"
+										showLine={true}
+										showValues={false}
+									/>
 								</div>
 							</div>
 
@@ -796,7 +704,7 @@
 		</ContentSection>
 
 		<!-- Token Information Section -->
-		<ContentSection background="white" padding="standard" maxWidth={false}>
+		<ContentSection background="white" padding="compact" maxWidth={false} className="-mt-8">
 			<div class="bg-white border border-light-gray md:p-12 p-6" id="token-section">
 			<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -810,7 +718,7 @@
 					<div id="token-{token.contractAddress}">
 						<Card hoverable clickable paddingClass="p-0" on:click={() => handleCardClick(token.contractAddress)}>
 							<CardContent paddingClass="p-0">
-								<div class="relative preserve-3d transform-gpu transition-transform duration-500 {isFlipped ? 'rotate-y-180' : ''}" style="min-height: 600px;">
+								<div class="relative preserve-3d transform-gpu transition-transform duration-500 {isFlipped ? 'rotate-y-180' : ''}" style="min-height: 650px;">
 									<!-- Front of card -->
 									<div class="absolute inset-0 backface-hidden">
 										<!-- Full width availability banner -->
@@ -992,8 +900,8 @@
 					{@const futureReleases = dataStoreService.getFutureReleasesByAsset(assetData.id)}
 					{#each futureReleases as release, index}
 				<Card hoverable>
-					<CardContent>
-						<div class="text-center p-12">
+					<CardContent paddingClass="p-0">
+						<div class="flex flex-col justify-center text-center p-12" style="min-height: 650px;">
 							<div class="text-5xl mb-6">{release.emoji || '📅'}</div>
 							<h4 class="text-xl font-extrabold mb-4 text-black uppercase tracking-wider">{index === 0 ? 'Next Release' : 'Future Release'} - {release.whenRelease}</h4>
 							<p class="text-base mb-8 text-black opacity-70">{release.description || 'Token release planned'}</p>
@@ -1008,8 +916,8 @@
 					{#if futureReleases.length === 0}
 					<!-- Fallback Coming Soon Card -->
 					<Card hoverable>
-						<CardContent>
-							<div class="text-center p-12">
+						<CardContent paddingClass="p-0">
+							<div class="flex flex-col justify-center text-center p-12" style="min-height: 650px;">
 								<div class="text-5xl mb-6">🚀</div>
 								<h4 class="text-xl font-extrabold mb-4 text-black uppercase tracking-wider">New Release Coming Soon</h4>
 								<p class="text-base mb-8 text-black opacity-70">Next token release planned for Q1 2025</p>
