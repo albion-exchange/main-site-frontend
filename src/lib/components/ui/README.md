@@ -5,9 +5,11 @@ A set of reusable card components that provide consistent hover effects and styl
 ## Components
 
 ### Card
+
 The base card component with hover effects (lift up with shadow).
 
 **Props:**
+
 - `hoverable` (boolean, default: true) - Enables hover effects
 - `clickable` (boolean, default: false) - Makes the card clickable
 - `padding` (string, default: '0') - Card padding
@@ -15,9 +17,11 @@ The base card component with hover effects (lift up with shadow).
 - `overflow` (string, default: 'hidden') - CSS overflow property
 
 **Events:**
+
 - `click` - Fired when clickable card is clicked
 
 **Example:**
+
 ```svelte
 <Card hoverable clickable on:click={handleClick}>
   <!-- Card content -->
@@ -25,15 +29,18 @@ The base card component with hover effects (lift up with shadow).
 ```
 
 ### CardImage
+
 Displays an image with zoom-on-hover effect when the parent card is hovered.
 
 **Props:**
+
 - `src` (string, required) - Image source URL
 - `alt` (string, required) - Image alt text
 - `height` (string, default: '200px') - Image container height
 - `zoomOnHover` (boolean, default: true) - Enables zoom effect on card hover
 
 **Example:**
+
 ```svelte
 <Card>
   <CardImage src="/image.jpg" alt="Description" />
@@ -41,12 +48,15 @@ Displays an image with zoom-on-hover effect when the parent card is hovered.
 ```
 
 ### CardContent
+
 Container for card content with consistent padding.
 
 **Props:**
+
 - `padding` (string, default: '2rem') - Content padding
 
 **Example:**
+
 ```svelte
 <Card>
   <CardContent>
@@ -57,13 +67,16 @@ Container for card content with consistent padding.
 ```
 
 ### CardActions
+
 Container for card action buttons with responsive layout.
 
 **Props:**
+
 - `gap` (string, default: '1rem') - Gap between actions
 - `justify` (string, default: 'flex-start') - Flexbox justify-content
 
 **Example:**
+
 ```svelte
 <Card>
   <CardContent>
@@ -81,11 +94,11 @@ Container for card action buttons with responsive layout.
 ```svelte
 <script>
   import { Card, CardImage, CardContent, CardActions } from '$lib/components/ui';
-  
+
   function handleCardClick() {
     // Navigate to detail page
   }
-  
+
   function handleAction(event) {
     event.stopPropagation(); // Prevent card click
     // Handle specific action
@@ -93,22 +106,22 @@ Container for card action buttons with responsive layout.
 </script>
 
 <Card hoverable clickable on:click={handleCardClick}>
-  <CardImage 
-    src="/assets/product.jpg" 
+  <CardImage
+    src="/assets/product.jpg"
     alt="Product name"
     height="250px"
     zoomOnHover
   />
-  
+
   <CardContent padding="1.5rem">
     <h3>Product Title</h3>
     <p>Product description goes here...</p>
-    
+
     <div class="stats">
       <span>$99.00</span>
       <span>In Stock</span>
     </div>
-    
+
     <CardActions gap="0.5rem">
       <button class="btn-secondary" on:click|stopPropagation={handleAction}>
         View Details

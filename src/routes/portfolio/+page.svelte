@@ -7,7 +7,6 @@
 	import WalletModal from '$lib/components/WalletModal.svelte';
 	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, TabNavigation, MetricDisplay, StatsCard, SectionTitle, ActionCard, TabButton } from '$lib/components/ui';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
-	import { getAssetCoverImage } from '$lib/utils/assetImages';
 
 	let totalInvested = 0;
 	let totalPayoutsEarned = 0;
@@ -20,6 +19,22 @@
 	let tokenAllocations: any[] = [];
 	let loading = true;
 	let showWalletModal = false;
+	
+	// Tooltip state
+	let showTooltip = '';
+	let tooltipTimer: any = null;
+	
+	function showTooltipWithDelay(tooltipId: string) {
+		clearTimeout(tooltipTimer);
+		tooltipTimer = setTimeout(() => {
+			showTooltip = tooltipId;
+		}, 200);
+	}
+	
+	function hideTooltip() {
+		clearTimeout(tooltipTimer);
+		showTooltip = '';
+	}
 
 	onMount(async () => {
 		// Check if wallet is connected
@@ -50,6 +65,43 @@
 				const asset = allAssets.find(a => a.id === holding.assetId);
 				if (!asset) return null;
 				
+				// Get the actual holding data for token count
+				const walletHoldings = walletDataService.computeHoldings();
+				const walletHolding = walletHoldings.find(h => h.assetId === holding.assetId);
+				const tokensOwned = walletHolding ? walletHolding.formattedBalance : 0;
+				
+				// Calculate capital returned percentage
+				const capitalReturned = holding.totalInvested > 0 
+					? (holding.totalEarned / holding.totalInvested) * 100 
+					: 0;
+				
+				// Calculate unrecovered capital
+				const unrecoveredCapital = Math.max(0, holding.totalInvested - holding.totalEarned);
+				
+				// Calculate asset depletion
+				// Get cumulative production from asset data
+				let cumulativeProduction = 0;
+				if (asset.monthlyReports) {
+					cumulativeProduction = asset.monthlyReports.reduce((sum, report) => sum + report.production, 0);
+				}
+				
+				// Get total reserves (estimated remaining + cumulative)
+				// Parse the expected remaining production string
+				let totalReserves = 0;
+				const remainingProdStr = asset.production.expectedRemainingProduction || 
+					dataStoreService.getCalculatedRemainingProduction(asset.id);
+				if (remainingProdStr && remainingProdStr !== 'TBD') {
+					const match = remainingProdStr.match(/[\d.]+/);
+					if (match) {
+						const remainingMboe = parseFloat(match[0]) * 1000; // Convert mboe to boe
+						totalReserves = cumulativeProduction + remainingMboe;
+					}
+				}
+				
+				const assetDepletion = totalReserves > 0 
+					? (cumulativeProduction / totalReserves) * 100 
+					: 0;
+				
 				return {
 					id: holding.assetId,
 					name: holding.assetName,
@@ -59,7 +111,12 @@
 					unclaimedAmount: holding.unclaimedAmount,
 					lastPayoutAmount: holding.lastPayoutAmount,
 					lastPayoutDate: holding.lastPayoutDate,
-					status: asset ? asset.production.status : 'unknown'
+					status: asset ? asset.production.status : 'unknown',
+					tokensOwned,
+					capitalReturned,
+					unrecoveredCapital,
+					assetDepletion,
+					asset // Include the full asset object for the cover image
 				};
 			}).filter(Boolean);
 			
@@ -222,13 +279,17 @@
 							{#each holdings as holding}
 								<Card hoverable showBorder>
 									<CardContent paddingClass="p-8">
-										<div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-center mb-6">
+										<div class="flex justify-between items-start mb-6">
 											<div class="flex items-center gap-4">
 												<div class="w-12 h-12 bg-light-gray rounded-lg overflow-hidden flex items-center justify-center">
-													<img src={getAssetCoverImage(holding.id)} alt={holding.name} class="w-full h-full object-cover" />
+													{#if holding.asset?.coverImage}
+														<img src={holding.asset.coverImage} alt={holding.name} class="w-full h-full object-cover" />
+													{:else}
+														<div class="text-2xl opacity-50">🛢️</div>
+													{/if}
 												</div>
 												<div>
-													<h4 class="font-extrabold text-black text-sm mb-1">{holding.name}</h4>
+													<h4 class="font-extrabold text-black text-base mb-1">{holding.name}</h4>
 													<div class="text-xs text-black opacity-70 mb-2">{holding.location}</div>
 													<StatusBadge 
 														status={holding.status} 
@@ -237,36 +298,92 @@
 												</div>
 											</div>
 
-											<div class="text-center">
-												<div class="text-lg font-extrabold text-black mb-1">{formatCurrency(holding.totalInvested)}</div>
-												<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Invested</div>
-											</div>
-
-											<div class="text-center">
-												<div class="text-lg font-extrabold text-primary mb-1">{formatCurrency(holding.totalPayoutsEarned)}</div>
-												<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Earned</div>
-											</div>
-
 											<div class="flex gap-2">
 												<SecondaryButton size="small" href="/claims">Claims</SecondaryButton>
 												<SecondaryButton size="small" on:click={() => alert('Payout history chart coming soon!')}>History</SecondaryButton>
 											</div>
 										</div>
 
-										<div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-light-gray">
-											<div class="flex justify-between items-center">
-												<span class="text-sm text-black opacity-70 font-semibold">Unclaimed:</span>
-												<span class="text-sm font-extrabold text-primary">{formatCurrency(holding.unclaimedAmount)}</span>
+										<div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+											<!-- Tokens -->
+											<div>
+												<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-2">Tokens</div>
+												<div class="text-lg font-extrabold text-black mb-1">{holding.tokensOwned.toLocaleString()}</div>
+												<div class="text-sm text-black opacity-70">${Math.round(holding.totalInvested).toLocaleString()}</div>
 											</div>
-											<div class="flex justify-between items-center">
-												<span class="text-sm text-black opacity-70 font-semibold">Last Payout:</span>
-												<span class="text-sm font-extrabold text-black">{holding.lastPayoutDate ? new Date(holding.lastPayoutDate).toLocaleDateString() : 'N/A'}</span>
+
+											<!-- Earnings to Date -->
+											<div>
+												<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-2">Earnings to Date</div>
+												<div class="text-lg font-extrabold text-primary mb-1">{formatCurrency(holding.totalPayoutsEarned)}</div>
+												<div class="text-sm text-black opacity-70">Cumulative</div>
 											</div>
-											<div class="flex justify-between items-center">
-												<span class="text-sm text-black opacity-70 font-semibold">Status:</span>
-												<span class="text-sm font-extrabold text-primary">Active</span>
+
+											<!-- Capital Returned -->
+											<div class="relative">
+												<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-2 flex items-center gap-1">
+													Capital Returned
+													<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
+														on:mouseenter={() => showTooltipWithDelay('capital-returned-' + holding.id)}
+														on:mouseleave={hideTooltip}
+														role="button"
+														tabindex="0">ⓘ</span>
+												</div>
+												<div class="text-lg font-extrabold text-black mb-1">{holding.capitalReturned.toFixed(1)}%</div>
+												<div class="text-sm text-black opacity-70">To Date</div>
+												{#if showTooltip === 'capital-returned-' + holding.id}
+													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
+														The portion of your initial investment already recovered
+													</div>
+												{/if}
+											</div>
+
+											<!-- Asset Depletion -->
+											<div class="relative">
+												<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-2 flex items-center gap-1">
+													Est. Asset Depletion
+													<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
+														on:mouseenter={() => showTooltipWithDelay('depletion-' + holding.id)}
+														on:mouseleave={hideTooltip}
+														role="button"
+														tabindex="0">ⓘ</span>
+												</div>
+												<div class="text-lg font-extrabold text-black mb-1">
+													{holding.assetDepletion > 0 ? `${holding.assetDepletion.toFixed(1)}%` : 'TBD'}
+												</div>
+												<div class="text-sm text-black opacity-70">To Date</div>
+												{#if showTooltip === 'depletion-' + holding.id}
+													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
+														The portion of total expected oil and gas extracted so far
+													</div>
+												{/if}
+											</div>
+
+											<!-- Capital To be Recovered / Lifetime Profit -->
+											<div>
+												<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-2">
+													{holding.unrecoveredCapital > 0 ? 'Capital To be Recovered' : 'Lifetime Profit'}
+												</div>
+												<div class="text-lg font-extrabold {holding.unrecoveredCapital > 0 ? 'text-black' : 'text-primary'} mb-1">
+													{formatCurrency(holding.unrecoveredCapital > 0 ? holding.unrecoveredCapital : holding.totalPayoutsEarned - holding.totalInvested)}
+												</div>
+												<div class="text-sm text-black opacity-70">
+													{holding.unrecoveredCapital > 0 ? 'Remaining' : 'To Date'}
+												</div>
 											</div>
 										</div>
+
+										{#if holding.unclaimedAmount > 0}
+											<div class="mt-6 pt-6 border-t border-light-gray">
+												<div class="bg-primary bg-opacity-10 border border-primary border-opacity-20 rounded-lg p-4 flex justify-between items-center">
+													<div>
+														<div class="font-bold text-black text-sm mb-1">Unclaimed Payouts Available</div>
+														<div class="text-xs text-black opacity-70">Ready to claim now</div>
+													</div>
+													<div class="text-lg font-extrabold text-primary">{formatCurrency(holding.unclaimedAmount)}</div>
+												</div>
+											</div>
+										{/if}
 									</CardContent>
 								</Card>
 							{/each}
@@ -348,10 +465,15 @@
 							<SectionTitle level="h3" size="subsection" className="mb-6">Allocation Breakdown</SectionTitle>
 							<div class="space-y-4 mb-8">
 								{#each tokenAllocations as allocation}
+									{@const allocationAsset = dataStoreService.getAssetById(allocation.assetId)}
 									<div class="flex justify-between items-center pb-4 border-b border-light-gray last:border-b-0 last:pb-0">
 										<div class="flex items-center gap-3">
 											<div class="w-8 h-8 bg-light-gray rounded overflow-hidden flex items-center justify-center">
-												<img src={getAssetCoverImage(allocation.assetId)} alt={allocation.assetName} class="w-full h-full object-cover" />
+												{#if allocationAsset?.coverImage}
+													<img src={allocationAsset.coverImage} alt={allocation.assetName} class="w-full h-full object-cover" />
+												{:else}
+													<div class="text-base opacity-50">🛢️</div>
+												{/if}
 											</div>
 											<div>
 												<div class="font-extrabold text-black text-sm">{allocation.assetName}</div>

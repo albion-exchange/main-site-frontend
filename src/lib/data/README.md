@@ -29,6 +29,7 @@ Token.assetId → Asset.id (keys in assets.json)
 To add a new asset, follow these steps:
 
 ### 1. Generate a Unique Asset ID
+
 - Use kebab-case format (e.g., `"my-new-oil-field"`)
 - Must be unique across all assets
 - Should be descriptive and URL-friendly
@@ -86,9 +87,9 @@ Copy this template into the `assets` object:
         "basePayout": 14.1,
         "totalValue": 8500000,
         "minInvestment": 10000,
-        "breakeven": 45.60,
-        "operatingCosts": 35.20,
-        "totalInvestment": "$280M",
+        "breakeven": 45.6,
+        "operatingCosts": 35.2,
+        "totalInvestment": "$280M"
       },
       "investment": {
         "tokensAvailable": 400000,
@@ -107,7 +108,7 @@ Copy this template into the `assets` object:
           "revenue": 16740000,
           "expenses": 6540000,
           "netIncome": 10200000,
-          "payoutPerToken": 25.50
+          "payoutPerToken": 25.5
         }
       ],
       "metadata": {
@@ -122,12 +123,14 @@ Copy this template into the `assets` object:
 ### 3. Field Descriptions
 
 #### **Required Fields:**
+
 - `id`: Unique identifier (kebab-case)
 - `name`: Display name for the asset
 - `description`: Marketing description
 - `images`: Array of image URLs (place images in `/static/images/assets/`)
 
 #### **Location Fields:**
+
 - `state`: State/province where asset is located
 - `county`: County/region
 - `country`: Country name
@@ -135,6 +138,7 @@ Copy this template into the `assets` object:
 - `waterDepth`: For offshore assets, or `null` for onshore
 
 #### **Financial Fields:**
+
 - `currentPayout`: Current annual payout percentage (e.g., 15.2)
 - `totalValue`: Total asset value in USD
 - `minInvestment`: Minimum investment amount in USD
@@ -142,6 +146,7 @@ Copy this template into the `assets` object:
 - `operatingCosts`: Operating costs per barrel
 
 #### **Investment Tracking:**
+
 - `tokensAvailable`: Total tokens that can be sold
 - `tokensSold`: Number of tokens already sold
 - `investorCount`: Current number of investors
@@ -152,6 +157,7 @@ Copy this template into the `assets` object:
 Each asset should have associated tokens. Add tokens to `tokens.json`:
 
 ### 1. Generate Contract Address
+
 - Use a valid Ethereum-style address format
 - Must be unique across all tokens
 - This serves as the key in the tokens object
@@ -202,12 +208,14 @@ Each asset should have associated tokens. Add tokens to `tokens.json`:
 ### 3. Token Types
 
 #### **Royalty Tokens** (`"tokenType": "royalty"`)
+
 - Represent ownership in asset revenue streams
 - Have tranche information with payout rates
 - Used for investment and trading
 - Decimals: usually 18
 
 #### **Payment Tokens** (`"tokenType": "payment"`)
+
 - Used for payments and payouts
 - No tranche information (`"tranche": null`)
 - Stable price around $1.00
@@ -223,7 +231,7 @@ After creating tokens, update the asset's `tokenContracts` array:
     "your-asset-id": {
       "tokenContracts": [
         "0x1234567890abcdef1234567890abcdef12345678", // Royalty token
-        "0x2345678901bcdef01234567890abcdef23456789"  // Payment token
+        "0x2345678901bcdef01234567890abcdef23456789" // Payment token
       ]
     }
   }
@@ -235,7 +243,7 @@ After creating tokens, update the asset's `tokenContracts` array:
 ### Import the Service
 
 ```typescript
-import dataStoreService from '$lib/services/DataStoreService';
+import dataStoreService from "$lib/services/DataStoreService";
 ```
 
 ### Common Operations
@@ -245,16 +253,16 @@ import dataStoreService from '$lib/services/DataStoreService';
 const assets = dataStoreService.getAllAssets();
 
 // Get specific asset with tokens
-const assetWithTokens = dataStoreService.getAssetWithTokens('your-asset-id');
+const assetWithTokens = dataStoreService.getAssetWithTokens("your-asset-id");
 
 // Get token by symbol
-const token = dataStoreService.getTokenBySymbol('YOUR-AST-A');
+const token = dataStoreService.getTokenBySymbol("YOUR-AST-A");
 
 // Get market data for trading
 const marketData = dataStoreService.getMarketData();
 
 // Search assets
-const searchResults = dataStoreService.searchAssets('texas');
+const searchResults = dataStoreService.searchAssets("texas");
 ```
 
 ## ✅ Validation Checklist
@@ -299,6 +307,7 @@ Token (0x234...)
 ## 🔍 Example: Complete New Asset
 
 See the existing assets in `assets.json` for complete examples, particularly:
+
 - `europa-wressle-release-1` - Offshore conventional oil
 - `bakken-horizon-field` - Onshore shale oil
 - `permian-basin-venture` - Unconventional oil

@@ -12,7 +12,7 @@ export interface MintTransaction {
 export interface PayoutHistoryItem {
   month: string;
   amount: number;
-  status: 'claimed' | 'unclaimed' | 'not_eligible';
+  status: "claimed" | "unclaimed" | "not_eligible";
   claimTxHash?: string;
   claimDate?: string;
   note?: string;
@@ -31,13 +31,13 @@ export interface WalletHolding {
   assetName: string;
   contractAddress: string;
   symbol: string;
-  tokenType: 'royalty' | 'payment';
+  tokenType: "royalty" | "payment";
   balance: string; // BigInt as string
   formattedBalance: number;
   investmentAmount: number;
   mintTransactions: MintTransaction[];
   payoutsSummary: PayoutsSummary;
-  assetStatus: 'funding' | 'producing' | 'completed';
+  assetStatus: "funding" | "producing" | "completed";
   currentMonthlyPayout: number;
   averageMonthlyPayout: number;
 }
@@ -68,7 +68,7 @@ export interface WalletTransaction {
   id: string;
   timestamp: string;
   address: string;
-  type: 'mint' | 'claim';
+  type: "mint" | "claim";
   amount: number;
   amountUSD: number;
   txHash: string;
@@ -109,7 +109,7 @@ export interface AssetPayoutInfo {
   monthlyPayouts: Array<{
     month: string;
     amount: number;
-    status: 'claimed' | 'unclaimed' | 'not_eligible';
+    status: "claimed" | "unclaimed" | "not_eligible";
   }>;
 }
 

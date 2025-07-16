@@ -22,10 +22,10 @@ export interface Coordinates {
 export type ISODateString = string; // ISO 8601 format
 
 // More specific ISO date string types with template literal patterns
-export type ISODateTimeString = `${number}-${number}-${number}T${number}:${number}:${number}.${number}Z`;
+export type ISODateTimeString =
+  `${number}-${number}-${number}T${number}:${number}:${number}.${number}Z`;
 export type ISODateOnlyString = `${number}-${number}-${number}`;
 export type ISOYearMonthString = `${number}-${number}`;
-
 
 export interface Location {
   state: string;

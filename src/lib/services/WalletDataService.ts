@@ -3,22 +3,22 @@
  * Provides methods for calculating investments, payouts, and portfolio metrics
  */
 
-import type { 
-  WalletData, 
-  WalletHolding, 
-  AssetPayoutInfo, 
+import type {
+  WalletData,
+  WalletHolding,
+  AssetPayoutInfo,
   WalletMetrics,
   TokenAllocation,
   MonthlyPayoutTrend,
   WalletTransaction,
   WalletPayout,
-  PayoutHistoryItem
-} from '$lib/types/wallet';
-import { dataStoreService } from '$lib/services/DataStoreService';
-import type { Asset, Token } from '$lib/types/dataStore';
+  PayoutHistoryItem,
+} from "$lib/types/wallet";
+import { dataStoreService } from "$lib/services/DataStoreService";
+import type { Asset, Token } from "$lib/types/uiTypes";
 
 // Import mock wallet data
-import walletDataJson from '$lib/data/mockWallet/wallet.json';
+import walletDataJson from "$lib/data/mockWallet/wallet.json";
 
 interface SimpleWalletData {
   walletAddress: string;
@@ -40,13 +40,13 @@ class WalletDataService {
   getWalletData(): WalletData {
     const holdings = this.computeHoldings();
     const summary = this.computeSummary(holdings);
-    
+
     return {
       walletAddress: this.rawData.walletAddress,
       holdings,
       summary,
       transactions: this.rawData.transactions,
-      payouts: this.rawData.payouts
+      payouts: this.rawData.payouts,
     };
   }
 
@@ -55,7 +55,7 @@ class WalletDataService {
    */
   getTotalInvested(): number {
     return this.rawData.transactions
-      .filter(tx => tx.type === 'mint')
+      .filter((tx) => tx.type === "mint")
       .reduce((sum, tx) => sum + tx.amountUSD, 0);
   }
 
@@ -63,8 +63,7 @@ class WalletDataService {
    * Calculate total payouts earned (lifetime) - sum of all payout amounts
    */
   getTotalPayoutsEarned(): number {
-    return this.rawData.payouts
-      .reduce((sum, payout) => sum + payout.amount, 0);
+    return this.rawData.payouts.reduce((sum, payout) => sum + payout.amount, 0);
   }
 
   /**
@@ -73,12 +72,12 @@ class WalletDataService {
   getUnclaimedPayouts(): number {
     // Get all payouts
     const totalPayouts = this.getTotalPayoutsEarned();
-    
+
     // Get all claimed amounts
     const totalClaimed = this.rawData.transactions
-      .filter(tx => tx.type === 'claim')
+      .filter((tx) => tx.type === "claim")
       .reduce((sum, tx) => sum + tx.amount, 0);
-    
+
     return totalPayouts - totalClaimed;
   }
 
@@ -87,37 +86,44 @@ class WalletDataService {
    */
   getActiveAssetsCount(): number {
     const activeAssets = new Set<string>();
-    
+
     // Get unique assets from transactions by looking up tokens
     this.rawData.transactions
-      .filter(tx => tx.type === 'mint')
-      .forEach(tx => {
+      .filter((tx) => tx.type === "mint")
+      .forEach((tx) => {
         const token = dataStoreService.getTokenByAddress(tx.address);
         if (token) {
           const asset = dataStoreService.getAssetById(token.assetId);
-          if (asset && (asset.production.status === 'producing' || asset.production.status === 'funding')) {
+          if (
+            asset &&
+            (asset.production.status === "producing" ||
+              asset.production.status === "funding")
+          ) {
             activeAssets.add(token.assetId);
           }
         }
       });
-    
+
     return activeAssets.size;
   }
 
   /**
    * Compute holdings from transactions and payouts
    */
-  private computeHoldings(): WalletHolding[] {
+  computeHoldings(): WalletHolding[] {
     // Group transactions by contract address
-    const holdingsByAddress = new Map<string, {
-      transactions: WalletTransaction[],
-      payouts: WalletPayout[]
-    }>();
+    const holdingsByAddress = new Map<
+      string,
+      {
+        transactions: WalletTransaction[];
+        payouts: WalletPayout[];
+      }
+    >();
 
     // Group mint transactions
     this.rawData.transactions
-      .filter(tx => tx.type === 'mint')
-      .forEach(tx => {
+      .filter((tx) => tx.type === "mint")
+      .forEach((tx) => {
         if (!holdingsByAddress.has(tx.address)) {
           holdingsByAddress.set(tx.address, { transactions: [], payouts: [] });
         }
@@ -125,55 +131,67 @@ class WalletDataService {
       });
 
     // Group payouts
-    this.rawData.payouts.forEach(payout => {
+    this.rawData.payouts.forEach((payout) => {
       if (!holdingsByAddress.has(payout.address)) {
-        holdingsByAddress.set(payout.address, { transactions: [], payouts: [] });
+        holdingsByAddress.set(payout.address, {
+          transactions: [],
+          payouts: [],
+        });
       }
       holdingsByAddress.get(payout.address)!.payouts.push(payout);
     });
 
     // Create holdings
     const holdings: WalletHolding[] = [];
-    
+
     holdingsByAddress.forEach((data, contractAddress) => {
       // Get token and asset info
       const token = dataStoreService.getTokenByAddress(contractAddress);
       if (!token) return;
-      
+
       const asset = dataStoreService.getAssetById(token.assetId);
       if (!asset) return;
 
       // Calculate investment amount
       const investmentAmount = data.transactions
-        .filter(tx => tx.type === 'mint')
+        .filter((tx) => tx.type === "mint")
         .reduce((sum, tx) => sum + tx.amountUSD, 0);
 
       // Calculate token balance
       const tokenBalance = data.transactions
-        .filter(tx => tx.type === 'mint')
+        .filter((tx) => tx.type === "mint")
         .reduce((sum, tx) => sum + tx.amount, 0);
 
       // Build payout history
-      const payoutHistory = this.buildPayoutHistory(contractAddress, data.payouts);
+      const payoutHistory = this.buildPayoutHistory(
+        contractAddress,
+        data.payouts,
+      );
 
       // Calculate payout summary
       const totalEarned = data.payouts.reduce((sum, p) => sum + p.amount, 0);
       const claimedAmount = this.rawData.transactions
-        .filter(tx => tx.type === 'claim' && tx.address === contractAddress)
+        .filter((tx) => tx.type === "claim" && tx.address === contractAddress)
         .reduce((sum, tx) => sum + tx.amount, 0);
       const unclaimedAmount = totalEarned - claimedAmount;
 
       // Get last claim date
       const lastClaim = this.rawData.transactions
-        .filter(tx => tx.type === 'claim' && tx.address === contractAddress)
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+        .filter((tx) => tx.type === "claim" && tx.address === contractAddress)
+        .sort(
+          (a, b) =>
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+        )[0];
 
       // Calculate monthly averages
-      const monthlyPayouts = data.payouts.map(p => p.amount);
-      const averageMonthlyPayout = monthlyPayouts.length > 0
-        ? monthlyPayouts.reduce((sum, p) => sum + p, 0) / monthlyPayouts.length
-        : 0;
-      const currentMonthlyPayout = monthlyPayouts[monthlyPayouts.length - 1] || 0;
+      const monthlyPayouts = data.payouts.map((p) => p.amount);
+      const averageMonthlyPayout =
+        monthlyPayouts.length > 0
+          ? monthlyPayouts.reduce((sum, p) => sum + p, 0) /
+            monthlyPayouts.length
+          : 0;
+      const currentMonthlyPayout =
+        monthlyPayouts[monthlyPayouts.length - 1] || 0;
 
       holdings.push({
         assetId: token.assetId,
@@ -185,23 +203,23 @@ class WalletDataService {
         formattedBalance: tokenBalance,
         investmentAmount,
         mintTransactions: data.transactions
-          .filter(tx => tx.type === 'mint')
-          .map(tx => ({
+          .filter((tx) => tx.type === "mint")
+          .map((tx) => ({
             txHash: tx.txHash,
             timestamp: tx.timestamp,
             amount: tx.amount,
-            amountUSD: tx.amountUSD
+            amountUSD: tx.amountUSD,
           })),
         payoutsSummary: {
           totalEarned,
           claimedAmount,
           unclaimedAmount,
           lastClaimDate: lastClaim?.timestamp,
-          payoutHistory
+          payoutHistory,
         },
         assetStatus: asset.production.status,
         currentMonthlyPayout,
-        averageMonthlyPayout
+        averageMonthlyPayout,
       });
     });
 
@@ -211,23 +229,28 @@ class WalletDataService {
   /**
    * Build payout history for a specific contract
    */
-  private buildPayoutHistory(contractAddress: string, payouts: typeof this.rawData.payouts): PayoutHistoryItem[] {
-    const claims = this.rawData.transactions
-      .filter(tx => tx.type === 'claim' && tx.address === contractAddress);
+  private buildPayoutHistory(
+    contractAddress: string,
+    payouts: typeof this.rawData.payouts,
+  ): PayoutHistoryItem[] {
+    const claims = this.rawData.transactions.filter(
+      (tx) => tx.type === "claim" && tx.address === contractAddress,
+    );
 
-    return payouts.map(payout => {
+    return payouts.map((payout) => {
       // Find matching claim
-      const claim = claims.find(c => 
-        Math.abs(c.amount - payout.amount) < 0.01 && // Allow small difference for rounding
-        c.timestamp.substring(0, 7) === payout.month // Same month
+      const claim = claims.find(
+        (c) =>
+          Math.abs(c.amount - payout.amount) < 0.01 && // Allow small difference for rounding
+          c.timestamp.substring(0, 7) === payout.month, // Same month
       );
 
       return {
         month: payout.month,
         amount: payout.amount,
-        status: claim ? 'claimed' : 'unclaimed',
+        status: claim ? "claimed" : "unclaimed",
         claimTxHash: claim?.txHash,
-        claimDate: claim?.timestamp
+        claimDate: claim?.timestamp,
       } as PayoutHistoryItem;
     });
   }
@@ -235,20 +258,23 @@ class WalletDataService {
   /**
    * Compute wallet summary
    */
-  private computeSummary(holdings: WalletHolding[]): WalletData['summary'] {
+  private computeSummary(holdings: WalletHolding[]): WalletData["summary"] {
     const totalInvested = this.getTotalInvested();
     const totalPayoutsEarned = this.getTotalPayoutsEarned();
     const totalClaimedPayouts = this.rawData.transactions
-      .filter(tx => tx.type === 'claim')
+      .filter((tx) => tx.type === "claim")
       .reduce((sum, tx) => sum + tx.amount, 0);
     const totalUnclaimedPayouts = totalPayoutsEarned - totalClaimedPayouts;
 
     // Calculate portfolio allocation
-    const portfolioAllocation = holdings.map(holding => ({
+    const portfolioAllocation = holdings.map((holding) => ({
       assetId: holding.assetId,
       assetName: holding.assetName,
-      percentage: totalInvested > 0 ? (holding.investmentAmount / totalInvested) * 100 : 0,
-      value: holding.investmentAmount
+      percentage:
+        totalInvested > 0
+          ? (holding.investmentAmount / totalInvested) * 100
+          : 0,
+      value: holding.investmentAmount,
     }));
 
     // Calculate monthly payout trend
@@ -261,7 +287,7 @@ class WalletDataService {
       totalUnclaimedPayouts,
       totalHoldings: holdings.length,
       portfolioAllocation,
-      monthlyPayoutTrend
+      monthlyPayoutTrend,
     };
   }
 
@@ -270,21 +296,29 @@ class WalletDataService {
    */
   getHoldingsByAsset(): AssetPayoutInfo[] {
     const holdings = this.computeHoldings();
-    
-    return holdings.map(holding => {
-      const monthlyPayouts = holding.payoutsSummary.payoutHistory.map(payout => ({
-        month: payout.month,
-        amount: payout.amount,
-        status: payout.status as 'claimed' | 'unclaimed' | 'not_eligible'
-      }));
+
+    return holdings.map((holding) => {
+      const monthlyPayouts = holding.payoutsSummary.payoutHistory.map(
+        (payout) => ({
+          month: payout.month,
+          amount: payout.amount,
+          status: payout.status as "claimed" | "unclaimed" | "not_eligible",
+        }),
+      );
 
       const lastPayout = holding.payoutsSummary.payoutHistory
-        .filter(p => p.status === 'claimed')
-        .sort((a, b) => new Date(b.claimDate || '').getTime() - new Date(a.claimDate || '').getTime())[0];
+        .filter((p) => p.status === "claimed")
+        .sort(
+          (a, b) =>
+            new Date(b.claimDate || "").getTime() -
+            new Date(a.claimDate || "").getTime(),
+        )[0];
 
-      const roi = holding.investmentAmount > 0 
-        ? (holding.payoutsSummary.totalEarned / holding.investmentAmount) * 100 
-        : 0;
+      const roi =
+        holding.investmentAmount > 0
+          ? (holding.payoutsSummary.totalEarned / holding.investmentAmount) *
+            100
+          : 0;
 
       return {
         assetId: holding.assetId,
@@ -295,7 +329,7 @@ class WalletDataService {
         lastPayoutAmount: lastPayout?.amount || 0,
         lastPayoutDate: lastPayout?.claimDate,
         roi,
-        monthlyPayouts
+        monthlyPayouts,
       };
     });
   }
@@ -306,8 +340,8 @@ class WalletDataService {
   getMonthlyPayoutHistory(): MonthlyPayoutTrend[] {
     // Group payouts by month
     const payoutsByMonth = new Map<string, number>();
-    
-    this.rawData.payouts.forEach(payout => {
+
+    this.rawData.payouts.forEach((payout) => {
       const current = payoutsByMonth.get(payout.month) || 0;
       payoutsByMonth.set(payout.month, current + payout.amount);
     });
@@ -332,37 +366,45 @@ class WalletDataService {
   }> {
     // Get all unique months
     const monthsSet = new Set<string>();
-    this.rawData.payouts.forEach(payout => monthsSet.add(payout.month));
+    this.rawData.payouts.forEach((payout) => monthsSet.add(payout.month));
     const months = Array.from(monthsSet).sort();
 
-    return months.map(month => {
-      const monthPayouts = this.rawData.payouts.filter(p => p.month === month);
-      
-      const assetBreakdown = monthPayouts.map(payout => {
+    return months.map((month) => {
+      const monthPayouts = this.rawData.payouts.filter(
+        (p) => p.month === month,
+      );
+
+      const assetBreakdown = monthPayouts.map((payout) => {
         const token = dataStoreService.getTokenByAddress(payout.address);
-        const asset = token ? dataStoreService.getAssetById(token.assetId) : null;
-        
+        const asset = token
+          ? dataStoreService.getAssetById(token.assetId)
+          : null;
+
         // Check if claimed
-        const claim = this.rawData.transactions.find(tx => 
-          tx.type === 'claim' && 
-          tx.address === payout.address &&
-          Math.abs(tx.amount - payout.amount) < 0.01 &&
-          tx.timestamp.substring(0, 7) === month
+        const claim = this.rawData.transactions.find(
+          (tx) =>
+            tx.type === "claim" &&
+            tx.address === payout.address &&
+            Math.abs(tx.amount - payout.amount) < 0.01 &&
+            tx.timestamp.substring(0, 7) === month,
         );
 
         return {
-          assetName: asset?.name || 'Unknown Asset',
+          assetName: asset?.name || "Unknown Asset",
           amount: payout.amount,
-          status: claim ? 'claimed' : 'unclaimed'
+          status: claim ? "claimed" : "unclaimed",
         };
       });
 
-      const totalPayout = assetBreakdown.reduce((sum, asset) => sum + asset.amount, 0);
+      const totalPayout = assetBreakdown.reduce(
+        (sum, asset) => sum + asset.amount,
+        0,
+      );
 
       return {
         month,
         totalPayout,
-        assetBreakdown: assetBreakdown.filter(a => a.amount > 0)
+        assetBreakdown: assetBreakdown.filter((a) => a.amount > 0),
       };
     });
   }
@@ -374,10 +416,11 @@ class WalletDataService {
     const holdings = this.computeHoldings();
     const totalPortfolioValue = this.getTotalInvested();
 
-    return holdings.map(holding => {
-      const percentageOfPortfolio = totalPortfolioValue > 0 
-        ? (holding.investmentAmount / totalPortfolioValue) * 100 
-        : 0;
+    return holdings.map((holding) => {
+      const percentageOfPortfolio =
+        totalPortfolioValue > 0
+          ? (holding.investmentAmount / totalPortfolioValue) * 100
+          : 0;
 
       return {
         tokenSymbol: holding.symbol,
@@ -386,7 +429,7 @@ class WalletDataService {
         tokensOwned: holding.formattedBalance,
         percentageOfPortfolio,
         currentValue: holding.investmentAmount, // In real implementation, would fetch current market value
-        totalEarned: holding.payoutsSummary.totalEarned
+        totalEarned: holding.payoutsSummary.totalEarned,
       };
     });
   }
@@ -397,33 +440,43 @@ class WalletDataService {
   getWalletMetrics(): WalletMetrics {
     const totalInvested = this.getTotalInvested();
     const totalReturns = this.getTotalPayoutsEarned();
-    const totalROI = totalInvested > 0 ? (totalReturns / totalInvested) * 100 : 0;
+    const totalROI =
+      totalInvested > 0 ? (totalReturns / totalInvested) * 100 : 0;
 
     // Calculate average monthly income
     const monthlyPayouts = this.getMonthlyPayoutHistory();
-    const averageMonthlyIncome = monthlyPayouts.length > 0
-      ? monthlyPayouts.reduce((sum, m) => sum + m.totalPayout, 0) / monthlyPayouts.length
-      : 0;
+    const averageMonthlyIncome =
+      monthlyPayouts.length > 0
+        ? monthlyPayouts.reduce((sum, m) => sum + m.totalPayout, 0) /
+          monthlyPayouts.length
+        : 0;
 
     // Calculate portfolio diversity (simple Herfindahl index)
     const allocations = this.getTokenAllocation();
-    const diversityScore = 1 - allocations.reduce((sum, a) => sum + Math.pow(a.percentageOfPortfolio / 100, 2), 0);
+    const diversityScore =
+      1 -
+      allocations.reduce(
+        (sum, a) => sum + Math.pow(a.percentageOfPortfolio / 100, 2),
+        0,
+      );
 
     // Estimate next payout (simple approach - takes average of last 3 months)
     const recentPayouts = monthlyPayouts.slice(-3);
-    const nextExpectedAmount = recentPayouts.length > 0
-      ? recentPayouts.reduce((sum, p) => sum + p.totalPayout, 0) / recentPayouts.length
-      : 0;
+    const nextExpectedAmount =
+      recentPayouts.length > 0
+        ? recentPayouts.reduce((sum, p) => sum + p.totalPayout, 0) /
+          recentPayouts.length
+        : 0;
 
     // Calculate next month
     const lastMonth = monthlyPayouts[monthlyPayouts.length - 1]?.month;
     let nextExpectedPayout = null;
     if (lastMonth) {
-      const [year, month] = lastMonth.split('-').map(Number);
+      const [year, month] = lastMonth.split("-").map(Number);
       const nextDate = new Date(year, month, 15); // 15th of next month
       nextExpectedPayout = {
-        estimatedDate: nextDate.toISOString().split('T')[0],
-        estimatedAmount: nextExpectedAmount
+        estimatedDate: nextDate.toISOString().split("T")[0],
+        estimatedAmount: nextExpectedAmount,
       };
     }
 
@@ -434,7 +487,7 @@ class WalletDataService {
       totalROI,
       averageMonthlyIncome,
       portfolioDiversity: diversityScore,
-      nextExpectedPayout
+      nextExpectedPayout,
     };
   }
 
@@ -442,18 +495,22 @@ class WalletDataService {
    * Get all transactions sorted by date
    */
   getAllTransactions(): WalletTransaction[] {
-    return this.rawData.transactions.sort((a, b) => 
-      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    return this.rawData.transactions.sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
     );
   }
 
   /**
    * Get transactions by type
    */
-  getTransactionsByType(type: 'mint' | 'claim'): WalletTransaction[] {
+  getTransactionsByType(type: "mint" | "claim"): WalletTransaction[] {
     return this.rawData.transactions
-      .filter(tx => tx.type === type)
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      .filter((tx) => tx.type === type)
+      .sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      );
   }
 
   /**
@@ -461,8 +518,11 @@ class WalletDataService {
    */
   getTransactionsByAsset(contractAddress: string): WalletTransaction[] {
     return this.rawData.transactions
-      .filter(tx => tx.address === contractAddress)
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      .filter((tx) => tx.address === contractAddress)
+      .sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      );
   }
 
   /**
@@ -476,23 +536,27 @@ class WalletDataService {
     totalUnclaimed: number;
   }> {
     const holdings = this.computeHoldings();
-    
+
     return holdings
-      .map(holding => {
-        const unclaimedPayouts = holding.payoutsSummary.payoutHistory
-          .filter(p => p.status === 'unclaimed');
-        
-        const totalUnclaimed = unclaimedPayouts.reduce((sum, p) => sum + p.amount, 0);
+      .map((holding) => {
+        const unclaimedPayouts = holding.payoutsSummary.payoutHistory.filter(
+          (p) => p.status === "unclaimed",
+        );
+
+        const totalUnclaimed = unclaimedPayouts.reduce(
+          (sum, p) => sum + p.amount,
+          0,
+        );
 
         return {
           assetId: holding.assetId,
           assetName: holding.assetName,
           contractAddress: holding.contractAddress,
           unclaimedPayouts,
-          totalUnclaimed
+          totalUnclaimed,
         };
       })
-      .filter(asset => asset.totalUnclaimed > 0);
+      .filter((asset) => asset.totalUnclaimed > 0);
   }
 
   /**
@@ -506,20 +570,24 @@ class WalletDataService {
     lastPayoutAmount: number;
   }> {
     const holdings = this.computeHoldings();
-    
-    return holdings.map(holding => {
-      const roi = holding.investmentAmount > 0 
-        ? (holding.payoutsSummary.totalEarned / holding.investmentAmount) * 100 
-        : 0;
 
-      return {
-        assetName: holding.assetName,
-        roi,
-        totalEarned: holding.payoutsSummary.totalEarned,
-        averageMonthlyPayout: holding.averageMonthlyPayout,
-        lastPayoutAmount: holding.currentMonthlyPayout
-      };
-    }).sort((a, b) => b.roi - a.roi);
+    return holdings
+      .map((holding) => {
+        const roi =
+          holding.investmentAmount > 0
+            ? (holding.payoutsSummary.totalEarned / holding.investmentAmount) *
+              100
+            : 0;
+
+        return {
+          assetName: holding.assetName,
+          roi,
+          totalEarned: holding.payoutsSummary.totalEarned,
+          averageMonthlyPayout: holding.averageMonthlyPayout,
+          lastPayoutAmount: holding.currentMonthlyPayout,
+        };
+      })
+      .sort((a, b) => b.roi - a.roi);
   }
 
   /**
@@ -531,15 +599,15 @@ class WalletDataService {
     token: Token | null;
   }> {
     const holdings = this.computeHoldings();
-    
-    return holdings.map(holding => {
+
+    return holdings.map((holding) => {
       const asset = dataStoreService.getAssetById(holding.assetId);
       const token = dataStoreService.getTokenByAddress(holding.contractAddress);
-      
+
       return {
         holding,
         asset,
-        token
+        token,
       };
     });
   }
@@ -551,7 +619,9 @@ class WalletDataService {
     const recentPayouts = this.getMonthlyPayoutHistory().slice(-6); // Last 6 months
     if (recentPayouts.length === 0) return 0;
 
-    const averageMonthly = recentPayouts.reduce((sum, p) => sum + p.totalPayout, 0) / recentPayouts.length;
+    const averageMonthly =
+      recentPayouts.reduce((sum, p) => sum + p.totalPayout, 0) /
+      recentPayouts.length;
     return averageMonthly * 12;
   }
 
@@ -563,14 +633,16 @@ class WalletDataService {
     payoutDates: string[];
     isConsistent: boolean;
   } {
-    const claimTransactions = this.getTransactionsByType('claim');
-    const payoutDates = claimTransactions.map(tx => tx.timestamp.split('T')[0]);
+    const claimTransactions = this.getTransactionsByType("claim");
+    const payoutDates = claimTransactions.map(
+      (tx) => tx.timestamp.split("T")[0],
+    );
 
     if (payoutDates.length < 2) {
       return {
         averageDaysBetweenPayouts: 0,
         payoutDates,
-        isConsistent: false
+        isConsistent: false,
       };
     }
 
@@ -578,13 +650,18 @@ class WalletDataService {
     const daysBetween: number[] = [];
     for (let i = 1; i < payoutDates.length; i++) {
       const days = Math.abs(
-        (new Date(payoutDates[i]).getTime() - new Date(payoutDates[i-1]).getTime()) / (1000 * 60 * 60 * 24)
+        (new Date(payoutDates[i]).getTime() -
+          new Date(payoutDates[i - 1]).getTime()) /
+          (1000 * 60 * 60 * 24),
       );
       daysBetween.push(days);
     }
 
-    const averageDays = daysBetween.reduce((sum, d) => sum + d, 0) / daysBetween.length;
-    const variance = daysBetween.reduce((sum, d) => sum + Math.pow(d - averageDays, 2), 0) / daysBetween.length;
+    const averageDays =
+      daysBetween.reduce((sum, d) => sum + d, 0) / daysBetween.length;
+    const variance =
+      daysBetween.reduce((sum, d) => sum + Math.pow(d - averageDays, 2), 0) /
+      daysBetween.length;
     const standardDeviation = Math.sqrt(variance);
 
     // Consider consistent if standard deviation is less than 7 days
@@ -593,7 +670,7 @@ class WalletDataService {
     return {
       averageDaysBetweenPayouts: Math.round(averageDays),
       payoutDates,
-      isConsistent
+      isConsistent,
     };
   }
 
@@ -601,11 +678,11 @@ class WalletDataService {
    * Format currency for display
    */
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(amount);
   }
 
@@ -613,10 +690,10 @@ class WalletDataService {
    * Format percentage for display
    */
   formatPercentage(value: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'percent',
+    return new Intl.NumberFormat("en-US", {
+      style: "percent",
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(value / 100);
   }
 }

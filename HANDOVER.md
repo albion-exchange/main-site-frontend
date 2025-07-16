@@ -5,6 +5,7 @@ This document provides comprehensive specifications for the Albion royalty token
 ## Project Overview
 
 **Core User Flows:**
+
 1. Browse available energy assets and their associated tokens
 2. Connect Web3 wallet
 3. Purchase royalty tokens with USD/cryptocurrency
@@ -35,6 +36,7 @@ src/lib/data/
 ```
 
 **Why This Matters:**
+
 - New assets can be added by creating new folders and JSON files
 
 ### Technology Stack
@@ -48,6 +50,7 @@ src/lib/data/
 ## Design System Specifications
 
 ### Design Philosophy
+
 - **Clean Geometric Minimalism**: Simple shapes, clear hierarchy, generous whitespace
 - **Tech Forward Modernism**: Contemporary, digital-first aesthetic
 - **Restrained Palette**: Limited color usage for maximum impact
@@ -55,23 +58,27 @@ src/lib/data/
 - **No Gradients**: Flat design with solid colors only
 
 ### Typography
+
 - **Primary Font**: FigTree (Google Fonts)
 - **Titles/Headings**: FigTree Extra Bold
 - **Body Text**: FigTree Regular
 
 ### Color Palette
+
 ```css
---color-black: #000000          /* Primary text, strong emphasis */
---color-white: #ffffff          /* Backgrounds, negative space */
---color-primary: #08bccc        /* CTAs, interactive elements, key accents */
---color-secondary: #283c84      /* Headers, navigation, secondary emphasis */
---color-light-gray: #f8f4f4     /* Subtle backgrounds, borders, dividers */
+--color-black: #000000 /* Primary text, strong emphasis */
+  --color-white: #ffffff /* Backgrounds, negative space */
+  --color-primary: #08bccc /* CTAs, interactive elements, key accents */
+  --color-secondary: #283c84 /* Headers, navigation, secondary emphasis */
+  --color-light-gray: #f8f4f4 /* Subtle backgrounds, borders, dividers */;
 ```
 
-### Component Library 
+### Component Library
+
 > REUSE OPTIONAL. THIS IS JUST HOW CLAUDE DID IT
 
 **Existing UI Components:**
+
 - `Card`, `CardImage`, `CardContent`, `CardActions` - Base card system
 - `Button`, `PrimaryButton`, `SecondaryButton` - Button variants
 - `Metric` - Statistical display component
@@ -101,7 +108,10 @@ const bonus = annualizedBonusReturn - annualizedBaseReturn;
 ### 2. Implied Barrels Per Token
 
 ```typescript
-const totalProduction = plannedProduction.projections.reduce((sum, p) => sum + p.production, 0);
+const totalProduction = plannedProduction.projections.reduce(
+  (sum, p) => sum + p.production,
+  0,
+);
 const impliedBarrelsPerToken = totalProduction / mintedSupply;
 ```
 
@@ -118,16 +128,19 @@ const breakEvenOilPrice = 1 / impliedBarrelsPerToken;
 ### Token Availability States
 
 **Available Tokens:**
+
 - Condition: `availableSupply > 0` where `availableSupply = maxSupply - mintedSupply`
 - Display: Green "Available" badge, enabled buy button
 - Action: Purchase widget opens on click
 
 **Sold Out Tokens:**
+
 - Condition: `availableSupply <= 0`
 - Display: Gray "Sold Out" badge, disabled button
 - Action: No purchase possible
 
 **Future Releases:**
+
 - Source: `*_future.json` files in asset token directories
 - Display: "Coming Soon" cards with timeline
 - Action: Email notification signup
@@ -143,7 +156,7 @@ const breakEvenOilPrice = 1 / impliedBarrelsPerToken;
    - Fixed 1:1 ratio (1 USD = 1 token)
    - Platform fee: Currently FREE (was 0.5%)
    - Gas fees calculated separately
-   >  0.5% IS A PLACEHOLDER AS WELL
+     > 0.5% IS A PLACEHOLDER AS WELL
 
 3. **Web3 Integration:**
    - Wallet connection required
@@ -152,11 +165,13 @@ const breakEvenOilPrice = 1 / impliedBarrelsPerToken;
 
 ### Featured Token Selection
 
-**Homepage Carousel Logic:** 
+**Homepage Carousel Logic:**
+
 > NO NEED FOR COMPLEX LOGIC YET.
+
 ```typescript
 const featuredTokens = getRoyaltyTokens()
-  .filter(token => {
+  .filter((token) => {
     const availableSupply = maxSupply - mintedSupply;
     return availableSupply >= 1000 && token.isActive;
   })
@@ -168,6 +183,7 @@ const featuredTokens = getRoyaltyTokens()
 ### Asset Detail Page
 
 **Tab Navigation:**
+
 - Overview: Asset fundamentals and terms
 - Production Data: Historical and projected production charts
 - Past Payments: Revenue history and payout data
@@ -175,11 +191,13 @@ const featuredTokens = getRoyaltyTokens()
 - Documents: Legal and technical reports (placeholder)
 
 **Token Cards:**
+
 - Front: Token metrics, estimated returns, buy button
 - Back: Distribution history (flip animation)
 - Click behavior: Buy button opens purchase widget, card flip on "History" button
 
 **Social Sharing:**
+
 - Twitter, LinkedIn, Telegram, Email sharing
 - Copy link functionality
 - Asset-specific sharing text
@@ -187,6 +205,7 @@ const featuredTokens = getRoyaltyTokens()
 ### Asset Listing Page
 
 **Filtering Logic:**
+
 - Shows available tokens by default
 - "View Sold Out Assets" toggle to show/hide unavailable
 - Count of sold-out assets displayed
@@ -195,11 +214,13 @@ const featuredTokens = getRoyaltyTokens()
 ### Email Notification System
 
 **Triggers:**
+
 - Future token release interest
 - Newsletter signups
 - Contact form submissions
 
 **Implementation:**
+
 - Modal overlay with form validation
 - Success/error state handling
 - Auto-close after submission
@@ -214,15 +235,15 @@ const featuredTokens = getRoyaltyTokens()
 
 ```typescript
 interface Asset {
-  id: string;                          // Unique identifier (kebab-case)
-  name: string;                        // Display name
-  description: string;                 // Asset description
+  id: string; // Unique identifier (kebab-case)
+  name: string; // Display name
+  description: string; // Asset description
   location: {
     state: string;
     county: string;
     country: string;
     coordinates: { lat: number; lng: number };
-    waterDepth?: string | null;        // For offshore assets
+    waterDepth?: string | null; // For offshore assets
   };
   operator: {
     name: string;
@@ -230,36 +251,36 @@ interface Asset {
     experience: string;
   };
   technical: {
-    fieldType: string;                 // "Conventional Oil", "Shale Oil", etc.
+    fieldType: string; // "Conventional Oil", "Shale Oil", etc.
     depth: string;
     license: string;
     estimatedLife: string;
     firstOil: string;
     infrastructure: string;
     environmental: string;
-    expectedEndDate: string;           // YYYY-MM format
-    crudeBenchmark: string;           // "Brent", "WTI"
+    expectedEndDate: string; // YYYY-MM format
+    crudeBenchmark: string; // "Brent", "WTI"
     pricing: {
-      benchmarkPremium: string;       // "+$1.80", "-$1.30"
+      benchmarkPremium: string; // "+$1.80", "-$1.30"
       transportCosts: string;
     };
   };
   assetTerms: {
-    interestType: string;             // "Royalty"
-    amount: string;                   // "4.5% of gross"
+    interestType: string; // "Royalty"
+    amount: string; // "4.5% of gross"
     amountTooltip?: string;
     paymentFrequency: string;
   };
   production: {
-    current: string;                  // "300 boe/day"
-    status: 'funding' | 'producing' | 'completed';
+    current: string; // "300 boe/day"
+    status: "funding" | "producing" | "completed";
     units?: {
       production: string;
       revenue: string;
     };
   };
-  tokenContracts: string[];           // Contract addresses
-  monthlyReports: MonthlyReport[];    // Historical performance
+  tokenContracts: string[]; // Contract addresses
+  monthlyReports: MonthlyReport[]; // Historical performance
   plannedProduction?: PlannedProduction; // Future projections
   productionHistory?: MonthlyReport[]; // Alternative to monthlyReports
   operationalMetrics?: OperationalMetrics;
@@ -274,33 +295,33 @@ interface Asset {
 
 ```typescript
 interface Token {
-  contractAddress: string;            // Unique contract address
-  name: string;                       // Full token name
-  symbol: string;                     // Trading symbol
-  decimals: number;                   // Usually 18 for royalty tokens
-  tokenType: 'royalty' | 'payment';
-  assetId: string;                   // Links to Asset.id
+  contractAddress: string; // Unique contract address
+  name: string; // Full token name
+  symbol: string; // Trading symbol
+  decimals: number; // Usually 18 for royalty tokens
+  tokenType: "royalty" | "payment";
+  assetId: string; // Links to Asset.id
   isActive: boolean;
-  firstPaymentDate?: string;         // "March 2025"
+  firstPaymentDate?: string; // "March 2025"
   supply: {
-    maxSupply: string;               // BigInt as string
-    mintedSupply: string;            // BigInt as string
+    maxSupply: string; // BigInt as string
+    mintedSupply: string; // BigInt as string
   };
   holders: Array<{
     address: string;
-    balance: string;                 // BigInt as string
+    balance: string; // BigInt as string
   }>;
   payoutHistory: Array<{
-    month: string;                   // YYYY-MM
-    date: string;                    // YYYY-MM-DD
-    totalPayout: number;             // USD
-    payoutPerToken: number;          // USD per token
-    oilPrice: number;                // USD per barrel
-    gasPrice: number;                // USD per MMBtu
-    productionVolume: number;        // barrels
-    txHash: string;                  // Transaction hash
+    month: string; // YYYY-MM
+    date: string; // YYYY-MM-DD
+    totalPayout: number; // USD
+    payoutPerToken: number; // USD per token
+    oilPrice: number; // USD per barrel
+    gasPrice: number; // USD per MMBtu
+    productionVolume: number; // barrels
+    txHash: string; // Transaction hash
   }>;
-  sharePercentage?: number;          // Asset ownership %
+  sharePercentage?: number; // Asset ownership %
   metadata: {
     createdAt: string;
     updatedAt: string;
@@ -311,11 +332,13 @@ interface Token {
 ## Image Asset Management
 
 **Asset Images:**
+
 - Cover images: `/src/lib/data/assets/{asset-id}/cover.{ext}`
 - Gallery images: `/src/lib/data/assets/{asset-id}/gallery/`
 - Utility functions: `/src/lib/utils/assetImages.ts`
 
 **Image Naming Convention:**
+
 - Cover: `cover.jpg`, `cover.png`, `cover.avif`, `cover.webp`
 - Gallery: Any filename in gallery directory
 
@@ -324,6 +347,7 @@ interface Token {
 ### Adding New Assets
 
 1. **Create Asset Directory:**
+
    ```
    src/lib/data/assets/new-asset-name/
    ├── asset.json
@@ -347,15 +371,17 @@ interface Token {
 ### Token Supply Management
 
 **BigInt Handling:**
+
 > THIS IS ALL CLAUDE. CHANGE AS NEEDED
 
 - All supply values stored as strings (e.g., "200000000000000000000000")
 - Convert for display: `parseFloat(supply) / Math.pow(10, decimals)`
-- Standard decimals: 18 
+- Standard decimals: 18
 
 ### Testing Considerations
 
 **Key Test Scenarios:**
+
 - Token availability state changes
 - Purchase flow with various wallet states
 - Return calculations with different oil prices
@@ -364,23 +390,27 @@ interface Token {
 - Asset data loading and error states
 
 ## Security Considerations
+
 > I HAVE NOT THOUGHT THROUGH NOR ASKED CLAUDE TO THINK THROUGH SECURITY HERE AT ALL
 
 ## Performance Requirements
 
 **Responsive Design:**
+
 > I HAVE DONE VERY BASIC STEPS TO MAKE IT PASSABLY MOBILE FRIENDLY, BUT IT IS CERTAINLY
 > NOT MOBILE-FIRST OR MOBILE OPTIMISED IN ANY WAY
 
 ## Deployment Notes
 
 **Static Asset Optimization:**
+
 - Image compression and format optimization
 - JSON minification for data files
 - CSS/JS bundling and tree shaking
 - CDN integration for global delivery
 
 **Critical Success Factors:**
+
 1. Maintain the file-based asset/token data structure
 2. Implement accurate financial calculations exactly as specified
 3. Follow the clean geometric design system consistently

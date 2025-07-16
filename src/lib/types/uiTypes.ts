@@ -3,10 +3,18 @@
  * These interfaces define the structure for the static JSON data stores
  */
 
-import type { GalleryImage, TokenSupply, Coordinates, Location, Metadata, ISODateOnlyString, ISOYearMonthString } from './sharedTypes';
+import type {
+  GalleryImage,
+  TokenSupply,
+  Coordinates,
+  Location,
+  Metadata,
+  ISODateOnlyString,
+  ISOYearMonthString,
+} from "./sharedTypes";
 
 // AssetLocation extends the shared Location type with optional waterDepth
-export interface AssetLocation extends Omit<Location, 'waterDepth'> {
+export interface AssetLocation extends Omit<Location, "waterDepth"> {
   waterDepth?: string | null;
 }
 
@@ -35,7 +43,7 @@ export interface AssetTechnical {
 export interface AssetProduction {
   current: string;
   expectedRemainingProduction?: string; // Optional - calculated from planned production
-  status: 'funding' | 'producing' | 'completed';
+  status: "funding" | "producing" | "completed";
   units?: {
     production: string;
     revenue: string;
@@ -89,7 +97,6 @@ export interface OperationalMetrics {
   };
 }
 
-
 /**
  * Complete Asset data structure for the static data store
  */
@@ -138,13 +145,10 @@ export interface TokenPayoutRecord {
   txHash: string; // Transaction hash
 }
 
-
 export interface TokenReturns {
   baseReturn: number; // Base return percentage
   bonusReturn: number; // Bonus return percentage
 }
-
-
 
 /**
  * Complete Token data structure for the static data store
@@ -154,7 +158,7 @@ export interface Token {
   name: string;
   symbol: string;
   decimals: number;
-  tokenType: 'royalty' | 'payment';
+  tokenType: "royalty" | "payment";
   assetId: string; // Links to Asset.id
   isActive: boolean;
   supply: TokenSupply;
@@ -237,7 +241,7 @@ export interface OrderBook {
 export interface RecentTrade {
   price: number;
   quantity: number;
-  side: 'buy' | 'sell';
+  side: "buy" | "sell";
   time: string;
   timestamp: number;
 }
@@ -287,7 +291,7 @@ export interface AssetTemplate {
   };
   production: {
     current: string;
-    status: 'funding' | 'producing' | 'completed';
+    status: "funding" | "producing" | "completed";
     units?: {
       production: string;
       revenue: string;
@@ -311,7 +315,7 @@ export interface TokenTemplate {
   name: string; // Full token name
   symbol: string; // Trading symbol (e.g., "EUR-WR1")
   decimals: number; // Token decimals (usually 18 for royalty, 6 for payment)
-  tokenType: 'royalty' | 'payment';
+  tokenType: "royalty" | "payment";
   assetId: string; // Links to Asset.id
   isActive: boolean; // Whether token is actively trading
   firstPaymentDate?: string; // YYYY-MM format or "Month YYYY" format
