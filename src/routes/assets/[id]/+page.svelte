@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
-	import { Card, CardContent, PrimaryButton, SecondaryButton, BarChart } from '$lib/components/ui';
+	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/ui';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
 	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
 	import TabButton from '$lib/components/ui/TabButton.svelte';
@@ -468,7 +468,7 @@
 									</SecondaryButton>
 								</div>
 								<div class="w-full">
-									<BarChart
+									<Chart
 										data={productionReports.map(report => {
 											// Handle different date formats
 											let dateStr = report.month || report.date || '';
@@ -525,7 +525,7 @@
 									</SecondaryButton>
 								</div>
 								<div class="w-full overflow-x-auto">
-									<BarChart
+									<Chart
 										data={monthlyReports.map(report => {
 											// Handle different date formats
 											let dateStr = report.month || report.date || '';

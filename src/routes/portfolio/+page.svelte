@@ -5,7 +5,7 @@
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/WalletModal.svelte';
-	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, TabNavigation, MetricDisplay, StatsCard, SectionTitle, ActionCard, TabButton, LineChart } from '$lib/components/ui';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, TabNavigation, MetricDisplay, StatsCard, SectionTitle, ActionCard, TabButton, Chart } from '$lib/components/ui';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
 
 	let totalInvested = 0;
@@ -446,13 +446,11 @@
 												<div class="flex-1 flex items-center justify-center">
 													{#if payoutData && payoutData.length > 0}
 														<div class="w-full max-w-xl">
-															<LineChart
-																data={payoutData}
+															<Chart
+																data={payoutData.map(d => ({ label: d.date, value: d.value }))}
 																width={600}
 																height={200}
-																strokeColor="#08bccc"
-																fillColor="#08bccc"
-																fillOpacity={0.1}
+																barColor="#08bccc"
 																valuePrefix="$"
 																animate={true}
 																showGrid={true}
