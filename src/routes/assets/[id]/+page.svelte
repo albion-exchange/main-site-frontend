@@ -482,10 +482,10 @@
 										})}
 										width={700}
 										height={350}
-										title="Production History"
 										valueSuffix=" BOE"
-										showLine={false}
-										showValues={false}
+										barColor="#08bccc"
+										animate={true}
+										showGrid={true}
 									/>
 								</div>
 							</div>
@@ -538,32 +538,30 @@
 											};
 										})}
 										width={950}
-										height={400}
-										title="Past Payments"
+										height={350}
 										valuePrefix="$"
-										barColor="#283c84"
-										lineColor="#08bccc"
-										showLine={true}
-										showValues={false}
+										barColor="#08bccc"
+										animate={true}
+										showGrid={true}
 									/>
 								</div>
 							</div>
 
 							<div class="bg-white border border-light-gray p-6">
 								<h4 class="text-lg font-extrabold text-black mb-6">Revenue Metrics</h4>
-								<div class="space-y-6">
-									<div class="text-center p-4 bg-white">
-										<div class="text-4xl font-extrabold text-black mb-2">{nextMonth.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</div>
-										<div class="text-base font-medium text-black opacity-70">Next Report Due</div>
-									</div>
+								<div class="text-center mb-6 p-4 bg-white">
+									<div class="text-4xl font-extrabold text-black mb-2">{nextMonth.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</div>
+									<div class="text-base font-medium text-black opacity-70">Next Report Due</div>
+								</div>
+								<div class="grid grid-cols-1 gap-4 mb-6">
 									<div class="text-center p-3 bg-white">
 										<div class="text-3xl font-extrabold text-black mb-1">${latestReport?.revenue?.toFixed(0) || dataStoreService.getDefaultValues().revenue.latestMonthly.toLocaleString()}</div>
 										<div class="text-sm font-medium text-black opacity-70">Latest Monthly Revenue</div>
 									</div>
-									<div class="text-center p-3 bg-white">
-										<div class="text-3xl font-extrabold text-black mb-1">${avgRevenue.toFixed(0)}</div>
-										<div class="text-sm font-medium text-black opacity-70">Avg Monthly Revenue</div>
-									</div>
+								</div>
+								<div class="text-center p-4 bg-white">
+									<div class="text-4xl font-extrabold text-black mb-2">${avgRevenue.toFixed(0)}</div>
+									<div class="text-base font-medium text-black opacity-70">Avg Monthly Revenue</div>
 								</div>
 							</div>
 						</div>

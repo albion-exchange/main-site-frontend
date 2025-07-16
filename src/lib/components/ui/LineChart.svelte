@@ -26,21 +26,15 @@
 	const chartWidth = width - padding.left - padding.right;
 	const chartHeight = height - padding.top - padding.bottom;
 	
-	$: xScale = (index: number) => {
-		if (data.length === 0) return 0;
-		if (data.length === 1) return chartWidth / 2;
-		return (index / (data.length - 1)) * chartWidth;
-	};
+	$: xScale = (index: number) => (index / (data.length - 1)) * chartWidth;
 	$: yScale = (value: number) => {
-		if (data.length === 0) return chartHeight;
 		const min = 0; // Always start at 0 for x-intercept
-		const max = Math.max(...data.map(d => d.value)) * 1.1 || 500; // Add 10% padding at top
+		const max = Math.max(...data.map(d => d.value)) * 1.1; // Add 10% padding at top
 		const range = max - min || 1;
 		return chartHeight - ((value - min) / range) * chartHeight;
 	};
 	
 	$: yAxisLabels = (() => {
-		if (data.length === 0) return [0, 100, 200, 300, 400, 500];
 		const max = Math.max(...data.map(d => d.value)) * 1.1;
 		const step = max / 5;
 		return Array.from({length: 6}, (_, i) => Math.round(step * i));
@@ -68,7 +62,7 @@
 				x: xScale(index) + padding.left,
 				y: yScale(dataPoint.value) + padding.top,
 				value: dataPoint.value,
-				label: new Date(dataPoint.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+				label: new Date(dataPoint.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
 			};
 		}
 	}

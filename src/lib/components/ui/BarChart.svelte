@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import ChartTooltip from './ChartTooltip.svelte';
 	
 	export let data: Array<{label: string; value: number}> = [];
@@ -11,6 +12,8 @@
 	export let title: string = '';
 	export let showLine: boolean = true;
 	export let showValues: boolean = false;
+	export let animate: boolean = true;
+	export let showGrid: boolean = true;
 	
 	// Helper to determine which labels to show based on data density
 	function getLabelsToShow(data: Array<{label: string; value: number}>): {indices: number[], showYear: boolean} {
@@ -61,20 +64,35 @@
 		label: ''
 	};
 	
-	const padding = { top: 70, right: 80, bottom: 80, left: 90 };
+	const padding = { top: 40, right: 20, bottom: 40, left: 60 };
 	const chartWidth = width - padding.left - padding.right;
 	const chartHeight = height - padding.top - padding.bottom;
 	
+	// Function to round to nice numbers (1-2 significant figures)
+	function getNiceNumber(value: number): number {
+		if (value === 0) return 0;
+		const magnitude = Math.pow(10, Math.floor(Math.log10(value)));
+		const normalized = value / magnitude;
+		
+		// Round to nice values: 1, 2, 2.5, 5, 10
+		if (normalized <= 1) return magnitude;
+		if (normalized <= 2) return 2 * magnitude;
+		if (normalized <= 2.5) return 2.5 * magnitude;
+		if (normalized <= 5) return 5 * magnitude;
+		return 10 * magnitude;
+	}
+	
 	$: maxValue = Math.max(...data.map(d => d.value), 1);
+	$: niceMax = getNiceNumber(maxValue * 1.1); // Add 10% padding
 	$: barWidth = chartWidth / Math.max(data.length, 1) * 0.6;
-	$: barSpacing = chartWidth / Math.max(data.length, 1);
+	$: barSpacing = data.length > 1 ? chartWidth / (data.length - 1) : chartWidth;
 	
 	function handleMouseMove(event: MouseEvent, index: number) {
 		if (!svg || index >= data.length) return;
 		
 		const dataPoint = data[index];
-		const x = padding.left + (index + 0.5) * barSpacing;
-		const y = padding.top + chartHeight - (dataPoint.value / maxValue) * chartHeight;
+		const x = padding.left + index * barSpacing;
+		const y = padding.top + chartHeight - (dataPoint.value / niceMax) * chartHeight;
 		
 		// Format date for tooltip
 		let formattedLabel = dataPoint.label;
@@ -100,6 +118,21 @@
 	function handleMouseLeave() {
 		tooltipData.show = false;
 	}
+	
+	onMount(() => {
+		if (animate && svg) {
+			const path = svg.querySelector('.line-path') as SVGPathElement;
+			if (path) {
+				const length = path.getTotalLength();
+				path.style.strokeDasharray = `${length}`;
+				path.style.strokeDashoffset = `${length}`;
+				path.style.transition = 'stroke-dashoffset 1s ease-in-out';
+				setTimeout(() => {
+					path.style.strokeDashoffset = '0';
+				}, 100);
+			}
+		}
+	});
 </script>
 
 <div class="relative">
@@ -108,41 +141,33 @@
 		<rect width={width} height={height} fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
 		
 		<!-- Grid lines -->
-		{#each Array(7) as _, i}
-			<line 
-				x1={padding.left} 
-				y1={padding.top + i * (chartHeight / 6)} 
-				x2={padding.left + chartWidth} 
-				y2={padding.top + i * (chartHeight / 6)} 
-				stroke="#f8f4f4" 
-				stroke-width="0.5" 
-				opacity="0.5"
-			/>
-		{/each}
-		{#each data as _, i}
-			<line 
-				x1={padding.left + (i + 1) * barSpacing} 
-				y1={padding.top} 
-				x2={padding.left + (i + 1) * barSpacing} 
-				y2={padding.top + chartHeight} 
-				stroke="#f8f4f4" 
-				stroke-width="0.5" 
-				opacity="0.3"
-			/>
-		{/each}
+		{#if showGrid}
+			{#each Array(6) as _, i}
+				<line 
+					x1={padding.left} 
+					y1={padding.top + i * (chartHeight / 5)} 
+					x2={padding.left + chartWidth} 
+					y2={padding.top + i * (chartHeight / 5)} 
+					stroke="#f8f4f4" 
+					stroke-width="1" 
+				/>
+			{/each}
+		{/if}
 		
 		<!-- Y-axis labels -->
-		{#each Array(7) as _, i}
+		{#each Array(6) as _, i}
+			{@const value = niceMax * (1 - i / 5)}
+			{@const formattedValue = value >= 1000 ? `${Math.round(value / 1000)}k` : Math.round(value).toString()}
 			<text 
 				x={padding.left - 10} 
-				y={padding.top + i * (chartHeight / 6) + 5} 
+				y={padding.top + i * (chartHeight / 5) + 5} 
 				text-anchor="end" 
-				font-size="13" 
-				fill="#000000" 
+				font-size="12" 
+				fill="#666666" 
 				font-family="Figtree" 
-				font-weight="semibold"
+				font-weight="normal"
 			>
-				{Math.round(maxValue * (1 - i / 6))}
+				{formattedValue}
 			</text>
 		{/each}
 		
@@ -158,9 +183,9 @@
 					{@const year = isValidDate ? date.getFullYear() : ''}
 					
 					<text 
-						x={padding.left + (i + 0.5) * barSpacing} 
+						x={padding.left + i * barSpacing} 
 						y={padding.top + chartHeight + 20} 
-						text-anchor="middle" 
+						text-anchor={i === 0 ? "start" : i === data.length - 1 ? "end" : "middle"} 
 						font-size="12" 
 						fill="#000000" 
 						opacity="0.8"
@@ -170,9 +195,9 @@
 					
 					{#if labelInfo.showYear && (i === 0 || date.getFullYear() !== new Date(data[Math.max(0, i-1)].label.includes('T') ? data[Math.max(0, i-1)].label : data[Math.max(0, i-1)].label + 'T00:00:00').getFullYear())}
 						<text 
-							x={padding.left + (i + 0.5) * barSpacing} 
+							x={padding.left + i * barSpacing} 
 							y={padding.top + chartHeight + 35} 
-							text-anchor="middle" 
+							text-anchor={i === 0 ? "start" : i === data.length - 1 ? "end" : "middle"} 
 							font-size="11" 
 							fill="#666666" 
 							font-weight="bold"
@@ -184,35 +209,44 @@
 			{/each}
 		{/if}
 		
-		
 		<!-- Line chart -->
-		{#if showLine && data.length > 1}
+		{#if data.length > 0}
 			{@const linePath = data.map((item, i) => {
-				const x = padding.left + (i + 0.5) * barSpacing;
-				const y = padding.top + chartHeight - (item.value / maxValue) * chartHeight;
+				const x = padding.left + i * barSpacing;
+				const y = padding.top + chartHeight - (item.value / niceMax) * chartHeight;
 				return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
 			}).join(' ')}
+			{@const areaPath = linePath + ` L ${padding.left + (data.length - 1) * barSpacing} ${padding.top + chartHeight} L ${padding.left} ${padding.top + chartHeight} Z`}
 			
+			<!-- Area fill -->
 			<path 
+				d={areaPath} 
+				fill={barColor} 
+				fill-opacity="0.1"
+			/>
+			
+			<!-- Line -->
+			<path 
+				class="line-path"
 				d={linePath} 
 				fill="none" 
-				stroke={lineColor} 
-				stroke-width="3"
+				stroke={barColor} 
+				stroke-width="2"
 			/>
 			
 			<!-- Data points -->
 			{#each data as item, i}
-				{@const x = padding.left + (i + 0.5) * barSpacing}
-				{@const y = padding.top + chartHeight - (item.value / maxValue) * chartHeight}
+				{@const x = padding.left + i * barSpacing}
+				{@const y = padding.top + chartHeight - (item.value / niceMax) * chartHeight}
 				
 				<circle 
 					cx={x} 
 					cy={y} 
-					r="4" 
-					fill={lineColor}
+					r="3" 
+					fill={barColor}
 					on:mousemove={(e) => handleMouseMove(e, i)}
 					on:mouseleave={handleMouseLeave}
-					class="cursor-pointer"
+					class="cursor-pointer hover:r-4 transition-all duration-200"
 					role="button"
 					tabindex="0"
 					aria-label="Data point {i + 1}"
@@ -223,13 +257,13 @@
 		<!-- Values on bars (if not using tooltip) -->
 		{#if showValues && !tooltipData.show}
 			{#each data as item, i}
-				{@const x = padding.left + (i + 0.5) * barSpacing}
-				{@const y = padding.top + chartHeight - (item.value / maxValue) * chartHeight - 10}
+				{@const x = padding.left + i * barSpacing}
+				{@const y = padding.top + chartHeight - (item.value / niceMax) * chartHeight - 10}
 				
 				<text 
 					{x}
 					{y}
-					text-anchor="middle" 
+					text-anchor={i === 0 ? "start" : i === data.length - 1 ? "end" : "middle"} 
 					font-size="12" 
 					font-weight="bold" 
 					fill="#000000"
@@ -243,9 +277,9 @@
 		{#if title}
 			<text 
 				x={width / 2} 
-				y="35" 
+				y="25" 
 				text-anchor="middle" 
-				font-size="18" 
+				font-size="16" 
 				font-weight="bold" 
 				fill="#000000" 
 				font-family="Figtree"
@@ -254,12 +288,6 @@
 			</text>
 		{/if}
 		
-		<!-- Legend -->
-		<rect x={width - 170} y="80" width="160" height="45" fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
-		<line x1={width - 160} y1="95" x2={width - 135} y2="95" stroke={barColor} stroke-width="3"/>
-		<text x={width - 130} y="100" font-size="13" fill="#000000" font-family="Figtree" font-weight="medium">Production Rate</text>
-		<circle cx={width - 148} cy="110" r="3" fill={lineColor}/>
-		<text x={width - 130} y="115" font-size="13" fill="#000000" font-family="Figtree" font-weight="medium">Monthly Data</text>
 	</svg>
 	
 	<ChartTooltip
