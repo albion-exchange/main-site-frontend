@@ -5,6 +5,7 @@ export const BASE_ORDERBOOK_SUBGRAPH_URL =
 export const BASE_METADATA_SUBGRAPH_URL =
 	'https://api.goldsky.com/api/public/project_clv14x04y9kzi01saerx7bxpg/subgraphs/metadata-base/2025-07-06-594f/gn';
 export const TARGET_NETWORK = 'base';
+export const PINATA_GATEWAY = 'https://gateway.pinata.cloud/ipfs';
 
 
 export type EnergyField = {

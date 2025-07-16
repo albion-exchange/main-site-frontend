@@ -4,6 +4,16 @@
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
+    import { sftMetadata, sfts } from '$lib/stores';
+    import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
+    import { readContract, writeContract } from '@wagmi/core';
+	import { signerAddress, wagmiConfig, chainId } from 'svelte-wagmi';
+    import { formatEther, parseUnits, type Hex } from 'viem';
+    import { PINATA_GATEWAY } from '$lib/network';
+	import {erc20Abi} from 'viem';
+    import type { ISODateTimeString } from '$lib/types/sharedTypes';
+    import type { OffchainAssetReceiptVault } from '$lib/types/offchainAssetReceiptVaultTypes';
+    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
 
 	export let isOpen = false;
 	export let tokenAddress: string | null = null;
@@ -22,6 +32,7 @@
 	let assetData: Asset | null = null;
 	let tokenData: Token | null = null;
 	let supply: any = null;
+	let currentSft: OffchainAssetReceiptVault;
 
 	// Reactive calculations
 	$: if (isOpen && (tokenAddress || assetId)) {
@@ -43,27 +54,46 @@
 			   !isSoldOut();
 	};
 
-	function loadTokenData() {
+	async function loadTokenData() {
 		try {
-			if (tokenAddress) {
-				tokenData = dataStoreService.getTokenByAddress(tokenAddress);
-				if (tokenData) {
-					const assetWithTokens = dataStoreService.getAssetWithTokens(tokenData.assetId);
-					assetData = assetWithTokens?.asset || null;
-					supply = dataStoreService.getTokenSupply(tokenAddress);
-				}
-			} else if (assetId) {
-				const assetWithTokens = dataStoreService.getAssetWithTokens(assetId);
-				if (assetWithTokens) {
-					assetData = assetWithTokens.asset;
-					// Get first available active token
-					const availableTokens = assetWithTokens.tokens.filter(
-						token => token.isActive
-					);
-					if (availableTokens.length > 0) {
-						tokenData = availableTokens[0];
-						supply = dataStoreService.getTokenSupply(availableTokens[0].contractAddress);
-					}
+			if (tokenAddress && $sftMetadata && $sfts) {
+				const sft = $sfts.find(sft => sft.id.toLocaleLowerCase() === tokenAddress.toLocaleLowerCase());
+				const deocdedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
+
+				const pinnedMetadata: any = deocdedMeta.find(
+					(meta) => meta?.contractAddress === `0x000000000000000000000000${sft?.id.slice(2)}`
+				);
+
+				if(sft && pinnedMetadata){
+					currentSft = sft;
+
+					const sftMaxSharesSupply = await readContract($wagmiConfig, {
+						abi: [{
+								"inputs": [],
+								"name": "maxSharesSupply",
+								"outputs": [
+									{
+										"internalType": "uint256",
+										"name": "",
+										"type": "uint256"
+									}
+								],
+								"stateMutability": "view",
+								"type": "function"
+							}],
+						address: sft.activeAuthorizer?.address as Hex,
+						functionName: 'maxSharesSupply',
+						args: []
+					});
+
+					tokenData = generateTokenInstanceFromSft(sft, sftMaxSharesSupply.toString());
+					assetData = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
+
+					supply = {
+						maxSupply: sftMaxSharesSupply,
+						mintedSupply: BigInt(sft.totalShares),
+						availableSupply: sftMaxSharesSupply - BigInt(sft.totalShares)
+					};
 				}
 			}
 		} catch (error) {
@@ -91,13 +121,109 @@
 		purchaseError = null;
 
 		try {
-			// Simulate purchase process
-			await new Promise(resolve => setTimeout(resolve, 2000));
-			
-			// Mock success
+			// Get payment token and decimals
+			const paymentToken = await readContract($wagmiConfig, {
+				abi: [
+					{
+						"inputs": [],
+						"name": "paymentToken",
+						"outputs": [
+							{
+								"internalType": "address",
+								"name": "",
+								"type": "address"
+							}
+						],
+						"stateMutability": "view",
+						"type": "function"
+					}
+				],
+				address: currentSft.activeAuthorizer?.address as Hex,
+				functionName: 'paymentToken',
+				args: []
+			});
+
+			const paymentTokenDecimals = await readContract($wagmiConfig, {
+				abi: [
+					{
+						"inputs": [],
+						"name": "paymentTokenDecimals",
+						"outputs": [
+							{
+								"internalType": "uint8",
+								"name": "",
+								"type": "uint8"
+							}
+						],
+						"stateMutability": "view",
+						"type": "function"
+					}
+				],
+				address: currentSft.activeAuthorizer?.address as Hex,
+				functionName: 'paymentTokenDecimals',
+				args: []
+			});
+
+			// Check current allowance
+			const currentAllowance = await readContract($wagmiConfig, {
+				abi: erc20Abi,
+				address: paymentToken as Hex,
+				functionName: 'allowance',
+				args: [$signerAddress as Hex, currentSft.activeAuthorizer?.address as Hex]
+			});
+
+			const requiredAmount = BigInt(parseUnits(investmentAmount.toString(), paymentTokenDecimals));
+			// Only approve if current allowance is insufficient
+			if (currentAllowance < requiredAmount) {
+				await writeContract($wagmiConfig, {
+					abi: erc20Abi,
+					address: paymentToken as Hex,
+					functionName: 'approve',
+					args: [currentSft.activeAuthorizer?.address as Hex, requiredAmount]
+				});
+			}
+			// Deposit tokens
+			await writeContract($wagmiConfig, {
+				abi: [{
+						"inputs": [
+							{
+								"internalType": "uint256",
+								"name": "assets",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "receiver",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "depositMinShareRatio",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bytes",
+								"name": "receiptInformation",
+								"type": "bytes"
+							}
+						],
+						"name": "deposit",
+						"outputs": [
+							{
+								"internalType": "uint256",
+								"name": "",
+								"type": "uint256"
+							}
+						],
+						"stateMutability": "payable",
+						"type": "function"
+					}],
+				address: tokenAddress as Hex,
+				functionName: 'deposit',
+				args: [BigInt(parseUnits(investmentAmount.toString(), 18)), $signerAddress as Hex, BigInt(0n), "0x"]
+			});
+
 			purchaseSuccess = true;
-			
-			// Dispatch success event
 			dispatch('purchaseSuccess', {
 				tokenAddress,
 				assetId,
@@ -249,11 +375,11 @@
 									</div>
 									<div class={detailItemClasses}>
 										<span class={detailLabelClasses}>Maximum Supply</span>
-										<span class={detailValueClasses}>{(supply?.maxSupply || 0).toLocaleString()}</span>
+										<span class={detailValueClasses}>{(formatEther(supply?.maxSupply || 0)).toLocaleString()}</span>
 									</div>
 									<div class={detailItemClasses}>
 										<span class={detailLabelClasses}>Current Supply</span>
-										<span class={detailValueClasses}>{(supply?.mintedSupply || 0).toLocaleString()}</span>
+										<span class={detailValueClasses}>{(formatEther(supply?.mintedSupply || 0)).toLocaleString()}</span>
 									</div>
 								</div>
 							</div>
@@ -275,7 +401,7 @@
 								{#if isSoldOut()}
 									<span class={soldOutClasses}>Sold Out</span>
 								{:else}
-									<span>Available: {(supply?.availableSupply || 0).toLocaleString()} tokens</span>
+									<span>Available: {(formatEther(supply?.availableSupply || 0)).toLocaleString()} tokens</span>
 								{/if}
 							</div>
 							{#if !isSoldOut() && supply?.availableSupply && investmentAmount > supply.availableSupply}

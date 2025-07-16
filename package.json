@@ -20,6 +20,7 @@
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
+    "@types/pako": "^2.0.3",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.30.0",
     "eslint-plugin-svelte": "^3.10.1",
@@ -43,6 +44,9 @@
     "viem": "^2.0.0",
     "wagmi": "^2.0.0",
     "zod": "^3.25.76",
-    "svelte-wagmi": "1.0.7"
+    "svelte-wagmi": "1.0.7",
+    "ethers": "^6.10.0",
+    "cbor-web": "^9.0.1",
+    "pako": "^2.1.0"
   }
 }

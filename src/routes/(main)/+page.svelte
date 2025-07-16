@@ -1,8 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
 	import dataStoreService from '$lib/services/DataStoreService';
-	import type { Token } from '$lib/types/uiTypes';
 	import FeaturedTokenCarousel from '$lib/components/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
 	import { PrimaryButton, SecondaryButton, StatsCard, ButtonGroup } from '$lib/components/ui';
@@ -10,6 +7,14 @@
 	import GridContainer from '$lib/components/ui/GridContainer.svelte';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	import marketData from '$lib/data/marketData.json';
+    import { sftMetadata, sfts } from '$lib/stores';
+    import { get } from 'svelte/store';
+    import { addSchemaToReceipts } from '$lib/decodeMetadata/addSchemaToReceipts';
+    import { bytesToMeta, cborDecode, convertDotNotationToObject } from '$lib/decodeMetadata/helpers';
+    import { ENERGY_FEILDS } from '$lib/network';
+    import { formatEther } from 'viem';
+
+	let decodedTokens: any[] = [];
 
 	let platformStats = {
 		totalAssets: 0,
@@ -25,60 +30,19 @@
 	let selectedTokenAddress: string | null = null;
 	let selectedAssetId: string | null = null;
 
-	onMount(async () => {
+	$: if ($sfts) {
 		try {
-			// Get platform statistics from real data
-			const stats = dataStoreService.getPlatformStatistics();
-			const allAssets = dataStoreService.getAllAssets();
-			const allTokens = dataStoreService.getAllTokens();
-			
-			// Calculate total invested from all tokens' minted supply
-			// Use different estimated values per token based on asset type and performance
-			const totalInvested = allTokens.reduce((sum, token) => {
-				const mintedTokens = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
-				
-				// Estimate token value based on asset region
-				const estimatedTokenValue = dataStoreService.getEstimatedTokenValue(token.assetId);
-				
-				return sum + (mintedTokens * estimatedTokenValue);
-			}, 0);
-			
-			// Get total holders from platform statistics
-			const totalHolders = stats.totalHolders;
-			
-			// Count unique regions from asset locations
-			const uniqueRegions = new Set(allAssets.map(asset => `${asset.location.state}, ${asset.location.country}`));
-			
-			// Calculate monthly growth rate from recent asset reports
-			let monthlyGrowthRate = 0;
-			const assetsWithReports = allAssets.filter(asset => asset.monthlyReports.length >= 2);
-			if (assetsWithReports.length > 0) {
-				const growthRates = assetsWithReports.map(asset => {
-					const reports = asset.monthlyReports;
-					const latest = reports[reports.length - 1];
-					const previous = reports[reports.length - 2];
-					if (previous.netIncome > 0) {
-						return ((latest.netIncome - previous.netIncome) / previous.netIncome) * 100;
-					}
-					return 0;
-				});
-				const validGrowthRates = growthRates.filter(rate => !isNaN(rate) && isFinite(rate));
-				if (validGrowthRates.length > 0) {
-					monthlyGrowthRate = validGrowthRates.reduce((sum, rate) => sum + rate, 0) / validGrowthRates.length;
-				}
-			}
-			
-			// If no valid growth rate data, use a reasonable default
-			if (monthlyGrowthRate === 0 || isNaN(monthlyGrowthRate)) {
-				monthlyGrowthRate = dataStoreService.getMarketData().defaultGrowthRate;
-			}
+			const totalAssets = $sfts.length;
+			const totalTokenHolders = $sfts.reduce((acc, sft) => acc + sft.tokenHolders.length, 0);
+			const totalRegions = ENERGY_FEILDS.length;
+			const totalInvested = $sfts.reduce((acc, sft) => acc + BigInt(sft.totalShares), BigInt(0));
 			
 			platformStats = {
-				totalAssets: stats.totalAssets,
-				totalInvested: totalInvested / 1000000, // Convert to millions
-				activeInvestors: totalHolders,
-				totalRegions: uniqueRegions.size,
-				monthlyGrowthRate: Number(monthlyGrowthRate.toFixed(1))
+				totalAssets: totalAssets,
+				totalInvested: Number(formatEther(totalInvested)) / 1000000,
+				activeInvestors: totalTokenHolders,
+				totalRegions: totalRegions,
+				monthlyGrowthRate: 2 // Don't know what this is yet.
 			};
 			
 			loading = false;
@@ -86,7 +50,7 @@
 			console.error('Error loading homepage data:', error);
 			loading = false;
 		}
-	});
+	}
 
 	function formatCurrency(amount: number): string {
 		return new Intl.NumberFormat('en-US', {
@@ -110,7 +74,6 @@
 	}
 	
 	function handlePurchaseSuccess(event: CustomEvent) {
-		console.log('Purchase successful:', event.detail);
 		showPurchaseWidget = false;
 	}
 	

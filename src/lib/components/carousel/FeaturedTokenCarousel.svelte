@@ -3,6 +3,14 @@
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Token, Asset } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { sftMetadata, sfts } from '$lib/stores';
+    import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
+    import type { ISODateTimeString } from '$lib/types/sharedTypes';
+	import { readContract } from '@wagmi/core';
+	import { signerAddress, wagmiConfig, chainId } from 'svelte-wagmi';
+    import { PINATA_GATEWAY } from '$lib/network';
+    import type { Hex } from 'viem';
+    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
 
 	export let autoPlay = true;
 	export let autoPlayInterval = 5000;
@@ -19,12 +27,10 @@
 	let touchStartX = 0;
 	let touchEndX = 0;
 
-	onMount(async () => {
-		await loadFeaturedTokens();
-		if (autoPlay && featuredTokensWithAssets.length > 1) {
-			startAutoPlay();
-		}
-	});
+	// Reactive statement to trigger loading when data changes
+	$: if($sfts && $sftMetadata && $sfts.length > 0 && $sftMetadata.length > 0) {
+		loadFeaturedTokensFromSfts();
+	}
 
 	onDestroy(() => {
 		if (autoPlayTimer) {
@@ -32,27 +38,50 @@
 		}
 	});
 
-	async function loadFeaturedTokens() {
+	async function loadFeaturedTokensFromSfts() {
 		try {
 			loading = true;
 			error = null;
+			if($sftMetadata && $sfts) {
+				const deocdedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
+				for(const sft of $sfts) {
+					const pinnedMetadata: any = deocdedMeta.find(
+						(meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
+					);
+					if(pinnedMetadata) {
+	
+						const sftMaxSharesSupply = await readContract($wagmiConfig, {
+							abi: [{
+									"inputs": [],
+									"name": "maxSharesSupply",
+									"outputs": [
+										{
+											"internalType": "uint256",
+											"name": "",
+											"type": "uint256"
+										}
+									],
+									"stateMutability": "view",
+									"type": "function"
+								}],
 
-			// Get active tokens with sufficient available supply (>= 1000)
-			const activeTokens = dataStoreService.getActiveTokens()
-				.filter(token => {
-					const availableSupply = BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply);
-					const availableSupplyFormatted = Number(availableSupply) / Math.pow(10, token.decimals);
-					return availableSupplyFormatted >= 1000;
-				})
-				.slice(0, 3);
-
-			featuredTokensWithAssets = activeTokens
-				.map(token => {
-					const asset = dataStoreService.getAssetById(token.assetId);
-					return asset ? { token, asset } : null;
-				})
-				.filter(Boolean) as Array<{ token: Token; asset: Asset }>;
-
+								
+							address: sft.activeAuthorizer?.address as Hex,
+							functionName: 'maxSharesSupply',
+							args: []
+						});
+						
+						const tokenInstance = generateTokenInstanceFromSft(sft, sftMaxSharesSupply.toString());
+						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
+	
+						featuredTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
+					
+					}
+				}
+				if (autoPlay && featuredTokensWithAssets.length > 1) {
+					startAutoPlay();
+				}
+			}
 			loading = false;
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load featured tokens';
@@ -269,7 +298,7 @@
 	{:else if error}
 		<div class={errorStateClasses}>
 			<p>Error: {error}</p>
-			<button on:click={loadFeaturedTokens} class={retryButtonClasses}>Retry</button>
+								<button on:click={loadFeaturedTokensFromSfts} class={retryButtonClasses}>Retry</button>
 		</div>
 	{:else if featuredTokensWithAssets.length === 0}
 		<div class={emptyStateClasses}>

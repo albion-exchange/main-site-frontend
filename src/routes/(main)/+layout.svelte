@@ -1,38 +1,52 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { walletStore, walletActions, formatAddress } from '$lib/stores/wallet';
-	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
-	import WalletModal from '$lib/components/WalletModal.svelte';
-	
+	import { web3Modal, signerAddress, connected } from 'svelte-wagmi';
+	import { SecondaryButton } from '$lib/components/ui';
+    import { createQuery } from '@tanstack/svelte-query';
+    import { getSftMetadata } from '$lib/queries/getSftMetadata';
+    import { BASE_METADATA_SUBGRAPH_URL } from '$lib/network';
+    import { sftMetadata, sfts } from '$lib/stores';
+    import { getSfts } from '$lib/queries/getSfts';
+
 	$: currentPath = $page.url.pathname;
 	let mobileMenuOpen = false;
-	let showWalletModal = false;
-	
-	// Mock wallet connection
-	async function connectWallet() {
-		if ($walletStore.isConnected) {
-			// Disconnect wallet
-			walletActions.disconnect();
-			return;
+
+	$: query = createQuery({
+		queryKey: ['getSftMetadata'],
+		queryFn: () => {
+			return getSftMetadata();
 		}
-		
-		// Show wallet modal instead of directly connecting
-		showWalletModal = true;
+	});
+	$: if ($query && $query.data) {
+		sftMetadata.set($query.data);
 	}
-	
-	async function handleWalletConnect() {
-		await walletActions.connect();
-		showWalletModal = false;
+
+	$: vaultQuery = createQuery({
+		queryKey: ['getSfts'],
+		queryFn: () => {
+			return getSfts();
+		}
+	});
+	$: sfts.set($vaultQuery.data);
+
+	function connectWallet() {
+		// Always open the web3Modal - it will handle both connect and disconnect
+		$web3Modal.open();
 	}
-	
+
 	function toggleMobileMenu() {
 		mobileMenuOpen = !mobileMenuOpen;
 	}
-	
+
 	function closeMobileMenu() {
 		mobileMenuOpen = false;
 	}
-	
+
+	function formatAddress(address: string | null): string {
+		if (!address) return '';
+		return `${address.slice(0, 6)}...${address.slice(-4)}`;
+	}
+
 	// Tailwind class mappings
 	$: appClasses = 'min-h-screen flex flex-col';
 	$: headerClasses = 'border-b border-light-gray bg-white sticky top-0 z-[100]';
@@ -103,13 +117,10 @@
 				<div class="{navActionsClasses} {desktopNavClasses}">
 					<SecondaryButton 
 						on:click={connectWallet}
-						disabled={$walletStore.isConnecting}
 					>
-						{#if $walletStore.isConnecting}
-							Connecting...
-						{:else if $walletStore.isConnected}
+						{#if $connected}
 							<span class={walletIconClasses}>🔗</span>
-							{formatAddress($walletStore.address)}
+							{formatAddress($signerAddress)}
 						{:else}
 							<span class={walletIconClasses}>🔌</span>
 							Connect Wallet
@@ -129,13 +140,10 @@
 				<div class={mobileNavActionsClasses}>
 					<SecondaryButton 
 						on:click={connectWallet}
-						disabled={$walletStore.isConnecting}
 					>
-						{#if $walletStore.isConnecting}
-							Connecting...
-						{:else if $walletStore.isConnected}
+						{#if $connected}
 							<span class={walletIconClasses}>🔗</span>
-							{formatAddress($walletStore.address)}
+							{formatAddress($signerAddress)}
 						{:else}
 							<span class={walletIconClasses}>🔌</span>
 							Connect Wallet
@@ -206,11 +214,4 @@
 		</div>
 	</footer>
 </div>
-
-<!-- Wallet Modal -->
-<WalletModal 
-	isOpen={showWalletModal}
-	on:connect={handleWalletConnect}
-	on:close={() => showWalletModal = false}
-/>
 
