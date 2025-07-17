@@ -43,7 +43,7 @@ const isoDateOnly = formatDateToISODateOnly(now);
 const isoYearMonth = formatDateToISOYearMonth(now);
 
 // Example 5: Validating data from API/JSON
-import { AssetMetadataDateFieldsSchema } from "./dateValidation";
+import { TokenMetadataDateFieldsSchema } from "./dateValidation";
 
 const apiResponse = {
   createdAt: "2025-07-15T10:30:45.000Z",
@@ -58,7 +58,7 @@ const apiResponse = {
 };
 
 try {
-  const validatedDates = AssetMetadataDateFieldsSchema.parse(apiResponse);
+  const validatedDates = TokenMetadataDateFieldsSchema.parse(apiResponse);
   console.log("All dates are valid:", validatedDates);
 } catch (error) {
   console.error("Date validation failed:", error);

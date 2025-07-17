@@ -97,8 +97,8 @@ export function formatDateToISOYearMonth(date: Date): ISOYearMonthString {
   return `${year}-${month}` as ISOYearMonthString;
 }
 
-// Example usage in data validation
-export const AssetMetadataDateFieldsSchema = z.object({
+// Example usage in data validation  
+export const TokenMetadataDateFieldsSchema = z.object({
   createdAt: ISODateTimeSchema,
   updatedAt: ISODateTimeSchema,
   firstPaymentDate: ISOYearMonthSchema,

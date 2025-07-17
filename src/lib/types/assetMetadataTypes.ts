@@ -31,12 +31,11 @@ export enum DocumentType {
   ZIP = "zip",
 }
 
-export interface AssetMetadata {
+export interface TokenMetadata {
   contractAddress: string;
   assetId: string;
   symbol: string;
   releaseName: string;
-  assetName: string;
   tokenType: TokenType;
   firstPaymentDate: ISOYearMonthString;
   sharePercentage: number;
@@ -44,10 +43,6 @@ export interface AssetMetadata {
   supply: TokenSupply;
   monthlyData: MonthlyData[];
   asset: AssetData;
-  documents: Document[];
-  coverImage: string;
-  galleryImages: GalleryImage[];
-  metadata: Metadata;
 }
 
 export interface Document {
@@ -79,6 +74,7 @@ export interface MonthlyData {
 }
 
 export interface AssetData {
+  assetName: string;
   description: string;
   location: Location;
   operator: Operator;
@@ -88,6 +84,10 @@ export interface AssetData {
   plannedProduction: PlannedProduction;
   productionHistory: ProductionHistoryRecord[];
   operationalMetrics: OperationalMetrics;
+  documents: Document[];
+  coverImage: string;
+  galleryImages: GalleryImage[];
+  metadata: Metadata;
 }
 
 export interface Operator {

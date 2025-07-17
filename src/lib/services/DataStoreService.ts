@@ -4,7 +4,7 @@
  */
 
 import type {
-  AssetMetadata,
+  TokenMetadata,
   MonthlyData,
   AssetData,
   PlannedProductionProjection,
@@ -57,7 +57,7 @@ const gomDw2Future = [
 ];
 
 class DataStoreService {
-  private assetMetadata: Record<string, AssetMetadata>;
+  private assetMetadata: Record<string, TokenMetadata>;
   private assetsCache: Map<string, Asset> = new Map();
   private tokensCache: Map<string, Token> = new Map();
   private assetTokenMap: AssetTokenMapping;
@@ -103,14 +103,34 @@ class DataStoreService {
     };
   }
 
-  // Helper method to convert JSON data to AssetMetadata (no longer needs date conversion)
-  private convertJsonToAssetMetadata(jsonData: any): AssetMetadata {
-    // Since we're now using ISO strings in the type definitions, we can just return the JSON data as-is
-    return jsonData as AssetMetadata;
+  // Helper method to convert JSON data to TokenMetadata
+  private convertJsonToAssetMetadata(jsonData: any): TokenMetadata {
+    // Transform the old structure to the new TokenMetadata structure
+    const tokenMetadata: TokenMetadata = {
+      contractAddress: jsonData.contractAddress,
+      assetId: jsonData.assetId,
+      symbol: jsonData.symbol,
+      releaseName: jsonData.releaseName,
+      tokenType: jsonData.tokenType,
+      firstPaymentDate: jsonData.firstPaymentDate,
+      sharePercentage: jsonData.sharePercentage,
+      decimals: jsonData.decimals,
+      supply: jsonData.supply,
+      monthlyData: jsonData.monthlyData,
+      asset: {
+        ...jsonData.asset,
+        assetName: jsonData.assetName,
+        documents: jsonData.documents,
+        coverImage: jsonData.coverImage,
+        galleryImages: jsonData.galleryImages,
+        metadata: jsonData.metadata,
+      }
+    };
+    return tokenMetadata;
   }
 
-  // Helper method to convert AssetMetadata to legacy Asset format
-  private assetMetadataToAsset(assetMetadata: AssetMetadata): Asset {
+  // Helper method to convert TokenMetadata to legacy Asset format
+  private assetMetadataToAsset(assetMetadata: TokenMetadata): Asset {
     const assetId = assetMetadata.assetId;
 
     // Check cache first
@@ -120,10 +140,10 @@ class DataStoreService {
 
     const asset: Asset = {
       id: assetId,
-      name: assetMetadata.assetName,
+      name: assetMetadata.asset.assetName,
       description: assetMetadata.asset.description,
-      coverImage: assetMetadata.coverImage,
-      images: assetMetadata.galleryImages || [],
+      coverImage: assetMetadata.asset.coverImage,
+      images: assetMetadata.asset.galleryImages || [],
       location: {
         ...assetMetadata.asset.location,
         waterDepth: assetMetadata.asset.location.waterDepth,
@@ -196,8 +216,8 @@ class DataStoreService {
           }
         : undefined,
       metadata: {
-        createdAt: assetMetadata.metadata.createdAt,
-        updatedAt: assetMetadata.metadata.updatedAt,
+        createdAt: assetMetadata.asset.metadata.createdAt,
+        updatedAt: assetMetadata.asset.metadata.updatedAt,
       },
     };
 
@@ -205,8 +225,8 @@ class DataStoreService {
     return asset;
   }
 
-  // Helper method to convert AssetMetadata to legacy Token format
-  private assetMetadataToToken(assetMetadata: AssetMetadata): Token {
+  // Helper method to convert TokenMetadata to legacy Token format
+  private assetMetadataToToken(assetMetadata: TokenMetadata): Token {
     // Check cache first
     if (this.tokensCache.has(assetMetadata.contractAddress)) {
       return this.tokensCache.get(assetMetadata.contractAddress)!;
@@ -239,8 +259,8 @@ class DataStoreService {
       sharePercentage: assetMetadata.sharePercentage,
       firstPaymentDate: assetMetadata.firstPaymentDate,
       metadata: {
-        createdAt: assetMetadata.metadata.createdAt,
-        updatedAt: assetMetadata.metadata.updatedAt,
+        createdAt: assetMetadata.asset.metadata.createdAt,
+        updatedAt: assetMetadata.asset.metadata.updatedAt,
       },
     };
 
@@ -283,7 +303,7 @@ class DataStoreService {
    */
   getAllAssets(): Asset[] {
     const assetMap = new Map<string, Asset>();
-    const assetMetadataMap = new Map<string, AssetMetadata>();
+    const assetMetadataMap = new Map<string, TokenMetadata>();
 
     // Group tokens by asset ID and keep the one with most recent updatedAt
     Object.values(this.assetMetadata).forEach((tokenMetadata) => {
@@ -292,7 +312,7 @@ class DataStoreService {
 
       if (
         !existing ||
-        tokenMetadata.metadata.updatedAt > existing.metadata.updatedAt
+        tokenMetadata.asset.metadata.updatedAt > existing.asset.metadata.updatedAt
       ) {
         assetMetadataMap.set(assetId, tokenMetadata);
       }
@@ -323,13 +343,13 @@ class DataStoreService {
     const tokenAddresses = assetInfo.tokens;
 
     // Find the token metadata with the most recent updatedAt
-    let mostRecentMetadata: AssetMetadata | null = null;
+    let mostRecentMetadata: TokenMetadata | null = null;
     tokenAddresses.forEach((address) => {
       const metadata = this.assetMetadata[address];
       if (
         metadata &&
         (!mostRecentMetadata ||
-          metadata.metadata.updatedAt > mostRecentMetadata.metadata.updatedAt)
+          metadata.asset.metadata.updatedAt > mostRecentMetadata.asset.metadata.updatedAt)
       ) {
         mostRecentMetadata = metadata;
       }
@@ -392,9 +412,9 @@ class DataStoreService {
   }
 
   /**
-   * Get asset metadata by contract address
+   * Get token metadata by contract address
    */
-  getAssetMetadataByAddress(contractAddress: string): AssetMetadata | null {
+  getAssetMetadataByAddress(contractAddress: string): TokenMetadata | null {
     return this.assetMetadata[contractAddress] || null;
   }
 
