@@ -192,7 +192,12 @@ export class TypeTransformations {
           transportCosts: data.technical.pricing.transportCosts
         },
         location: {
-          ...data.location,
+          state: data.location.state,
+          country: data.location.country,
+          coordinates: {
+            latitude: data.location.coordinates.lat,
+            longitude: data.location.coordinates.lng
+          },
           waterDepth: typeof data.location.waterDepth === 'number' ? data.location.waterDepth : null
         },
         terms: {
@@ -360,7 +365,10 @@ export class TypeTransformations {
         status: asset.production.status,
         expectedRemainingProduction: display.production.expectedRemainingProduction,
         current: '', // Will be set by service layer
-        unit: 1 // Default to BOE
+        units: {
+          production: 'BOE (Barrels of Oil Equivalent)',
+          revenue: 'USD'
+        }
       },
       geology: {
         depth: display.technical.depth,
@@ -378,15 +386,18 @@ export class TypeTransformations {
       operationalMetrics: {
         uptime: {
           percentage: 0,
-          period: 'N/A'
+          period: 'N/A',
+          unit: 'percentage'
         },
-        waterCut: {
-          percentage: 0,
-          period: 'N/A'
+        dailyProduction: {
+          current: 0,
+          target: 0,
+          unit: 'BOE/day'
         },
-        gasProportion: {
-          percentage: 0,
-          period: 'N/A'
+        hseMetrics: {
+          incidentFreeDays: 0,
+          lastIncidentDate: new Date().toISOString() as any,
+          safetyRating: 'Unknown'
         }
       },
       pricing: {
@@ -397,6 +408,8 @@ export class TypeTransformations {
         depth: display.technical.depth,
         fieldType: asset.technical.fieldType,
         estimatedLife: display.technical.estimatedLife,
+        firstOil: '', // Will be set by service layer
+        expectedEndDate: display.production.expectedEndDate,
         crudeBenchmark: '', // Will be set by service layer
         license: '', // Will be set by service layer
         infrastructure: '', // Will be set by service layer

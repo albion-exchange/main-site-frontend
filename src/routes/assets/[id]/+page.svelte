@@ -317,7 +317,7 @@
 {/if}
 
 <!-- Tooltips -->
-{#if $tooltip.state.visible}
+{#if tooltipState.visible}
 	<div class="tooltip">
 		<!-- Tooltip content based on visible ID -->
 	</div>

@@ -84,23 +84,25 @@
 		return 10 * magnitude;
 	}
 	
-	$: allData = [...data, ...(data2.length > 0 ? data2 : [])];
-	$: minValue = Math.min(...allData.map(d => d.value), 0);
-	$: maxValue = Math.max(...allData.map(d => d.value), 1);
+	$: validData = data && Array.isArray(data) ? data.filter(d => d && typeof d.value === 'number' && !isNaN(d.value)) : [];
+	$: validData2 = data2 && Array.isArray(data2) ? data2.filter(d => d && typeof d.value === 'number' && !isNaN(d.value)) : [];
+	$: allData = [...validData, ...validData2];
+	$: minValue = allData.length > 0 ? Math.min(...allData.map(d => d.value), 0) : 0;
+	$: maxValue = allData.length > 0 ? Math.max(...allData.map(d => d.value), 1) : 100;
 	$: niceMin = minValue < 0 ? -getNiceNumber(Math.abs(minValue) * 1.1) : 0;
 	$: niceMax = getNiceNumber(maxValue * 1.1); // Add 10% padding
 	$: valueRange = niceMax - niceMin;
-	$: barWidth = data2.length > 0 
-		? chartWidth / Math.max(data.length, 1) * 0.3 // Half width when showing two series
-		: chartWidth / Math.max(data.length, 1) * 0.6;
-	$: barSpacing = chartWidth / Math.max(data.length, 1);
+	$: barWidth = validData2.length > 0 
+		? chartWidth / Math.max(validData.length, 1) * 0.3 // Half width when showing two series
+		: chartWidth / Math.max(validData.length, 1) * 0.6;
+	$: barSpacing = chartWidth / Math.max(validData.length, 1);
 	$: zeroY = padding.top + chartHeight - ((0 - niceMin) / valueRange) * chartHeight;
 	
 	function handleMouseMove(event: MouseEvent, index: number, series: 1 | 2 = 1) {
-		if (!svg || index >= data.length) return;
+		if (!svg) return;
 		
-		const dataPoint = series === 1 ? data[index] : data2[index];
-		if (!dataPoint) return;
+		const dataPoint = series === 1 ? validData[index] : validData2[index];
+		if (!dataPoint || index >= (series === 1 ? validData.length : validData2.length)) return;
 		
 		const x = series === 1 
 			? padding.left + index * barSpacing + (barSpacing - barWidth * 2) / 2 + barWidth / 2
@@ -171,9 +173,9 @@
 		{/each}
 		
 		<!-- X-axis labels -->
-		{#if data.length > 0}
-			{@const labelInfo = getLabelsToShow(data)}
-			{#each data as item, i}
+		{#if validData.length > 0}
+			{@const labelInfo = getLabelsToShow(validData)}
+			{#each validData as item, i}
 				{#if labelInfo.indices.includes(i)}
 					{@const dateStr = item.label.includes('T') ? item.label : item.label + 'T00:00:00'}
 					{@const date = new Date(dateStr)}
@@ -192,26 +194,29 @@
 						{labelInfo.showYear ? monthLabel : year}
 					</text>
 					
-					{#if labelInfo.showYear && (i === 0 || date.getFullYear() !== new Date(data[Math.max(0, i-1)].label.includes('T') ? data[Math.max(0, i-1)].label : data[Math.max(0, i-1)].label + 'T00:00:00').getFullYear())}
-						<text 
-							x={padding.left + i * barSpacing + barSpacing / 2} 
-							y={padding.top + chartHeight + 35} 
-							text-anchor="middle" 
-							font-size="11" 
-							fill="#666666" 
-							font-weight="bold"
-						>
-							{year}
-						</text>
+					{#if labelInfo.showYear && isValidDate}
+						{@const prevDate = i > 0 ? new Date(validData[i-1].label.includes('T') ? validData[i-1].label : validData[i-1].label + 'T00:00:00') : null}
+						{#if i === 0 || !prevDate || isNaN(prevDate.getTime()) || date.getFullYear() !== prevDate.getFullYear()}
+							<text 
+								x={padding.left + i * barSpacing + barSpacing / 2} 
+								y={padding.top + chartHeight + 35} 
+								text-anchor="middle" 
+								font-size="11" 
+								fill="#666666" 
+								font-weight="bold"
+							>
+								{year}
+							</text>
+						{/if}
 					{/if}
 				{/if}
 			{/each}
 		{/if}
 		
 		<!-- Bars for first series -->
-		{#if data.length > 0}
-			{#each data as item, i}
-				{@const x = data2.length > 0 
+		{#if validData.length > 0}
+			{#each validData as item, i}
+				{@const x = validData2.length > 0 
 					? padding.left + i * barSpacing + (barSpacing - barWidth * 2) / 2
 					: padding.left + i * barSpacing + (barSpacing - barWidth) / 2}
 				{@const barHeight = Math.abs((item.value - 0) / valueRange) * chartHeight}
@@ -236,8 +241,8 @@
 		{/if}
 		
 		<!-- Bars for second series -->
-		{#if data2.length > 0}
-			{#each data2 as item, i}
+		{#if validData2.length > 0}
+			{#each validData2 as item, i}
 				{@const x = padding.left + i * barSpacing + (barSpacing - barWidth * 2) / 2 + barWidth}
 				{@const barHeight = Math.abs((item.value - 0) / valueRange) * chartHeight}
 				{@const y = item.value >= 0 
@@ -275,7 +280,7 @@
 		
 		<!-- Values on bars (if not using tooltip) -->
 		{#if showValues && !tooltipData.show}
-			{#each data as item, i}
+			{#each validData as item, i}
 				{@const x = padding.left + i * barSpacing + barSpacing / 2}
 				{@const y = padding.top + chartHeight - ((item.value - niceMin) / valueRange) * chartHeight - 10}
 				
@@ -308,7 +313,7 @@
 		{/if}
 		
 		<!-- Legend -->
-		{#if data2.length > 0 && (series1Name || series2Name)}
+		{#if validData2.length > 0 && (series1Name || series2Name)}
 			{@const legendX = width / 2 - 80}
 			{@const legendY = height - 40}
 			<g transform="translate({legendX}, {legendY})">

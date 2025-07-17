@@ -59,8 +59,17 @@ export function usePortfolioData() {
       // Get monthly payout history
       const monthlyPayouts = walletDataService.getMonthlyPayoutHistory();
       
-      // Get token allocations
-      const tokenAllocations = walletDataService.getTokenAllocation();
+      // Get token allocations and add colors
+      const rawTokenAllocations = walletDataService.getTokenAllocation();
+      const colors = ['#08bccc', '#283c84', '#f8f4f4', '#000000', '#0a8a96', '#1a2557'];
+      
+      // Transform tokenAllocations to include display properties
+      const tokenAllocations = rawTokenAllocations.map((allocation, index) => ({
+        ...allocation,
+        percentage: allocation.percentageOfPortfolio, // Add percentage property for display
+        value: allocation.currentValue, // Add value property for display
+        color: colors[index % colors.length] // Add color for pie chart
+      }));
       
       state.update(s => ({
         ...s,
@@ -161,21 +170,58 @@ export function usePortfolioData() {
   const chartData = derived(state, $state => {
     // Format month string to readable label
     const formatMonthLabel = (monthStr: string): string => {
+      if (!monthStr || typeof monthStr !== 'string') return 'Unknown';
       const [year, month] = monthStr.split('-');
+      if (!year || !month) return 'Unknown';
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return `${monthNames[parseInt(month) - 1]} ${year}`;
+      const monthIndex = parseInt(month) - 1;
+      if (isNaN(monthIndex) || monthIndex < 0 || monthIndex >= 12) return 'Unknown';
+      return `${monthNames[monthIndex]} ${year}`;
     };
 
-    const payoutTrend: Array<{label: string; value: number}> = $state.monthlyPayouts.map(p => ({
-      label: formatMonthLabel(p.month),
-      value: p.amount
-    }));
+    const payoutTrend: Array<{label: string; value: number}> = ($state.monthlyPayouts || [])
+      .filter(p => {
+        // More comprehensive validation
+        if (!p || typeof p !== 'object') return false;
+        if (!p.month || typeof p.month !== 'string') return false;
+        if (typeof p.totalPayout !== 'number') return false;
+        if (isNaN(p.totalPayout) || p.totalPayout < 0) return false;
+        return true;
+      })
+      .map(p => ({
+        label: formatMonthLabel(p.month),
+        value: p.totalPayout
+      }))
+      .filter(item => {
+        // Final validation after transformation
+        return item.label && 
+               item.label !== 'Unknown' && 
+               typeof item.value === 'number' && 
+               !isNaN(item.value) && 
+               item.value >= 0;
+      });
 
-    const allocationPie: Array<{label: string; value: number; percentage: number}> = $state.tokenAllocations.map(a => ({
-      label: a.assetName,
-      value: a.value,
-      percentage: a.percentage
-    }));
+    const allocationPie: Array<{label: string; value: number; percentage: number}> = ($state.tokenAllocations || [])
+      .filter(a => {
+        // Filter out invalid entries
+        if (!a || typeof a.currentValue !== 'number' || typeof a.percentageOfPortfolio !== 'number') {
+          return false;
+        }
+        // Filter out entries with NaN or negative percentage values
+        if (isNaN(a.percentageOfPortfolio) || a.percentageOfPortfolio < 0) {
+          return false;
+        }
+        // Filter out entries with invalid values
+        if (isNaN(a.currentValue) || a.currentValue < 0) {
+          return false;
+        }
+        return true;
+      })
+      .map(a => ({
+        label: a.assetName || 'Unknown Asset',
+        value: a.currentValue,
+        percentage: a.percentageOfPortfolio
+      }));
 
     return {
       payoutTrend,
@@ -200,9 +246,13 @@ export function usePortfolioData() {
 export function getHoldingPayoutChartData(holding: any): Array<{label: string; value: number}> {
   // Format date string to readable label
   const formatDateLabel = (dateStr: string): string => {
+    if (!dateStr || typeof dateStr !== 'string') return 'Unknown';
     const [year, month] = dateStr.split('-');
+    if (!year || !month) return 'Unknown';
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${monthNames[parseInt(month) - 1]} ${year}`;
+    const monthIndex = parseInt(month) - 1;
+    if (isNaN(monthIndex) || monthIndex < 0 || monthIndex >= 12) return 'Unknown';
+    return `${monthNames[monthIndex]} ${year}`;
   };
 
   // Always return sample data to ensure the chart displays
@@ -225,11 +275,25 @@ export function getHoldingPayoutChartData(holding: any): Array<{label: string; v
   
   // Convert monthly payouts to chart data format
   const chartData = assetPayout.monthlyPayouts
-    .filter(p => p.amount > 0)
+    .filter(p => {
+      // More comprehensive validation
+      if (!p || typeof p !== 'object') return false;
+      if (!p.month || typeof p.month !== 'string') return false;
+      if (typeof p.amount !== 'number') return false;
+      if (isNaN(p.amount) || p.amount < 0) return false;
+      return true;
+    })
     .map(p => ({
       label: formatDateLabel(p.month),
       value: p.amount
     }))
+    .filter(item => {
+      // Final validation after transformation
+      return item.label && 
+             typeof item.value === 'number' && 
+             !isNaN(item.value) && 
+             item.value >= 0;
+    })
     .sort((a, b) => {
       // Sort by reconstructing the date for comparison
       const dateA = a.label.split(' ');

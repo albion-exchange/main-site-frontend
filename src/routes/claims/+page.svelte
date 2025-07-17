@@ -9,7 +9,18 @@
 	import { formatCurrency } from '$lib/utils/formatters';
 
 	// Composables
-	const claimsData = useClaimsData();
+	const {
+		state,
+		claimModal,
+		selectedAmount,
+		claimStats,
+		loadClaimsData,
+		toggleAssetSelection,
+		selectAllAssets,
+		claimPayouts,
+		showClaimModal,
+		hideClaimModal
+	} = useClaimsData();
 	
 	// Component state
 	let showWalletModal = false;
@@ -18,10 +29,8 @@
 	const itemsPerPage = 20;
 	
 	// Reactive data
-	$: claims = $claimsData.state;
-	$: selectedAmount = $claimsData.selectedAmount;
-	$: claimStats = $claimsData.claimStats;
-	$: claimModal = $claimsData.claimModal;
+	$: claims = $state;
+	$: claimModalState = $claimModal;
 	
 	// Pagination
 	$: totalPages = Math.ceil(claims.claimHistory.length / itemsPerPage);
@@ -49,22 +58,22 @@
 	}
 	
 	function handleClaimAll() {
-		claimsData.selectAllAssets();
-		claimsData.showClaimModal('claim');
+		selectAllAssets();
+		showClaimModal('claim');
 	}
 	
 	function handleClaimWithModal(mode: 'claim' | 'reinvest') {
-		claimsData.showClaimModal(mode);
+		showClaimModal(mode);
 	}
 	
 	function handleAssetSelect(assetId: string) {
-		claimsData.toggleAssetSelection(assetId);
-		claimsData.showClaimModal('claim');
+		toggleAssetSelection(assetId);
+		showClaimModal('claim');
 	}
 	
 	async function handleConfirmClaim() {
-		await claimsData.claimPayouts();
-		claimsData.hideClaimModal();
+		await claimPayouts();
+		hideClaimModal();
 	}
 </script>
 
@@ -79,7 +88,7 @@
 		on:close={() => showWalletModal = false}
 		on:connect={() => {
 			showWalletModal = false;
-			claimsData.loadClaimsData();
+			loadClaimsData();
 		}}
 	/>
 {/if}
@@ -201,7 +210,7 @@
 					{#if claims.claiming}
 						Claiming...
 					{:else}
-						Claim Selected {formatCurrency(selectedAmount)}
+						Claim Selected {formatCurrency($selectedAmount)}
 					{/if}
 				</PrimaryButton>
 			{/if}
@@ -256,20 +265,20 @@
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 					<StatsCard
 						title="Total Claims"
-						value={claimStats.totalClaims.toString()}
+						value={$claimStats.totalClaims.toString()}
 						subtitle="Lifetime total"
 						size="medium"
 					/>
 					<StatsCard
 						title="Average Claim Size"
-						value={formatCurrency(claimStats.avgClaimSize)}
+						value={formatCurrency($claimStats.avgClaimSize)}
 						subtitle="Per transaction"
 						valueColor="primary"
 						size="medium"
 					/>
 					<StatsCard
 						title="Last Claim"
-						value={claimStats.lastClaimDate ? formatDate(claimStats.lastClaimDate) : 'Never'}
+						value={$claimStats.lastClaimDate ? formatDate($claimStats.lastClaimDate) : 'Never'}
 						subtitle="Most recent"
 						size="medium"
 					/>
@@ -345,18 +354,18 @@
 </PageLayout>
 
 <!-- Claim Modal -->
-{#if claimModal.show}
+{#if claimModalState.show}
 	<Modal 
-		title={claimModal.mode === 'reinvest' ? 'Claim & Reinvest' : 'Confirm Claim'}
+		title={claimModalState.mode === 'reinvest' ? 'Claim & Reinvest' : 'Confirm Claim'}
 		isOpen={true}
-		on:close={() => claimsData.hideClaimModal()}
+		on:close={() => hideClaimModal()}
 	>
 		<div slot="content">
 			<div class="space-y-4 mb-6">
 				<div class="bg-light-gray rounded-lg p-4">
 					<div class="flex justify-between items-center mb-2">
 						<span class="text-sm font-semibold text-black opacity-70">Claim Amount:</span>
-						<span class="font-extrabold text-black">{formatCurrency(selectedAmount || claims.unclaimedPayout)}</span>
+						<span class="font-extrabold text-black">{formatCurrency($selectedAmount || claims.unclaimedPayout)}</span>
 					</div>
 					<div class="flex justify-between items-center mb-2">
 						<span class="text-sm font-semibold text-black opacity-70">Gas Fee:</span>
@@ -365,12 +374,12 @@
 					<div class="border-t border-gray-300 pt-2 mt-2">
 						<div class="flex justify-between items-center">
 							<span class="text-sm font-semibold text-black">You will receive:</span>
-							<span class="font-extrabold text-primary text-lg">{formatCurrency((selectedAmount || claims.unclaimedPayout) - claims.estimatedGas)}</span>
+							<span class="font-extrabold text-primary text-lg">{formatCurrency(($selectedAmount || claims.unclaimedPayout) - claims.estimatedGas)}</span>
 						</div>
 					</div>
 				</div>
 				
-				{#if claimModal.mode === 'reinvest'}
+				{#if claimModalState.mode === 'reinvest'}
 					<div class="space-y-3">
 						<p class="text-sm font-semibold text-black">Select reinvestment option:</p>
 						<RadioGroup name="reinvestOption" value={claims.claimMethod}>
@@ -405,10 +414,10 @@
 				{#if claims.claiming}
 					Processing...
 				{:else}
-					Confirm {claimModal.mode === 'reinvest' ? 'Claim & Reinvest' : 'Claim'}
+					Confirm {claimModalState.mode === 'reinvest' ? 'Claim & Reinvest' : 'Claim'}
 				{/if}
 			</PrimaryButton>
-			<SecondaryButton on:click={() => claimsData.hideClaimModal()}>
+			<SecondaryButton on:click={() => hideClaimModal()}>
 				Cancel
 			</SecondaryButton>
 		</div>

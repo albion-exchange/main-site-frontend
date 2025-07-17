@@ -1,6 +1,11 @@
 /**
  * DataStoreService - Service layer for accessing static asset and token data
  * This service uses the unified asset metadata structure
+ * 
+ * Data Flow:
+ * Raw JSON -> Service -> Core Types -> UI Types (for backward compatibility)
+ * 
+ * This service now uses Core types internally and provides UI types for backward compatibility
  */
 
 import type {
@@ -17,6 +22,8 @@ import type {
   MarketData,
   UserTokenBalance,
 } from "$lib/types/uiTypes";
+import { TypeTransformations } from "$lib/types/transformations";
+import type { Core, Display } from "$lib/types/transformations";
 import { formatCurrency as _formatCurrency, formatTokenAmount as _formatTokenAmount } from "$lib/utils/formatters";
 import type {
   AssetTokenMapping,
@@ -49,8 +56,10 @@ import eurWrLegacyMetadata from "$lib/data/mockTokenMetadata/eur-wr-legacy.json"
 
 class DataStoreService {
   private assetMetadata: Record<string, TokenMetadata>;
-  private assetsCache: Map<string, Asset> = new Map();
-  private tokensCache: Map<string, Token> = new Map();
+  private assetsCache: Map<string, Asset> = new Map(); // Legacy UI cache
+  private coreAssetsCache: Map<string, Core.Asset> = new Map(); // New Core type cache
+  private tokensCache: Map<string, Token> = new Map(); // Legacy UI cache
+  private coreTokensCache: Map<string, Core.Token> = new Map(); // New Core type cache
   private assetTokenMap: AssetTokenMapping;
   private tokenToAssetMap: Map<string, string> = new Map();
   private futureReleases: FutureReleaseData;
@@ -122,6 +131,43 @@ class DataStoreService {
     return tokenMetadata;
   }
 
+  // Helper method to convert TokenMetadata to Core.Asset
+  private tokenMetadataToCoreAsset(tokenMetadata: TokenMetadata): Core.Asset {
+    const assetId = tokenMetadata.assetId;
+    
+    // Check cache first
+    if (this.coreAssetsCache.has(assetId)) {
+      return this.coreAssetsCache.get(assetId)!;
+    }
+
+    // Use TypeTransformations to convert API data to Core types
+    const partialCoreAsset = TypeTransformations.apiToCore.assetData(tokenMetadata.asset);
+    
+    // Construct the full Core.Asset
+    const coreAsset: Core.Asset = {
+      id: assetId,
+      name: tokenMetadata.asset.assetName,
+      location: partialCoreAsset.location!,
+      terms: partialCoreAsset.terms!,
+      technical: partialCoreAsset.technical!,
+      pricing: partialCoreAsset.pricing!,
+      operator: partialCoreAsset.operator!,
+      production: {
+        status: TypeTransformations.apiToCore.productionStatus(tokenMetadata.asset.production.status),
+        expectedRemainingProduction: null, // TODO: Calculate from production history and planned production
+        expectedEndDate: tokenMetadata.asset.technical.expectedEndDate 
+          ? new Date(tokenMetadata.asset.technical.expectedEndDate + '-01') 
+          : null
+      },
+      monthlyReports: tokenMetadata.monthlyData.map(data => 
+        TypeTransformations.apiToCore.monthlyData(data)
+      )
+    };
+
+    this.coreAssetsCache.set(assetId, coreAsset);
+    return coreAsset;
+  }
+
   // Helper method to convert TokenMetadata to legacy Asset format
   private tokenMetadataToAsset(tokenMetadata: TokenMetadata): Asset {
     const assetId = tokenMetadata.assetId;
@@ -131,91 +177,102 @@ class DataStoreService {
       return this.assetsCache.get(assetId)!;
     }
 
+    // First get the Core asset
+    const coreAsset = this.tokenMetadataToCoreAsset(tokenMetadata);
+    
+    // Convert Core to UI type for backward compatibility
+    const uiAsset = TypeTransformations.coreToUI(coreAsset);
+    
+    // Add additional fields from TokenMetadata that aren't in Core types
     const asset: Asset = {
-      id: assetId,
-      name: tokenMetadata.asset.assetName,
+      ...uiAsset,
       description: tokenMetadata.asset.description,
       coverImage: tokenMetadata.asset.coverImage,
       images: tokenMetadata.asset.galleryImages || [],
-      location: {
-        ...tokenMetadata.asset.location,
-        waterDepth: tokenMetadata.asset.location.waterDepth,
-      },
-      operator: {
-        ...tokenMetadata.asset.operator,
-        experience: `${tokenMetadata.asset.operator.experienceYears}+ years`,
-      },
-      technical: {
-        ...tokenMetadata.asset.technical,
-        depth: `${tokenMetadata.asset.technical.depth}m`,
-        estimatedLife: `${Math.ceil(tokenMetadata.asset.technical.estimatedLifeMonths / 12)}+ years`,
-        pricing: {
-          benchmarkPremium:
-            tokenMetadata.asset.technical.pricing.benchmarkPremium < 0
-              ? `-$${Math.abs(tokenMetadata.asset.technical.pricing.benchmarkPremium)}`
-              : `+$${tokenMetadata.asset.technical.pricing.benchmarkPremium}`,
-          transportCosts:
-            tokenMetadata.asset.technical.pricing.transportCosts === 0
-              ? "Title transfer at well head"
-              : `$${tokenMetadata.asset.technical.pricing.transportCosts}`,
-        },
-      },
+      galleryImages: tokenMetadata.asset.galleryImages || [],
+      tokenContracts: this.getTokenContractsByAssetId(assetId),
       production: {
-        ...tokenMetadata.asset.production,
-        status: this.convertProductionStatus(
-          tokenMetadata.asset.production.status,
-        ),
+        ...uiAsset.production,
+        current: tokenMetadata.asset.production.current || '',
         units: {
-          production:
-            tokenMetadata.asset.production.units.production === 1
-              ? "BOE (Barrels of Oil Equivalent)"
-              : "MCF (Thousand Cubic Feet)",
+          production: tokenMetadata.asset.production.units.production === 1
+            ? "BOE (Barrels of Oil Equivalent)"
+            : "MCF (Thousand Cubic Feet)",
           revenue: "USD",
         },
       },
-      assetTerms: {
-        ...tokenMetadata.asset.assetTerms,
-        amount: `${tokenMetadata.asset.assetTerms.amount}% of gross`,
-        paymentFrequency: `Monthly within ${tokenMetadata.asset.assetTerms.paymentFrequencyDays} days`,
+      geology: {
+        depth: TypeTransformations.coreToDisplay.asset(coreAsset).technical.depth,
+        type: coreAsset.technical.fieldType,
+        estimatedLife: TypeTransformations.coreToDisplay.asset(coreAsset).technical.estimatedLife
       },
-      tokenContracts: this.getTokenContractsByAssetId(assetId),
-      monthlyReports: tokenMetadata.monthlyData.map((data) => ({
-        month: data.month,
-        production: data.assetData.production,
-        revenue: data.assetData.revenue,
-        expenses: data.assetData.expenses,
-        netIncome: data.assetData.netIncome,
-        payoutPerToken: data.tokenPayout.payoutPerToken,
-      })),
       productionHistory: tokenMetadata.asset.productionHistory,
       plannedProduction: tokenMetadata.asset.plannedProduction,
       operationalMetrics: tokenMetadata.asset.operationalMetrics
         ? {
-            ...tokenMetadata.asset.operationalMetrics,
-            dailyProduction: {
-              ...tokenMetadata.asset.operationalMetrics.dailyProduction,
-              unit: tokenMetadata.asset.operationalMetrics.dailyProduction.unit,
-            },
             uptime: {
               ...tokenMetadata.asset.operationalMetrics.uptime,
               period: tokenMetadata.asset.operationalMetrics.uptime.period,
             },
-            hseMetrics: {
+            dailyProduction: tokenMetadata.asset.operationalMetrics.dailyProduction,
+            hseMetrics: tokenMetadata.asset.operationalMetrics.hseMetrics && {
               ...tokenMetadata.asset.operationalMetrics.hseMetrics,
-              incidentFreeDays:
-                tokenMetadata.asset.operationalMetrics.hseMetrics
-                  .incidentFreeDays,
+              incidentFreeDays: tokenMetadata.asset.operationalMetrics.hseMetrics.incidentFreeDays,
             },
           }
-        : undefined,
+        : {
+            uptime: { percentage: 0, period: 'N/A', unit: 'percentage' },
+            dailyProduction: { current: 0, target: 0, unit: 'BOE/day' },
+            hseMetrics: {
+              incidentFreeDays: 0,
+              lastIncidentDate: new Date().toISOString() as any,
+              safetyRating: 'Unknown'
+            }
+          },
       metadata: {
         createdAt: tokenMetadata.metadata.createdAt,
         updatedAt: tokenMetadata.metadata.updatedAt,
       },
+      technical: {
+        ...uiAsset.technical,
+        crudeBenchmark: tokenMetadata.asset.technical.crudeBenchmark || '',
+        license: tokenMetadata.asset.technical.license || '',
+        infrastructure: tokenMetadata.asset.technical.infrastructure || '',
+        environmental: tokenMetadata.asset.technical.environmental || '',
+      }
     };
 
     this.assetsCache.set(assetId, asset);
     return asset;
+  }
+
+  // Helper method to convert TokenMetadata to Core.Token
+  private tokenMetadataToCoreToken(tokenMetadata: TokenMetadata): Core.Token {
+    // Check cache first
+    if (this.coreTokensCache.has(tokenMetadata.contractAddress)) {
+      return this.coreTokensCache.get(tokenMetadata.contractAddress)!;
+    }
+
+    // Get the corresponding asset name
+    const asset = this.getAssetById(tokenMetadata.assetId);
+    const assetName = asset?.name || tokenMetadata.asset.assetName;
+
+    const coreToken: Core.Token = {
+      contractAddress: tokenMetadata.contractAddress,
+      symbol: tokenMetadata.symbol,
+      assetId: tokenMetadata.assetId,
+      assetName: assetName,
+      sharePercentage: tokenMetadata.sharePercentage,
+      pricePerToken: 100, // TODO: Get from pricing data
+      decimals: tokenMetadata.decimals,
+      supply: TypeTransformations.apiToCore.tokenSupply({
+        ...tokenMetadata.supply,
+        availableSupply: tokenMetadata.supply.maxSupply // TODO: Calculate actual available supply
+      }, tokenMetadata.decimals)
+    };
+
+    this.coreTokensCache.set(tokenMetadata.contractAddress, coreToken);
+    return coreToken;
   }
 
   // Helper method to convert TokenMetadata to legacy Token format
@@ -225,14 +282,21 @@ class DataStoreService {
       return this.tokensCache.get(tokenMetadata.contractAddress)!;
     }
 
+    // Get the Core token first
+    const coreToken = this.tokenMetadataToCoreToken(tokenMetadata);
+    
+    // Convert Core to Display for formatting
+    const displayToken = TypeTransformations.coreToDisplay.token(coreToken, tokenMetadata.decimals);
+
+    // Construct the legacy Token format with data from Core and original metadata
     const token: Token = {
-      contractAddress: tokenMetadata.contractAddress,
+      contractAddress: coreToken.contractAddress,
       name: tokenMetadata.releaseName,
-      symbol: tokenMetadata.symbol,
-      decimals: tokenMetadata.decimals,
+      symbol: coreToken.symbol,
+      decimals: coreToken.decimals,
       tokenType:
         tokenMetadata.tokenType === TokenType.Royalty ? "royalty" : "payment",
-      assetId: tokenMetadata.assetId,
+      assetId: coreToken.assetId,
       isActive: true,
       supply: {
         maxSupply: tokenMetadata.supply.maxSupply,
@@ -249,7 +313,7 @@ class DataStoreService {
         productionVolume: data.assetData.production,
         txHash: data.tokenPayout.txHash,
       })),
-      sharePercentage: tokenMetadata.sharePercentage,
+      sharePercentage: coreToken.sharePercentage,
       firstPaymentDate: tokenMetadata.firstPaymentDate,
       metadata: {
         createdAt: tokenMetadata.metadata.createdAt,
@@ -883,6 +947,97 @@ class DataStoreService {
     // Sort by whenRelease and return first
     releases.sort((a, b) => a.whenRelease.localeCompare(b.whenRelease));
     return releases[0];
+  }
+
+  // ===== NEW CORE TYPE METHODS =====
+  // These methods return Core types for components using the new type system
+  
+  /**
+   * Get all assets as Core types
+   * @returns Array of Core.Asset objects
+   */
+  getAllCoreAssets(): Core.Asset[] {
+    const assetMap = new Map<string, Core.Asset>();
+    const assetMetadataMap = new Map<string, TokenMetadata>();
+
+    // Group tokens by asset ID and keep the one with most recent updatedAt
+    Object.values(this.assetMetadata).forEach((tokenMetadata) => {
+      const assetId = tokenMetadata.assetId;
+      const existing = assetMetadataMap.get(assetId);
+
+      if (!existing || tokenMetadata.metadata.updatedAt > existing.metadata.updatedAt) {
+        assetMetadataMap.set(assetId, tokenMetadata);
+      }
+    });
+
+    // Convert to Core.Asset objects
+    assetMetadataMap.forEach((tokenMetadata) => {
+      const coreAsset = this.tokenMetadataToCoreAsset(tokenMetadata);
+      assetMap.set(coreAsset.id, coreAsset);
+    });
+
+    return Array.from(assetMap.values());
+  }
+
+  /**
+   * Get asset by ID as Core type
+   * @param assetId - The asset ID
+   * @returns Core.Asset or null if not found
+   */
+  getCoreAssetById(assetId: string): Core.Asset | null {
+    // Check cache first
+    if (this.coreAssetsCache.has(assetId)) {
+      return this.coreAssetsCache.get(assetId)!;
+    }
+
+    // Get all token addresses for this asset
+    const assetInfo = this.assetTokenMap.assets[assetId];
+    if (!assetInfo || assetInfo.tokens.length === 0) return null;
+
+    const tokenAddresses = assetInfo.tokens;
+
+    // Find the token metadata with the most recent updatedAt
+    let mostRecentMetadata: TokenMetadata | null = null;
+    tokenAddresses.forEach((address) => {
+      const metadata = this.assetMetadata[address];
+      if (metadata && (!mostRecentMetadata || metadata.metadata.updatedAt > mostRecentMetadata.metadata.updatedAt)) {
+        mostRecentMetadata = metadata;
+      }
+    });
+
+    return mostRecentMetadata ? this.tokenMetadataToCoreAsset(mostRecentMetadata) : null;
+  }
+
+  /**
+   * Get all tokens as Core types
+   * @returns Array of Core.Token objects
+   */
+  getAllCoreTokens(): Core.Token[] {
+    return Object.values(this.assetMetadata).map((tokenMetadata) =>
+      this.tokenMetadataToCoreToken(tokenMetadata)
+    );
+  }
+
+  /**
+   * Get token by address as Core type
+   * @param contractAddress - The token contract address
+   * @returns Core.Token or null if not found
+   */
+  getCoreTokenByAddress(contractAddress: string): Core.Token | null {
+    const tokenMetadata = this.assetMetadata[contractAddress];
+    return tokenMetadata ? this.tokenMetadataToCoreToken(tokenMetadata) : null;
+  }
+
+  /**
+   * Get tokens for asset as Core types
+   * @param assetId - The asset ID
+   * @returns Array of Core.Token objects
+   */
+  getCoreTokensByAssetId(assetId: string): Core.Token[] {
+    const tokenAddresses = this.getTokenContractsByAssetId(assetId);
+    return tokenAddresses
+      .map(address => this.getCoreTokenByAddress(address))
+      .filter((token): token is Core.Token => token !== null);
   }
 }
 

@@ -42,8 +42,31 @@
 	
 	// Calculate pie segments
 	$: pieData = (() => {
+		if (!data || !Array.isArray(data) || data.length === 0) return [];
+		
+		// Filter out invalid data and ensure percentages are valid
+		const validData = data.filter(item => 
+			item && 
+			typeof item.percentage === 'number' && 
+			!isNaN(item.percentage) && 
+			item.percentage > 0 &&
+			typeof item.value === 'number' &&
+			!isNaN(item.value) &&
+			item.value >= 0 &&
+			item.label &&
+			typeof item.label === 'string'
+		);
+		
+		if (validData.length === 0) return [];
+		
+		// Normalize percentages to ensure they sum to 100
+		const totalPercentage = validData.reduce((sum, item) => sum + item.percentage, 0);
+		const normalizedData = totalPercentage > 0 
+			? validData.map(item => ({ ...item, percentage: (item.percentage / totalPercentage) * 100 }))
+			: validData;
+		
 		let currentAngle = -Math.PI / 2; // Start at top
-		return data.map((item, index) => {
+		return normalizedData.map((item, index) => {
 			const startAngle = currentAngle;
 			const endAngle = currentAngle + (item.percentage / 100) * 2 * Math.PI;
 			currentAngle = endAngle;
@@ -109,9 +132,9 @@
 			show: true,
 			x,
 			y,
-			value: segment.value,
-			label: segment.label,
-			percentage: segment.percentage
+			value: segment.value || 0,
+			label: segment.label || '',
+			percentage: segment.percentage || 0
 		};
 	}
 	
@@ -149,14 +172,14 @@
 				on:mouseleave={handleMouseLeave}
 				role="button"
 				tabindex="0"
-				aria-label="{segment.label}: {segment.percentage.toFixed(1)}%"
+				aria-label="{segment.label}: {(segment.percentage || 0).toFixed(1)}%"
 			/>
 		{/each}
 		
 		<!-- Labels on segments -->
 		{#if showLabels}
 			{#each pieData as segment}
-				{#if segment.percentage >= 5}
+				{#if segment.percentage >= 5 && !isNaN(segment.percentage) && segment.percentage != null}
 					<text
 						x={segment.labelX}
 						y={segment.labelY}
@@ -168,7 +191,7 @@
 						pointer-events="none"
 						style="text-shadow: 0 1px 2px rgba(0,0,0,0.3)"
 					>
-						{segment.percentage.toFixed(0)}%
+						{(segment.percentage || 0).toFixed(0)}%
 					</text>
 				{/if}
 			{/each}
@@ -201,8 +224,8 @@
 			style="left: {tooltipData.x}px; top: {tooltipData.y - 60}px; transform: translateX(-50%);"
 		>
 			<div class="font-bold">{tooltipData.label}</div>
-			<div>{valuePrefix}{tooltipData.value.toLocaleString()}</div>
-			<div class="text-xs opacity-80">{tooltipData.percentage.toFixed(1)}% of portfolio</div>
+			<div>{valuePrefix}{(tooltipData.value || 0).toLocaleString()}</div>
+			<div class="text-xs opacity-80">{(tooltipData.percentage || 0).toFixed(1)}% of portfolio</div>
 		</div>
 	{/if}
 </div>

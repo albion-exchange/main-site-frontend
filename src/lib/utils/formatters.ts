@@ -88,9 +88,9 @@ export function formatDate(
   if (isNaN(dateObj.getTime())) return 'Invalid Date';
   
   const options: Intl.DateTimeFormatOptions = {
-    short: { month: 'numeric', day: 'numeric', year: 'numeric' },
-    medium: { month: 'short', day: 'numeric', year: 'numeric' },
-    long: { month: 'long', day: 'numeric', year: 'numeric' }
+    short: { month: 'numeric' as const, day: 'numeric' as const, year: 'numeric' as const },
+    medium: { month: 'short' as const, day: 'numeric' as const, year: 'numeric' as const },
+    long: { month: 'long' as const, day: 'numeric' as const, year: 'numeric' as const }
   }[format];
   
   return new Intl.DateTimeFormat('en-US', options).format(dateObj);

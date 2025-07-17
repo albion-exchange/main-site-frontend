@@ -142,7 +142,7 @@
 							{@const isFlipped = $flippedCards.has(holding.id)}
 							{@const payoutData = isFlipped ? getHoldingPayoutChartData(holding) : []}
 							<div class="mb-3" style="perspective: 1000px;">
-								<div class="relative w-full transition-transform duration-500 preserve-3d" style="transform: rotateY({isFlipped ? 180 : 0}deg); height: 360px;">
+								<div class="relative w-full transition-transform duration-500 preserve-3d" style="transform: rotateY({isFlipped ? 180 : 0}deg); height: 280px;">
 									<!-- Front of card -->
 									<div class="absolute inset-0 w-full h-full backface-hidden">
 										<Card hoverable showBorder>
@@ -264,13 +264,14 @@
 													<h4 class="font-extrabold text-black text-lg">{holding.name} - Payout History</h4>
 													<SecondaryButton size="small" on:click={() => toggleCard(holding.id)}>Back</SecondaryButton>
 												</div>
-												<div class="h-[280px]">
-													<BarChart 
+												<div class="h-[200px]">
+													<Chart 
 														data={payoutData}
 														barColor="#08bccc"
 														showGrid={true}
-														height={280}
+														height={200}
 														valuePrefix="$"
+														showAreaFill={true}
 													/>
 												</div>
 											</CardContent>
@@ -360,8 +361,8 @@
 													</div>
 												</div>
 												<div class="text-right">
-													<div class="font-extrabold text-black">{formatPercentage(allocation.percentage / 100, { decimals: 1 })}</div>
-													<div class="text-xs text-black opacity-70">{formatCurrency(allocation.value)}</div>
+													<div class="font-extrabold text-black">{formatPercentage((allocation.percentage || 0) / 100, { decimals: 1 })}</div>
+													<div class="text-xs text-black opacity-70">{formatCurrency(allocation.value || 0)}</div>
 												</div>
 											</div>
 										{/each}

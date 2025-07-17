@@ -156,20 +156,42 @@ class WalletDataService {
     holdingsByAddress.forEach((data, contractAddress) => {
       // Get token and asset info
       const token = dataStoreService.getTokenByAddress(contractAddress);
-      if (!token) return;
+      if (!token) {
+        console.warn(`Token not found for contract address: ${contractAddress}`);
+        return;
+      }
 
       const asset = dataStoreService.getAssetById(token.assetId);
-      if (!asset) return;
+      if (!asset) {
+        console.warn(`Asset not found for token assetId: ${token.assetId}`);
+        return;
+      }
 
       // Calculate investment amount
       const investmentAmount = data.transactions
         .filter((tx) => tx.type === "mint")
-        .reduce((sum, tx) => sum + tx.amountUSD, 0);
+        .reduce((sum, tx) => {
+          const amount = tx.amountUSD;
+          // Validate that amount is a valid number
+          if (typeof amount !== 'number' || isNaN(amount)) {
+            console.warn(`Invalid amountUSD for transaction ${tx.id || tx.txHash}: ${amount}`);
+            return sum;
+          }
+          return sum + amount;
+        }, 0);
 
       // Calculate token balance
       const tokenBalance = data.transactions
         .filter((tx) => tx.type === "mint")
-        .reduce((sum, tx) => sum + tx.amount, 0);
+        .reduce((sum, tx) => {
+          const amount = tx.amount;
+          // Validate that amount is a valid number
+          if (typeof amount !== 'number' || isNaN(amount)) {
+            console.warn(`Invalid amount for transaction ${tx.id || tx.txHash}: ${amount}`);
+            return sum;
+          }
+          return sum + amount;
+        }, 0);
 
       // Build payout history
       const payoutHistory = this.buildPayoutHistory(
@@ -178,11 +200,33 @@ class WalletDataService {
       );
 
       // Calculate payout summary
-      const totalEarned = data.payouts.reduce((sum, p) => sum + p.amount, 0);
+      const totalEarned = data.payouts.reduce((sum, p) => {
+        const amount = p.amount;
+        if (typeof amount !== 'number' || isNaN(amount)) {
+          console.warn(`Invalid payout amount for payout ${p.id}: ${amount}`);
+          return sum;
+        }
+        return sum + amount;
+      }, 0);
+      
       const claimedAmount = this.rawData.transactions
         .filter((tx) => tx.type === "claim" && tx.address === contractAddress)
-        .reduce((sum, tx) => sum + tx.amount, 0);
+        .reduce((sum, tx) => {
+          const amount = tx.amount;
+          if (typeof amount !== 'number' || isNaN(amount)) {
+            console.warn(`Invalid claim amount for transaction ${tx.id || tx.txHash}: ${amount}`);
+            return sum;
+          }
+          return sum + amount;
+        }, 0);
+      
       const unclaimedAmount = totalEarned - claimedAmount;
+
+      // Skip holdings with invalid investment amounts
+      if (!investmentAmount || typeof investmentAmount !== 'number' || isNaN(investmentAmount) || investmentAmount <= 0) {
+        console.warn(`Skipping holding with invalid investment amount: ${investmentAmount} for contract ${contractAddress}`);
+        return;
+      }
 
       // Get last claim date
       const lastClaim = this.rawData.transactions
@@ -359,6 +403,16 @@ class WalletDataService {
     const payoutsByMonth = new Map<string, number>();
 
     this.rawData.payouts.forEach((payout) => {
+      // Validate payout data
+      if (!payout || typeof payout.amount !== 'number' || isNaN(payout.amount)) {
+        console.warn(`Invalid payout data:`, payout);
+        return;
+      }
+      if (!payout.month || typeof payout.month !== 'string') {
+        console.warn(`Invalid payout month:`, payout);
+        return;
+      }
+
       const current = payoutsByMonth.get(payout.month) || 0;
       payoutsByMonth.set(payout.month, current + payout.amount);
     });
@@ -366,6 +420,14 @@ class WalletDataService {
     // Convert to array and sort
     return Array.from(payoutsByMonth.entries())
       .map(([month, totalPayout]) => ({ month, totalPayout }))
+      .filter(({ month, totalPayout }) => {
+        // Final validation
+        return month && 
+               typeof month === 'string' && 
+               typeof totalPayout === 'number' && 
+               !isNaN(totalPayout) && 
+               totalPayout >= 0;
+      })
       .sort((a, b) => a.month.localeCompare(b.month));
   }
 
@@ -433,22 +495,33 @@ class WalletDataService {
     const holdings = this.computeHoldings();
     const totalPortfolioValue = this.getTotalInvested();
 
-    return holdings.map((holding) => {
-      const percentageOfPortfolio =
-        totalPortfolioValue > 0
-          ? (holding.investmentAmount / totalPortfolioValue) * 100
-          : 0;
+    return holdings
+      .filter(holding => {
+        // Filter out holdings with invalid investment amounts
+        return holding.investmentAmount && 
+               typeof holding.investmentAmount === 'number' && 
+               !isNaN(holding.investmentAmount) && 
+               holding.investmentAmount > 0;
+      })
+      .map((holding) => {
+        const percentageOfPortfolio =
+          totalPortfolioValue > 0
+            ? (holding.investmentAmount / totalPortfolioValue) * 100
+            : 0;
 
-      return {
-        tokenSymbol: holding.symbol,
-        assetId: holding.assetId,
-        assetName: holding.assetName,
-        tokensOwned: holding.formattedBalance,
-        percentageOfPortfolio,
-        currentValue: holding.investmentAmount, // In real implementation, would fetch current market value
-        totalEarned: holding.payoutsSummary.totalEarned,
-      };
-    });
+        // Ensure percentage is a valid number
+        const validPercentage = isNaN(percentageOfPortfolio) ? 0 : percentageOfPortfolio;
+
+        return {
+          tokenSymbol: holding.symbol,
+          assetId: holding.assetId,
+          assetName: holding.assetName,
+          tokensOwned: holding.formattedBalance,
+          percentageOfPortfolio: validPercentage,
+          currentValue: holding.investmentAmount, // In real implementation, would fetch current market value
+          totalEarned: holding.payoutsSummary.totalEarned,
+        };
+      });
   }
 
   /**
