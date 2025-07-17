@@ -449,23 +449,6 @@
 															acc.push({ label: d.date, value: prevTotal + d.value });
 															return acc;
 														}, [])}
-														{@const chartHeight = 180}
-														{@const chartWidth = 400}
-														{@const padding = { top: 40, right: 20, bottom: 40, left: 60 }}
-														{@const minValue = Math.min(...cumulativeData.map(d => d.value), 0)}
-														{@const maxValue = Math.max(...cumulativeData.map(d => d.value), 1)}
-														{@const getNiceNumber = (value) => {
-															const magnitude = Math.pow(10, Math.floor(Math.log10(value)));
-															const normalized = value / magnitude;
-															if (normalized <= 1) return 1 * magnitude;
-															if (normalized <= 2) return 2 * magnitude;
-															if (normalized <= 5) return 5 * magnitude;
-															return 10 * magnitude;
-														}}
-														{@const niceMin = minValue < 0 ? -getNiceNumber(Math.abs(minValue) * 1.1) : 0}
-														{@const niceMax = getNiceNumber(maxValue * 1.1)}
-														{@const valueRange = niceMax - niceMin}
-														{@const breakEvenY = padding.top + chartHeight - ((holding.totalInvested - niceMin) / valueRange) * chartHeight}
 														<!-- Monthly Payouts Chart -->
 														<div class="flex-1">
 															<h5 class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-1">Monthly Payouts</h5>
@@ -483,40 +466,20 @@
 														<!-- Cumulative Payouts Chart -->
 														<div class="flex-1">
 															<h5 class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-1">Cumulative Returns</h5>
-															<div class="relative">
-																<Chart
-																	data={cumulativeData}
-																	width={400}
-																	height={220}
-																	barColor="#08bccc"
-																	valuePrefix="$"
-																	animate={true}
-																	showGrid={true}
-																/>
-																<!-- Breakeven line -->
-																<svg class="absolute top-0 left-0" width={chartWidth} height={220} style="pointer-events: none;">
-																	<line 
-																		x1={padding.left} 
-																		y1={breakEvenY} 
-																		x2={chartWidth - padding.right} 
-																		y2={breakEvenY} 
-																		stroke="#283c84" 
-																		stroke-width="2" 
-																		stroke-dasharray="5,5"
-																		opacity="0.7"
-																	/>
-																	<text 
-																		x={padding.left + 2} 
-																		y={breakEvenY - 5} 
-																		font-size="11" 
-																		fill="#283c84" 
-																		font-weight="600"
-																		text-anchor="start"
-																	>
-																		Breakeven ${holding.totalInvested.toLocaleString()}
-																	</text>
-																</svg>
-															</div>
+															<Chart
+																data={cumulativeData}
+																width={400}
+																height={220}
+																barColor="#08bccc"
+																valuePrefix="$"
+																animate={true}
+																showGrid={true}
+																horizontalLine={{
+																	value: holding.totalInvested,
+																	label: 'Breakeven',
+																	color: '#283c84'
+																}}
+															/>
 														</div>
 													{:else}
 														<div class="flex-1 flex items-center justify-center text-center text-black opacity-70">
