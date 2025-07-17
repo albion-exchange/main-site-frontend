@@ -43,6 +43,7 @@ export interface TokenMetadata {
   supply: TokenSupply;
   monthlyData: MonthlyData[];
   asset: AssetData;
+  metadata: Metadata;
 }
 
 export interface Document {
@@ -87,7 +88,6 @@ export interface AssetData {
   documents: Document[];
   coverImage: string;
   galleryImages: GalleryImage[];
-  metadata: Metadata;
 }
 
 export interface Operator {

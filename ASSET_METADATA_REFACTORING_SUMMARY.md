@@ -15,8 +15,10 @@ Completed a comprehensive refactoring of the asset metadata structure to improve
 - `assetName` - Name of the underlying asset
 - `documents` - Asset-related documents
 - `coverImage` - Asset cover image
-- `galleryImages` - Asset gallery images  
-- `metadata` - Asset creation/update timestamps
+- `galleryImages` - Asset gallery images
+
+#### Moved BACK to TokenMetadata (corrected):
+- `metadata` - Token creation/update timestamps (stays at token level)
 
 #### Remaining in TokenMetadata (token-specific):
 - `contractAddress` - Smart contract address
@@ -32,11 +34,17 @@ Completed a comprehensive refactoring of the asset metadata structure to improve
 
 ### 3. Files Updated
 - `/workspace/src/lib/types/assetMetadataTypes.ts` - Main type definitions
-- `/workspace/src/lib/services/DataStoreService.ts` - Service layer implementation
+- `/workspace/src/lib/services/DataStoreService.ts` - Service layer implementation and method names
 - `/workspace/src/lib/utils/dateValidation.ts` - Date validation schemas
 - `/workspace/src/lib/utils/dateValidation.example.ts` - Example usage
 
-### 4. Import Handling
+### 4. Method Name Updates
+- `convertJsonToAssetMetadata` → `convertJsonToTokenMetadata`
+- `assetMetadataToAsset` → `tokenMetadataToAsset`  
+- `assetMetadataToToken` → `tokenMetadataToToken`
+- `getAssetMetadataByAddress` → `getTokenMetadataByAddress`
+
+### 5. Import Handling
 - Resolved naming conflicts between `Asset` type from `assetMetadataTypes.ts` and `uiTypes.ts`
 - Used import alias `AssetData` for the asset metadata Asset type
 
@@ -76,7 +84,31 @@ interface AssetData {
   galleryImages: GalleryImage[];
   // ... other asset fields
 }
+
+interface TokenMetadata {
+  // Token fields + reference to asset
+  contractAddress: string;
+  // ... other token fields
+  asset: AssetData;
+  metadata: Metadata; // Token metadata (creation/update times)
+}
 ```
+
+## AssetId Placement Decision
+
+The `assetId` field remains at the **TokenMetadata level** for the following reasons:
+
+**Arguments FOR keeping at TokenMetadata:**
+- Serves as foreign key linking token to asset
+- Multiple tokens can reference the same asset (different releases/tranches)
+- Service layer logic expects this structure
+- Tokens need to know their associated asset
+
+**Arguments AGAINST (for moving to Asset level):**
+- More conceptually pure (assets naturally have IDs)
+- Avoids duplication when multiple tokens reference same asset
+
+**Decision**: Keep at TokenMetadata level for practical reasons and current architecture compatibility.
 
 ## Other Potential Conceptual Issues Identified
 
