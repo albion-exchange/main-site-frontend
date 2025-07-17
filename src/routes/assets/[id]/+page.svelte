@@ -205,7 +205,7 @@
 		</div>
 	{:else}
 		<!-- Breadcrumb -->
-		<div class="max-w-6xl mx-auto px-8">
+		<div class="max-w-6xl mx-auto">
 			<nav class="mb-8 text-sm font-medium">
 				<a href="/assets" class="text-secondary no-underline hover:text-black">← Back to Assets</a>
 				<span class="mx-2 text-light-gray">/</span>
@@ -215,8 +215,9 @@
 
 		<!-- Asset Header -->
 		<div class="max-w-6xl mx-auto px-8">
-		<div class="bg-white border border-light-gray md:p-12 p-6 mb-8">
-			<div class="mb-12">
+		<div class="bg-white mb-8">
+			<div class="py-12">
+				<div class="mb-12">
 				<div class="flex md:items-start items-center md:flex-row flex-col md:gap-8 gap-4 mb-8">
 					<div class="w-16 h-16 rounded-lg overflow-hidden border border-light-gray">
 						<img 
@@ -302,6 +303,7 @@
 					/>
 				</div>
 			</div>
+		</div>
 
 		</div>
 	</div>
@@ -749,8 +751,9 @@
 		<!-- Available Tokens Section -->
 		<ContentSection background="white" padding="none">
 			<div class="max-w-6xl mx-auto px-8">
-			<div class="bg-white border border-light-gray md:p-12 p-6">
-				<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
+			<div class="bg-white">
+				<div class="py-12">
+					<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 					{#each assetTokens as token}
 						{@const supply = dataStoreService.getTokenSupply(token.contractAddress)}
@@ -973,6 +976,7 @@
 						</Card>
 						{/if}
 					{/if}
+				</div>
 				</div>
 			</div>
 		</div>

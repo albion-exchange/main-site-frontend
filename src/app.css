@@ -130,6 +130,13 @@
   }
 }
 
+/* Hide all borders with border-light-gray class universally */
+@layer utilities {
+  .border-light-gray {
+    border-color: transparent !important;
+  }
+}
+
 /* Slide Animations */
 @keyframes slide-in-right {
   from {
