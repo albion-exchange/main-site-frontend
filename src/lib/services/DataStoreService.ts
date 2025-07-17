@@ -8,8 +8,8 @@ import type {
   MonthlyData,
   AssetData,
   PlannedProductionProjection,
-} from "$lib/types/assetMetadataTypes";
-import { TokenType, ProductionStatus } from "$lib/types/assetMetadataTypes";
+} from "$lib/types/MetaboardTypes";
+import { TokenType, ProductionStatus } from "$lib/types/MetaboardTypes";
 import type {
   Asset,
   Token,
