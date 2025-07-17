@@ -29,7 +29,7 @@ import {
 import marketData from "$lib/data/marketData.json";
 import platformStats from "$lib/data/platformStats.json";
 import companyInfo from "$lib/data/companyInfo.json";
-import defaultValues from "$lib/data/defaultValues.json";
+
 import assetTokenMapping from "$lib/data/assetTokenMapping.json";
 
 // Import all mock token metadata
@@ -822,12 +822,7 @@ class DataStoreService {
     return marketData.platformFees;
   }
 
-  /**
-   * Get default fallback values
-   */
-  getDefaultValues() {
-    return defaultValues;
-  }
+
 
   /**
    * Get future token releases (flattened from all assets)

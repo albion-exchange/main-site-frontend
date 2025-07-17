@@ -30,7 +30,7 @@ src/lib/data/
 │   │       └── *_future.json        # Future release data
 │   └── TEMPLATE/                    # Template for new assets
 ├── companyInfo.json                 # Platform company data
-├── defaultValues.json               # Fallback values for calculations
+
 ├── marketData.json                  # Market pricing and platform stats - REPLACE WITH EXTERNAL DATASOURCE
 └── platformStats.json               # Global platform metrics - REPLACE WITH ONCHAIN METRICS
 ```
