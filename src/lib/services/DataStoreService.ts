@@ -8,6 +8,7 @@ import type {
   MonthlyData,
   AssetData,
   PlannedProductionProjection,
+  FutureReleaseData,
 } from "$lib/types/MetaboardTypes";
 import { TokenType, ProductionStatus } from "$lib/types/MetaboardTypes";
 import type {
@@ -29,6 +30,7 @@ import {
 import marketData from "$lib/data/marketData.json";
 import platformStats from "$lib/data/platformStats.json";
 import companyInfo from "$lib/data/companyInfo.json";
+import futureReleasesData from "$lib/data/futureReleases.json";
 
 import assetTokenMapping from "$lib/data/assetTokenMapping.json";
 
@@ -42,19 +44,7 @@ import perBv1Metadata from "$lib/data/mockTokenMetadata/per-bv1.json";
 import gomDw1Metadata from "$lib/data/mockTokenMetadata/gom-dw1.json";
 import eurWrLegacyMetadata from "$lib/data/mockTokenMetadata/eur-wr-legacy.json";
 
-// Future release data (mock data for now)
-const eurWr4Future = [
-  { whenRelease: "Q2 2025", description: "Additional Wressle release" },
-];
-const bakHf3Future = [
-  { whenRelease: "Q3 2025", description: "Additional Bakken release" },
-];
-const perBv2Future = [
-  { whenRelease: "Q4 2025", description: "Additional Permian release" },
-];
-const gomDw2Future = [
-  { whenRelease: "Q1 2026", description: "Additional Gulf of Mexico release" },
-];
+
 
 class DataStoreService {
   private assetMetadata: Record<string, TokenMetadata>;
@@ -62,9 +52,11 @@ class DataStoreService {
   private tokensCache: Map<string, Token> = new Map();
   private assetTokenMap: AssetTokenMapping;
   private tokenToAssetMap: Map<string, string> = new Map();
+  private futureReleases: FutureReleaseData;
 
   constructor() {
     this.assetTokenMap = assetTokenMapping as AssetTokenMapping;
+    this.futureReleases = futureReleasesData as FutureReleaseData;
 
     // Build reverse mapping on initialization
     Object.entries(this.assetTokenMap.assets).forEach(
@@ -842,39 +834,16 @@ class DataStoreService {
       emoji?: string;
     }> = [];
 
-    // Add Europa Wressle releases
-    eurWr4Future.forEach((release) => {
-      allReleases.push({
-        assetId: "europa-wressle-release-1",
-        tokenId: "eur_wr4",
-        ...release,
-      });
-    });
-
-    // Add Bakken Horizon releases
-    bakHf3Future.forEach((release) => {
-      allReleases.push({
-        assetId: "bakken-horizon-field",
-        tokenId: "bak_hf3",
-        ...release,
-      });
-    });
-
-    // Add Permian Basin releases
-    perBv2Future.forEach((release) => {
-      allReleases.push({
-        assetId: "permian-basin-venture",
-        tokenId: "per_bv2",
-        ...release,
-      });
-    });
-
-    // Add Gulf of Mexico releases
-    gomDw2Future.forEach((release) => {
-      allReleases.push({
-        assetId: "gulf-mexico-deep-water",
-        tokenId: "gom_dw2",
-        ...release,
+    // Iterate through all assets and their tokens in the future releases data
+    Object.entries(this.futureReleases).forEach(([assetId, tokens]) => {
+      Object.entries(tokens).forEach(([tokenId, releases]) => {
+        releases.forEach((release) => {
+          allReleases.push({
+            assetId,
+            tokenId,
+            ...release,
+          });
+        });
       });
     });
 
