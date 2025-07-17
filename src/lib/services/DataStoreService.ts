@@ -411,12 +411,7 @@ class DataStoreService {
     return tokenMetadata ? this.tokenMetadataToToken(tokenMetadata) : null;
   }
 
-  /**
-   * Get token metadata by contract address
-   */
-  getTokenMetadataByAddress(contractAddress: string): TokenMetadata | null {
-    return this.assetMetadata[contractAddress] || null;
-  }
+
 
   /**
    * Get token by symbol
