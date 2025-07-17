@@ -1,0 +1,337 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import ChartTooltip from './ChartTooltip.svelte';
+	
+	export let data: Array<{label: string; value: number}> = [];
+	export let data2: Array<{label: string; value: number}> = [];
+	export let width: number = 950;
+	export let height: number = 400;
+	export let barColor: string = '#08bccc';
+	export let barColor2: string = '#283c84';
+	export let valuePrefix: string = '';
+	export let valueSuffix: string = '';
+	export let title: string = '';
+	export let showValues: boolean = false;
+	export let animate: boolean = true;
+	export let showGrid: boolean = true;
+	export let series1Name: string = '';
+	export let series2Name: string = '';
+	
+	// Helper to determine which labels to show based on data density
+	function getLabelsToShow(data: Array<{label: string; value: number}>): {indices: number[], showYear: boolean} {
+		const count = data.length;
+		let indices: number[] = [];
+		let showYear = true;
+		
+		if (count <= 12) {
+			// Show all months
+			indices = data.map((_, i) => i);
+		} else if (count <= 24) {
+			// Show every other month
+			indices = data.map((_, i) => i).filter(i => i % 2 === 0);
+		} else if (count <= 48) {
+			// Show quarterly (Jan, Apr, Jul, Oct)
+			indices = data.map((_, i) => {
+				try {
+					const dateStr = data[i].label.includes('T') ? data[i].label : data[i].label + 'T00:00:00';
+					const date = new Date(dateStr);
+					if (isNaN(date.getTime())) return -1;
+					const month = date.getMonth();
+					return [0, 3, 6, 9].includes(month) ? i : -1;
+				} catch {
+					return -1;
+				}
+			}).filter(i => i >= 0);
+		} else {
+			// Show only years
+			indices = data.map((_, i) => {
+				const dateStr = data[i].label.includes('T') ? data[i].label : data[i].label + 'T00:00:00';
+				const date = new Date(dateStr);
+				const prevDateStr = i > 0 ? (data[i-1].label.includes('T') ? data[i-1].label : data[i-1].label + 'T00:00:00') : null;
+				const prevDate = prevDateStr ? new Date(prevDateStr) : null;
+				return !prevDate || date.getFullYear() !== prevDate.getFullYear() ? i : -1;
+			}).filter(i => i >= 0);
+			showYear = false; // Don't show year separately as it's in the label
+		}
+		
+		return { indices, showYear };
+	}
+	
+	let svg: SVGSVGElement;
+	let tooltipData = {
+		show: false,
+		x: 0,
+		y: 0,
+		value: 0,
+		label: ''
+	};
+	
+	const padding = { top: 40, right: 20, bottom: 80, left: 60 }; // Increased bottom padding for legend and x-axis labels
+	const chartWidth = width - padding.left - padding.right;
+	const chartHeight = height - padding.top - padding.bottom;
+	
+	// Function to round to nice numbers (1-2 significant figures)
+	function getNiceNumber(value: number): number {
+		if (value === 0) return 0;
+		const magnitude = Math.pow(10, Math.floor(Math.log10(value)));
+		const normalized = value / magnitude;
+		
+		// Round to nice values: 1, 2, 2.5, 5, 10
+		if (normalized <= 1) return magnitude;
+		if (normalized <= 2) return 2 * magnitude;
+		if (normalized <= 2.5) return 2.5 * magnitude;
+		if (normalized <= 5) return 5 * magnitude;
+		return 10 * magnitude;
+	}
+	
+	$: allData = [...data, ...(data2.length > 0 ? data2 : [])];
+	$: minValue = Math.min(...allData.map(d => d.value), 0);
+	$: maxValue = Math.max(...allData.map(d => d.value), 1);
+	$: niceMin = minValue < 0 ? -getNiceNumber(Math.abs(minValue) * 1.1) : 0;
+	$: niceMax = getNiceNumber(maxValue * 1.1); // Add 10% padding
+	$: valueRange = niceMax - niceMin;
+	$: barWidth = data2.length > 0 
+		? chartWidth / Math.max(data.length, 1) * 0.3 // Half width when showing two series
+		: chartWidth / Math.max(data.length, 1) * 0.6;
+	$: barSpacing = chartWidth / Math.max(data.length, 1);
+	$: zeroY = padding.top + chartHeight - ((0 - niceMin) / valueRange) * chartHeight;
+	
+	function handleMouseMove(event: MouseEvent, index: number, series: 1 | 2 = 1) {
+		if (!svg || index >= data.length) return;
+		
+		const dataPoint = series === 1 ? data[index] : data2[index];
+		if (!dataPoint) return;
+		
+		const x = series === 1 
+			? padding.left + index * barSpacing + (barSpacing - barWidth * 2) / 2 + barWidth / 2
+			: padding.left + index * barSpacing + (barSpacing - barWidth * 2) / 2 + barWidth * 1.5;
+		const y = padding.top + chartHeight - ((dataPoint.value - niceMin) / valueRange) * chartHeight;
+		
+		// Format date for tooltip
+		let formattedLabel = dataPoint.label;
+		try {
+			const dateStr = dataPoint.label.includes('T') ? dataPoint.label : dataPoint.label + 'T00:00:00';
+			const date = new Date(dateStr);
+			if (!isNaN(date.getTime())) {
+				formattedLabel = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+			}
+		} catch (e) {
+			// Keep original label if date parsing fails
+		}
+		
+		tooltipData = {
+			show: true,
+			x,
+			y: Math.min(y, zeroY),
+			value: dataPoint.value,
+			label: formattedLabel
+		};
+	}
+	
+	function handleMouseLeave() {
+		tooltipData.show = false;
+	}
+</script>
+
+<div class="relative">
+	<svg bind:this={svg} {width} {height} xmlns="http://www.w3.org/2000/svg">
+		<!-- Background -->
+		<rect width={width} height={height} fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
+		
+		<!-- Grid lines -->
+		{#if showGrid}
+			{#each Array(6) as _, i}
+				<line 
+					x1={padding.left} 
+					y1={padding.top + i * (chartHeight / 5)} 
+					x2={padding.left + chartWidth} 
+					y2={padding.top + i * (chartHeight / 5)} 
+					stroke="#f8f4f4" 
+					stroke-width="1" 
+				/>
+			{/each}
+		{/if}
+		
+		<!-- Y-axis labels -->
+		{#each Array(6) as _, i}
+			{@const value = niceMax - (i / 5) * valueRange}
+			{@const absValue = Math.abs(value)}
+			{@const formattedValue = absValue >= 1000 ? `${value < 0 ? '-' : ''}${Math.round(absValue / 1000)}k` : Math.round(value).toString()}
+			<text 
+				x={padding.left - 10} 
+				y={padding.top + i * (chartHeight / 5) + 5} 
+				text-anchor="end" 
+				font-size="12" 
+				fill="#666666" 
+				font-family="Figtree" 
+				font-weight="normal"
+			>
+				{formattedValue}
+			</text>
+		{/each}
+		
+		<!-- X-axis labels -->
+		{#if data.length > 0}
+			{@const labelInfo = getLabelsToShow(data)}
+			{#each data as item, i}
+				{#if labelInfo.indices.includes(i)}
+					{@const dateStr = item.label.includes('T') ? item.label : item.label + 'T00:00:00'}
+					{@const date = new Date(dateStr)}
+					{@const isValidDate = !isNaN(date.getTime())}
+					{@const monthLabel = isValidDate ? date.toLocaleDateString('en-US', { month: 'short' }) : item.label}
+					{@const year = isValidDate ? date.getFullYear() : ''}
+					
+					<text 
+						x={padding.left + i * barSpacing + barSpacing / 2} 
+						y={padding.top + chartHeight + 20} 
+						text-anchor="middle" 
+						font-size="12" 
+						fill="#000000" 
+						opacity="0.8"
+					>
+						{labelInfo.showYear ? monthLabel : year}
+					</text>
+					
+					{#if labelInfo.showYear && (i === 0 || date.getFullYear() !== new Date(data[Math.max(0, i-1)].label.includes('T') ? data[Math.max(0, i-1)].label : data[Math.max(0, i-1)].label + 'T00:00:00').getFullYear())}
+						<text 
+							x={padding.left + i * barSpacing + barSpacing / 2} 
+							y={padding.top + chartHeight + 35} 
+							text-anchor="middle" 
+							font-size="11" 
+							fill="#666666" 
+							font-weight="bold"
+						>
+							{year}
+						</text>
+					{/if}
+				{/if}
+			{/each}
+		{/if}
+		
+		<!-- Bars for first series -->
+		{#if data.length > 0}
+			{#each data as item, i}
+				{@const x = data2.length > 0 
+					? padding.left + i * barSpacing + (barSpacing - barWidth * 2) / 2
+					: padding.left + i * barSpacing + (barSpacing - barWidth) / 2}
+				{@const barHeight = Math.abs((item.value - 0) / valueRange) * chartHeight}
+				{@const y = item.value >= 0 
+					? zeroY - barHeight
+					: zeroY}
+				
+				<rect 
+					x={x} 
+					y={y} 
+					width={barWidth} 
+					height={barHeight}
+					fill={barColor}
+					on:mousemove={(e) => handleMouseMove(e, i, 1)}
+					on:mouseleave={handleMouseLeave}
+					class="cursor-pointer hover:opacity-80 transition-opacity duration-200"
+					role="button"
+					tabindex="0"
+					aria-label="{series1Name || 'Series 1'} data point {i + 1}"
+				/>
+			{/each}
+		{/if}
+		
+		<!-- Bars for second series -->
+		{#if data2.length > 0}
+			{#each data2 as item, i}
+				{@const x = padding.left + i * barSpacing + (barSpacing - barWidth * 2) / 2 + barWidth}
+				{@const barHeight = Math.abs((item.value - 0) / valueRange) * chartHeight}
+				{@const y = item.value >= 0 
+					? zeroY - barHeight
+					: zeroY}
+				
+				<rect 
+					x={x} 
+					y={y} 
+					width={barWidth} 
+					height={barHeight}
+					fill={barColor2}
+					on:mousemove={(e) => handleMouseMove(e, i, 2)}
+					on:mouseleave={handleMouseLeave}
+					class="cursor-pointer hover:opacity-80 transition-opacity duration-200"
+					role="button"
+					tabindex="0"
+					aria-label="{series2Name || 'Series 2'} data point {i + 1}"
+				/>
+			{/each}
+		{/if}
+		
+		<!-- Zero line if chart has negative values -->
+		{#if minValue < 0}
+			<line 
+				x1={padding.left} 
+				y1={zeroY} 
+				x2={padding.left + chartWidth} 
+				y2={zeroY} 
+				stroke="#000000" 
+				stroke-width="1" 
+				opacity="0.3"
+			/>
+		{/if}
+		
+		<!-- Values on bars (if not using tooltip) -->
+		{#if showValues && !tooltipData.show}
+			{#each data as item, i}
+				{@const x = padding.left + i * barSpacing + barSpacing / 2}
+				{@const y = padding.top + chartHeight - ((item.value - niceMin) / valueRange) * chartHeight - 10}
+				
+				<text 
+					{x}
+					{y}
+					text-anchor="middle" 
+					font-size="12" 
+					font-weight="bold" 
+					fill="#000000"
+				>
+					{Math.round(item.value)}
+				</text>
+			{/each}
+		{/if}
+		
+		<!-- Title -->
+		{#if title}
+			<text 
+				x={width / 2} 
+				y="25" 
+				text-anchor="middle" 
+				font-size="16" 
+				font-weight="bold" 
+				fill="#000000" 
+				font-family="Figtree"
+			>
+				{title}
+			</text>
+		{/if}
+		
+		<!-- Legend -->
+		{#if data2.length > 0 && (series1Name || series2Name)}
+			{@const legendX = width / 2 - 80}
+			{@const legendY = height - 40}
+			<g transform="translate({legendX}, {legendY})">
+				{#if series1Name}
+					<rect x="0" y="0" width="12" height="12" fill={barColor}/>
+					<text x="16" y="10" font-size="11" fill="#666">{series1Name}</text>
+				{/if}
+				{#if series2Name}
+					<rect x="80" y="0" width="12" height="12" fill={barColor2}/>
+					<text x="96" y="10" font-size="11" fill="#666">{series2Name}</text>
+				{/if}
+			</g>
+		{/if}
+		
+	</svg>
+	
+	<ChartTooltip
+		show={tooltipData.show}
+		x={tooltipData.x}
+		y={tooltipData.y}
+		value={tooltipData.value}
+		label={tooltipData.label}
+		valuePrefix={valuePrefix}
+		valueSuffix={valueSuffix}
+	/>
+</div>
