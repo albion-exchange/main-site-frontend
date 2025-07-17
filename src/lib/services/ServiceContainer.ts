@@ -59,7 +59,7 @@ class ServiceContainerImpl implements ServiceContainer {
   public cacheService: CacheService;
 
   private tokenMetadataMap: Map<string, TokenMetadata> = new Map();
-  private assetTokenMap: AssetTokenMapping;
+  private assetTokenMap!: AssetTokenMapping;
   private initialized = false;
 
   constructor(options: ServiceContainerOptions = {}) {

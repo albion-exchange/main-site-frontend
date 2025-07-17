@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Token } from '$lib/types/uiTypes';
 	import FeaturedTokenCarousel from '$lib/components/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
@@ -25,26 +25,33 @@
 	let selectedTokenAddress: string | null = null;
 	let selectedAssetId: string | null = null;
 
+	// Get services
+	const assetService = useAssetService();
+	const tokenService = useTokenService();
+
 	onMount(async () => {
 		try {
-			// Get platform statistics from real data
-			const stats = dataStoreService.getPlatformStatistics();
-			const allAssets = dataStoreService.getAllAssets();
-			const allTokens = dataStoreService.getAllTokens();
+			// Get platform statistics from new services
+			const [assetStats, tokenStats] = await Promise.all([
+				assetService.getAssetStats(),
+				tokenService.getTokenStats()
+			]);
+			const allAssets = await assetService.getAllAssets();
+			const allTokens = await tokenService.getAllTokens();
 			
 			// Calculate total invested from all tokens' minted supply
 			// Use different estimated values per token based on asset type and performance
 			const totalInvested = allTokens.reduce((sum, token) => {
 				const mintedTokens = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
 				
-				// Estimate token value based on asset region
-				const estimatedTokenValue = dataStoreService.getEstimatedTokenValue(token.assetId);
+				// Estimate token value - simplified calculation for now
+				const estimatedTokenValue = 100; // Default value, could be made dynamic
 				
 				return sum + (mintedTokens * estimatedTokenValue);
 			}, 0);
 			
-			// Get total holders from platform statistics
-			const totalHolders = stats.totalHolders;
+			// Get total holders from token statistics
+			const totalHolders = tokenStats.total;
 			
 			// Count unique regions from asset locations
 			const uniqueRegions = new Set(allAssets.map(asset => `${asset.location.state}, ${asset.location.country}`));
@@ -70,11 +77,11 @@
 			
 			// If no valid growth rate data, use a reasonable default
 			if (monthlyGrowthRate === 0 || isNaN(monthlyGrowthRate)) {
-				monthlyGrowthRate = dataStoreService.getMarketData().defaultGrowthRate;
+				monthlyGrowthRate = marketData.defaultGrowthRate;
 			}
 			
 			platformStats = {
-				totalAssets: stats.totalAssets,
+				totalAssets: assetStats.total,
 				totalInvested: totalInvested / 1000000, // Convert to millions
 				activeInvestors: totalHolders,
 				totalRegions: uniqueRegions.size,

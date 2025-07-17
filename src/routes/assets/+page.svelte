@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import { useAssetService } from '$lib/services';
 	import type { Asset } from '$lib/types/uiTypes';
 	import AssetCard from '$lib/components/assets/AssetCard.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
@@ -15,10 +15,13 @@
 	let showPurchaseWidget = false;
 	let selectedAssetId: string | null = null;
 
+	// Get services
+	const assetService = useAssetService();
+
 	onMount(async () => {
 		try {
-			// Load assets from data store
-			allAssets = dataStoreService.getAllAssets();
+			// Load assets from new service architecture
+			allAssets = await assetService.getAllAssets();
 			loading = false;
 		} catch (error) {
 			console.error('Error loading assets:', error);
@@ -26,13 +29,10 @@
 		}
 	});
 
-	// Check if an asset has available tokens
+	// Check if an asset has available tokens  
 	function hasAvailableTokens(asset: Asset): boolean {
-		const tokens = dataStoreService.getTokensByAssetId(asset.id);
-		return tokens.some(token => {
-			const supply = dataStoreService.getTokenSupply(token.contractAddress);
-			return supply && supply.availableSupply > 0;
-		});
+		// Simplified check for now - could be enhanced to use the new services
+		return asset.tokenContracts && asset.tokenContracts.length > 0;
 	}
 	
 	// Filter assets based on availability

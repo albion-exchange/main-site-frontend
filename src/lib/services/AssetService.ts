@@ -60,10 +60,11 @@ export class AssetService {
    * Get all assets with error handling
    */
   async getAllAssets(): Promise<Asset[]> {
-    return withErrorHandling(
+    const result = await withErrorHandling(
       async () => this.getAllAssetsSync(),
       { component: 'AssetService', action: 'getAllAssets' }
-    ) || [];
+    );
+    return result || [];
   }
 
   /**
@@ -162,10 +163,11 @@ export class AssetService {
    * Search and filter assets
    */
   async searchAssets(options: AssetSearchOptions = {}): Promise<Asset[]> {
-    return withErrorHandling(
+    const result = await withErrorHandling(
       async () => this.searchAssetsSync(options),
       { component: 'AssetService', action: 'searchAssets', options }
-    ) || [];
+    );
+    return result || [];
   }
 
   /**
@@ -181,8 +183,9 @@ export class AssetService {
         (asset) =>
           asset.name.toLowerCase().includes(searchTerm) ||
           asset.description.toLowerCase().includes(searchTerm) ||
-          asset.location.field.toLowerCase().includes(searchTerm) ||
-          asset.location.region.toLowerCase().includes(searchTerm)
+          asset.location.state.toLowerCase().includes(searchTerm) ||
+          asset.location.county.toLowerCase().includes(searchTerm) ||
+          asset.location.country.toLowerCase().includes(searchTerm)
       );
     }
 
@@ -198,7 +201,8 @@ export class AssetService {
         const locationTerm = location.toLowerCase();
         assets = assets.filter(
           (asset) =>
-            asset.location.region.toLowerCase().includes(locationTerm) ||
+            asset.location.state.toLowerCase().includes(locationTerm) ||
+            asset.location.county.toLowerCase().includes(locationTerm) ||
             asset.location.country.toLowerCase().includes(locationTerm)
         );
       }
@@ -276,7 +280,7 @@ export class AssetService {
     totalProduction: number;
     averageUptime: number;
   }> {
-    return withErrorHandling(
+    const result = await withErrorHandling(
       async () => {
         const assets = await this.getAllAssets();
         
@@ -297,7 +301,7 @@ export class AssetService {
           stats.byStatus[status] = (stats.byStatus[status] || 0) + 1;
 
           // Count by location
-          const location = asset.location.region;
+          const location = asset.location.state;
           stats.byLocation[location] = (stats.byLocation[location] || 0) + 1;
 
           // Sum production
@@ -319,7 +323,9 @@ export class AssetService {
         return stats;
       },
       { component: 'AssetService', action: 'getAssetStats' }
-    ) || {
+    );
+    
+    return result || {
       total: 0,
       byStatus: {},
       byLocation: {},

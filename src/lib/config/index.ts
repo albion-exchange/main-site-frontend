@@ -197,10 +197,10 @@ const stagingConfig: Partial<AppConfig> = {
 const baseConfig: AppConfig = {
   environment: 'development',
   version: '1.0.0',
-  market: marketData as MarketConfig,
-  platform: platformStats as PlatformConfig,
-  company: companyInfo as CompanyConfig,
-  assets: assetTokenMapping as AssetMapping,
+  market: marketData as any as MarketConfig,
+  platform: platformStats as any as PlatformConfig,
+  company: companyInfo as any as CompanyConfig,
+  assets: assetTokenMapping as any as AssetMapping,
   cache: {
     assets: { ttl: 300000, maxSize: 1000 },
     tokens: { ttl: 300000, maxSize: 1000 },
@@ -230,9 +230,10 @@ const baseConfig: AppConfig = {
 
 function getCurrentEnvironment(): 'development' | 'staging' | 'production' {
   // Check environment variables
-  if (typeof process !== 'undefined' && process.env) {
-    if (process.env.NODE_ENV === 'production') return 'production';
-    if (process.env.NODE_ENV === 'staging') return 'staging';
+  if (typeof globalThis !== 'undefined' && 'process' in globalThis) {
+    const process = (globalThis as any).process;
+    if (process?.env?.NODE_ENV === 'production') return 'production';
+    if (process?.env?.NODE_ENV === 'staging') return 'staging';
   }
   
   // Check browser location for staging

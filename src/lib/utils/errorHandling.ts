@@ -157,7 +157,11 @@ class ErrorHandlerService {
 
   constructor() {
     // Use console reporter in development, production reporter in production
-    this.reporter = process.env.NODE_ENV === 'production' 
+    const isProduction = typeof globalThis !== 'undefined' && 
+      'process' in globalThis && 
+      (globalThis as any).process?.env?.NODE_ENV === 'production';
+    
+    this.reporter = isProduction 
       ? new ProductionErrorReporter()
       : new ConsoleErrorReporter();
   }

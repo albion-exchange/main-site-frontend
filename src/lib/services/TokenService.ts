@@ -15,7 +15,8 @@
  * Raw JSON -> Service -> Cache -> UI Types -> Components
  */
 
-import type { TokenMetadata, TokenType } from '$lib/types/MetaboardTypes';
+import type { TokenMetadata } from '$lib/types/MetaboardTypes';
+import { TokenType } from '$lib/types/MetaboardTypes';
 import type { Token } from '$lib/types/uiTypes';
 import type { AssetTokenMapping } from '$lib/types/sharedTypes';
 import { errorHandler } from '$lib/utils/errorHandling';
@@ -84,10 +85,11 @@ export class TokenService {
    * Get all tokens with error handling
    */
   async getAllTokens(): Promise<Token[]> {
-    return withErrorHandling(
+    const result = await withErrorHandling(
       async () => this.getAllTokensSync(),
       { component: 'TokenService', action: 'getAllTokens' }
-    ) || [];
+    );
+    return result || [];
   }
 
   /**
@@ -166,7 +168,7 @@ export class TokenService {
    * Get tokens by asset ID
    */
   async getTokensByAssetId(assetId: string): Promise<Token[]> {
-    return withErrorHandling(
+    const result = await withErrorHandling(
       async () => {
         const assetInfo = this.assetTokenMap.assets[assetId];
         if (!assetInfo) return [];
@@ -181,30 +183,33 @@ export class TokenService {
         return tokens;
       },
       { component: 'TokenService', action: 'getTokensByAssetId', assetId }
-    ) || [];
+    );
+    return result || [];
   }
 
   /**
    * Get tokens by type
    */
   async getTokensByType(tokenType: 'royalty' | 'payment'): Promise<Token[]> {
-    return withErrorHandling(
+    const result = await withErrorHandling(
       async () => {
         const tokens = await this.getAllTokens();
         return tokens.filter(token => token.tokenType === tokenType);
       },
       { component: 'TokenService', action: 'getTokensByType', tokenType }
-    ) || [];
+    );
+    return result || [];
   }
 
   /**
    * Search and filter tokens
    */
   async searchTokens(options: TokenSearchOptions = {}): Promise<Token[]> {
-    return withErrorHandling(
+    const result = await withErrorHandling(
       async () => this.searchTokensSync(options),
       { component: 'TokenService', action: 'searchTokens', options }
-    ) || [];
+    );
+    return result || [];
   }
 
   /**
@@ -242,7 +247,7 @@ export class TokenService {
 
       if (minSupply !== undefined || maxSupply !== undefined) {
         tokens = tokens.filter((token) => {
-          const supply = token.supply.mintedSupply;
+          const supply = parseInt(token.supply.mintedSupply);
           if (minSupply !== undefined && supply < minSupply) {
             return false;
           }
@@ -264,7 +269,7 @@ export class TokenService {
             comparison = a.symbol.localeCompare(b.symbol);
             break;
           case 'supply':
-            comparison = a.supply.mintedSupply - b.supply.mintedSupply;
+            comparison = parseInt(a.supply.mintedSupply) - parseInt(b.supply.mintedSupply);
             break;
           case 'updatedAt':
             // Note: Token doesn't have updatedAt, we'd need to get it from metadata
@@ -328,12 +333,14 @@ export class TokenService {
         const token = await this.getTokenByAddress(contractAddress);
         if (!token) return null;
 
-        const availableSupply = token.supply.maxSupply - token.supply.mintedSupply;
-        const supplyPercentage = (token.supply.mintedSupply / token.supply.maxSupply) * 100;
+        const maxSupply = parseInt(token.supply.maxSupply);
+        const mintedSupply = parseInt(token.supply.mintedSupply);
+        const availableSupply = maxSupply - mintedSupply;
+        const supplyPercentage = (mintedSupply / maxSupply) * 100;
 
         return {
-          maxSupply: token.supply.maxSupply,
-          mintedSupply: token.supply.mintedSupply,
+          maxSupply,
+          mintedSupply,
           availableSupply,
           supplyPercentage
         };
@@ -346,7 +353,7 @@ export class TokenService {
    * Get token payout history
    */
   async getTokenPayoutHistory(contractAddress: string): Promise<TokenPayoutData[]> {
-    return withErrorHandling(
+    const result = await withErrorHandling(
       async () => {
         // Check cache first
         if (this.payoutCache.has(contractAddress)) {
@@ -360,7 +367,7 @@ export class TokenService {
           month: data.month,
           totalPayout: data.tokenPayout.totalPayout,
           payoutPerToken: data.tokenPayout.payoutPerToken,
-          holdersCount: data.tokenPayout.holdersCount,
+          holdersCount: 0, // Not available in current data structure
           assetRevenue: data.assetData.revenue,
           assetExpenses: data.assetData.expenses,
           netIncome: data.assetData.netIncome
@@ -371,7 +378,8 @@ export class TokenService {
         return payoutData;
       },
       { component: 'TokenService', action: 'getTokenPayoutHistory', tokenAddress: contractAddress }
-    ) || [];
+    );
+    return result || [];
   }
 
   /**
@@ -384,7 +392,7 @@ export class TokenService {
     totalMinted: number;
     averagePayoutPerToken: number;
   }> {
-    return withErrorHandling(
+    const result = await withErrorHandling(
       async () => {
         const tokens = await this.getAllTokens();
         
@@ -405,8 +413,8 @@ export class TokenService {
           stats.byType[type] = (stats.byType[type] || 0) + 1;
 
           // Sum supplies
-          stats.totalSupply += token.supply.maxSupply;
-          stats.totalMinted += token.supply.mintedSupply;
+          stats.totalSupply += parseInt(token.supply.maxSupply);
+          stats.totalMinted += parseInt(token.supply.mintedSupply);
 
           // Calculate average payout (would need historical data)
           // This is a simplified calculation
@@ -426,7 +434,9 @@ export class TokenService {
         return stats;
       },
       { component: 'TokenService', action: 'getTokenStats' }
-    ) || {
+    );
+    
+    return result || {
       total: 0,
       byType: {},
       totalSupply: 0,
@@ -475,16 +485,17 @@ export class TokenService {
       holders: [], // Not included in merged token format
       payoutHistory: tokenMetadata.monthlyData.map((data) => ({
         month: data.month,
-        date: '', // Would need to be calculated or stored separately
+        date: data.tokenPayout.date.split('T')[0] as any, // Convert from datetime to date-only
         totalPayout: data.tokenPayout.totalPayout,
         payoutPerToken: data.tokenPayout.payoutPerToken,
-        holdersCount: data.tokenPayout.holdersCount,
+        holdersCount: 0, // Not available in current data structure
         assetRevenue: data.assetData.revenue,
         assetExpenses: data.assetData.expenses,
         netIncome: data.assetData.netIncome,
-        oilPrice: 0, // Would need market data integration
-        gasPrice: 0, // Would need market data integration
-        productionVolume: data.assetData.production
+        oilPrice: data.realisedPrice.oilPrice,
+        gasPrice: data.realisedPrice.gasPrice,
+        productionVolume: data.assetData.production,
+        txHash: data.tokenPayout.txHash
       })),
       metadata: {
         createdAt: tokenMetadata.metadata.createdAt,
