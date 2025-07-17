@@ -422,26 +422,26 @@
     },
     "assetName": "Wressle-1 Royalty Stream",
     "documents": [],
-    "coverImage": "/src/lib/data/images/eur-wr-cover.jpg",
+    "coverImage": "/images/eur-wr-cover.jpg",
     "galleryImages": [
       {
         "title": "Wellhead Infrastructure",
-        "url": "/src/lib/data/images/eur-wr-wellhead-1.jpg",
+        "url": "/images/eur-wr-wellhead-1.jpg",
         "caption": "Primary wellhead and safety equipment at the Wressle production site"
       },
       {
         "title": "Production Equipment",
-        "url": "/src/lib/data/images/eur-wr-wellhead-2.jpg",
+        "url": "/images/eur-wr-wellhead-2.jpg",
         "caption": "Secondary production equipment and monitoring systems"
       },
       {
         "title": "Site Overview",
-        "url": "/src/lib/data/images/eur-wr-site-overview.jpg",
+        "url": "/images/eur-wr-site-overview.jpg",
         "caption": "Aerial view of the entire Wressle production facility"
       },
       {
         "title": "Processing Infrastructure",
-        "url": "/src/lib/data/images/eur-wr-infrastructure.jpg",
+        "url": "/images/eur-wr-infrastructure.jpg",
         "caption": "Oil processing and storage infrastructure on site"
       }
     ]

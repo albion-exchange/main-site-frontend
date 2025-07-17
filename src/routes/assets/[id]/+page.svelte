@@ -102,7 +102,7 @@
 
 	function getAssetImage(assetData: Asset | null): string {
 		// Use the coverImage from the asset data
-		return assetData?.coverImage || '/src/lib/data/images/eur-wr-cover.jpg';
+		return assetData?.coverImage || '/images/eur-wr-cover.jpg';
 	}
 
 	function formatPricing(benchmarkPremium: string): string {

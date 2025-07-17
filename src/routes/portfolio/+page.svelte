@@ -451,8 +451,21 @@
 														}, [])}
 														{@const chartHeight = 180}
 														{@const chartWidth = 400}
-														{@const maxValue = Math.max(...cumulativeData.map(d => d.value), holding.totalInvested * 1.2)}
-														{@const breakEvenY = 40 + chartHeight - (holding.totalInvested / maxValue) * chartHeight}
+														{@const padding = { top: 40, right: 20, bottom: 40, left: 60 }}
+														{@const minValue = Math.min(...cumulativeData.map(d => d.value), 0)}
+														{@const maxValue = Math.max(...cumulativeData.map(d => d.value), 1)}
+														{@const getNiceNumber = (value) => {
+															const magnitude = Math.pow(10, Math.floor(Math.log10(value)));
+															const normalized = value / magnitude;
+															if (normalized <= 1) return 1 * magnitude;
+															if (normalized <= 2) return 2 * magnitude;
+															if (normalized <= 5) return 5 * magnitude;
+															return 10 * magnitude;
+														}}
+														{@const niceMin = minValue < 0 ? -getNiceNumber(Math.abs(minValue) * 1.1) : 0}
+														{@const niceMax = getNiceNumber(maxValue * 1.1)}
+														{@const valueRange = niceMax - niceMin}
+														{@const breakEvenY = padding.top + chartHeight - ((holding.totalInvested - niceMin) / valueRange) * chartHeight}
 														<!-- Monthly Payouts Chart -->
 														<div class="flex-1">
 															<h5 class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-1">Monthly Payouts</h5>
@@ -483,9 +496,9 @@
 																<!-- Breakeven line -->
 																<svg class="absolute top-0 left-0" width={chartWidth} height={220} style="pointer-events: none;">
 																	<line 
-																		x1="60" 
+																		x1={padding.left} 
 																		y1={breakEvenY} 
-																		x2={chartWidth - 20} 
+																		x2={chartWidth - padding.right} 
 																		y2={breakEvenY} 
 																		stroke="#283c84" 
 																		stroke-width="2" 
@@ -493,7 +506,7 @@
 																		opacity="0.7"
 																	/>
 																	<text 
-																		x="62" 
+																		x={padding.left + 2} 
 																		y={breakEvenY - 5} 
 																		font-size="11" 
 																		fill="#283c84" 
