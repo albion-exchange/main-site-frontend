@@ -36,7 +36,11 @@ Completed a comprehensive refactoring of the asset metadata structure to improve
 - `/workspace/src/lib/types/assetMetadataTypes.ts` - Main type definitions
 - `/workspace/src/lib/services/DataStoreService.ts` - Service layer implementation and method names
 - `/workspace/src/lib/utils/dateValidation.ts` - Date validation schemas
-- `/workspace/src/lib/utils/dateValidation.example.ts` - Example usage
+- `/workspace/src/lib/utils/dateValidation.example.ts` - Example usage (documentation)
+- `/workspace/src/lib/data/mockTokenMetadata/` - **All 8 mock JSON files updated to new schema**
+
+### 3.1 Directory Renamed
+- `mockAssetMetadata/` → `mockTokenMetadata/` - Better reflects the content
 
 ### 4. Method Name Updates
 - `convertJsonToAssetMetadata` → `convertJsonToTokenMetadata`
@@ -153,17 +157,23 @@ The `pricing` object in `TechnicalDetails` includes `benchmarkPremium` and `tran
 ### 4. File Naming
 The file is still named `assetMetadataTypes.ts` but now contains both token and asset types. Consider renaming to `tokenAndAssetTypes.ts` or splitting into separate files.
 
+### 5. Documentation Files
+- `dateValidation.example.ts` - This is a documentation/example file showing how to use date validation utilities. It serves as developer documentation and can be removed in production if not needed.
+
 ## Impact Assessment
 
 ### Breaking Changes:
 ✅ **Handled**: All type imports and usages updated
 ✅ **Handled**: Service layer transformation logic updated  
 ✅ **Handled**: Date validation schemas updated
+✅ **Handled**: All 8 mock JSON files updated to new schema structure
+✅ **Handled**: Directory renamed from `mockAssetMetadata` to `mockTokenMetadata`
+✅ **Handled**: Import paths updated in DataStoreService
 
 ### Non-Breaking:
-- JSON data files remain unchanged (transformation handled in service layer)
-- External API contracts unchanged
-- UI components should continue working through service layer abstraction
+- External API contracts unchanged (service layer handles transformation)
+- UI components continue working through service layer abstraction
+- All data transformation handled in `convertJsonToTokenMetadata` method
 
 ## Type Safety
 All changes maintain full TypeScript type safety with proper compile-time checking.

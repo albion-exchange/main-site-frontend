@@ -32,15 +32,15 @@ import companyInfo from "$lib/data/companyInfo.json";
 import defaultValues from "$lib/data/defaultValues.json";
 import assetTokenMapping from "$lib/data/assetTokenMapping.json";
 
-// Import all mock asset metadata
-import bakHf1Metadata from "$lib/data/mockAssetMetadata/bak-hf1.json";
-import bakHf2Metadata from "$lib/data/mockAssetMetadata/bak-hf2.json";
-import eurWr1Metadata from "$lib/data/mockAssetMetadata/eur-wr1.json";
-import eurWr2Metadata from "$lib/data/mockAssetMetadata/eur-wr2.json";
-import eurWr3Metadata from "$lib/data/mockAssetMetadata/eur-wr3.json";
-import perBv1Metadata from "$lib/data/mockAssetMetadata/per-bv1.json";
-import gomDw1Metadata from "$lib/data/mockAssetMetadata/gom-dw1.json";
-import eurWrLegacyMetadata from "$lib/data/mockAssetMetadata/eur-wr-legacy.json";
+// Import all mock token metadata
+import bakHf1Metadata from "$lib/data/mockTokenMetadata/bak-hf1.json";
+import bakHf2Metadata from "$lib/data/mockTokenMetadata/bak-hf2.json";
+import eurWr1Metadata from "$lib/data/mockTokenMetadata/eur-wr1.json";
+import eurWr2Metadata from "$lib/data/mockTokenMetadata/eur-wr2.json";
+import eurWr3Metadata from "$lib/data/mockTokenMetadata/eur-wr3.json";
+import perBv1Metadata from "$lib/data/mockTokenMetadata/per-bv1.json";
+import gomDw1Metadata from "$lib/data/mockTokenMetadata/gom-dw1.json";
+import eurWrLegacyMetadata from "$lib/data/mockTokenMetadata/eur-wr-legacy.json";
 
 // Future release data (mock data for now)
 const eurWr4Future = [

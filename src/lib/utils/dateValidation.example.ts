@@ -1,5 +1,9 @@
 /**
  * Examples of using date validation utilities
+ * 
+ * This file serves as documentation and examples for developers
+ * showing how to use the date validation functions and schemas.
+ * It can be removed in production if not needed.
  */
 
 import {

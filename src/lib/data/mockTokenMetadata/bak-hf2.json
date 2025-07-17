@@ -3,7 +3,6 @@
   "assetId": "69398125-4de0-4819-8b03-597e6ec5c82b",
   "symbol": "BAK-HF2",
   "releaseName": "Bakken Horizon-2 Release 2",
-  "assetName": "Bakken Horizon-2 Royalty Stream",
   "tokenType": "royalty",
   "firstPaymentDate": "2025-07",
   "sharePercentage": 40,
@@ -536,11 +535,12 @@
         "lastIncidentDate": "2024-05-22T00:00:00.000Z",
         "safetyRating": "Good"
       }
-    }
+    },
+    "assetName": "Bakken Horizon-2 Royalty Stream",
+    "documents": [],
+    "coverImage": "/src/lib/data/images/bak-hf-cover.jpeg",
+    "galleryImages": []
   },
-  "documents": [],
-  "coverImage": "/src/lib/data/images/bak-hf-cover.jpeg",
-  "galleryImages": [],
   "metadata": {
     "createdAt": "2024-03-15T11:30:00.000Z",
     "updatedAt": "2025-01-07T10:00:00.000Z"
