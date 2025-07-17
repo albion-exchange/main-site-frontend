@@ -44,3 +44,5 @@ export { default as DataRow } from "./DataRow.svelte";
 // Chart Components
 export { default as ChartTooltip } from "./ChartTooltip.svelte";
 export { default as Chart } from "./Chart.svelte";
+export { default as BarChart } from "./BarChart.svelte";
+export { default as PieChart } from "./PieChart.svelte";

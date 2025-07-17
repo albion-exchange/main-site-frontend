@@ -5,7 +5,7 @@
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/WalletModal.svelte';
-	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, TabNavigation, MetricDisplay, StatsCard, SectionTitle, ActionCard, TabButton, Chart } from '$lib/components/ui';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, TabNavigation, MetricDisplay, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart } from '$lib/components/ui';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
 
 	let totalInvested = 0;
@@ -249,7 +249,7 @@
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto mt-6">
 			{#if loading}
 				<StatsCard
-					title="Total Invested"
+					title="Current Token Holdings"
 					value="--"
 					subtitle="Loading..."
 					size="large"
@@ -268,9 +268,9 @@
 				/>
 			{:else}
 				<StatsCard
-					title="Total Invested"
+					title="Current Token Holdings"
 					value={formatCurrency(totalInvested)}
-					subtitle="Principal"
+					subtitle="Portfolio value"
 					size="large"
 				/>
 				<StatsCard
@@ -435,31 +435,82 @@
 										<div class="absolute inset-0 w-full h-full backface-hidden" style="transform: rotateY(180deg);">
 											<Card hoverable showBorder>
 												<CardContent paddingClass="p-8 h-full flex flex-col">
-												<div class="flex justify-between items-start mb-6">
+												<div class="flex justify-between items-start mb-2">
 													<div>
-														<h4 class="font-extrabold text-black text-lg mb-1">{holding.name}</h4>
-														<div class="text-xs text-black opacity-70">Payout History</div>
+														<h4 class="font-extrabold text-black text-lg">{holding.name}</h4>
 													</div>
 													<SecondaryButton size="small" on:click={() => toggleCardFlip(holding.id)}>Back</SecondaryButton>
 												</div>
 												
-												<div class="flex-1 flex items-center justify-center">
+												<div class="flex-1 flex gap-6">
 													{#if payoutData && payoutData.length > 0}
-														<div class="w-full max-w-xl">
+														{@const cumulativeData = payoutData.reduce<Array<{label: string; value: number}>>((acc, d, i) => {
+															const prevTotal = i > 0 ? acc[i-1].value : 0;
+															acc.push({ label: d.date, value: prevTotal + d.value });
+															return acc;
+														}, [])}
+														{@const chartHeight = 180}
+														{@const chartWidth = 400}
+														{@const maxValue = Math.max(...cumulativeData.map(d => d.value), holding.totalInvested * 1.2)}
+														{@const breakEvenY = 40 + chartHeight - (holding.totalInvested / maxValue) * chartHeight}
+														<!-- Monthly Payouts Chart -->
+														<div class="flex-1">
+															<h5 class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-1">Monthly Payouts</h5>
 															<Chart
 																data={payoutData.map(d => ({ label: d.date, value: d.value }))}
-																width={600}
-																height={200}
+																width={400}
+																height={220}
 																barColor="#08bccc"
 																valuePrefix="$"
 																animate={true}
 																showGrid={true}
 															/>
 														</div>
+														
+														<!-- Cumulative Payouts Chart -->
+														<div class="flex-1">
+															<h5 class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-1">Cumulative Returns</h5>
+															<div class="relative">
+																<Chart
+																	data={cumulativeData}
+																	width={400}
+																	height={220}
+																	barColor="#08bccc"
+																	valuePrefix="$"
+																	animate={true}
+																	showGrid={true}
+																/>
+																<!-- Breakeven line -->
+																<svg class="absolute top-0 left-0" width={chartWidth} height={220} style="pointer-events: none;">
+																	<line 
+																		x1="60" 
+																		y1={breakEvenY} 
+																		x2={chartWidth - 20} 
+																		y2={breakEvenY} 
+																		stroke="#283c84" 
+																		stroke-width="2" 
+																		stroke-dasharray="5,5"
+																		opacity="0.7"
+																	/>
+																	<text 
+																		x="62" 
+																		y={breakEvenY - 5} 
+																		font-size="11" 
+																		fill="#283c84" 
+																		font-weight="600"
+																		text-anchor="start"
+																	>
+																		Breakeven ${holding.totalInvested.toLocaleString()}
+																	</text>
+																</svg>
+															</div>
+														</div>
 													{:else}
-														<div class="text-center text-black opacity-70">
-															<div class="text-4xl mb-2">📊</div>
-															<div>No payout history available yet</div>
+														<div class="flex-1 flex items-center justify-center text-center text-black opacity-70">
+															<div>
+																<div class="text-4xl mb-2">📊</div>
+																<div>No payout history available yet</div>
+															</div>
 														</div>
 													{/if}
 												</div>
@@ -472,74 +523,289 @@
 						{/if}
 					</div>
 				{:else if activeTab === 'performance'}
-					<div class="flex justify-between items-center mb-6">
-						<SectionTitle level="h3" size="subsection">Performance Analytics</SectionTitle>
-						<div class="flex gap-2">
-							{#each ['1M', '3M', '6M', 'YTD'] as period}
-								<TabButton 
-									active={timeframe === period}
-									on:click={() => timeframe = period}
-								>
-									{period}
-								</TabButton>
-							{/each}
-						</div>
-					</div>
-
-					<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-						<div class="bg-light-gray border border-light-gray rounded-lg h-64 flex items-center justify-center">
-							<div class="text-center">
-								<div class="text-3xl mb-2 opacity-50">📈</div>
-								<div class="font-bold text-black uppercase tracking-wider mb-1">Portfolio Value Chart</div>
-								<div class="text-xs text-black opacity-70">Total value vs payout earnings over time</div>
+					{@const allTransactions = walletDataService.getAllTransactions()}
+					{@const capitalWalkData = (() => {
+						// Group transactions by month and calculate values
+						const monthlyData = new Map();
+						const monthlyPurchases = new Map();
+						const monthlyPayouts = new Map();
+						let cumulativePurchases = 0;
+						let cumulativePayouts = 0;
+						let maxDeficit = 0;
+						let houseMoneyCrossDate: string | null = null;
+						
+						// Sort transactions by date
+						const sortedTx = [...allTransactions].sort((a, b) => 
+							new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+						);
+						
+						// Process each transaction
+						sortedTx.forEach(tx => {
+							const date = new Date(tx.timestamp);
+							const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+							
+							// Track monthly values
+							if (tx.type === 'mint') {
+								monthlyPurchases.set(monthKey, (monthlyPurchases.get(monthKey) || 0) + tx.amountUSD);
+								cumulativePurchases += tx.amountUSD;
+							} else if (tx.type === 'claim') {
+								const amount = tx.amountUSD || tx.amount;
+								monthlyPayouts.set(monthKey, (monthlyPayouts.get(monthKey) || 0) + amount);
+								cumulativePayouts += amount;
+							}
+							
+							// Net position: payouts minus purchases (starts negative, improves with payouts)
+							const netPosition = cumulativePayouts - cumulativePurchases;
+							maxDeficit = Math.max(maxDeficit, Math.abs(netPosition)); // Track absolute value of deficit
+							
+							// Check for first zero crossing (when we've recovered all capital)
+							if (netPosition >= 0 && !houseMoneyCrossDate && cumulativePurchases > 0) {
+								houseMoneyCrossDate = date.toISOString();
+							}
+							
+							// Store cumulative data
+							monthlyData.set(monthKey, {
+								date: `${monthKey}-01`,
+								cumulativePurchases,
+								cumulativePayouts,
+								netPosition,
+								monthlyPurchase: monthlyPurchases.get(monthKey) || 0,
+								monthlyPayout: monthlyPayouts.get(monthKey) || 0
+							});
+						});
+						
+						// Get the range of months from first to last transaction
+						const dates = Array.from(monthlyData.keys()).sort();
+						const dataArray = [];
+						
+						if (dates.length > 0) {
+							const startDate = new Date(dates[0] + '-01');
+							const endDate = new Date(dates[dates.length - 1] + '-01');
+							
+							// Fill in all months from start to end
+							let currentDate = new Date(startDate);
+							let runningPurchases = 0;
+							let runningPayouts = 0;
+							
+							while (currentDate <= endDate) {
+								const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+								const monthData = monthlyData.get(monthKey);
+								
+								if (monthData) {
+									runningPurchases = monthData.cumulativePurchases;
+									runningPayouts = monthData.cumulativePayouts;
+									dataArray.push(monthData);
+								} else {
+									// Fill in missing month with zero monthly values but correct cumulative
+									dataArray.push({
+										date: `${monthKey}-01`,
+										cumulativePurchases: runningPurchases,
+										cumulativePayouts: runningPayouts,
+										netPosition: runningPayouts - runningPurchases,
+										monthlyPurchase: 0,
+										monthlyPayout: 0
+									});
+								}
+								
+								// Move to next month
+								currentDate.setMonth(currentDate.getMonth() + 1);
+							}
+						}
+						
+						return {
+							chartData: dataArray,
+							totalExternalCapital: maxDeficit,
+							houseMoneyCrossDate,
+							grossDeployed: totalInvested, // Use the same value as top of page
+							grossPayout: totalPayoutsEarned // Use the same value as top of page
+						};
+					})()}
+					
+					<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+						<!-- Capital Walk Chart -->
+						<div class="lg:col-span-2 bg-white border border-light-gray rounded-lg p-6">
+							<h4 class="text-lg font-extrabold text-black mb-4">Cash Flow Analysis</h4>
+							<div class="space-y-6">
+								<!-- Combined Monthly Cash Flows -->
+								<div>
+									<h5 class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-3">Monthly Cash Flows</h5>
+									{#if capitalWalkData.chartData.length > 0}
+										<BarChart
+											data={capitalWalkData.chartData.map(d => ({
+												label: d.date,
+												value: -d.monthlyPurchase // Negative for purchases
+											}))}
+											data2={capitalWalkData.chartData.map(d => ({
+												label: d.date,
+												value: d.monthlyPayout
+											}))}
+											width={640}
+											height={300}
+											barColor="#283c84"
+											barColor2="#08bccc"
+											valuePrefix="$"
+											animate={true}
+											showGrid={true}
+											series1Name="Purchases"
+											series2Name="Payouts"
+										/>
+									{:else}
+										<div class="text-center py-20 text-black opacity-70">
+											No transaction data available
+										</div>
+									{/if}
+								</div>
+								
+								<!-- Net Position Line Chart -->
+								<div>
+									<h5 class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-3">Current Net Position (Cumulative)</h5>
+									{#if capitalWalkData.chartData.length > 0}
+										<Chart
+											data={capitalWalkData.chartData.map(d => ({
+												label: d.date,
+												value: d.netPosition
+											}))}
+											width={640}
+											height={250}
+											barColor="#ff6b6b"
+											valuePrefix="$"
+											animate={true}
+											showGrid={true}
+											showAreaFill={false}
+										/>
+									{:else}
+										<div class="text-center py-10 text-black opacity-70">
+											No transaction data available
+										</div>
+									{/if}
+								</div>
 							</div>
 						</div>
 
+						<!-- Metrics Cards -->
 						<div class="space-y-4">
-							<StatsCard
-								title="Total Payouts"
-								value={formatCurrency(totalPayoutsEarned)}
-								subtitle="Lifetime"
-								valueColor="primary"
-								size="medium"
-							/>
-							<StatsCard
-								title="Last Month"
-								value={formatCurrency(monthlyPayouts.length > 0 ? monthlyPayouts[monthlyPayouts.length - 1].totalPayout : 0)}
-								subtitle="Payout"
-								size="medium"
-							/>
-							<StatsCard
-								title="Est. Annual"
-								value={formatCurrency(walletDataService.getEstimatedAnnualIncome())}
-								subtitle="Income"
-								valueColor="primary"
-								size="medium"
-							/>
-						</div>
-					</div>
-
-					<div class="bg-light-gray border border-light-gray rounded-lg p-8">
-						<SectionTitle level="h3" size="subsection" className="mb-6">Monthly Payouts</SectionTitle>
-						<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
-							{#each monthlyPayouts.slice(-6) as month}
-								<div class="text-center">
-									<div class="text-xs font-bold text-black opacity-70 mb-2">{month.month.slice(0, 7)}</div>
-									<div class="text-base font-extrabold text-black">{formatCurrency(month.totalPayout)}</div>
+							<div class="bg-white border border-light-gray rounded-lg p-4 relative overflow-hidden">
+								<div class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-2">Total External Capital</div>
+								<div class="text-xl font-extrabold text-black mb-1 break-all">{formatCurrency(capitalWalkData.totalExternalCapital)}</div>
+								<div class="text-xs text-black opacity-70">Peak cash required</div>
+								<!-- Tooltip icon -->
+								<div 
+									class="absolute top-4 right-4 w-4 h-4 rounded-full bg-light-gray text-black text-xs flex items-center justify-center cursor-help"
+									on:mouseenter={() => showTooltipWithDelay('external-capital')}
+									on:mouseleave={hideTooltip}
+									on:focus={() => showTooltipWithDelay('external-capital')}
+									on:blur={hideTooltip}
+									role="button"
+									tabindex="0"
+									aria-label="More information about Total External Capital"
+								>
+									?
 								</div>
-							{/each}
+								{#if showTooltip === 'external-capital'}
+									<div class="absolute right-0 top-10 bg-black text-white p-4 rounded text-xs z-10 w-56">
+										Max cash you ever had to supply from outside, assuming payouts were available for reinvestment
+									</div>
+								{/if}
+							</div>
+							
+							<div class="bg-white border border-light-gray rounded-lg p-4 relative overflow-hidden">
+								<div class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-2">Gross Deployed</div>
+								<div class="text-xl font-extrabold text-black mb-1 break-all">{formatCurrency(capitalWalkData.grossDeployed)}</div>
+								<div class="text-xs text-black opacity-70">Total invested</div>
+								<!-- Tooltip icon -->
+								<div 
+									class="absolute top-4 right-4 w-4 h-4 rounded-full bg-light-gray text-black text-xs flex items-center justify-center cursor-help"
+									on:mouseenter={() => showTooltipWithDelay('gross-deployed')}
+									on:mouseleave={hideTooltip}
+									on:focus={() => showTooltipWithDelay('gross-deployed')}
+									on:blur={hideTooltip}
+									role="button"
+									tabindex="0"
+									aria-label="More information about Gross Deployed"
+								>
+									?
+								</div>
+								{#if showTooltip === 'gross-deployed'}
+									<div class="absolute right-0 top-10 bg-black text-white p-3 rounded text-xs z-10 w-48">
+										Total amount invested across all assets
+									</div>
+								{/if}
+							</div>
+							
+							<div class="bg-white border border-light-gray rounded-lg p-4 relative overflow-hidden">
+								<div class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-2">Gross Payout</div>
+								<div class="text-xl font-extrabold text-primary mb-1 break-all">{formatCurrency(capitalWalkData.grossPayout)}</div>
+								<div class="text-xs text-black opacity-70">Total distributions</div>
+								<!-- Tooltip icon -->
+								<div 
+									class="absolute top-4 right-4 w-4 h-4 rounded-full bg-light-gray text-black text-xs flex items-center justify-center cursor-help"
+									on:mouseenter={() => showTooltipWithDelay('gross-payout')}
+									on:mouseleave={hideTooltip}
+									on:focus={() => showTooltipWithDelay('gross-payout')}
+									on:blur={hideTooltip}
+									role="button"
+									tabindex="0"
+									aria-label="More information about Gross Payout"
+								>
+									?
+								</div>
+								{#if showTooltip === 'gross-payout'}
+									<div class="absolute right-0 top-10 bg-black text-white p-3 rounded text-xs z-10 w-48">
+										Total distributions received from all assets
+									</div>
+								{/if}
+							</div>
+							
+							<div class="bg-white border border-light-gray rounded-lg p-4 relative overflow-hidden">
+								<div class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-2">Current Net Position</div>
+								<div class="text-xl font-extrabold {capitalWalkData.grossPayout - capitalWalkData.grossDeployed >= 0 ? 'text-green-600' : 'text-red-600'} mb-1 break-all">
+									{formatCurrency(capitalWalkData.grossPayout - capitalWalkData.grossDeployed)}
+								</div>
+								<div class="text-xs text-black opacity-70">Total Payouts - Total Invested</div>
+								<!-- Tooltip icon -->
+								<div 
+									class="absolute top-4 right-4 w-4 h-4 rounded-full bg-light-gray text-black text-xs flex items-center justify-center cursor-help"
+									on:mouseenter={() => showTooltipWithDelay('realised-profit')}
+									on:mouseleave={hideTooltip}
+									on:focus={() => showTooltipWithDelay('realised-profit')}
+									on:blur={hideTooltip}
+									role="button"
+									tabindex="0"
+									aria-label="More information about Current Net Position"
+								>
+									?
+								</div>
+								{#if showTooltip === 'realised-profit'}
+									<div class="absolute right-0 top-10 bg-black text-white p-3 rounded text-xs z-10 w-48">
+										Your current profit/loss position accounting for all investments and payouts received
+									</div>
+								{/if}
+							</div>
 						</div>
 					</div>
 				{:else if activeTab === 'allocation'}
 					<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 						<div>
 							<SectionTitle level="h3" size="subsection" className="mb-6">Asset Allocation</SectionTitle>
-							<div class="bg-light-gray border border-light-gray rounded-lg h-64 flex items-center justify-center">
-								<div class="text-center">
-									<div class="text-3xl mb-2 opacity-50">🥧</div>
-									<div class="font-bold text-black uppercase tracking-wider mb-1">Portfolio Pie Chart</div>
-									<div class="text-xs text-black opacity-70">Asset allocation by value</div>
-								</div>
+							<div class="bg-white border border-light-gray rounded-lg p-6 flex items-center justify-center">
+								{#if tokenAllocations.length > 0}
+									<PieChart
+										data={tokenAllocations.map(allocation => ({
+											label: allocation.assetName,
+											value: allocation.currentValue,
+											percentage: allocation.percentageOfPortfolio
+										}))}
+										width={280}
+										height={280}
+										showLabels={true}
+										showLegend={true}
+										animate={true}
+									/>
+								{:else}
+									<div class="text-center py-12 text-black opacity-70">
+										No portfolio data available
+									</div>
+								{/if}
 							</div>
 						</div>
 
@@ -569,18 +835,6 @@
 									</div>
 								{/each}
 							</div>
-
-							{#if tokenAllocations.length > 0 && tokenAllocations[0].percentageOfPortfolio > 40}
-								<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex gap-3">
-									<div class="text-xl flex-shrink-0 mt-0.5">⚠️</div>
-									<div>
-										<div class="font-bold text-black text-sm mb-1">Diversification Tip</div>
-										<div class="text-xs text-black opacity-80 leading-relaxed">
-											Consider diversifying: {tokenAllocations[0].percentageOfPortfolio.toFixed(1)}% allocation to single asset ({tokenAllocations[0].assetName}) may impact portfolio balance.
-										</div>
-									</div>
-								</div>
-							{/if}
 						</div>
 					</div>
 				{/if}

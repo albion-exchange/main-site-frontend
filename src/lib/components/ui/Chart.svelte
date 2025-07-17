@@ -6,14 +6,13 @@
 	export let width: number = 950;
 	export let height: number = 400;
 	export let barColor: string = '#08bccc';
-	export let lineColor: string = '#283c84';
 	export let valuePrefix: string = '';
 	export let valueSuffix: string = '';
 	export let title: string = '';
-	export let showLine: boolean = true;
 	export let showValues: boolean = false;
 	export let animate: boolean = true;
 	export let showGrid: boolean = true;
+	export let showAreaFill: boolean = true;
 	
 	// Helper to determine which labels to show based on data density
 	function getLabelsToShow(data: Array<{label: string; value: number}>): {indices: number[], showYear: boolean} {
@@ -82,17 +81,21 @@
 		return 10 * magnitude;
 	}
 	
+	$: minValue = Math.min(...data.map(d => d.value), 0);
 	$: maxValue = Math.max(...data.map(d => d.value), 1);
+	$: niceMin = minValue < 0 ? -getNiceNumber(Math.abs(minValue) * 1.1) : 0;
 	$: niceMax = getNiceNumber(maxValue * 1.1); // Add 10% padding
+	$: valueRange = niceMax - niceMin;
 	$: barWidth = chartWidth / Math.max(data.length, 1) * 0.6;
 	$: barSpacing = data.length > 1 ? chartWidth / (data.length - 1) : chartWidth;
+	$: zeroY = padding.top + chartHeight - ((0 - niceMin) / valueRange) * chartHeight;
 	
 	function handleMouseMove(event: MouseEvent, index: number) {
 		if (!svg || index >= data.length) return;
 		
 		const dataPoint = data[index];
 		const x = padding.left + index * barSpacing;
-		const y = padding.top + chartHeight - (dataPoint.value / niceMax) * chartHeight;
+		const y = padding.top + chartHeight - ((dataPoint.value - niceMin) / valueRange) * chartHeight;
 		
 		// Format date for tooltip
 		let formattedLabel = dataPoint.label;
@@ -156,8 +159,9 @@
 		
 		<!-- Y-axis labels -->
 		{#each Array(6) as _, i}
-			{@const value = niceMax * (1 - i / 5)}
-			{@const formattedValue = value >= 1000 ? `${Math.round(value / 1000)}k` : Math.round(value).toString()}
+			{@const value = niceMax - (i / 5) * valueRange}
+			{@const absValue = Math.abs(value)}
+			{@const formattedValue = absValue >= 1000 ? `${value < 0 ? '-' : ''}${Math.round(absValue / 1000)}k` : Math.round(value).toString()}
 			<text 
 				x={padding.left - 10} 
 				y={padding.top + i * (chartHeight / 5) + 5} 
@@ -213,17 +217,19 @@
 		{#if data.length > 0}
 			{@const linePath = data.map((item, i) => {
 				const x = padding.left + i * barSpacing;
-				const y = padding.top + chartHeight - (item.value / niceMax) * chartHeight;
+				const y = padding.top + chartHeight - ((item.value - niceMin) / valueRange) * chartHeight;
 				return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
 			}).join(' ')}
-			{@const areaPath = linePath + ` L ${padding.left + (data.length - 1) * barSpacing} ${padding.top + chartHeight} L ${padding.left} ${padding.top + chartHeight} Z`}
+			{@const areaPath = linePath + ` L ${padding.left + (data.length - 1) * barSpacing} ${zeroY} L ${padding.left} ${zeroY} Z`}
 			
 			<!-- Area fill -->
-			<path 
-				d={areaPath} 
-				fill={barColor} 
-				fill-opacity="0.1"
-			/>
+			{#if showAreaFill}
+				<path 
+					d={areaPath} 
+					fill={barColor} 
+					fill-opacity="0.1"
+				/>
+			{/if}
 			
 			<!-- Line -->
 			<path 
@@ -237,7 +243,7 @@
 			<!-- Data points -->
 			{#each data as item, i}
 				{@const x = padding.left + i * barSpacing}
-				{@const y = padding.top + chartHeight - (item.value / niceMax) * chartHeight}
+				{@const y = padding.top + chartHeight - ((item.value - niceMin) / valueRange) * chartHeight}
 				
 				<circle 
 					cx={x} 
@@ -254,11 +260,24 @@
 			{/each}
 		{/if}
 		
+		<!-- Zero line if chart has negative values -->
+		{#if minValue < 0}
+			<line 
+				x1={padding.left} 
+				y1={zeroY} 
+				x2={padding.left + chartWidth} 
+				y2={zeroY} 
+				stroke="#000000" 
+				stroke-width="1" 
+				opacity="0.3"
+			/>
+		{/if}
+		
 		<!-- Values on bars (if not using tooltip) -->
 		{#if showValues && !tooltipData.show}
 			{#each data as item, i}
 				{@const x = padding.left + i * barSpacing}
-				{@const y = padding.top + chartHeight - (item.value / niceMax) * chartHeight - 10}
+				{@const y = padding.top + chartHeight - ((item.value - niceMin) / valueRange) * chartHeight - 10}
 				
 				<text 
 					{x}
