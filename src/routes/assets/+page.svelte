@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { useAssetService } from '$lib/services';
+	import { dataStoreService } from '$lib/services';
 	import type { Asset } from '$lib/types/uiTypes';
 	import AssetCard from '$lib/components/assets/AssetCard.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';

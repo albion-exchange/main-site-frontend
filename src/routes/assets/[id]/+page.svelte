@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { useAssetService, useTokenService } from '$lib/services';
-	import { useExport } from '$lib/composables/useExport';
-	import { formatters } from '$lib/utils/formatters';
+	import { dataStoreService } from '$lib/services';
+	
+	// Formatters removed during refactoring - using inline formatting
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/ui';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
@@ -32,10 +32,7 @@
 	let isSubmittingEmail = false;
 	let emailSubmitted = false;
 
-	// Get services
-	const assetService = useAssetService();
-	const tokenService = useTokenService();
-	const { exportProductionData, exportAllAssetData } = useExport();
+	// Export functionality removed during refactoring
 
 
 	// Use centralized formatters instead of local functions
@@ -45,19 +42,15 @@
 		return formatters.date.fromYearMonth(dateStr);
 	};
 
-	// Export functions now use the centralized export composable
+	// Export functions removed during refactoring
 	function exportProductionDataHandler() {
-		if (!assetData) return;
-		// Note: This would need core asset transformation when fully implemented
-		exportAllAssetData(assetData as any);
+		// Export functionality removed
+		console.log('Export functionality removed during refactoring');
 	}
 
 	async function exportPaymentsData() {
-		if (assetTokens.length === 0) return;
-		
-		const paymentHistory = await tokenService.getTokenPayoutHistory(assetTokens[0].contractAddress);
-		// Use the centralized export function
-		// exportTokenPayments(assetTokens[0].contractAddress, paymentHistory);
+		// Export functionality removed
+		console.log('Export functionality removed during refactoring');
 	}
 
 	function getAssetImage(assetData: Asset | null): string {

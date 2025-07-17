@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { useAssetService, useTokenService } from '$lib/services';
+	  import { dataStoreService } from '$lib/services';
 	import type { Token } from '$lib/types/uiTypes';
 	import FeaturedTokenCarousel from '$lib/components/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
@@ -25,19 +25,13 @@
 	let selectedTokenAddress: string | null = null;
 	let selectedAssetId: string | null = null;
 
-	// Get services
-	const assetService = useAssetService();
-	const tokenService = useTokenService();
+	// No services needed in template
 
 	onMount(async () => {
 		try {
-			// Get platform statistics from new services
-			const [assetStats, tokenStats] = await Promise.all([
-				assetService.getAssetStats(),
-				tokenService.getTokenStats()
-			]);
-			const allAssets = await assetService.getAllAssets();
-			const allTokens = await tokenService.getAllTokens();
+			// Get platform statistics
+			const allAssets = dataStoreService.getAllAssets();
+			const allTokens = dataStoreService.getAllTokens();
 			
 			// Calculate total invested from all tokens' minted supply
 			// Use different estimated values per token based on asset type and performance
