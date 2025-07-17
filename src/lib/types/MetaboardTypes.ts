@@ -161,3 +161,15 @@ export interface OperationalMetrics {
     safetyRating: string;
   };
 }
+
+export interface FutureRelease {
+  whenRelease: string;
+  description: string;
+  emoji?: string;
+}
+
+export interface FutureReleaseData {
+  [assetId: string]: {
+    [tokenId: string]: FutureRelease[];
+  };
+}
