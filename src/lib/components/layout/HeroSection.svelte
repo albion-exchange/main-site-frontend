@@ -5,8 +5,9 @@
 	export let subtitle = '';
 	export let showBorder = true;
 	export let showButtons = false;
+	export let className = '';
 	
-	$: sectionClasses = `py-24 px-8 text-center bg-white ${showBorder ? 'border-b border-light-gray' : ''}`;
+	$: sectionClasses = `${className || 'py-24'} px-8 text-center bg-white ${showBorder ? 'border-b border-light-gray' : ''}`;
 </script>
 
 <section class={sectionClasses}>

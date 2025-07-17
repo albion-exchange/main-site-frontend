@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 Albion royalty token platform frontend built with Svelte. This application enables users to:
+
 - Learn about the Albion platform through static content
 - Connect Ethereum/L2 wallets
 - Mint royalty tokens
@@ -21,7 +22,8 @@ Albion royalty token platform frontend built with Svelte. This application enabl
 
 ## Development Commands
 
-*Commands will be updated as the project structure is established. Typical Svelte patterns:*
+_Commands will be updated as the project structure is established. Typical Svelte patterns:_
+
 - `npm install` - Install dependencies
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
@@ -49,6 +51,7 @@ Albion royalty token platform frontend built with Svelte. This application enabl
 ## Style Guide
 
 ### Design Philosophy
+
 - **Clean Geometric Minimalism**: Simple shapes, clear hierarchy, generous whitespace
 - **Tech Forward Modernism**: Contemporary, digital-first aesthetic
 - **Restrained Palette**: Limited color usage for maximum impact
@@ -56,11 +59,13 @@ Albion royalty token platform frontend built with Svelte. This application enabl
 - **No Gradients**: Flat design with solid colors only
 
 ### Typography
+
 - **Primary Font**: FigTree (from Google Fonts)
 - **Titles/Headings**: FigTree Extra Bold
 - **Body Text**: FigTree Regular
 
 ### Color Palette
+
 - **Black**: #000000 (primary text, strong emphasis)
 - **White**: #ffffff (backgrounds, negative space)
 - **Primary Blue**: #08bccc (CTAs, interactive elements, key accents)
@@ -68,6 +73,7 @@ Albion royalty token platform frontend built with Svelte. This application enabl
 - **Light Gray**: #f8f4f4 (subtle backgrounds, borders, dividers)
 
 ### Usage Guidelines
+
 - Prioritize whitespace and clean layouts over decorative elements
 - Use color sparingly - primarily black text on white backgrounds
 - Reserve blue colors for interactive elements and key information

@@ -3,43 +3,58 @@
  * This service uses the unified asset metadata structure
  */
 
-import type { 
+import type {
   AssetMetadata,
   MonthlyData,
   AssetData,
-  PlannedProductionProjection
-} from '$lib/types/assetMetadataTypes';
-import { TokenType, ProductionStatus } from '$lib/types/assetMetadataTypes';
-import type { 
-  Asset, 
-  Token, 
+  PlannedProductionProjection,
+} from "$lib/types/assetMetadataTypes";
+import { TokenType, ProductionStatus } from "$lib/types/assetMetadataTypes";
+import type {
+  Asset,
+  Token,
   MarketData,
-  UserTokenBalance 
-} from '$lib/types/uiTypes';
-import type { AssetTokenMapping, ISODateOnlyString } from '$lib/types/sharedTypes';
-import { getTokenReturns, type TokenReturns } from '$lib/utils/returnCalculations';
+  UserTokenBalance,
+} from "$lib/types/uiTypes";
+import type {
+  AssetTokenMapping,
+  ISODateOnlyString,
+} from "$lib/types/sharedTypes";
+import {
+  getTokenReturns,
+  type TokenReturns,
+} from "$lib/utils/returnCalculations";
 
 // Import configuration data
-import marketData from '$lib/data/marketData.json';
-import platformStats from '$lib/data/platformStats.json';
-import companyInfo from '$lib/data/companyInfo.json';
-import defaultValues from '$lib/data/defaultValues.json';
-import assetTokenMapping from '$lib/data/assetTokenMapping.json';
+import marketData from "$lib/data/marketData.json";
+import platformStats from "$lib/data/platformStats.json";
+import companyInfo from "$lib/data/companyInfo.json";
+import defaultValues from "$lib/data/defaultValues.json";
+import assetTokenMapping from "$lib/data/assetTokenMapping.json";
 
 // Import all mock asset metadata
-import bakHf1Metadata from '$lib/data/mockAssetMetadata/bak-hf1.json';
-import bakHf2Metadata from '$lib/data/mockAssetMetadata/bak-hf2.json';
-import eurWr1Metadata from '$lib/data/mockAssetMetadata/eur-wr1.json';
-import eurWr2Metadata from '$lib/data/mockAssetMetadata/eur-wr2.json';
-import eurWr3Metadata from '$lib/data/mockAssetMetadata/eur-wr3.json';
-import perBv1Metadata from '$lib/data/mockAssetMetadata/per-bv1.json';
-import gomDw1Metadata from '$lib/data/mockAssetMetadata/gom-dw1.json';
+import bakHf1Metadata from "$lib/data/mockAssetMetadata/bak-hf1.json";
+import bakHf2Metadata from "$lib/data/mockAssetMetadata/bak-hf2.json";
+import eurWr1Metadata from "$lib/data/mockAssetMetadata/eur-wr1.json";
+import eurWr2Metadata from "$lib/data/mockAssetMetadata/eur-wr2.json";
+import eurWr3Metadata from "$lib/data/mockAssetMetadata/eur-wr3.json";
+import perBv1Metadata from "$lib/data/mockAssetMetadata/per-bv1.json";
+import gomDw1Metadata from "$lib/data/mockAssetMetadata/gom-dw1.json";
+import eurWrLegacyMetadata from "$lib/data/mockAssetMetadata/eur-wr-legacy.json";
 
 // Future release data (mock data for now)
-const eurWr4Future = [{ whenRelease: "Q2 2025", description: "Additional Wressle release" }];
-const bakHf3Future = [{ whenRelease: "Q3 2025", description: "Additional Bakken release" }];
-const perBv2Future = [{ whenRelease: "Q4 2025", description: "Additional Permian release" }];
-const gomDw2Future = [{ whenRelease: "Q1 2026", description: "Additional Gulf of Mexico release" }];
+const eurWr4Future = [
+  { whenRelease: "Q2 2025", description: "Additional Wressle release" },
+];
+const bakHf3Future = [
+  { whenRelease: "Q3 2025", description: "Additional Bakken release" },
+];
+const perBv2Future = [
+  { whenRelease: "Q4 2025", description: "Additional Permian release" },
+];
+const gomDw2Future = [
+  { whenRelease: "Q1 2026", description: "Additional Gulf of Mexico release" },
+];
 
 class DataStoreService {
   private assetMetadata: Record<string, AssetMetadata>;
@@ -50,22 +65,41 @@ class DataStoreService {
 
   constructor() {
     this.assetTokenMap = assetTokenMapping as AssetTokenMapping;
-    
+
     // Build reverse mapping on initialization
-    Object.entries(this.assetTokenMap.assets).forEach(([assetId, assetInfo]) => {
-      assetInfo.tokens.forEach(tokenAddress => {
-        this.tokenToAssetMap.set(tokenAddress, assetId);
-      });
-    });
+    Object.entries(this.assetTokenMap.assets).forEach(
+      ([assetId, assetInfo]) => {
+        assetInfo.tokens.forEach((tokenAddress) => {
+          this.tokenToAssetMap.set(tokenAddress, assetId);
+        });
+      },
+    );
     // Initialize asset metadata with proper date conversions
     this.assetMetadata = {
-      [bakHf1Metadata.contractAddress]: this.convertJsonToAssetMetadata(bakHf1Metadata as any),
-      [bakHf2Metadata.contractAddress]: this.convertJsonToAssetMetadata(bakHf2Metadata as any),
-      [eurWr1Metadata.contractAddress]: this.convertJsonToAssetMetadata(eurWr1Metadata as any),
-      [eurWr2Metadata.contractAddress]: this.convertJsonToAssetMetadata(eurWr2Metadata as any),
-      [eurWr3Metadata.contractAddress]: this.convertJsonToAssetMetadata(eurWr3Metadata as any),
-      [perBv1Metadata.contractAddress]: this.convertJsonToAssetMetadata(perBv1Metadata as any),
-      [gomDw1Metadata.contractAddress]: this.convertJsonToAssetMetadata(gomDw1Metadata as any),
+      [bakHf1Metadata.contractAddress]: this.convertJsonToAssetMetadata(
+        bakHf1Metadata as any,
+      ),
+      [bakHf2Metadata.contractAddress]: this.convertJsonToAssetMetadata(
+        bakHf2Metadata as any,
+      ),
+      [eurWr1Metadata.contractAddress]: this.convertJsonToAssetMetadata(
+        eurWr1Metadata as any,
+      ),
+      [eurWr2Metadata.contractAddress]: this.convertJsonToAssetMetadata(
+        eurWr2Metadata as any,
+      ),
+      [eurWr3Metadata.contractAddress]: this.convertJsonToAssetMetadata(
+        eurWr3Metadata as any,
+      ),
+      [perBv1Metadata.contractAddress]: this.convertJsonToAssetMetadata(
+        perBv1Metadata as any,
+      ),
+      [gomDw1Metadata.contractAddress]: this.convertJsonToAssetMetadata(
+        gomDw1Metadata as any,
+      ),
+      [eurWrLegacyMetadata.contractAddress]: this.convertJsonToAssetMetadata(
+        eurWrLegacyMetadata as any,
+      ),
     };
   }
 
@@ -78,7 +112,7 @@ class DataStoreService {
   // Helper method to convert AssetMetadata to legacy Asset format
   private assetMetadataToAsset(assetMetadata: AssetMetadata): Asset {
     const assetId = assetMetadata.assetId;
-    
+
     // Check cache first
     if (this.assetsCache.has(assetId)) {
       return this.assetsCache.get(assetId)!;
@@ -92,68 +126,79 @@ class DataStoreService {
       images: assetMetadata.galleryImages || [],
       location: {
         ...assetMetadata.asset.location,
-        waterDepth: assetMetadata.asset.location.waterDepth
+        waterDepth: assetMetadata.asset.location.waterDepth,
       },
       operator: {
         ...assetMetadata.asset.operator,
-        experience: `${assetMetadata.asset.operator.experienceYears}+ years`
+        experience: `${assetMetadata.asset.operator.experienceYears}+ years`,
       },
       technical: {
         ...assetMetadata.asset.technical,
         depth: `${assetMetadata.asset.technical.depth}m`,
         estimatedLife: `${Math.ceil(assetMetadata.asset.technical.estimatedLifeMonths / 12)}+ years`,
         pricing: {
-          benchmarkPremium: assetMetadata.asset.technical.pricing.benchmarkPremium < 0 
-            ? `-$${Math.abs(assetMetadata.asset.technical.pricing.benchmarkPremium)}`
-            : `+$${assetMetadata.asset.technical.pricing.benchmarkPremium}`,
-          transportCosts: assetMetadata.asset.technical.pricing.transportCosts === 0
-            ? "Title transfer at well head"
-            : `$${assetMetadata.asset.technical.pricing.transportCosts}`
-        }
+          benchmarkPremium:
+            assetMetadata.asset.technical.pricing.benchmarkPremium < 0
+              ? `-$${Math.abs(assetMetadata.asset.technical.pricing.benchmarkPremium)}`
+              : `+$${assetMetadata.asset.technical.pricing.benchmarkPremium}`,
+          transportCosts:
+            assetMetadata.asset.technical.pricing.transportCosts === 0
+              ? "Title transfer at well head"
+              : `$${assetMetadata.asset.technical.pricing.transportCosts}`,
+        },
       },
       production: {
         ...assetMetadata.asset.production,
-        status: this.convertProductionStatus(assetMetadata.asset.production.status),
+        status: this.convertProductionStatus(
+          assetMetadata.asset.production.status,
+        ),
         units: {
-          production: assetMetadata.asset.production.units.production === 1 ? "BOE (Barrels of Oil Equivalent)" : "MCF (Thousand Cubic Feet)",
-          revenue: "USD"
-        }
+          production:
+            assetMetadata.asset.production.units.production === 1
+              ? "BOE (Barrels of Oil Equivalent)"
+              : "MCF (Thousand Cubic Feet)",
+          revenue: "USD",
+        },
       },
       assetTerms: {
         ...assetMetadata.asset.assetTerms,
         amount: `${assetMetadata.asset.assetTerms.amount}% of gross`,
-        paymentFrequency: `Monthly within ${assetMetadata.asset.assetTerms.paymentFrequencyDays} days`
+        paymentFrequency: `Monthly within ${assetMetadata.asset.assetTerms.paymentFrequencyDays} days`,
       },
       tokenContracts: this.getTokenContractsByAssetId(assetId),
-      monthlyReports: assetMetadata.monthlyData.map(data => ({
+      monthlyReports: assetMetadata.monthlyData.map((data) => ({
         month: data.month,
         production: data.assetData.production,
         revenue: data.assetData.revenue,
         expenses: data.assetData.expenses,
         netIncome: data.assetData.netIncome,
-        payoutPerToken: data.tokenPayout.payoutPerToken
+        payoutPerToken: data.tokenPayout.payoutPerToken,
       })),
       productionHistory: assetMetadata.asset.productionHistory,
       plannedProduction: assetMetadata.asset.plannedProduction,
-      operationalMetrics: assetMetadata.asset.operationalMetrics ? {
-        ...assetMetadata.asset.operationalMetrics,
-        dailyProduction: {
-          ...assetMetadata.asset.operationalMetrics.dailyProduction,
-          unit: assetMetadata.asset.operationalMetrics.dailyProduction.unit
-        },
-        uptime: {
-          ...assetMetadata.asset.operationalMetrics.uptime,
-          period: assetMetadata.asset.operationalMetrics.uptime.period
-        },
-        hseMetrics: {
-          ...assetMetadata.asset.operationalMetrics.hseMetrics,
-          incidentFreeDays: assetMetadata.asset.operationalMetrics.hseMetrics.incidentFreeDays
-        }
-      } : undefined,
+      operationalMetrics: assetMetadata.asset.operationalMetrics
+        ? {
+            ...assetMetadata.asset.operationalMetrics,
+            dailyProduction: {
+              ...assetMetadata.asset.operationalMetrics.dailyProduction,
+              unit: assetMetadata.asset.operationalMetrics.dailyProduction.unit,
+            },
+            uptime: {
+              ...assetMetadata.asset.operationalMetrics.uptime,
+              period: assetMetadata.asset.operationalMetrics.uptime.period,
+            },
+            hseMetrics: {
+              ...assetMetadata.asset.operationalMetrics.hseMetrics,
+              incidentFreeDays:
+                assetMetadata.asset.operationalMetrics.hseMetrics
+                  .incidentFreeDays,
+            },
+          }
+        : undefined,
       metadata: {
         createdAt: assetMetadata.metadata.createdAt,
-        updatedAt: assetMetadata.metadata.updatedAt
-      }
+        updatedAt: assetMetadata.metadata.updatedAt,
+      },
     };
 
     this.assetsCache.set(assetId, asset);
@@ -172,30 +217,31 @@ class DataStoreService {
       name: assetMetadata.releaseName,
       symbol: assetMetadata.symbol,
       decimals: assetMetadata.decimals,
-      tokenType: assetMetadata.tokenType === TokenType.Royalty ? 'royalty' : 'payment',
+      tokenType:
+        assetMetadata.tokenType === TokenType.Royalty ? "royalty" : "payment",
       assetId: assetMetadata.assetId,
       isActive: true,
       supply: {
         maxSupply: assetMetadata.supply.maxSupply,
-        mintedSupply: assetMetadata.supply.mintedSupply
+        mintedSupply: assetMetadata.supply.mintedSupply,
       },
       holders: [], // Not included in merged token format
-      payoutHistory: assetMetadata.monthlyData.map(data => ({
+      payoutHistory: assetMetadata.monthlyData.map((data) => ({
         month: data.month,
-        date: data.tokenPayout.date.split('T')[0] as ISODateOnlyString,
+        date: data.tokenPayout.date.split("T")[0] as ISODateOnlyString,
         totalPayout: data.tokenPayout.totalPayout,
         payoutPerToken: data.tokenPayout.payoutPerToken,
         oilPrice: data.realisedPrice.oilPrice,
         gasPrice: data.realisedPrice.gasPrice,
         productionVolume: data.assetData.production,
-        txHash: data.tokenPayout.txHash
+        txHash: data.tokenPayout.txHash,
       })),
       sharePercentage: assetMetadata.sharePercentage,
       firstPaymentDate: assetMetadata.firstPaymentDate,
       metadata: {
         createdAt: assetMetadata.metadata.createdAt,
-        updatedAt: assetMetadata.metadata.updatedAt
-      }
+        updatedAt: assetMetadata.metadata.updatedAt,
+      },
     };
 
     this.tokensCache.set(assetMetadata.contractAddress, token);
@@ -206,25 +252,27 @@ class DataStoreService {
   private getTokenContractsByAssetId(assetId: string): string[] {
     return this.assetTokenMap.assets[assetId]?.tokens || [];
   }
-  
+
   // Helper to get asset ID from token address
   private getAssetIdFromTokenAddress(tokenAddress: string): string | undefined {
     return this.tokenToAssetMap.get(tokenAddress);
   }
 
   // Helper to convert ProductionStatus enum to string
-  private convertProductionStatus(status: ProductionStatus): 'funding' | 'producing' | 'completed' {
+  private convertProductionStatus(
+    status: ProductionStatus,
+  ): "funding" | "producing" | "completed" {
     switch (status) {
       case ProductionStatus.Producing:
-        return 'producing';
+        return "producing";
       case ProductionStatus.Development:
       case ProductionStatus.Exploration:
-        return 'funding';
+        return "funding";
       case ProductionStatus.Suspended:
       case ProductionStatus.Decommissioned:
-        return 'completed';
+        return "completed";
       default:
-        return 'producing';
+        return "producing";
     }
   }
 
@@ -236,23 +284,26 @@ class DataStoreService {
   getAllAssets(): Asset[] {
     const assetMap = new Map<string, Asset>();
     const assetMetadataMap = new Map<string, AssetMetadata>();
-    
+
     // Group tokens by asset ID and keep the one with most recent updatedAt
-    Object.values(this.assetMetadata).forEach(tokenMetadata => {
+    Object.values(this.assetMetadata).forEach((tokenMetadata) => {
       const assetId = tokenMetadata.assetId;
       const existing = assetMetadataMap.get(assetId);
-      
-      if (!existing || tokenMetadata.metadata.updatedAt > existing.metadata.updatedAt) {
+
+      if (
+        !existing ||
+        tokenMetadata.metadata.updatedAt > existing.metadata.updatedAt
+      ) {
         assetMetadataMap.set(assetId, tokenMetadata);
       }
     });
-    
+
     // Convert to Asset objects
-    assetMetadataMap.forEach(assetMetadata => {
+    assetMetadataMap.forEach((assetMetadata) => {
       const asset = this.assetMetadataToAsset(assetMetadata);
       assetMap.set(asset.id, asset);
     });
-    
+
     return Array.from(assetMap.values());
   }
 
@@ -264,40 +315,48 @@ class DataStoreService {
     if (this.assetsCache.has(assetId)) {
       return this.assetsCache.get(assetId)!;
     }
-    
+
     // Get all token addresses for this asset
     const assetInfo = this.assetTokenMap.assets[assetId];
     if (!assetInfo || assetInfo.tokens.length === 0) return null;
-    
+
     const tokenAddresses = assetInfo.tokens;
-    
+
     // Find the token metadata with the most recent updatedAt
     let mostRecentMetadata: AssetMetadata | null = null;
-    tokenAddresses.forEach(address => {
+    tokenAddresses.forEach((address) => {
       const metadata = this.assetMetadata[address];
-      if (metadata && (!mostRecentMetadata || 
-          metadata.metadata.updatedAt > mostRecentMetadata.metadata.updatedAt)) {
+      if (
+        metadata &&
+        (!mostRecentMetadata ||
+          metadata.metadata.updatedAt > mostRecentMetadata.metadata.updatedAt)
+      ) {
         mostRecentMetadata = metadata;
       }
     });
-    
-    return mostRecentMetadata ? this.assetMetadataToAsset(mostRecentMetadata) : null;
+
+    return mostRecentMetadata
+      ? this.assetMetadataToAsset(mostRecentMetadata)
+      : null;
   }
 
   /**
    * Get assets by status
    */
-  getAssetsByStatus(status: 'funding' | 'producing' | 'completed'): Asset[] {
-    return this.getAllAssets().filter(asset => asset.production.status === status);
+  getAssetsByStatus(status: "funding" | "producing" | "completed"): Asset[] {
+    return this.getAllAssets().filter(
+      (asset) => asset.production.status === status,
+    );
   }
 
   /**
    * Get assets by location (state/country)
    */
   getAssetsByLocation(location: string): Asset[] {
-    return this.getAllAssets().filter(asset => 
-      asset.location.state.toLowerCase().includes(location.toLowerCase()) ||
-      asset.location.country.toLowerCase().includes(location.toLowerCase())
+    return this.getAllAssets().filter(
+      (asset) =>
+        asset.location.state.toLowerCase().includes(location.toLowerCase()) ||
+        asset.location.country.toLowerCase().includes(location.toLowerCase()),
     );
   }
 
@@ -306,9 +365,10 @@ class DataStoreService {
    */
   searchAssets(query: string): Asset[] {
     const searchTerm = query.toLowerCase();
-    return this.getAllAssets().filter(asset => 
-      asset.name.toLowerCase().includes(searchTerm) ||
-      asset.description.toLowerCase().includes(searchTerm)
+    return this.getAllAssets().filter(
+      (asset) =>
+        asset.name.toLowerCase().includes(searchTerm) ||
+        asset.description.toLowerCase().includes(searchTerm),
     );
   }
 
@@ -318,8 +378,8 @@ class DataStoreService {
    * Get all tokens
    */
   getAllTokens(): Token[] {
-    return Object.values(this.assetMetadata).map(assetMetadata => 
-      this.assetMetadataToToken(assetMetadata)
+    return Object.values(this.assetMetadata).map((assetMetadata) =>
+      this.assetMetadataToToken(assetMetadata),
     );
   }
 
@@ -342,7 +402,9 @@ class DataStoreService {
    * Get token by symbol
    */
   getTokenBySymbol(symbol: string): Token | null {
-    const assetMetadata = Object.values(this.assetMetadata).find(token => token.symbol === symbol);
+    const assetMetadata = Object.values(this.assetMetadata).find(
+      (token) => token.symbol === symbol,
+    );
     return assetMetadata ? this.assetMetadataToToken(assetMetadata) : null;
   }
 
@@ -352,21 +414,22 @@ class DataStoreService {
   getTokensByAssetId(assetId: string): Token[] {
     const assetInfo = this.assetTokenMap.assets[assetId];
     if (!assetInfo) return [];
-    
+
     return assetInfo.tokens
-      .map(address => this.assetMetadata[address])
-      .filter(metadata => metadata !== undefined)
-      .map(metadata => this.assetMetadataToToken(metadata));
+      .map((address) => this.assetMetadata[address])
+      .filter((metadata) => metadata !== undefined)
+      .map((metadata) => this.assetMetadataToToken(metadata));
   }
 
   /**
    * Get tokens by type
    */
-  getTokensByType(tokenType: 'royalty' | 'payment'): Token[] {
-    const assetMetadataType = tokenType === 'royalty' ? TokenType.Royalty : TokenType.WorkingInterest;
+  getTokensByType(tokenType: "royalty" | "payment"): Token[] {
+    const assetMetadataType =
+      tokenType === "royalty" ? TokenType.Royalty : TokenType.WorkingInterest;
     return Object.values(this.assetMetadata)
-      .filter(token => token.tokenType === assetMetadataType)
-      .map(token => this.assetMetadataToToken(token));
+      .filter((token) => token.tokenType === assetMetadataType)
+      .map((token) => this.assetMetadataToToken(token));
   }
 
   /**
@@ -380,14 +443,14 @@ class DataStoreService {
    * Get royalty tokens (excludes payment tokens)
    */
   getRoyaltyTokens(): Token[] {
-    return this.getTokensByType('royalty');
+    return this.getTokensByType("royalty");
   }
 
   /**
    * Get payment tokens only
    */
   getPaymentTokens(): Token[] {
-    return this.getTokensByType('payment');
+    return this.getTokensByType("payment");
   }
 
   /**
@@ -402,7 +465,9 @@ class DataStoreService {
   /**
    * Get asset with its associated tokens
    */
-  getAssetWithTokens(assetId: string): { asset: Asset; tokens: Token[] } | null {
+  getAssetWithTokens(
+    assetId: string,
+  ): { asset: Asset; tokens: Token[] } | null {
     const asset = this.getAssetById(assetId);
     if (!asset) return null;
 
@@ -417,13 +482,13 @@ class DataStoreService {
    */
   getAllMarketData(): MarketData[] {
     const marketData: MarketData[] = [];
-    
-    this.getActiveTokens().forEach(token => {
+
+    this.getActiveTokens().forEach((token) => {
       // Generate mock market data based on token
       const basePrice = 1.0;
       const priceChange = (Math.random() - 0.5) * 0.1;
       const volume = Math.random() * 1000000;
-      
+
       marketData.push({
         symbol: token.symbol,
         price: basePrice + priceChange,
@@ -435,7 +500,10 @@ class DataStoreService {
         spread: 0.02,
         high24h: basePrice + Math.abs(priceChange) + 0.05,
         low24h: basePrice - Math.abs(priceChange) - 0.05,
-        marketCap: parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals) * (basePrice + priceChange)
+        marketCap:
+          (parseFloat(token.supply.mintedSupply) /
+            Math.pow(10, token.decimals)) *
+          (basePrice + priceChange),
       });
     });
 
@@ -453,7 +521,7 @@ class DataStoreService {
     const basePrice = 1.0;
     const priceChange = (Math.random() - 0.5) * 0.1;
     const volume = Math.random() * 1000000;
-    
+
     return {
       symbol: token.symbol,
       price: basePrice + priceChange,
@@ -465,7 +533,9 @@ class DataStoreService {
       spread: 0.02,
       high24h: basePrice + Math.abs(priceChange) + 0.05,
       low24h: basePrice - Math.abs(priceChange) - 0.05,
-      marketCap: parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals) * (basePrice + priceChange)
+      marketCap:
+        (parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals)) *
+        (basePrice + priceChange),
     };
   }
 
@@ -500,13 +570,13 @@ class DataStoreService {
   getCalculatedRemainingProduction(assetId: string): string {
     const asset = this.getAssetById(assetId);
     if (!asset?.plannedProduction?.projections) {
-      return 'TBD';
+      return "TBD";
     }
 
     // Sum all production from planned production projections
     const totalProduction = asset.plannedProduction.projections.reduce(
-      (sum, projection) => sum + projection.production, 
-      0
+      (sum, projection) => sum + projection.production,
+      0,
     );
 
     // Convert to mboe (thousand barrels)
@@ -542,16 +612,22 @@ class DataStoreService {
 
     return {
       latestProduction: latest.production,
-      latestNetIncome: latest.netIncome,
+      latestNetIncome: latest.netIncome || 0,
       latestPayoutPerToken: latest.payoutPerToken,
-      monthOverMonthProductionChange: previous 
-        ? ((latest.production - previous.production) / previous.production) * 100 
+      monthOverMonthProductionChange: previous
+        ? ((latest.production - previous.production) / previous.production) *
+          100
         : 0,
-      monthOverMonthIncomeChange: previous 
-        ? ((latest.netIncome - previous.netIncome) / previous.netIncome) * 100 
-        : 0,
-      totalProductionLast12Months: reports.slice(-12).reduce((sum, report) => sum + report.production, 0),
-      totalIncomeLast12Months: reports.slice(-12).reduce((sum, report) => sum + report.netIncome, 0)
+      monthOverMonthIncomeChange:
+        previous && latest.netIncome && previous.netIncome
+          ? ((latest.netIncome - previous.netIncome) / previous.netIncome) * 100
+          : 0,
+      totalProductionLast12Months: reports
+        .slice(-12)
+        .reduce((sum, report) => sum + report.production, 0),
+      totalIncomeLast12Months: reports
+        .slice(-12)
+        .reduce((sum, report) => sum + (report.netIncome || 0), 0),
     };
   }
 
@@ -559,11 +635,11 @@ class DataStoreService {
    * Format currency values
    */
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(amount);
   }
 
@@ -572,9 +648,9 @@ class DataStoreService {
    */
   formatTokenAmount(amount: string, decimals: number = 18): string {
     const value = parseFloat(amount) / Math.pow(10, decimals);
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat("en-US", {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(value);
   }
 
@@ -585,15 +661,17 @@ class DataStoreService {
     const token = this.getTokenByAddress(contractAddress);
     if (!token) return null;
 
-    const maxSupply = parseFloat(token.supply.maxSupply) / Math.pow(10, token.decimals);
-    const mintedSupply = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
+    const maxSupply =
+      parseFloat(token.supply.maxSupply) / Math.pow(10, token.decimals);
+    const mintedSupply =
+      parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
     const supplyUtilization = (mintedSupply / maxSupply) * 100;
 
     return {
       maxSupply,
       mintedSupply,
       supplyUtilization,
-      availableSupply: maxSupply - mintedSupply
+      availableSupply: maxSupply - mintedSupply,
     };
   }
 
@@ -603,30 +681,37 @@ class DataStoreService {
   getPlatformStatistics() {
     const allAssets = this.getAllAssets();
     const allTokens = this.getAllTokens();
-    
+
     // Calculate total assets
     const totalAssets = allAssets.length;
-    
+
     // Calculate total invested from all tokens' minted supply
     const totalInvested = allTokens.reduce((sum, token) => {
-      const mintedTokens = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
+      const mintedTokens =
+        parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
       // Use $1 per token as base estimation
       return sum + mintedTokens;
     }, 0);
-    
+
     // Calculate total payouts from monthly reports
     const totalPayouts = allAssets.reduce((sum, asset) => {
-      return sum + asset.monthlyReports.reduce((assetSum, report) => assetSum + report.netIncome, 0);
+      return (
+        sum +
+        asset.monthlyReports.reduce(
+          (assetSum, report) => assetSum + (report.netIncome ?? 0),
+          0,
+        )
+      );
     }, 0);
-    
+
     // Get active token holders count (using a default since holders data is not in merged format)
     const totalHolders = 1000; // Mock value
-    
+
     return {
       totalAssets,
       totalInvested,
       totalPayouts,
-      totalHolders
+      totalHolders,
     };
   }
 
@@ -637,27 +722,34 @@ class DataStoreService {
     const assetMetadata = this.assetMetadata[contractAddress];
     if (!assetMetadata) return null;
 
-    const recentPayouts = assetMetadata.monthlyData.map(data => ({
+    const recentPayouts = assetMetadata.monthlyData.map((data) => ({
       month: data.month,
-      date: data.tokenPayout.date.split('T')[0],
+      date: data.tokenPayout.date.split("T")[0],
       totalPayout: data.tokenPayout.totalPayout,
       payoutPerToken: data.tokenPayout.payoutPerToken,
       oilPrice: data.realisedPrice.oilPrice,
       gasPrice: data.realisedPrice.gasPrice,
       productionVolume: data.assetData.production,
-      txHash: data.tokenPayout.txHash
+      txHash: data.tokenPayout.txHash,
     }));
 
     const totalPayouts = recentPayouts.length;
-    const averageMonthlyPayout = recentPayouts.length > 0 
-      ? recentPayouts.reduce((sum, payout) => sum + payout.payoutPerToken, 0) / totalPayouts 
-      : 0;
+    const averageMonthlyPayout =
+      recentPayouts.length > 0
+        ? recentPayouts.reduce(
+            (sum, payout) => sum + payout.payoutPerToken,
+            0,
+          ) / totalPayouts
+        : 0;
 
     return {
       recentPayouts,
       totalPayouts,
       averageMonthlyPayout,
-      totalPaid: recentPayouts.reduce((sum, payout) => sum + payout.totalPayout, 0)
+      totalPaid: recentPayouts.reduce(
+        (sum, payout) => sum + payout.totalPayout,
+        0,
+      ),
     };
   }
 
@@ -690,12 +782,14 @@ class DataStoreService {
     if (!asset) return marketData.tokenPricing.defaultEstimatedValue;
 
     // Determine region based on asset location or ID
-    let regionKey: 'europe' | 'bakken' | 'permian' | 'gulf-mexico' = 'europe'; // default
-    if (assetId.includes('bakken')) regionKey = 'bakken';
-    else if (assetId.includes('permian')) regionKey = 'permian';
-    else if (assetId.includes('gulf')) regionKey = 'gulf-mexico';
+    let regionKey: keyof typeof marketData.tokenPricing.regionMultipliers =
+      "europe"; // default
+    if (assetId.includes("bakken")) regionKey = "bakken";
+    else if (assetId.includes("permian")) regionKey = "permian";
+    else if (assetId.includes("gulf")) regionKey = "gulf-mexico";
 
-    const multiplier = marketData.tokenPricing.regionMultipliers[regionKey] || 1.0;
+    const multiplier =
+      marketData.tokenPricing.regionMultipliers[regionKey] || 1.0;
     return marketData.tokenPricing.defaultEstimatedValue * multiplier;
   }
 
@@ -723,29 +817,57 @@ class DataStoreService {
   /**
    * Get future token releases (flattened from all assets)
    */
-  getFutureReleases(): Array<{assetId: string, tokenId: string, whenRelease: string, description?: string, emoji?: string}> {
-    const allReleases: Array<{assetId: string, tokenId: string, whenRelease: string, description?: string, emoji?: string}> = [];
-    
+  getFutureReleases(): Array<{
+    assetId: string;
+    tokenId: string;
+    whenRelease: string;
+    description?: string;
+    emoji?: string;
+  }> {
+    const allReleases: Array<{
+      assetId: string;
+      tokenId: string;
+      whenRelease: string;
+      description?: string;
+      emoji?: string;
+    }> = [];
+
     // Add Europa Wressle releases
-    eurWr4Future.forEach(release => {
-      allReleases.push({ assetId: 'europa-wressle-release-1', tokenId: 'eur_wr4', ...release });
+    eurWr4Future.forEach((release) => {
+      allReleases.push({
+        assetId: "europa-wressle-release-1",
+        tokenId: "eur_wr4",
+        ...release,
+      });
     });
-    
+
     // Add Bakken Horizon releases
-    bakHf3Future.forEach(release => {
-      allReleases.push({ assetId: 'bakken-horizon-field', tokenId: 'bak_hf3', ...release });
+    bakHf3Future.forEach((release) => {
+      allReleases.push({
+        assetId: "bakken-horizon-field",
+        tokenId: "bak_hf3",
+        ...release,
+      });
     });
-    
+
     // Add Permian Basin releases
-    perBv2Future.forEach(release => {
-      allReleases.push({ assetId: 'permian-basin-venture', tokenId: 'per_bv2', ...release });
+    perBv2Future.forEach((release) => {
+      allReleases.push({
+        assetId: "permian-basin-venture",
+        tokenId: "per_bv2",
+        ...release,
+      });
     });
-    
+
     // Add Gulf of Mexico releases
-    gomDw2Future.forEach(release => {
-      allReleases.push({ assetId: 'gulf-mexico-deep-water', tokenId: 'gom_dw2', ...release });
+    gomDw2Future.forEach((release) => {
+      allReleases.push({
+        assetId: "gulf-mexico-deep-water",
+        tokenId: "gom_dw2",
+        ...release,
+      });
     });
-    
+
     return allReleases;
   }
 
@@ -754,11 +876,13 @@ class DataStoreService {
    */
   getFutureReleasesByAsset(assetId: string) {
     const releases = this.getFutureReleases();
-    const assetReleases = releases.filter(release => release.assetId === assetId);
-    
+    const assetReleases = releases.filter(
+      (release) => release.assetId === assetId,
+    );
+
     // Sort by whenRelease chronologically
     assetReleases.sort((a, b) => a.whenRelease.localeCompare(b.whenRelease));
-    
+
     return assetReleases;
   }
 
@@ -768,13 +892,13 @@ class DataStoreService {
   getFutureReleaseByAsset(assetId: string) {
     const releases = this.getFutureReleasesByAsset(assetId);
     if (releases.length === 0) return null;
-    
+
     // Sort by whenRelease and return first (next upcoming)
     releases.sort((a, b) => {
       // Simple string comparison should work for "Q1 2025" format
       return a.whenRelease.localeCompare(b.whenRelease);
     });
-    
+
     return releases[0];
   }
 
@@ -784,7 +908,7 @@ class DataStoreService {
   getNextRelease() {
     const releases = this.getFutureReleases();
     if (releases.length === 0) return null;
-    
+
     // Sort by whenRelease and return first
     releases.sort((a, b) => a.whenRelease.localeCompare(b.whenRelease));
     return releases[0];

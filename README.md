@@ -13,15 +13,17 @@ Frontend application for the Albion royalty token platform built with SvelteKit.
 ## Quick Start
 
 1. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 2. **Start development server**
+
    ```bash
    npm run dev
    ```
-   
+
    Open [http://localhost:5173](http://localhost:5173) in your browser. The app will automatically reload when you save changes.
 
 ## Development Commands
@@ -52,6 +54,7 @@ npm run format       # Format code with Prettier
 ## Blockchain Integration
 
 The application integrates with Ethereum and Layer 2 networks for:
+
 - Smart contract interactions
 - Wallet balance queries
 - Transaction handling with proper error states

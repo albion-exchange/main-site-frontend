@@ -3,4 +3,4 @@
  * Re-exported from sharedTypes for backward compatibility
  */
 
-export type { AssetInfo, AssetTokenMapping } from './sharedTypes';
+export type { AssetInfo, AssetTokenMapping } from "./sharedTypes";

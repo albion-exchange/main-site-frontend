@@ -8,7 +8,7 @@
       "lastUpdated": "2025-01-07T10:00:00Z"
     },
     "brent": {
-      "price": 78.20,
+      "price": 78.2,
       "change": -0.8,
       "currency": "USD",
       "unit": "barrel",
@@ -24,8 +24,8 @@
   },
   "defaultGrowthRate": 2.8,
   "gasFeesEstimate": {
-    "low": 8.50,
-    "medium": 12.50,
+    "low": 8.5,
+    "medium": 12.5,
     "high": 18.75,
     "currency": "USD"
   },

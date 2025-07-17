@@ -1,8 +1,6 @@
 <script lang="ts">
 	export let background: 'white' | 'gray' | 'secondary' = 'white';
-	export let padding: 'compact' | 'standard' | 'large' | 'none' = 'standard';
-	export let centered = false;
-	export let maxWidth = true;
+	export let padding: 'compact' | 'standard' | 'large' = 'standard';
 	export let className = '';
 	
 	const backgroundClasses = {
@@ -12,18 +10,16 @@
 	};
 	
 	const paddingClasses = {
-		compact: 'py-8 px-4 md:py-12 md:px-8',
-		standard: 'py-16 px-8',
-		large: 'py-24 px-8',
-		none: ''
+		compact: 'py-8 md:py-12',
+		standard: 'py-16',
+		large: 'py-24'
 	};
 	
 	$: sectionClasses = `${backgroundClasses[background]} ${paddingClasses[padding]} ${className}`;
-	$: contentClasses = `${maxWidth ? 'max-w-6xl mx-auto' : ''} ${centered ? 'text-center' : ''}`;
 </script>
 
 <section class={sectionClasses}>
-	<div class={contentClasses}>
+	<div class="max-w-6xl mx-auto px-8">
 		<slot />
 	</div>
 </section>

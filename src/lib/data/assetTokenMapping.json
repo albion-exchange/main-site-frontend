@@ -17,15 +17,15 @@
     },
     "434f4f0c-2446-4565-a3d4-a1299dfc04ec": {
       "name": "Gulf of Mexico Deep Water",
-      "tokens": [
-        "0x7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f60"
-      ]
+      "tokens": ["0x7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f60"]
     },
     "00486bf8-c66b-4943-9004-b8549f4fb416": {
       "name": "Permian Basin Venture",
-      "tokens": [
-        "0x8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6071"
-      ]
+      "tokens": ["0x8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6071"]
+    },
+    "europa-wressle-legacy": {
+      "name": "Wressle Legacy Production",
+      "tokens": ["0xffffffffffffffffffffffffffffffffffffff1"]
     }
   }
 }

@@ -3,40 +3,56 @@
  * Provides runtime validation for ISO date string formats
  */
 
-import { z } from 'zod';
-import type { ISODateTimeString, ISODateOnlyString, ISOYearMonthString } from '$lib/types/sharedTypes';
+import { z } from "zod";
+import type {
+  ISODateTimeString,
+  ISODateOnlyString,
+  ISOYearMonthString,
+} from "$lib/types/sharedTypes";
 
 // Zod schemas for date validation
-export const ISODateTimeSchema = z.string()
+export const ISODateTimeSchema = z
+  .string()
   .datetime({ offset: true })
-  .transform(val => val as ISODateTimeString);
+  .transform((val) => val as ISODateTimeString);
 
-export const ISODateOnlySchema = z.string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format. Expected YYYY-MM-DD')
+export const ISODateOnlySchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format. Expected YYYY-MM-DD")
   .refine((val) => {
-    const date = new Date(val + 'T00:00:00.000Z');
+    const date = new Date(val + "T00:00:00.000Z");
     return !isNaN(date.getTime()) && date.toISOString().startsWith(val);
-  }, 'Invalid date')
-  .transform(val => val as ISODateOnlyString);
+  }, "Invalid date")
+  .transform((val) => val as ISODateOnlyString);
 
-export const ISOYearMonthSchema = z.string()
-  .regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Invalid year-month format. Expected YYYY-MM')
+export const ISOYearMonthSchema = z
+  .string()
+  .regex(
+    /^\d{4}-(0[1-9]|1[0-2])$/,
+    "Invalid year-month format. Expected YYYY-MM",
+  )
   .refine((val) => {
-    const [year, month] = val.split('-').map(Number);
+    const [year, month] = val.split("-").map(Number);
     return year >= 1900 && year <= 2100 && month >= 1 && month <= 12;
-  }, 'Invalid year or month')
-  .transform(val => val as ISOYearMonthString);
+  }, "Invalid year or month")
+  .transform((val) => val as ISOYearMonthString);
 
 // Type guards
-export function isISODateTimeString(value: unknown): value is ISODateTimeString {
+export function isISODateTimeString(
+  value: unknown,
+): value is ISODateTimeString {
   return ISODateTimeSchema.safeParse(value).success;
 }
 
-export function isISODateOnlyString(value: unknown): value is ISODateOnlyString {
+export function isISODateOnlyString(
+  value: unknown,
+): value is ISODateOnlyString {
   return ISODateOnlySchema.safeParse(value).success;
 }
 
-export function isISOYearMonthString(value: unknown): value is ISOYearMonthString {
+export function isISOYearMonthString(
+  value: unknown,
+): value is ISOYearMonthString {
   return ISOYearMonthSchema.safeParse(value).success;
 }
 
@@ -72,12 +88,12 @@ export function formatDateToISOString(date: Date): ISODateTimeString {
 }
 
 export function formatDateToISODateOnly(date: Date): ISODateOnlyString {
-  return date.toISOString().split('T')[0] as ISODateOnlyString;
+  return date.toISOString().split("T")[0] as ISODateOnlyString;
 }
 
 export function formatDateToISOYearMonth(date: Date): ISOYearMonthString {
   const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
   return `${year}-${month}` as ISOYearMonthString;
 }
 

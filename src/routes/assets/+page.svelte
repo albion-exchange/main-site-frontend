@@ -70,60 +70,62 @@
 		title="Available Assets"
 		subtitle="Discover tokenized oil field investments"
 		showBorder={false}
-	/>
+	>
+		{#if loading}
+			<!-- Loading State -->
+			<div class="text-center mt-8">
+				<p class="text-base text-black leading-relaxed">Loading assets...</p>
+			</div>
+		{:else}
+			<!-- Assets Grid -->
+			<div class="mt-24">
+				{#if filteredAssets.length === 0 && !showSoldOutAssets}
+					<!-- No Available Assets -->
+					<Card>
+						<CardContent>
+							<div class="text-center">
+								<SectionTitle level="h3" size="card">No Available Assets</SectionTitle>
+								<p class="text-base text-black leading-relaxed mt-4">All assets are currently sold out.</p>
+							</div>
+						</CardContent>
+					</Card>
+				{:else if filteredAssets.length === 0}
+					<!-- No Assets Found -->
+					<Card>
+						<CardContent>
+							<div class="text-center">
+								<SectionTitle level="h3" size="card">No Assets Found</SectionTitle>
+								<p class="text-base text-black leading-relaxed mt-4">Try adjusting your search criteria or filters to find assets.</p>
+							</div>
+						</CardContent>
+					</Card>
+				{:else}
+					<!-- Assets Grid -->
+					<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+						{#each filteredAssets as asset}
+							<AssetCard {asset} on:buyTokens={handleBuyTokens} />
+						{/each}
+					</div>
+				{/if}
+			</div>
+		{/if}
+	</HeroSection>
 
-	{#if loading}
-		<!-- Loading State -->
-		<ContentSection background="white" padding="standard" centered>
-			<p class="text-base text-black leading-relaxed">Loading assets...</p>
-		</ContentSection>
-	{:else}
-		<!-- Assets Section -->
-		<ContentSection background="white" padding="standard" maxWidth={false}>
-			{#if filteredAssets.length === 0 && !showSoldOutAssets}
-				<!-- No Available Assets -->
-				<Card>
-					<CardContent>
-						<div class="text-center">
-							<SectionTitle level="h3" size="card">No Available Assets</SectionTitle>
-							<p class="text-base text-black leading-relaxed mt-4">All assets are currently sold out.</p>
-						</div>
-					</CardContent>
-				</Card>
-			{:else if filteredAssets.length === 0}
-				<!-- No Assets Found -->
-				<Card>
-					<CardContent>
-						<div class="text-center">
-							<SectionTitle level="h3" size="card">No Assets Found</SectionTitle>
-							<p class="text-base text-black leading-relaxed mt-4">Try adjusting your search criteria or filters to find assets.</p>
-						</div>
-					</CardContent>
-				</Card>
-			{:else}
-				<!-- Assets Grid -->
-				<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-					{#each filteredAssets as asset}
-						<AssetCard {asset} on:buyTokens={handleBuyTokens} />
-					{/each}
-				</div>
-			{/if}
-			
-			<!-- View Sold Out Assets Toggle -->
-			{#if soldOutCount > 0 && !showSoldOutAssets}
-				<div class="text-center mt-12">
-					<SecondaryButton on:click={() => showSoldOutAssets = true}>
-						View Sold Out Assets ({soldOutCount})
-					</SecondaryButton>
-				</div>
-			{:else if showSoldOutAssets && soldOutCount > 0}
-				<div class="text-center mt-12">
-					<SecondaryButton on:click={() => showSoldOutAssets = false}>
-						Hide Sold Out Assets
-					</SecondaryButton>
-				</div>
-			{/if}
-		</ContentSection>
+	<!-- View Sold Out Assets Toggle -->
+	{#if !loading && filteredAssets.length > 0}
+		{#if soldOutCount > 0 && !showSoldOutAssets}
+			<div class="text-center mt-12">
+				<SecondaryButton on:click={() => showSoldOutAssets = true}>
+					View Sold Out Assets ({soldOutCount})
+				</SecondaryButton>
+			</div>
+		{:else if showSoldOutAssets && soldOutCount > 0}
+			<div class="text-center mt-12">
+				<SecondaryButton on:click={() => showSoldOutAssets = false}>
+					Hide Sold Out Assets
+				</SecondaryButton>
+			</div>
+		{/if}
 	{/if}
 </PageLayout>
 

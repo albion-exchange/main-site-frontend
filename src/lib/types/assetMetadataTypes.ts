@@ -1,26 +1,34 @@
 // Type definitions based on merged-token-schema.json
 
-import type { GalleryImage, TokenSupply, ISOYearMonthString, Location, Metadata, ISODateTimeString, ISODateOnlyString } from './sharedTypes';
+import type {
+  GalleryImage,
+  TokenSupply,
+  ISOYearMonthString,
+  Location,
+  Metadata,
+  ISODateTimeString,
+  ISODateOnlyString,
+} from "./sharedTypes";
 
 export enum TokenType {
-  Royalty = 'royalty',
-  WorkingInterest = 'working-interest',
-  OverridingRoyalty = 'overriding-royalty'
+  Royalty = "royalty",
+  WorkingInterest = "working-interest",
+  OverridingRoyalty = "overriding-royalty",
 }
 
 export enum ProductionStatus {
-  Producing = 'producing',
-  Development = 'development',
-  Exploration = 'exploration',
-  Suspended = 'suspended',
-  Decommissioned = 'decommissioned'
+  Producing = "producing",
+  Development = "development",
+  Exploration = "exploration",
+  Suspended = "suspended",
+  Decommissioned = "decommissioned",
 }
 
 export enum DocumentType {
-  PDF = 'pdf',
-  Images = 'images',
-  CSV = 'csv',
-  ZIP = 'zip'
+  PDF = "pdf",
+  Images = "images",
+  CSV = "csv",
+  ZIP = "zip",
 }
 
 export interface AssetMetadata {
@@ -81,7 +89,6 @@ export interface AssetData {
   productionHistory: ProductionHistoryRecord[];
   operationalMetrics: OperationalMetrics;
 }
-
 
 export interface Operator {
   name: string;
@@ -154,4 +161,3 @@ export interface OperationalMetrics {
     safetyRating: string;
   };
 }
-
