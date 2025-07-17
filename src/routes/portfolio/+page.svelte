@@ -7,6 +7,7 @@
 	import WalletModal from '$lib/components/WalletModal.svelte';
 	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, TabNavigation, MetricDisplay, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart } from '$lib/components/ui';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
+	import { formatCurrency, formatPercentage, formatNumber } from '$lib/utils/formatters';
 
 	let totalInvested = 0;
 	let totalPayoutsEarned = 0;
@@ -180,19 +181,6 @@
 
 
 
-	function formatCurrency(amount: number): string {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD',
-			minimumFractionDigits: 2,
-			maximumFractionDigits: 2
-		}).format(amount);
-	}
-
-	function formatPercent(percent: number): string {
-		const sign = percent >= 0 ? '+' : '';
-		return `${sign}${percent.toFixed(1)}%`;
-	}
 
 	function getCurrentTime(): string {
 		return new Date().toLocaleTimeString();
@@ -384,7 +372,7 @@
 														role="button"
 														tabindex="0">ⓘ</span>
 												</div>
-												<div class="text-xl font-extrabold text-black mb-3">{holding.capitalReturned.toFixed(1)}%</div>
+												<div class="text-xl font-extrabold text-black mb-3">{formatPercentage(holding.capitalReturned / 100, { decimals: 1 })}</div>
 												<div class="text-sm text-black opacity-70">To Date</div>
 												{#if showTooltip === 'capital-returned-' + holding.id}
 													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-3 rounded text-xs z-[1000] mb-[5px] w-48 text-left leading-relaxed">

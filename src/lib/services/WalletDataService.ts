@@ -16,6 +16,7 @@ import type {
 } from "$lib/types/wallet";
 import { dataStoreService } from "$lib/services/DataStoreService";
 import type { Asset, Token } from "$lib/types/uiTypes";
+import { formatCurrency as _formatCurrency, formatPercentage as _formatPercentage } from "$lib/utils/formatters";
 
 // Import mock wallet data
 import walletDataJson from "$lib/data/mockWallet/wallet.json";
@@ -678,23 +679,14 @@ class WalletDataService {
    * Format currency for display
    */
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
+    return _formatCurrency(amount);
   }
 
   /**
    * Format percentage for display
    */
   formatPercentage(value: number): string {
-    return new Intl.NumberFormat("en-US", {
-      style: "percent",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value / 100);
+    return _formatPercentage(value / 100);
   }
 }
 

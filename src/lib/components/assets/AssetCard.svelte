@@ -3,6 +3,7 @@
 	import type { Asset } from '$lib/types/uiTypes';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
 
 	export let asset: Asset;
 	
@@ -59,26 +60,6 @@
 	// Extract token data with fallbacks
 	$: shareOfAsset = primaryToken?.sharePercentage ? `${primaryToken.sharePercentage}%` : 'TBD';
 
-	function formatCurrency(amount: number): string {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD',
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 0
-		}).format(amount);
-	}
-
-	function formatNumber(num: number): string {
-		return new Intl.NumberFormat('en-US').format(Math.round(num));
-	}
-
-	function formatEndDate(dateStr: string): string {
-		if (!dateStr) return 'TBD';
-		const [year, month] = dateStr.split('-');
-		const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-							 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		return `${monthNames[parseInt(month) - 1]} ${year}`;
-	}
 
 	
 	function handleBuyTokens() {
@@ -169,7 +150,7 @@
 			</div>
 			{#if latestReport}
 				<div class={highlightStatClasses}>
-					<span class={mobileHighlightValueClasses}>{formatCurrency(latestReport.netIncome ?? 0)}</span>
+					<span class={mobileHighlightValueClasses}>{formatCurrency(latestReport.netIncome ?? 0, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
 					<span class={mobileHighlightLabelClasses}>Last Payment</span>
 				</div>
 			{/if}

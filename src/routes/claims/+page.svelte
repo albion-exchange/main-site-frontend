@@ -7,6 +7,7 @@
 	import WalletModal from '$lib/components/WalletModal.svelte';
 	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, StatsCard, MetricDisplay, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard } from '$lib/components/ui';
 import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
+import { formatCurrency } from '$lib/utils/formatters';
 
 	let totalEarned = 0;
 	let totalClaimed = 0;
@@ -104,14 +105,6 @@ import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/
 		loadClaimsData();
 	});
 
-	function formatCurrency(amount: number): string {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD',
-			minimumFractionDigits: 2,
-			maximumFractionDigits: 2
-		}).format(amount);
-	}
 
 	function formatDate(dateString: string): string {
 		// Handle YYYY-MM format

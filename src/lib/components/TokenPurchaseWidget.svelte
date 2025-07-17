@@ -4,6 +4,7 @@
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { formatCurrency } from '$lib/utils/formatters';
 
 	export let isOpen = false;
 	export let tokenAddress: string | null = null;
@@ -76,13 +77,6 @@
 		return supply ? supply.availableSupply <= 0 : false;
 	}
 
-	function formatCurrency(amount: number): string {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD',
-			minimumFractionDigits: 0
-		}).format(amount);
-	}
 
 	async function handlePurchase() {
 		if (!canProceed()) return;
@@ -291,7 +285,7 @@
 							<div class={summaryDetailsClasses}>
 								<div class={summaryRowClasses}>
 									<span>Investment Amount</span>
-									<span>{formatCurrency(investmentAmount)}</span>
+									<span>{formatCurrency(investmentAmount, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
 								</div>
 								<div class={summaryRowClasses}>
 									<span>Platform Fee <span class={strikethroughClasses}>(0.5%)</span></span>
@@ -299,7 +293,7 @@
 								</div>
 								<div class={summaryTotalClasses}>
 									<span>Total Cost</span>
-									<span>{formatCurrency(order.totalCost)}</span>
+									<span>{formatCurrency(order.totalCost, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
 								</div>
 							</div>
 						</div>

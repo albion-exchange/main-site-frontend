@@ -17,6 +17,7 @@ import type {
   MarketData,
   UserTokenBalance,
 } from "$lib/types/uiTypes";
+import { formatCurrency as _formatCurrency, formatTokenAmount as _formatTokenAmount } from "$lib/utils/formatters";
 import type {
   AssetTokenMapping,
   ISODateOnlyString,
@@ -642,23 +643,14 @@ class DataStoreService {
    * Format currency values
    */
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
+    return _formatCurrency(amount);
   }
 
   /**
    * Format token amounts (with decimals consideration)
    */
   formatTokenAmount(amount: string, decimals: number = 18): string {
-    const value = parseFloat(amount) / Math.pow(10, decimals);
-    return new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    }).format(value);
+    return _formatTokenAmount(amount, decimals);
   }
 
   /**
