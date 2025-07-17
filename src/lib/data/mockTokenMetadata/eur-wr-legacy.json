@@ -3,7 +3,6 @@
   "assetId": "europa-wressle-legacy",
   "symbol": "EUR-WR-L",
   "releaseName": "Wressle Legacy Well",
-  "assetName": "Wressle Legacy Production",
   "tokenType": "royalty",
   "firstPaymentDate": "2023-01",
   "sharePercentage": 20,
@@ -12,8 +11,6 @@
     "maxSupply": "100000000000000000000000",
     "mintedSupply": "100000000000000000000000"
   },
-  "coverImage": "/images/assets/eur-wr-cover.jpg",
-  "galleryImages": [],
   "monthlyData": [
     {
       "month": "2025-02",
@@ -25,7 +22,7 @@
       },
       "tokenPayout": {
         "date": "2025-02-15T00:00:00.000Z",
-        "totalPayout": 15000.0,
+        "totalPayout": 15000,
         "payoutPerToken": 0.15,
         "txHash": "0xffffffffffffffffffffffffe791cdaa42d67780"
       },
@@ -44,7 +41,7 @@
       },
       "tokenPayout": {
         "date": "2025-01-15T00:00:00.000Z",
-        "totalPayout": 20000.0,
+        "totalPayout": 20000,
         "payoutPerToken": 0.2,
         "txHash": "0xffffffffffffffffffffffffe791cdaa42d67779"
       },
@@ -63,7 +60,7 @@
       },
       "tokenPayout": {
         "date": "2024-12-15T00:00:00.000Z",
-        "totalPayout": 85000.0,
+        "totalPayout": 85000,
         "payoutPerToken": 0.85,
         "txHash": "0xffffffffffffffffffffffffe791cdaa42d67778"
       },
@@ -156,7 +153,10 @@
       "hseMetrics": {
         "incidentFreeDays": 1095
       }
-    }
+    },
+    "assetName": "Wressle Legacy Production",
+    "coverImage": "/images/eur-wr-cover.jpg",
+    "galleryImages": []
   },
   "metadata": {
     "createdAt": "2023-01-01T00:00:00.000Z",

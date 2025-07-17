@@ -3,7 +3,6 @@
   "assetId": "434f4f0c-2446-4565-a3d4-a1299dfc04ec",
   "symbol": "GOM-DW1",
   "releaseName": "Gulf of Mexico-4 Release 1",
-  "assetName": "Gulf of Mexico-4 Royalty Stream",
   "tokenType": "royalty",
   "firstPaymentDate": "2025-03",
   "sharePercentage": 80,
@@ -392,11 +391,12 @@
         "lastIncidentDate": "2022-12-03T00:00:00.000Z",
         "safetyRating": "Outstanding"
       }
-    }
+    },
+    "assetName": "Gulf of Mexico-4 Royalty Stream",
+    "documents": [],
+    "coverImage": "/images/gom-dw-cover.avif",
+    "galleryImages": []
   },
-  "documents": [],
-  "coverImage": "/src/lib/data/images/gom-dw-cover.avif",
-  "galleryImages": [],
   "metadata": {
     "createdAt": "2022-10-15T10:00:00.000Z",
     "updatedAt": "2025-01-07T10:00:00.000Z"

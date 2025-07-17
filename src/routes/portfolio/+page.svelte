@@ -449,10 +449,6 @@
 															acc.push({ label: d.date, value: prevTotal + d.value });
 															return acc;
 														}, [])}
-														{@const chartHeight = 180}
-														{@const chartWidth = 400}
-														{@const maxValue = Math.max(...cumulativeData.map(d => d.value), holding.totalInvested * 1.2)}
-														{@const breakEvenY = 40 + chartHeight - (holding.totalInvested / maxValue) * chartHeight}
 														<!-- Monthly Payouts Chart -->
 														<div class="flex-1">
 															<h5 class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-1">Monthly Payouts</h5>
@@ -470,40 +466,20 @@
 														<!-- Cumulative Payouts Chart -->
 														<div class="flex-1">
 															<h5 class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-1">Cumulative Returns</h5>
-															<div class="relative">
-																<Chart
-																	data={cumulativeData}
-																	width={400}
-																	height={220}
-																	barColor="#08bccc"
-																	valuePrefix="$"
-																	animate={true}
-																	showGrid={true}
-																/>
-																<!-- Breakeven line -->
-																<svg class="absolute top-0 left-0" width={chartWidth} height={220} style="pointer-events: none;">
-																	<line 
-																		x1="60" 
-																		y1={breakEvenY} 
-																		x2={chartWidth - 20} 
-																		y2={breakEvenY} 
-																		stroke="#283c84" 
-																		stroke-width="2" 
-																		stroke-dasharray="5,5"
-																		opacity="0.7"
-																	/>
-																	<text 
-																		x="62" 
-																		y={breakEvenY - 5} 
-																		font-size="11" 
-																		fill="#283c84" 
-																		font-weight="600"
-																		text-anchor="start"
-																	>
-																		Breakeven ${holding.totalInvested.toLocaleString()}
-																	</text>
-																</svg>
-															</div>
+															<Chart
+																data={cumulativeData}
+																width={400}
+																height={220}
+																barColor="#08bccc"
+																valuePrefix="$"
+																animate={true}
+																showGrid={true}
+																horizontalLine={{
+																	value: holding.totalInvested,
+																	label: 'Breakeven',
+																	color: '#283c84'
+																}}
+															/>
 														</div>
 													{:else}
 														<div class="flex-1 flex items-center justify-center text-center text-black opacity-70">

@@ -8,6 +8,7 @@
 	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
 	import TabButton from '$lib/components/ui/TabButton.svelte';
 	import { PageLayout, ContentSection } from '$lib/components/layout';
+	import { getImageUrl } from '$lib/utils/imagePath';
 
 	let loading = true;
 	let error: string | null = null;
@@ -102,7 +103,7 @@
 
 	function getAssetImage(assetData: Asset | null): string {
 		// Use the coverImage from the asset data
-		return assetData?.coverImage || '/src/lib/data/images/eur-wr-cover.jpg';
+		return assetData?.coverImage || '/images/eur-wr-cover.jpg';
 	}
 
 	function formatPricing(benchmarkPremium: string): string {
@@ -260,7 +261,7 @@
 				<div class="flex md:items-start items-center md:flex-row flex-col md:gap-8 gap-4 mb-8">
 					<div class="w-16 h-16 rounded-lg overflow-hidden border border-light-gray">
 						<img 
-							src={getAssetImage(assetData)} 
+							src={getImageUrl(getAssetImage(assetData))} 
 							alt={assetData?.name || 'Asset'}
 							loading="lazy"
 							class="w-full h-full object-cover"
@@ -457,7 +458,6 @@
 				{:else if activeTab === 'production'}
 					{@const productionReports = assetData?.productionHistory || assetData?.monthlyReports || []}
 					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map((r: any) => r.production)) : 100}
-					{@const defaults = dataStoreService.getDefaultValues()}
 					<div class="flex-1 flex flex-col">
 						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">
 							<div class="bg-white border border-light-gray p-6 md:col-span-3">
@@ -493,17 +493,39 @@
 							<div class="bg-white border border-light-gray p-6">
 								<h4 class="text-lg font-extrabold text-black mb-6">Production Metrics</h4>
 								<div class="text-center mb-6 p-4 bg-white">
-									<div class="text-4xl font-extrabold text-black mb-2">{assetData?.operationalMetrics?.uptime?.percentage?.toFixed(1) || defaults.operationalMetrics.uptime.percentage.toFixed(1)}%</div>
-									<div class="text-base font-medium text-black opacity-70">Uptime {assetData?.operationalMetrics?.uptime?.period?.replace('_', ' ') || defaults.operationalMetrics.uptime.period}</div>
+									<div class="text-4xl font-extrabold text-black mb-2">
+										{#if assetData?.operationalMetrics?.uptime?.percentage !== undefined}
+											{assetData.operationalMetrics.uptime.percentage.toFixed(1)}%
+										{:else}
+											<span class="text-gray-400">N/A</span>
+										{/if}
+									</div>
+									<div class="text-base font-medium text-black opacity-70">
+										Uptime {assetData?.operationalMetrics?.uptime?.period?.replace('_', ' ') || 'N/A'}
+									</div>
 								</div>
 								<div class="grid grid-cols-1 gap-4 mb-6">
 									<div class="text-center p-3 bg-white">
-										<div class="text-3xl font-extrabold text-black mb-1">{assetData?.operationalMetrics?.dailyProduction?.current?.toFixed(1) || defaults.operationalMetrics.dailyProduction.current.toFixed(1)}</div>
-										<div class="text-sm font-medium text-black opacity-70">Current Daily Production ({assetData?.operationalMetrics?.dailyProduction?.unit || defaults.operationalMetrics.dailyProduction.unit})</div>
+										<div class="text-3xl font-extrabold text-black mb-1">
+											{#if assetData?.operationalMetrics?.dailyProduction?.current !== undefined}
+												{assetData.operationalMetrics.dailyProduction.current.toFixed(1)}
+											{:else}
+												<span class="text-gray-400">N/A</span>
+											{/if}
+										</div>
+										<div class="text-sm font-medium text-black opacity-70">
+											Current Daily Production ({assetData?.operationalMetrics?.dailyProduction?.unit || 'units'})
+										</div>
 									</div>
 								</div>
 								<div class="text-center p-4 bg-white">
-									<div class="text-4xl font-extrabold text-black mb-2">{assetData?.operationalMetrics?.hseMetrics?.incidentFreeDays || defaults.operationalMetrics.hseMetrics.incidentFreeDays}</div>
+									<div class="text-4xl font-extrabold text-black mb-2">
+										{#if assetData?.operationalMetrics?.hseMetrics?.incidentFreeDays !== undefined}
+											{assetData.operationalMetrics.hseMetrics.incidentFreeDays}
+										{:else}
+											<span class="text-gray-400">N/A</span>
+										{/if}
+									</div>
 									<div class="text-base font-medium text-black opacity-70">Days Since Last HSE Incident</div>
 								</div>
 							</div>
@@ -514,7 +536,7 @@
 					{@const maxRevenue = monthlyReports.length > 0 ? Math.max(...monthlyReports.map(r => r.revenue ?? 0)) : 1500}
 					{@const latestReport = monthlyReports[monthlyReports.length - 1]}
 					{@const nextMonth = latestReport ? new Date(new Date(latestReport.month + '-01').getTime() + 32 * 24 * 60 * 60 * 1000) : new Date()}
-					{@const avgRevenue = monthlyReports.length > 0 ? monthlyReports.reduce((sum, r) => sum + (r.revenue ?? 0), 0) / monthlyReports.length : dataStoreService.getDefaultValues().revenue.averageMonthly}
+					{@const avgRevenue = monthlyReports.length > 0 ? monthlyReports.reduce((sum, r) => sum + (r.revenue ?? 0), 0) / monthlyReports.length : 0}
 					<div class="flex-1 flex flex-col">
 						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">
 							<div class="bg-white border border-light-gray p-6 md:col-span-3">
@@ -555,12 +577,24 @@
 								</div>
 								<div class="grid grid-cols-1 gap-4 mb-6">
 									<div class="text-center p-3 bg-white">
-										<div class="text-3xl font-extrabold text-black mb-1">${latestReport?.revenue?.toFixed(0) || dataStoreService.getDefaultValues().revenue.latestMonthly.toLocaleString()}</div>
+										<div class="text-3xl font-extrabold text-black mb-1">
+											{#if latestReport?.revenue !== undefined}
+												${latestReport.revenue.toFixed(0)}
+											{:else}
+												<span class="text-gray-400">N/A</span>
+											{/if}
+										</div>
 										<div class="text-sm font-medium text-black opacity-70">Latest Monthly Revenue</div>
 									</div>
 								</div>
 								<div class="text-center p-4 bg-white">
-									<div class="text-4xl font-extrabold text-black mb-2">${avgRevenue.toFixed(0)}</div>
+									<div class="text-4xl font-extrabold text-black mb-2">
+										{#if avgRevenue > 0}
+											${avgRevenue.toFixed(0)}
+										{:else}
+											<span class="text-gray-400">N/A</span>
+										{/if}
+									</div>
 									<div class="text-base font-medium text-black opacity-70">Avg Monthly Revenue</div>
 								</div>
 							</div>
@@ -673,7 +707,7 @@
 										{#each galleryImages as image}
 											<div class="border border-light-gray rounded overflow-hidden">
 												<div class="aspect-video overflow-hidden">
-													<img src={image.url} alt={image.title} class="w-full h-full object-cover" />
+													<img src={getImageUrl(image.url)} alt={image.title} class="w-full h-full object-cover" />
 												</div>
 												<div class="p-4 bg-white">
 													<h5 class="font-bold text-black mb-1">{image.title}</h5>

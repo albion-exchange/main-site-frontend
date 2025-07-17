@@ -13,6 +13,7 @@
 	export let animate: boolean = true;
 	export let showGrid: boolean = true;
 	export let showAreaFill: boolean = true;
+	export let horizontalLine: { value: number; label: string; color?: string } | null = null;
 	
 	// Helper to determine which labels to show based on data density
 	function getLabelsToShow(data: Array<{label: string; value: number}>): {indices: number[], showYear: boolean} {
@@ -81,8 +82,8 @@
 		return 10 * magnitude;
 	}
 	
-	$: minValue = Math.min(...data.map(d => d.value), 0);
-	$: maxValue = Math.max(...data.map(d => d.value), 1);
+	$: minValue = Math.min(...data.map(d => d.value), horizontalLine?.value || 0, 0);
+	$: maxValue = Math.max(...data.map(d => d.value), horizontalLine?.value || 1, 1);
 	$: niceMin = minValue < 0 ? -getNiceNumber(Math.abs(minValue) * 1.1) : 0;
 	$: niceMax = getNiceNumber(maxValue * 1.1); // Add 10% padding
 	$: valueRange = niceMax - niceMin;
@@ -271,6 +272,31 @@
 				stroke-width="1" 
 				opacity="0.3"
 			/>
+		{/if}
+		
+		<!-- Horizontal reference line -->
+		{#if horizontalLine && horizontalLine.value >= niceMin && horizontalLine.value <= niceMax}
+			{@const lineY = padding.top + chartHeight - ((horizontalLine.value - niceMin) / valueRange) * chartHeight}
+			<line 
+				x1={padding.left} 
+				y1={lineY} 
+				x2={padding.left + chartWidth} 
+				y2={lineY} 
+				stroke={horizontalLine.color || "#283c84"} 
+				stroke-width="2" 
+				stroke-dasharray="5,5"
+				opacity="0.7"
+			/>
+			<text 
+				x={padding.left + 5} 
+				y={lineY - 5} 
+				font-size="11" 
+				fill={horizontalLine.color || "#283c84"} 
+				font-weight="600"
+				text-anchor="start"
+			>
+				{horizontalLine.label} {valuePrefix}{horizontalLine.value.toLocaleString()}{valueSuffix}
+			</text>
 		{/if}
 		
 		<!-- Values on bars (if not using tooltip) -->

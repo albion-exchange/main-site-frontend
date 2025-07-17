@@ -1,16 +1,15 @@
 {
-  "contractAddress": "0x2a7e3f8b921a6c4e8d5f9c2b1a8e7d6c5b4a3f2e",
+  "contractAddress": "0x5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e",
   "assetId": "925c10d5-e63f-46fa-b094-b853b7b3184f",
-  "symbol": "EUR-WR1",
-  "releaseName": "Wressle-1 Release 1",
-  "assetName": "Wressle-1 Royalty Stream",
+  "symbol": "EUR-WR2",
+  "releaseName": "Wressle-1 Release 2",
   "tokenType": "royalty",
-  "firstPaymentDate": "2025-03",
-  "sharePercentage": 24,
+  "firstPaymentDate": "2025-07",
+  "sharePercentage": 20,
   "decimals": 18,
   "supply": {
-    "maxSupply": "199999999999999970000000",
-    "mintedSupply": "153750000000000000000000"
+    "maxSupply": "154999999999999970000000",
+    "mintedSupply": "128000000000000000000000"
   },
   "monthlyData": [
     {
@@ -23,9 +22,9 @@
       },
       "tokenPayout": {
         "date": "2025-06-15T00:00:00.000Z",
-        "totalPayout": 5216.4,
-        "payoutPerToken": 0.03393,
-        "txHash": "0xffffffffffffffffffffffffe791cdaa42d67777"
+        "totalPayout": 4347,
+        "payoutPerToken": 0.03396,
+        "txHash": "0xffffffffffffffffffffffff8164edcb70bbebae"
       },
       "realisedPrice": {
         "oilPrice": 70,
@@ -42,9 +41,9 @@
       },
       "tokenPayout": {
         "date": "2025-05-15T00:00:00.000Z",
-        "totalPayout": 5463.4,
-        "payoutPerToken": 0.03553,
-        "txHash": "0xffffffffffffffffffffffffdfe92cfd40c660ed"
+        "totalPayout": 4552.8,
+        "payoutPerToken": 0.03557,
+        "txHash": "0xffffffffffffffffffffffffced74aeb4b022672"
       },
       "realisedPrice": {
         "oilPrice": 70,
@@ -61,9 +60,9 @@
       },
       "tokenPayout": {
         "date": "2025-04-15T00:00:00.000Z",
-        "totalPayout": 5018.2,
-        "payoutPerToken": 0.03264,
-        "txHash": "0x00000000000000000000000046833666e2ab4f26"
+        "totalPayout": 4181.8,
+        "payoutPerToken": 0.03267,
+        "txHash": "0xffffffffffffffffffffffffa4945e18bc813b57"
       },
       "realisedPrice": {
         "oilPrice": 70,
@@ -80,9 +79,9 @@
       },
       "tokenPayout": {
         "date": "2025-03-15T00:00:00.000Z",
-        "totalPayout": 5305.4,
-        "payoutPerToken": 0.03451,
-        "txHash": "0xffffffffffffffffffffffff827a44b013d79ff4"
+        "totalPayout": 4421.2,
+        "payoutPerToken": 0.03454,
+        "txHash": "0xffffffffffffffffffffffffbe216dfc5fedde41"
       },
       "realisedPrice": {
         "oilPrice": 70,
@@ -420,34 +419,35 @@
         "lastIncidentDate": "2023-12-15T00:00:00.000Z",
         "safetyRating": "Excellent"
       }
-    }
+    },
+    "assetName": "Wressle-1 Royalty Stream",
+    "documents": [],
+    "coverImage": "/images/eur-wr-cover.jpg",
+    "galleryImages": [
+      {
+        "title": "Wellhead Infrastructure",
+        "url": "/images/eur-wr-wellhead-1.jpg",
+        "caption": "Primary wellhead and safety equipment at the Wressle production site"
+      },
+      {
+        "title": "Production Equipment",
+        "url": "/images/eur-wr-wellhead-2.jpg",
+        "caption": "Secondary production equipment and monitoring systems"
+      },
+      {
+        "title": "Site Overview",
+        "url": "/images/eur-wr-site-overview.jpg",
+        "caption": "Aerial view of the entire Wressle production facility"
+      },
+      {
+        "title": "Processing Infrastructure",
+        "url": "/images/eur-wr-infrastructure.jpg",
+        "caption": "Oil processing and storage infrastructure on site"
+      }
+    ]
   },
-  "documents": [],
-  "coverImage": "/src/lib/data/images/eur-wr-cover.jpg",
-  "galleryImages": [
-    {
-      "title": "Wellhead Infrastructure",
-      "url": "/src/lib/data/images/eur-wr-wellhead-1.jpg",
-      "caption": "Primary wellhead and safety equipment at the Wressle production site"
-    },
-    {
-      "title": "Production Equipment",
-      "url": "/src/lib/data/images/eur-wr-wellhead-2.jpg",
-      "caption": "Secondary production equipment and monitoring systems"
-    },
-    {
-      "title": "Site Overview",
-      "url": "/src/lib/data/images/eur-wr-site-overview.jpg",
-      "caption": "Aerial view of the entire Wressle production facility"
-    },
-    {
-      "title": "Processing Infrastructure",
-      "url": "/src/lib/data/images/eur-wr-infrastructure.jpg",
-      "caption": "Oil processing and storage infrastructure on site"
-    }
-  ],
   "metadata": {
-    "createdAt": "2024-01-15T10:00:00.000Z",
-    "updatedAt": "2025-01-07T10:00:00.000Z"
+    "createdAt": "2024-03-15T11:30:00.000Z",
+    "updatedAt": "2024-12-01T18:00:00.000Z"
   }
 }

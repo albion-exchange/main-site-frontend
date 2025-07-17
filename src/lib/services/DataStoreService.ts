@@ -4,12 +4,12 @@
  */
 
 import type {
-  AssetMetadata,
+  TokenMetadata,
   MonthlyData,
   AssetData,
   PlannedProductionProjection,
-} from "$lib/types/assetMetadataTypes";
-import { TokenType, ProductionStatus } from "$lib/types/assetMetadataTypes";
+} from "$lib/types/MetaboardTypes";
+import { TokenType, ProductionStatus } from "$lib/types/MetaboardTypes";
 import type {
   Asset,
   Token,
@@ -29,18 +29,18 @@ import {
 import marketData from "$lib/data/marketData.json";
 import platformStats from "$lib/data/platformStats.json";
 import companyInfo from "$lib/data/companyInfo.json";
-import defaultValues from "$lib/data/defaultValues.json";
+
 import assetTokenMapping from "$lib/data/assetTokenMapping.json";
 
-// Import all mock asset metadata
-import bakHf1Metadata from "$lib/data/mockAssetMetadata/bak-hf1.json";
-import bakHf2Metadata from "$lib/data/mockAssetMetadata/bak-hf2.json";
-import eurWr1Metadata from "$lib/data/mockAssetMetadata/eur-wr1.json";
-import eurWr2Metadata from "$lib/data/mockAssetMetadata/eur-wr2.json";
-import eurWr3Metadata from "$lib/data/mockAssetMetadata/eur-wr3.json";
-import perBv1Metadata from "$lib/data/mockAssetMetadata/per-bv1.json";
-import gomDw1Metadata from "$lib/data/mockAssetMetadata/gom-dw1.json";
-import eurWrLegacyMetadata from "$lib/data/mockAssetMetadata/eur-wr-legacy.json";
+// Import all mock token metadata
+import bakHf1Metadata from "$lib/data/mockTokenMetadata/bak-hf1.json";
+import bakHf2Metadata from "$lib/data/mockTokenMetadata/bak-hf2.json";
+import eurWr1Metadata from "$lib/data/mockTokenMetadata/eur-wr1.json";
+import eurWr2Metadata from "$lib/data/mockTokenMetadata/eur-wr2.json";
+import eurWr3Metadata from "$lib/data/mockTokenMetadata/eur-wr3.json";
+import perBv1Metadata from "$lib/data/mockTokenMetadata/per-bv1.json";
+import gomDw1Metadata from "$lib/data/mockTokenMetadata/gom-dw1.json";
+import eurWrLegacyMetadata from "$lib/data/mockTokenMetadata/eur-wr-legacy.json";
 
 // Future release data (mock data for now)
 const eurWr4Future = [
@@ -57,7 +57,7 @@ const gomDw2Future = [
 ];
 
 class DataStoreService {
-  private assetMetadata: Record<string, AssetMetadata>;
+  private assetMetadata: Record<string, TokenMetadata>;
   private assetsCache: Map<string, Asset> = new Map();
   private tokensCache: Map<string, Token> = new Map();
   private assetTokenMap: AssetTokenMapping;
@@ -74,44 +74,64 @@ class DataStoreService {
         });
       },
     );
-    // Initialize asset metadata with proper date conversions
+    // Initialize token metadata with proper date conversions
     this.assetMetadata = {
-      [bakHf1Metadata.contractAddress]: this.convertJsonToAssetMetadata(
+      [bakHf1Metadata.contractAddress]: this.convertJsonToTokenMetadata(
         bakHf1Metadata as any,
       ),
-      [bakHf2Metadata.contractAddress]: this.convertJsonToAssetMetadata(
+      [bakHf2Metadata.contractAddress]: this.convertJsonToTokenMetadata(
         bakHf2Metadata as any,
       ),
-      [eurWr1Metadata.contractAddress]: this.convertJsonToAssetMetadata(
+      [eurWr1Metadata.contractAddress]: this.convertJsonToTokenMetadata(
         eurWr1Metadata as any,
       ),
-      [eurWr2Metadata.contractAddress]: this.convertJsonToAssetMetadata(
+      [eurWr2Metadata.contractAddress]: this.convertJsonToTokenMetadata(
         eurWr2Metadata as any,
       ),
-      [eurWr3Metadata.contractAddress]: this.convertJsonToAssetMetadata(
+      [eurWr3Metadata.contractAddress]: this.convertJsonToTokenMetadata(
         eurWr3Metadata as any,
       ),
-      [perBv1Metadata.contractAddress]: this.convertJsonToAssetMetadata(
+      [perBv1Metadata.contractAddress]: this.convertJsonToTokenMetadata(
         perBv1Metadata as any,
       ),
-      [gomDw1Metadata.contractAddress]: this.convertJsonToAssetMetadata(
+      [gomDw1Metadata.contractAddress]: this.convertJsonToTokenMetadata(
         gomDw1Metadata as any,
       ),
-      [eurWrLegacyMetadata.contractAddress]: this.convertJsonToAssetMetadata(
+      [eurWrLegacyMetadata.contractAddress]: this.convertJsonToTokenMetadata(
         eurWrLegacyMetadata as any,
       ),
     };
   }
 
-  // Helper method to convert JSON data to AssetMetadata (no longer needs date conversion)
-  private convertJsonToAssetMetadata(jsonData: any): AssetMetadata {
-    // Since we're now using ISO strings in the type definitions, we can just return the JSON data as-is
-    return jsonData as AssetMetadata;
+  // Helper method to convert JSON data to TokenMetadata
+  private convertJsonToTokenMetadata(jsonData: any): TokenMetadata {
+    // Transform the old structure to the new TokenMetadata structure
+    const tokenMetadata: TokenMetadata = {
+      contractAddress: jsonData.contractAddress,
+      assetId: jsonData.assetId,
+      symbol: jsonData.symbol,
+      releaseName: jsonData.releaseName,
+      tokenType: jsonData.tokenType,
+      firstPaymentDate: jsonData.firstPaymentDate,
+      sharePercentage: jsonData.sharePercentage,
+      decimals: jsonData.decimals,
+      supply: jsonData.supply,
+      monthlyData: jsonData.monthlyData,
+      metadata: jsonData.metadata,
+      asset: {
+        ...jsonData.asset,
+        assetName: jsonData.asset.assetName,
+        documents: jsonData.asset.documents,
+        coverImage: jsonData.asset.coverImage,
+        galleryImages: jsonData.asset.galleryImages,
+      }
+    };
+    return tokenMetadata;
   }
 
-  // Helper method to convert AssetMetadata to legacy Asset format
-  private assetMetadataToAsset(assetMetadata: AssetMetadata): Asset {
-    const assetId = assetMetadata.assetId;
+  // Helper method to convert TokenMetadata to legacy Asset format
+  private tokenMetadataToAsset(tokenMetadata: TokenMetadata): Asset {
+    const assetId = tokenMetadata.assetId;
 
     // Check cache first
     if (this.assetsCache.has(assetId)) {
@@ -120,53 +140,53 @@ class DataStoreService {
 
     const asset: Asset = {
       id: assetId,
-      name: assetMetadata.assetName,
-      description: assetMetadata.asset.description,
-      coverImage: assetMetadata.coverImage,
-      images: assetMetadata.galleryImages || [],
+      name: tokenMetadata.asset.assetName,
+      description: tokenMetadata.asset.description,
+      coverImage: tokenMetadata.asset.coverImage,
+      images: tokenMetadata.asset.galleryImages || [],
       location: {
-        ...assetMetadata.asset.location,
-        waterDepth: assetMetadata.asset.location.waterDepth,
+        ...tokenMetadata.asset.location,
+        waterDepth: tokenMetadata.asset.location.waterDepth,
       },
       operator: {
-        ...assetMetadata.asset.operator,
-        experience: `${assetMetadata.asset.operator.experienceYears}+ years`,
+        ...tokenMetadata.asset.operator,
+        experience: `${tokenMetadata.asset.operator.experienceYears}+ years`,
       },
       technical: {
-        ...assetMetadata.asset.technical,
-        depth: `${assetMetadata.asset.technical.depth}m`,
-        estimatedLife: `${Math.ceil(assetMetadata.asset.technical.estimatedLifeMonths / 12)}+ years`,
+        ...tokenMetadata.asset.technical,
+        depth: `${tokenMetadata.asset.technical.depth}m`,
+        estimatedLife: `${Math.ceil(tokenMetadata.asset.technical.estimatedLifeMonths / 12)}+ years`,
         pricing: {
           benchmarkPremium:
-            assetMetadata.asset.technical.pricing.benchmarkPremium < 0
-              ? `-$${Math.abs(assetMetadata.asset.technical.pricing.benchmarkPremium)}`
-              : `+$${assetMetadata.asset.technical.pricing.benchmarkPremium}`,
+            tokenMetadata.asset.technical.pricing.benchmarkPremium < 0
+              ? `-$${Math.abs(tokenMetadata.asset.technical.pricing.benchmarkPremium)}`
+              : `+$${tokenMetadata.asset.technical.pricing.benchmarkPremium}`,
           transportCosts:
-            assetMetadata.asset.technical.pricing.transportCosts === 0
+            tokenMetadata.asset.technical.pricing.transportCosts === 0
               ? "Title transfer at well head"
-              : `$${assetMetadata.asset.technical.pricing.transportCosts}`,
+              : `$${tokenMetadata.asset.technical.pricing.transportCosts}`,
         },
       },
       production: {
-        ...assetMetadata.asset.production,
+        ...tokenMetadata.asset.production,
         status: this.convertProductionStatus(
-          assetMetadata.asset.production.status,
+          tokenMetadata.asset.production.status,
         ),
         units: {
           production:
-            assetMetadata.asset.production.units.production === 1
+            tokenMetadata.asset.production.units.production === 1
               ? "BOE (Barrels of Oil Equivalent)"
               : "MCF (Thousand Cubic Feet)",
           revenue: "USD",
         },
       },
       assetTerms: {
-        ...assetMetadata.asset.assetTerms,
-        amount: `${assetMetadata.asset.assetTerms.amount}% of gross`,
-        paymentFrequency: `Monthly within ${assetMetadata.asset.assetTerms.paymentFrequencyDays} days`,
+        ...tokenMetadata.asset.assetTerms,
+        amount: `${tokenMetadata.asset.assetTerms.amount}% of gross`,
+        paymentFrequency: `Monthly within ${tokenMetadata.asset.assetTerms.paymentFrequencyDays} days`,
       },
       tokenContracts: this.getTokenContractsByAssetId(assetId),
-      monthlyReports: assetMetadata.monthlyData.map((data) => ({
+      monthlyReports: tokenMetadata.monthlyData.map((data) => ({
         month: data.month,
         production: data.assetData.production,
         revenue: data.assetData.revenue,
@@ -174,30 +194,30 @@ class DataStoreService {
         netIncome: data.assetData.netIncome,
         payoutPerToken: data.tokenPayout.payoutPerToken,
       })),
-      productionHistory: assetMetadata.asset.productionHistory,
-      plannedProduction: assetMetadata.asset.plannedProduction,
-      operationalMetrics: assetMetadata.asset.operationalMetrics
+      productionHistory: tokenMetadata.asset.productionHistory,
+      plannedProduction: tokenMetadata.asset.plannedProduction,
+      operationalMetrics: tokenMetadata.asset.operationalMetrics
         ? {
-            ...assetMetadata.asset.operationalMetrics,
+            ...tokenMetadata.asset.operationalMetrics,
             dailyProduction: {
-              ...assetMetadata.asset.operationalMetrics.dailyProduction,
-              unit: assetMetadata.asset.operationalMetrics.dailyProduction.unit,
+              ...tokenMetadata.asset.operationalMetrics.dailyProduction,
+              unit: tokenMetadata.asset.operationalMetrics.dailyProduction.unit,
             },
             uptime: {
-              ...assetMetadata.asset.operationalMetrics.uptime,
-              period: assetMetadata.asset.operationalMetrics.uptime.period,
+              ...tokenMetadata.asset.operationalMetrics.uptime,
+              period: tokenMetadata.asset.operationalMetrics.uptime.period,
             },
             hseMetrics: {
-              ...assetMetadata.asset.operationalMetrics.hseMetrics,
+              ...tokenMetadata.asset.operationalMetrics.hseMetrics,
               incidentFreeDays:
-                assetMetadata.asset.operationalMetrics.hseMetrics
+                tokenMetadata.asset.operationalMetrics.hseMetrics
                   .incidentFreeDays,
             },
           }
         : undefined,
       metadata: {
-        createdAt: assetMetadata.metadata.createdAt,
-        updatedAt: assetMetadata.metadata.updatedAt,
+        createdAt: tokenMetadata.metadata.createdAt,
+        updatedAt: tokenMetadata.metadata.updatedAt,
       },
     };
 
@@ -205,28 +225,28 @@ class DataStoreService {
     return asset;
   }
 
-  // Helper method to convert AssetMetadata to legacy Token format
-  private assetMetadataToToken(assetMetadata: AssetMetadata): Token {
+  // Helper method to convert TokenMetadata to legacy Token format
+  private tokenMetadataToToken(tokenMetadata: TokenMetadata): Token {
     // Check cache first
-    if (this.tokensCache.has(assetMetadata.contractAddress)) {
-      return this.tokensCache.get(assetMetadata.contractAddress)!;
+    if (this.tokensCache.has(tokenMetadata.contractAddress)) {
+      return this.tokensCache.get(tokenMetadata.contractAddress)!;
     }
 
     const token: Token = {
-      contractAddress: assetMetadata.contractAddress,
-      name: assetMetadata.releaseName,
-      symbol: assetMetadata.symbol,
-      decimals: assetMetadata.decimals,
+      contractAddress: tokenMetadata.contractAddress,
+      name: tokenMetadata.releaseName,
+      symbol: tokenMetadata.symbol,
+      decimals: tokenMetadata.decimals,
       tokenType:
-        assetMetadata.tokenType === TokenType.Royalty ? "royalty" : "payment",
-      assetId: assetMetadata.assetId,
+        tokenMetadata.tokenType === TokenType.Royalty ? "royalty" : "payment",
+      assetId: tokenMetadata.assetId,
       isActive: true,
       supply: {
-        maxSupply: assetMetadata.supply.maxSupply,
-        mintedSupply: assetMetadata.supply.mintedSupply,
+        maxSupply: tokenMetadata.supply.maxSupply,
+        mintedSupply: tokenMetadata.supply.mintedSupply,
       },
       holders: [], // Not included in merged token format
-      payoutHistory: assetMetadata.monthlyData.map((data) => ({
+      payoutHistory: tokenMetadata.monthlyData.map((data) => ({
         month: data.month,
         date: data.tokenPayout.date.split("T")[0] as ISODateOnlyString,
         totalPayout: data.tokenPayout.totalPayout,
@@ -236,15 +256,15 @@ class DataStoreService {
         productionVolume: data.assetData.production,
         txHash: data.tokenPayout.txHash,
       })),
-      sharePercentage: assetMetadata.sharePercentage,
-      firstPaymentDate: assetMetadata.firstPaymentDate,
+      sharePercentage: tokenMetadata.sharePercentage,
+      firstPaymentDate: tokenMetadata.firstPaymentDate,
       metadata: {
-        createdAt: assetMetadata.metadata.createdAt,
-        updatedAt: assetMetadata.metadata.updatedAt,
+        createdAt: tokenMetadata.metadata.createdAt,
+        updatedAt: tokenMetadata.metadata.updatedAt,
       },
     };
 
-    this.tokensCache.set(assetMetadata.contractAddress, token);
+    this.tokensCache.set(tokenMetadata.contractAddress, token);
     return token;
   }
 
@@ -283,7 +303,7 @@ class DataStoreService {
    */
   getAllAssets(): Asset[] {
     const assetMap = new Map<string, Asset>();
-    const assetMetadataMap = new Map<string, AssetMetadata>();
+    const assetMetadataMap = new Map<string, TokenMetadata>();
 
     // Group tokens by asset ID and keep the one with most recent updatedAt
     Object.values(this.assetMetadata).forEach((tokenMetadata) => {
@@ -299,8 +319,8 @@ class DataStoreService {
     });
 
     // Convert to Asset objects
-    assetMetadataMap.forEach((assetMetadata) => {
-      const asset = this.assetMetadataToAsset(assetMetadata);
+    assetMetadataMap.forEach((tokenMetadata) => {
+      const asset = this.tokenMetadataToAsset(tokenMetadata);
       assetMap.set(asset.id, asset);
     });
 
@@ -323,20 +343,20 @@ class DataStoreService {
     const tokenAddresses = assetInfo.tokens;
 
     // Find the token metadata with the most recent updatedAt
-    let mostRecentMetadata: AssetMetadata | null = null;
+    let mostRecentMetadata: TokenMetadata | null = null;
     tokenAddresses.forEach((address) => {
       const metadata = this.assetMetadata[address];
-      if (
-        metadata &&
-        (!mostRecentMetadata ||
-          metadata.metadata.updatedAt > mostRecentMetadata.metadata.updatedAt)
-      ) {
+              if (
+          metadata &&
+          (!mostRecentMetadata ||
+            metadata.metadata.updatedAt > mostRecentMetadata.metadata.updatedAt)
+        ) {
         mostRecentMetadata = metadata;
       }
     });
 
     return mostRecentMetadata
-      ? this.assetMetadataToAsset(mostRecentMetadata)
+      ? this.tokenMetadataToAsset(mostRecentMetadata)
       : null;
   }
 
@@ -378,8 +398,8 @@ class DataStoreService {
    * Get all tokens
    */
   getAllTokens(): Token[] {
-    return Object.values(this.assetMetadata).map((assetMetadata) =>
-      this.assetMetadataToToken(assetMetadata),
+    return Object.values(this.assetMetadata).map((tokenMetadata) =>
+      this.tokenMetadataToToken(tokenMetadata),
     );
   }
 
@@ -387,25 +407,20 @@ class DataStoreService {
    * Get token by contract address
    */
   getTokenByAddress(contractAddress: string): Token | null {
-    const assetMetadata = this.assetMetadata[contractAddress];
-    return assetMetadata ? this.assetMetadataToToken(assetMetadata) : null;
+    const tokenMetadata = this.assetMetadata[contractAddress];
+    return tokenMetadata ? this.tokenMetadataToToken(tokenMetadata) : null;
   }
 
-  /**
-   * Get asset metadata by contract address
-   */
-  getAssetMetadataByAddress(contractAddress: string): AssetMetadata | null {
-    return this.assetMetadata[contractAddress] || null;
-  }
+
 
   /**
    * Get token by symbol
    */
   getTokenBySymbol(symbol: string): Token | null {
-    const assetMetadata = Object.values(this.assetMetadata).find(
+    const tokenMetadata = Object.values(this.assetMetadata).find(
       (token) => token.symbol === symbol,
     );
-    return assetMetadata ? this.assetMetadataToToken(assetMetadata) : null;
+    return tokenMetadata ? this.tokenMetadataToToken(tokenMetadata) : null;
   }
 
   /**
@@ -418,7 +433,7 @@ class DataStoreService {
     return assetInfo.tokens
       .map((address) => this.assetMetadata[address])
       .filter((metadata) => metadata !== undefined)
-      .map((metadata) => this.assetMetadataToToken(metadata));
+      .map((metadata) => this.tokenMetadataToToken(metadata));
   }
 
   /**
@@ -429,7 +444,7 @@ class DataStoreService {
       tokenType === "royalty" ? TokenType.Royalty : TokenType.WorkingInterest;
     return Object.values(this.assetMetadata)
       .filter((token) => token.tokenType === assetMetadataType)
-      .map((token) => this.assetMetadataToToken(token));
+      .map((token) => this.tokenMetadataToToken(token));
   }
 
   /**
@@ -807,12 +822,7 @@ class DataStoreService {
     return marketData.platformFees;
   }
 
-  /**
-   * Get default fallback values
-   */
-  getDefaultValues() {
-    return defaultValues;
-  }
+
 
   /**
    * Get future token releases (flattened from all assets)

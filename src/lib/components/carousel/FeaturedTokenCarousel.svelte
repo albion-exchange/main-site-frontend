@@ -212,8 +212,8 @@
 	$: statusIndicatorFundingClasses = 'w-2 h-2 bg-yellow-500 rounded-full';
 	$: statusIndicatorCompletedClasses = 'w-2 h-2 bg-secondary rounded-full';
 	$: statusTextClasses = 'text-sm font-medium text-black font-figtree';
-	$: assetNameClasses = 'text-2xl font-extrabold text-black mb-2 leading-tight font-figtree';
-	$: assetLocationClasses = 'text-lg text-black leading-relaxed font-figtree';
+	$: assetNameClasses = 'text-2xl font-extrabold text-black mb-2 leading-tight font-figtree text-left';
+	$: assetLocationClasses = 'text-lg text-black leading-relaxed font-figtree text-left';
 	$: assetDescriptionClasses = 'text-base text-black leading-relaxed mb-8 font-figtree';
 	$: tokenStatsClasses = 'grid grid-cols-2 gap-4 mb-8';
 	$: assetStatsClasses = 'grid grid-cols-1 gap-4 mb-8';
@@ -361,6 +361,18 @@
 
 							<!-- Asset Section -->
 							<div class={mobileAssetSectionClasses}>
+								<!-- Cover Image at the top -->
+								{#if item.asset.coverImage}
+									<div class="mb-6 -mx-6 lg:-mx-12 -mt-6 lg:-mt-12">
+										<img 
+											src={item.asset.coverImage} 
+											alt={item.asset.name}
+											class="w-full h-48 object-cover"
+											loading="lazy"
+										/>
+									</div>
+								{/if}
+
 								<div class={assetHeaderClasses}>
 									<div class="flex items-center gap-2 mb-2">
 										<div class={getStatusIndicatorClasses(item.asset.production.status)}></div>
@@ -370,10 +382,6 @@
 									<div class={assetLocationClasses}>
 										{item.asset.location.state}, {item.asset.location.country}
 									</div>
-								</div>
-
-								<div class={assetDescriptionClasses}>
-									{item.asset.description}
 								</div>
 
 								<div class={assetStatsClasses}>
@@ -387,10 +395,6 @@
 									<div class={assetMetaItemClasses}>
 										<span class={assetMetaLabelClasses}>Operator:</span>
 										<span class={assetMetaValueClasses}>{item.asset.operator.name}</span>
-									</div>
-									<div class={assetMetaItemClasses}>
-										<span class={assetMetaLabelClasses}>Type:</span>
-										<span class={assetMetaValueClasses}>{item.asset.technical.fieldType}</span>
 									</div>
 								</div>
 							</div>
