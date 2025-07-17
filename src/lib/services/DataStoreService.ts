@@ -120,10 +120,10 @@ class DataStoreService {
       metadata: jsonData.metadata,
       asset: {
         ...jsonData.asset,
-        assetName: jsonData.assetName,
-        documents: jsonData.documents,
-        coverImage: jsonData.coverImage,
-        galleryImages: jsonData.galleryImages,
+        assetName: jsonData.asset.assetName,
+        documents: jsonData.asset.documents,
+        coverImage: jsonData.asset.coverImage,
+        galleryImages: jsonData.asset.galleryImages,
       }
     };
     return tokenMetadata;

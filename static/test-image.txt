@@ -1,2 +1,0 @@
-This is a test file to verify static assets are being served correctly.
-If you can access this file at /test-image.txt, then static assets are working.

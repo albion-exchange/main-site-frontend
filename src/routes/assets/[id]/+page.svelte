@@ -8,6 +8,7 @@
 	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
 	import TabButton from '$lib/components/ui/TabButton.svelte';
 	import { PageLayout, ContentSection } from '$lib/components/layout';
+	import { getImageUrl } from '$lib/utils/imagePath';
 
 	let loading = true;
 	let error: string | null = null;
@@ -260,7 +261,7 @@
 				<div class="flex md:items-start items-center md:flex-row flex-col md:gap-8 gap-4 mb-8">
 					<div class="w-16 h-16 rounded-lg overflow-hidden border border-light-gray">
 						<img 
-							src={getAssetImage(assetData)} 
+							src={getImageUrl(getAssetImage(assetData))} 
 							alt={assetData?.name || 'Asset'}
 							loading="lazy"
 							class="w-full h-full object-cover"
@@ -706,7 +707,7 @@
 										{#each galleryImages as image}
 											<div class="border border-light-gray rounded overflow-hidden">
 												<div class="aspect-video overflow-hidden">
-													<img src={image.url} alt={image.title} class="w-full h-full object-cover" />
+													<img src={getImageUrl(image.url)} alt={image.title} class="w-full h-full object-cover" />
 												</div>
 												<div class="p-4 bg-white">
 													<h5 class="font-bold text-black mb-1">{image.title}</h5>
