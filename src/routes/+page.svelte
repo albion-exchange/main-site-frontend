@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import dataStoreService from '$lib/services/DataStoreService';
-	import type { Token } from '$lib/types/uiTypes';
+	import { usePlatformStats } from '$lib/composables/usePlatformStats';
 	import FeaturedTokenCarousel from '$lib/components/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
 	import { PrimaryButton, SecondaryButton, StatsCard, ButtonGroup } from '$lib/components/ui';
@@ -11,83 +10,17 @@
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	import marketData from '$lib/data/marketData.json';
 
-	let platformStats = {
-		totalAssets: 0,
-		totalInvested: 0,
-		activeInvestors: 0,
-		totalRegions: 0,
-		monthlyGrowthRate: 0
-	};
-	let loading = true;
+	// Composables
+	const { state, formattedStats, loadStats } = usePlatformStats();
 	
 	// Token purchase widget state
 	let showPurchaseWidget = false;
 	let selectedTokenAddress: string | null = null;
 	let selectedAssetId: string | null = null;
-
-	onMount(async () => {
-		try {
-			// Get platform statistics from real data
-			const stats = dataStoreService.getPlatformStatistics();
-			const allAssets = dataStoreService.getAllAssets();
-			const allTokens = dataStoreService.getAllTokens();
-			
-			// Calculate total invested from all tokens' minted supply
-			// Use different estimated values per token based on asset type and performance
-			const totalInvested = allTokens.reduce((sum, token) => {
-				const mintedTokens = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
-				
-				// Estimate token value based on asset region
-				const estimatedTokenValue = dataStoreService.getEstimatedTokenValue(token.assetId);
-				
-				return sum + (mintedTokens * estimatedTokenValue);
-			}, 0);
-			
-			// Get total holders from platform statistics
-			const totalHolders = stats.totalHolders;
-			
-			// Count unique regions from asset locations
-			const uniqueRegions = new Set(allAssets.map(asset => `${asset.location.state}, ${asset.location.country}`));
-			
-			// Calculate monthly growth rate from recent asset reports
-			let monthlyGrowthRate = 0;
-			const assetsWithReports = allAssets.filter(asset => asset.monthlyReports.length >= 2);
-			if (assetsWithReports.length > 0) {
-				const growthRates = assetsWithReports.map(asset => {
-					const reports = asset.monthlyReports;
-					const latest = reports[reports.length - 1];
-					const previous = reports[reports.length - 2];
-					if ((previous.netIncome ?? 0) > 0) {
-						return (((latest.netIncome ?? 0) - (previous.netIncome ?? 0)) / (previous.netIncome ?? 0)) * 100;
-					}
-					return 0;
-				});
-				const validGrowthRates = growthRates.filter(rate => !isNaN(rate) && isFinite(rate));
-				if (validGrowthRates.length > 0) {
-					monthlyGrowthRate = validGrowthRates.reduce((sum, rate) => sum + rate, 0) / validGrowthRates.length;
-				}
-			}
-			
-			// If no valid growth rate data, use a reasonable default
-			if (monthlyGrowthRate === 0 || isNaN(monthlyGrowthRate)) {
-				monthlyGrowthRate = dataStoreService.getMarketData().defaultGrowthRate;
-			}
-			
-			platformStats = {
-				totalAssets: stats.totalAssets,
-				totalInvested: totalInvested / 1000000, // Convert to millions
-				activeInvestors: totalHolders,
-				totalRegions: uniqueRegions.size,
-				monthlyGrowthRate: Number(monthlyGrowthRate.toFixed(1))
-			};
-			
-			loading = false;
-		} catch (error) {
-			console.error('Error loading homepage data:', error);
-			loading = false;
-		}
-	});
-
+	
+	// Reactive data
+	$: stats = $state;
+	$: formatted = $formattedStats;
 	
 	function handleBuyTokensFromCarousel(event: CustomEvent) {
 		selectedTokenAddress = event.detail.tokenAddress;
@@ -111,7 +44,6 @@
 		selectedTokenAddress = null;
 		selectedAssetId = null;
 	}
-	
 </script>
 
 <svelte:head>
@@ -129,7 +61,7 @@
 	>
 		<!-- Platform Stats -->
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto mb-12">
-			{#if loading}
+			{#if stats.loading}
 				<StatsCard
 					title="Total Invested"
 					value="--"
@@ -151,21 +83,21 @@
 			{:else}
 				<StatsCard
 					title="Total Invested"
-					value={`$${platformStats.totalInvested.toFixed(1)}M`}
+					value={formatted.totalInvested}
 					subtitle="this month"
-					trend={{ value: platformStats.monthlyGrowthRate, positive: platformStats.monthlyGrowthRate >= 0 }}
+					trend={formatted.growthTrend}
 					size="large"
 					valueColor="primary"
 				/>
 				<StatsCard
 					title="Assets"
-					value={platformStats.totalAssets.toString()}
-					subtitle={`Across ${platformStats.totalRegions} regions`}
+					value={formatted.totalAssets}
+					subtitle={formatted.regionsText}
 					size="large"
 				/>
 				<StatsCard
 					title="Active Investors"
-					value={platformStats.activeInvestors.toLocaleString()}
+					value={formatted.activeInvestors}
 					subtitle="Token holders"
 					size="large"
 				/>
@@ -190,23 +122,23 @@
 		<SectionTitle level="h2" size="section" center className="mb-4 md:mb-6">How It Works</SectionTitle>
 		
 		<GridContainer columns={3} gap="large">
-				<div class="text-center">
-					<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">1</div>
-					<h3 class="text-lg font-extrabold text-black mb-4">Browse Assets</h3>
-					<p class="text-sm text-black">Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
-				</div>
-				
-				<div class="text-center">
-					<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">2</div>
-					<h3 class="text-lg font-extrabold text-black mb-4">Buy Tokens</h3>
-					<p class="text-sm text-black">Purchase royalty tokens using our smart payment system with automatic collateral management and instant settlement.</p>
-				</div>
-				
-				<div class="text-center">
-					<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">3</div>
-					<h3 class="text-lg font-extrabold text-black mb-4">Earn Payout</h3>
-					<p class="text-sm text-black">Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
-				</div>
+			<div class="text-center">
+				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">1</div>
+				<h3 class="text-lg font-extrabold text-black mb-4">Browse Assets</h3>
+				<p class="text-sm text-black">Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
+			</div>
+			
+			<div class="text-center">
+				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">2</div>
+				<h3 class="text-lg font-extrabold text-black mb-4">Buy Tokens</h3>
+				<p class="text-sm text-black">Purchase royalty tokens using our smart payment system with automatic collateral management and instant settlement.</p>
+			</div>
+			
+			<div class="text-center">
+				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">3</div>
+				<h3 class="text-lg font-extrabold text-black mb-4">Earn Payout</h3>
+				<p class="text-sm text-black">Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
+			</div>
 		</GridContainer>
 	</ContentSection>
 
@@ -288,14 +220,12 @@
 			
 			<div class="text-center p-12 bg-white/10 border border-white/20">
 				<h4 class="text-2xl font-extrabold mb-4 text-white">Start Investing Today</h4>
-				<p class="mb-8 opacity-90">Join {platformStats.activeInvestors.toLocaleString()} investors earning from energy assets</p>
+				<p class="mb-8 opacity-90">Join {formatted.activeInvestors} investors earning from energy assets</p>
 				<SecondaryButton href="/assets">Get Started Now</SecondaryButton>
 			</div>
 		</div>
 	</ContentSection>
-
 </PageLayout>
-
 
 <!-- Token Purchase Widget -->
 <TokenPurchaseWidget 

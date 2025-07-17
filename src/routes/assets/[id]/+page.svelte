@@ -1,1022 +1,392 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import dataStoreService from '$lib/services/DataStoreService';
-	import type { Asset, Token } from '$lib/types/uiTypes';
+	import { 
+		useAssetData, 
+		useDataExport, 
+		useTooltip, 
+		useEmailNotification,
+		useChartData 
+	} from '$lib/composables';
 	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/ui';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
 	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
 	import TabButton from '$lib/components/ui/TabButton.svelte';
 	import { PageLayout, ContentSection } from '$lib/components/layout';
-	import { getImageUrl } from '$lib/utils/imagePath';
-
-	let loading = true;
-	let error: string | null = null;
+	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
+	
+	// Composables
+	const { state, hasAvailableTokens, productionMetrics, revenueMetrics, latestReport, getRevenueChartData } = useAssetData($page.params.id);
+	const { exportData } = useDataExport();
+	const { state: tooltipState, show: showTooltip, hide: hideTooltip } = useTooltip();
+	const { state: emailState, setEmail, submit: submitEmail } = useEmailNotification();
+	const chartData = useChartData();
+	
+	// Component state
 	let activeTab = 'overview';
-	let unclaimedPayout = 0; // Will be calculated from actual token holdings
-	let assetData: Asset | null = null;
-	let assetTokens: Token[] = [];
-	
-	// Tooltip state
-	let showTooltip = '';
-	let tooltipTimer: any = null;
-	
-	// Purchase widget state
 	let showPurchaseWidget = false;
 	let selectedTokenAddress: string | null = null;
 	
-	// Email notification popup state
-	let showEmailPopup = false;
-	let emailAddress = '';
-	let isSubmittingEmail = false;
-	let emailSubmitted = false;
-
-
-	function formatCurrency(amount: number): string {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD',
-			minimumFractionDigits: 2,
-			maximumFractionDigits: 2
-		}).format(amount);
-	}
-
-	function formatEndDate(dateStr: string): string {
-		if (!dateStr) return 'TBD';
-		const [year, month] = dateStr.split('-');
-		const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-						 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		return `${monthNames[parseInt(month) - 1]} ${year}`;
-	}
-
-	function exportProductionData() {
-		if (!assetData?.monthlyReports) return;
-		
-		const csvContent = [
-			['Month', 'Production (bbl)', 'Revenue (USD)', 'Expenses (USD)', 'Net Income (USD)', 'Payout Per Token (USD)'],
-			...assetData.monthlyReports.map(report => [
-				report.month,
-				report.production.toString(),
-				(report.revenue ?? 0).toString(),
-				(report.expenses ?? 0).toString(),
-				(report.netIncome ?? 0).toString(),
-				(report.payoutPerToken ?? 0).toString()
-			])
-		].map(row => row.join(',')).join('\n');
-		
-		const blob = new Blob([csvContent], { type: 'text/csv' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `${assetData.id}-production-data.csv`;
-		a.click();
-		URL.revokeObjectURL(url);
-	}
-
-	function exportPaymentsData() {
-		if (assetTokens.length === 0) return;
-		
-		const paymentData = dataStoreService.getTokenPayoutHistory(assetTokens[0].contractAddress);
-		if (!paymentData?.recentPayouts) return;
-		
-		const csvContent = [
-			['Month', 'Date', 'Total Payout (USD)', 'Payout Per Token (USD)', 'Oil Price (USD/bbl)', 'Gas Price (USD/MMBtu)', 'Production Volume (bbl)'],
-			...paymentData.recentPayouts.map(payout => [
-				payout.month,
-				payout.date,
-				payout.totalPayout.toString(),
-				payout.payoutPerToken.toString(),
-				payout.oilPrice.toString(),
-				payout.gasPrice.toString(),
-				payout.productionVolume.toString()
-			])
-		].map(row => row.join(',')).join('\n');
-		
-		const blob = new Blob([csvContent], { type: 'text/csv' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `${assetData?.id || 'asset'}-payments-data.csv`;
-		a.click();
-		URL.revokeObjectURL(url);
-	}
-
-	function getAssetImage(assetData: Asset | null): string {
-		// Use the coverImage from the asset data
-		return assetData?.coverImage || '/images/eur-wr-cover.jpg';
-	}
-
-	function formatPricing(benchmarkPremium: string): string {
-		if (benchmarkPremium.startsWith('-')) {
-			return `${benchmarkPremium.substring(1)} discount`;
-		} else if (benchmarkPremium.startsWith('+')) {
-			return `${benchmarkPremium.substring(1)} premium`;
-		} else {
-			return `${benchmarkPremium} premium`;
+	// Reactive data
+	$: asset = $state.asset;
+	$: tokens = $state.tokens;
+	$: loading = $state.loading;
+	$: error = $state.error;
+	$: metrics = { production: $productionMetrics, revenue: $revenueMetrics, latestReport: $latestReport };
+	
+	// Chart data
+	$: productionChartData = asset && asset.monthlyReports ? chartData.getProductionChartData(asset.monthlyReports) : [];
+	$: financialChartData = asset && asset.monthlyReports ? chartData.getFinancialChartData(asset.monthlyReports) : [];
+	$: payoutChartData = asset && asset.monthlyReports ? chartData.getPayoutChartData(asset.monthlyReports) : [];
+	
+	// Export handlers
+	function handleExportProduction() {
+		if (asset) {
+			exportData('production', asset);
 		}
 	}
-
+	
+	function handleExportPayments() {
+		if (tokens.length > 0) {
+			exportData('payments', tokens);
+		}
+	}
+	
+	// Email notification handler
+	async function handleEmailSubmit() {
+		const email = $emailState.email;
+		await submitEmail({
+			email,
+			assetId: asset?.id,
+			notificationType: 'asset-updates'
+		});
+	}
+	
+	// Purchase handler
 	function handleBuyTokens(tokenAddress: string) {
 		selectedTokenAddress = tokenAddress;
 		showPurchaseWidget = true;
 	}
-	
-	function handlePurchaseSuccess() {
-		showPurchaseWidget = false;
-		selectedTokenAddress = null;
-		// Could refresh token data here
-	}
-	
-	function handleWidgetClose() {
-		showPurchaseWidget = false;
-		selectedTokenAddress = null;
-	}
-	
-	function handleGetNotified() {
-		showEmailPopup = true;
-	}
-	
-	function handleCloseEmailPopup() {
-		showEmailPopup = false;
-		emailAddress = '';
-		emailSubmitted = false;
-	}
-	
-	async function handleEmailSubmit() {
-		if (!emailAddress || isSubmittingEmail) return;
-		
-		isSubmittingEmail = true;
-		
-		// Simulate API call
-		setTimeout(() => {
-			isSubmittingEmail = false;
-			emailSubmitted = true;
-			
-			// Auto-close after 2 seconds
-			setTimeout(() => {
-				handleCloseEmailPopup();
-			}, 2000);
-		}, 1000);
-	}
-	
-	function showTooltipWithDelay(tooltipId: string) {
-		clearTimeout(tooltipTimer);
-		tooltipTimer = setTimeout(() => {
-			showTooltip = tooltipId;
-		}, 500);
-	}
-	
-	function hideTooltip() {
-		clearTimeout(tooltipTimer);
-		showTooltip = '';
-	}
-
-	// Track flipped state for each token card
-	let flippedCards = new Set();
-	
-	function toggleCardFlip(tokenAddress: string) {
-		if (flippedCards.has(tokenAddress)) {
-			flippedCards.delete(tokenAddress);
-		} else {
-			flippedCards.add(tokenAddress);
-		}
-		flippedCards = new Set(flippedCards); // Trigger reactivity
-	}
-
-	// Decide what to do when the card itself is clicked
-	function handleCardClick(tokenAddress: string) {
-		if (flippedCards.has(tokenAddress)) {
-			// If the card is showing the back, flip it back to the front
-			toggleCardFlip(tokenAddress);
-		} else {
-			// Otherwise open the purchase panel
-			handleBuyTokens(tokenAddress);
-		}
-	}
-
-
-	onMount(() => {
-		const assetId = $page.params.id;
-		
-		try {
-			// Load asset data from store
-			const asset = dataStoreService.getAssetById(assetId);
-			
-			if (!asset) {
-				error = 'Asset not found';
-				loading = false;
-				return;
-			}
-			
-			assetData = asset;
-			
-			// Load associated tokens
-			const tokens = dataStoreService.getTokensByAssetId(assetId);
-			assetTokens = tokens;
-			
-			loading = false;
-		} catch (err) {
-			console.error('Error loading asset:', err);
-			error = 'Error loading asset data';
-			loading = false;
-		}
-	});
-	
-	
-	
-	
-	
-	
-	
-	
 </script>
 
-<svelte:head>
-	<title>{assetData?.name || 'Asset Details'} - Albion</title>
-	<meta name="description" content="Detailed information about {assetData?.name || 'asset'}" />
-</svelte:head>
-
-<PageLayout variant="constrained">
-	{#if loading}
-		<div class="text-center py-16 px-8 text-black">
-			<p>Loading asset details...</p>
-		</div>
-	{:else if error}
-		<div class="text-center py-16 px-8 text-black">
-			<h1>Error</h1>
-			<p>{error}</p>
-			<a href="/assets" class="px-8 py-4 no-underline font-semibold text-sm uppercase tracking-wider transition-colors duration-200 inline-block bg-black text-white hover:bg-secondary inline-block">Back to Assets</a>
-		</div>
-	{:else}
-		<!-- Breadcrumb -->
-		<nav class="mb-8 text-sm font-medium">
-			<a href="/assets" class="text-secondary no-underline hover:text-black">← Back to Assets</a>
-			<span class="mx-2 text-light-gray">/</span>
-			<span class="text-black font-semibold">{assetData?.name || 'Asset Details'}</span>
-		</nav>
-
-		<!-- Asset Header -->
-		<div class="bg-white border border-light-gray md:p-12 p-6 mb-8">
-			<div class="mb-12">
-				<div class="flex md:items-start items-center md:flex-row flex-col md:gap-8 gap-4 mb-8">
-					<div class="w-16 h-16 rounded-lg overflow-hidden border border-light-gray">
-						<img 
-							src={getImageUrl(getAssetImage(assetData))} 
-							alt={assetData?.name || 'Asset'}
-							loading="lazy"
-							class="w-full h-full object-cover"
-						/>
-					</div>
-					<div class="flex-1">
-						<div class="flex justify-between items-start gap-4 mb-4">
-							<h1 class="text-4xl md:text-5xl font-extrabold text-black uppercase tracking-tight m-0">{assetData?.name}</h1>
-							<div class="flex flex-col items-end gap-2 flex-shrink-0">
-								<div class="text-xs font-medium text-black uppercase tracking-wider">Share this investment:</div>
-								<div class="flex gap-2">
-									<button class="flex items-center justify-center w-8 h-8 bg-white border border-light-gray text-black cursor-pointer transition-all duration-200 rounded hover:bg-light-gray hover:border-secondary hover:text-secondary" title="Share asset on Twitter" aria-label="Share asset on Twitter" on:click={() => window.open(`https://twitter.com/intent/tweet?text=Check out this energy investment opportunity: ${assetData?.name} on @Albion&url=${encodeURIComponent(window.location.href)}`, '_blank')}>
-										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-											<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-										</svg>
-									</button>
-									<button class="flex items-center justify-center w-8 h-8 bg-white border border-light-gray text-black cursor-pointer transition-all duration-200 rounded hover:bg-light-gray hover:border-secondary hover:text-secondary" title="Share asset on LinkedIn" aria-label="Share asset on LinkedIn" on:click={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank')}>
-										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-											<path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-										</svg>
-									</button>
-									<button class="flex items-center justify-center w-8 h-8 bg-white border border-light-gray text-black cursor-pointer transition-all duration-200 rounded hover:bg-light-gray hover:border-secondary hover:text-secondary" title="Share asset on Telegram" aria-label="Share asset on Telegram" on:click={() => window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=Check out this energy investment opportunity: ${assetData?.name}`, '_blank')}>
-										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-											<path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-										</svg>
-									</button>
-									<button class="flex items-center justify-center w-8 h-8 bg-white border border-light-gray text-black cursor-pointer transition-all duration-200 rounded hover:bg-light-gray hover:border-secondary hover:text-secondary" title="Share asset via email" aria-label="Share asset via email" on:click={() => window.open(`mailto:?subject=Investment Opportunity: ${assetData?.name}&body=I thought you might be interested in this energy investment opportunity:%0D%0A%0D%0A${assetData?.name}%0D%0A${window.location.href}%0D%0A%0D%0ACheck it out on Albion!`, '_blank')}>
-										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-											<path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-										</svg>
-									</button>
-									<button class="flex items-center justify-center w-8 h-8 bg-white border border-light-gray text-black cursor-pointer transition-all duration-200 rounded hover:bg-light-gray hover:border-secondary hover:text-secondary" title="Copy asset link" aria-label="Copy asset link" on:click={() => { navigator.clipboard.writeText(window.location.href); /* You could add a toast notification here */ }}>
-										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-											<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-											<path d="m14 11-7.54.54-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-										</svg>
-									</button>
-								</div>
-							</div>
-						</div>
-						<div class="flex items-center gap-4 mb-2">
-							<span class="text-secondary font-medium text-sm">📍 {assetData?.location.state}, {assetData?.location.country}</span>
-						</div>
-						<div class="text-black opacity-70 text-sm">
-							<span>Operated by {assetData?.operator.name}</span>
-							<span>•</span>
-							<span>License {assetData?.technical.license}</span>
-						</div>
-					</div>
+{#if loading}
+	<PageLayout>
+		<ContentSection>
+			<div class="text-center py-12">
+				<p class="text-gray-500">Loading asset details...</p>
+			</div>
+		</ContentSection>
+	</PageLayout>
+{:else if error}
+	<PageLayout>
+		<ContentSection>
+			<div class="text-center py-12">
+				<p class="text-red-500">{error}</p>
+				<PrimaryButton href="/assets">Back to Assets</PrimaryButton>
+			</div>
+		</ContentSection>
+	</PageLayout>
+{:else if asset}
+	<PageLayout>
+		<!-- Hero Section -->
+		<ContentSection background="gray" padding="large">
+			<div class="flex justify-between items-start mb-8">
+				<div>
+					<h1 class="text-4xl font-extrabold mb-2">{asset.name}</h1>
+					<p class="text-xl text-gray-600">{asset.location.state}, {asset.location.country}</p>
+				</div>
+				<div class="text-right">
+					<p class="text-sm text-gray-500 mb-1">Operated by</p>
+					<p class="text-lg font-semibold">{asset.operator.name}</p>
 				</div>
 			</div>
-
-			<div class="grid md:grid-cols-3 grid-cols-1 gap-8 mb-8">
-				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4">
-					<MetricDisplay
-						value={assetData?.production.current || '0'}
-						label="Current Production"
-						size="large"
-					/>
-				</div>
-				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4">
-					<MetricDisplay
-						value={assetData?.monthlyReports?.[0]?.netIncome 
-							? formatCurrency(assetData.monthlyReports[0].netIncome)
-							: '$20,000'}
-						label="Last Received Income"
-						note={assetData?.monthlyReports?.[0]?.month 
-							? formatEndDate(assetData.monthlyReports[0].month + '-01')
-							: 'May 2025'}
-						size="large"
-					/>
-				</div>
-				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4 cursor-pointer transition-all duration-200 rounded p-4 -m-4 border-2 border-light-gray bg-white shadow-sm hover:bg-light-gray hover:-translate-y-1 hover:border-primary hover:shadow-card-hover focus:outline-none focus:border-primary focus:bg-light-gray focus:shadow-card-hover" on:click={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' }); } }} role="button" tabindex="0">
-					<MetricDisplay
-						value={assetTokens.length.toString()}
-						label="Available Tokens"
-						note="👆 Click to view tokens"
-						size="large"
-					/>
-				</div>
+			
+			<!-- Key Metrics -->
+			<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+				<MetricDisplay
+					label="Status"
+					value={asset.production.status}
+					variant={asset.production.status === 'producing' ? 'success' : 'default'}
+				/>
+				<MetricDisplay
+					label="Last Payment"
+					value={metrics.latestReport ? formatCurrency(metrics.latestReport.netIncome || 0) : 'N/A'}
+					variant="primary"
+				/>
+				<MetricDisplay
+					label="Revenue Share"
+					value={asset.assetTerms.amount}
+				/>
+				<MetricDisplay
+					label="Est. End Date"
+					value={formatEndDate(asset.production.expectedEndDate || '')}
+				/>
 			</div>
-
-		</div>
-
-		<!-- Tabs Navigation and Content -->
-		<ContentSection background="white" padding="compact" maxWidth={false}>
-			<div class="bg-white border border-light-gray mb-8" id="asset-details-tabs">
-			<div class="flex flex-wrap border-b border-light-gray">
-				<TabButton
-					active={activeTab === 'overview'}
+		</ContentSection>
+		
+		<!-- Tab Navigation -->
+		<ContentSection>
+			<div class="flex gap-4 mb-6 border-b">
+				<TabButton 
+					active={activeTab === 'overview'} 
 					on:click={() => activeTab = 'overview'}
 				>
 					Overview
 				</TabButton>
-				<TabButton
-					active={activeTab === 'production'}
+				<TabButton 
+					active={activeTab === 'production'} 
 					on:click={() => activeTab = 'production'}
 				>
-					Production Data
+					Production
 				</TabButton>
-				<TabButton
-					active={activeTab === 'payments'}
-					on:click={() => activeTab = 'payments'}
+				<TabButton 
+					active={activeTab === 'financials'} 
+					on:click={() => activeTab = 'financials'}
 				>
-					Past Payments
+					Financials
 				</TabButton>
-				<TabButton
-					active={activeTab === 'gallery'}
-					on:click={() => activeTab = 'gallery'}
-				>
-					Gallery
-				</TabButton>
-				<TabButton
-					active={activeTab === 'documents'}
+				<TabButton 
+					active={activeTab === 'documents'} 
 					on:click={() => activeTab = 'documents'}
 				>
 					Documents
 				</TabButton>
 			</div>
-
+			
 			<!-- Tab Content -->
-			<div class="p-8 min-h-[500px] flex flex-col">
-				{#if activeTab === 'overview'}
-					<div class="flex-1 flex flex-col">
-						<div class="grid md:grid-cols-2 grid-cols-1 gap-12 mb-12">
-							<div>
-								<SectionTitle level="h3" size="subsection" className="mb-6 uppercase tracking-wider">Asset Fundamentals</SectionTitle>
-								<div class="flex flex-col gap-4">
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Field Type</span>
-										<span class="text-black">{assetData?.technical.fieldType}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Crude Benchmark</span>
-										<span class="text-black">{assetData?.technical.crudeBenchmark}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Pricing</span>
-										<span class="text-black">{formatPricing(assetData?.technical.pricing?.benchmarkPremium || '')}, {assetData?.technical.pricing?.transportCosts}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">First Oil</span>
-										<span class="text-black">{assetData?.technical.firstOil}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Estimated End Date</span>
-										<span class="text-black">{formatEndDate(assetData?.technical.expectedEndDate || '')}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Coordinates</span>
-										<span class="text-black">{assetData?.location.coordinates.lat}°, {assetData?.location.coordinates.lng}°</span>
-									</div>
+			{#if activeTab === 'overview'}
+				<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+					<!-- Asset Details -->
+					<Card>
+						<CardContent>
+							<SectionTitle level="h3" size="small" className="mb-4">Asset Details</SectionTitle>
+							<dl class="space-y-3">
+								<div class="flex justify-between">
+									<dt class="text-gray-600">Interest Type</dt>
+									<dd class="font-semibold">{asset.assetTerms.interestType}</dd>
 								</div>
-							</div>
-
-							<div>
-								<SectionTitle level="h3" size="subsection" className="mb-6 uppercase tracking-wider">Asset Terms</SectionTitle>
-								<div class="flex flex-col gap-4">
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Interest Type</span>
-										<span class="text-black">{assetData?.assetTerms?.interestType}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black relative">
-											Amount
-											{#if assetData?.assetTerms?.amountTooltip}
-												<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
-													on:mouseenter={() => showTooltipWithDelay('amount')}
-													on:mouseleave={hideTooltip}
-													role="button"
-													tabindex="0">ⓘ</span>
-												{#if showTooltip === 'amount'}
-													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
-														{assetData.assetTerms.amountTooltip}
-													</div>
-												{/if}
-											{/if}
-										</span>
-										<span class="text-black">{assetData?.assetTerms?.amount}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Payment Frequency</span>
-										<span class="text-black">{assetData?.assetTerms?.paymentFrequency}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Infrastructure</span>
-										<span class="text-black">{assetData?.technical.infrastructure}</span>
-									</div>
+								<div class="flex justify-between">
+									<dt class="text-gray-600">Depth</dt>
+									<dd class="font-semibold">{asset.technical.depth}</dd>
 								</div>
-							</div>
-						</div>
-
-					</div>
-				{:else if activeTab === 'production'}
-					{@const productionReports = assetData?.productionHistory || assetData?.monthlyReports || []}
-					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map((r: any) => r.production)) : 100}
-					<div class="flex-1 flex flex-col">
-						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">
-							<div class="bg-white border border-light-gray p-6 md:col-span-3">
-								<div class="flex justify-between items-center mb-6">
-									<h4 class="text-lg font-extrabold text-black mb-0">Production History</h4>
-									<SecondaryButton on:click={exportProductionData}>
-										📊 Export Data
-									</SecondaryButton>
+								<div class="flex justify-between">
+									<dt class="text-gray-600">Type</dt>
+									<dd class="font-semibold">{asset.technical.fieldType}</dd>
 								</div>
-								<div class="w-full">
-									<Chart
-										data={productionReports.map(report => {
-											// Handle different date formats
-											let dateStr = report.month || report.date || '';
-											if (dateStr && !dateStr.includes('-01')) {
-												dateStr = dateStr + '-01';
-											}
-											return {
-												label: dateStr,
-												value: report.production
-											};
-										})}
-										width={700}
-										height={350}
-										valueSuffix=" BOE"
-										barColor="#08bccc"
-										animate={true}
-										showGrid={true}
-									/>
+								<div class="flex justify-between">
+									<dt class="text-gray-600">Water Depth</dt>
+									<dd class="font-semibold">{asset.location.waterDepth || 'Onshore'}</dd>
 								</div>
-							</div>
-
-							<div class="bg-white border border-light-gray p-6">
-								<h4 class="text-lg font-extrabold text-black mb-6">Production Metrics</h4>
-								<div class="text-center mb-6 p-4 bg-white">
-									<div class="text-4xl font-extrabold text-black mb-2">
-										{#if assetData?.operationalMetrics?.uptime?.percentage !== undefined}
-											{assetData.operationalMetrics.uptime.percentage.toFixed(1)}%
-										{:else}
-											<span class="text-gray-400">N/A</span>
-										{/if}
-									</div>
-									<div class="text-base font-medium text-black opacity-70">
-										Uptime {assetData?.operationalMetrics?.uptime?.period?.replace('_', ' ') || 'N/A'}
-									</div>
-								</div>
-								<div class="grid grid-cols-1 gap-4 mb-6">
-									<div class="text-center p-3 bg-white">
-										<div class="text-3xl font-extrabold text-black mb-1">
-											{#if assetData?.operationalMetrics?.dailyProduction?.current !== undefined}
-												{assetData.operationalMetrics.dailyProduction.current.toFixed(1)}
-											{:else}
-												<span class="text-gray-400">N/A</span>
-											{/if}
-										</div>
-										<div class="text-sm font-medium text-black opacity-70">
-											Current Daily Production ({assetData?.operationalMetrics?.dailyProduction?.unit || 'units'})
-										</div>
-									</div>
-								</div>
-								<div class="text-center p-4 bg-white">
-									<div class="text-4xl font-extrabold text-black mb-2">
-										{#if assetData?.operationalMetrics?.hseMetrics?.incidentFreeDays !== undefined}
-											{assetData.operationalMetrics.hseMetrics.incidentFreeDays}
-										{:else}
-											<span class="text-gray-400">N/A</span>
-										{/if}
-									</div>
-									<div class="text-base font-medium text-black opacity-70">Days Since Last HSE Incident</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				{:else if activeTab === 'payments'}
-					{@const monthlyReports = assetData?.monthlyReports || []}
-					{@const maxRevenue = monthlyReports.length > 0 ? Math.max(...monthlyReports.map(r => r.revenue ?? 0)) : 1500}
-					{@const latestReport = monthlyReports[monthlyReports.length - 1]}
-					{@const nextMonth = latestReport ? new Date(new Date(latestReport.month + '-01').getTime() + 32 * 24 * 60 * 60 * 1000) : new Date()}
-					{@const avgRevenue = monthlyReports.length > 0 ? monthlyReports.reduce((sum, r) => sum + (r.revenue ?? 0), 0) / monthlyReports.length : 0}
-					<div class="flex-1 flex flex-col">
-						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">
-							<div class="bg-white border border-light-gray p-6 md:col-span-3">
-								<div class="flex justify-between items-center mb-6">
-									<h4 class="text-lg font-extrabold text-black mb-0">Past Payments</h4>
-									<SecondaryButton on:click={exportPaymentsData}>
-										📊 Export Data
-									</SecondaryButton>
-								</div>
-								<div class="w-full overflow-x-auto">
-									<Chart
-										data={monthlyReports.map(report => {
-											// Handle different date formats
-											let dateStr = report.month || report.date || '';
-											if (dateStr && !dateStr.includes('-01')) {
-												dateStr = dateStr + '-01';
-											}
-											return {
-												label: dateStr,
-												value: report.revenue ?? 0
-											};
-										})}
-										width={950}
-										height={350}
-										valuePrefix="$"
-										barColor="#08bccc"
-										animate={true}
-										showGrid={true}
-									/>
-								</div>
-							</div>
-
-							<div class="bg-white border border-light-gray p-6">
-								<h4 class="text-lg font-extrabold text-black mb-6">Revenue Metrics</h4>
-								<div class="text-center mb-6 p-4 bg-white">
-									<div class="text-4xl font-extrabold text-black mb-2">{nextMonth.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</div>
-									<div class="text-base font-medium text-black opacity-70">Next Report Due</div>
-								</div>
-								<div class="grid grid-cols-1 gap-4 mb-6">
-									<div class="text-center p-3 bg-white">
-										<div class="text-3xl font-extrabold text-black mb-1">
-											{#if latestReport?.revenue !== undefined}
-												${latestReport.revenue.toFixed(0)}
-											{:else}
-												<span class="text-gray-400">N/A</span>
-											{/if}
-										</div>
-										<div class="text-sm font-medium text-black opacity-70">Latest Monthly Revenue</div>
-									</div>
-								</div>
-								<div class="text-center p-4 bg-white">
-									<div class="text-4xl font-extrabold text-black mb-2">
-										{#if avgRevenue > 0}
-											${avgRevenue.toFixed(0)}
-										{:else}
-											<span class="text-gray-400">N/A</span>
-										{/if}
-									</div>
-									<div class="text-base font-medium text-black opacity-70">Avg Monthly Revenue</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				{:else if activeTab === 'documents'}
-					<div class="flex-1 flex flex-col">
-						<div class="grid md:grid-cols-2 grid-cols-1 gap-8">
-							<div>
-								<h4 class="text-lg font-extrabold text-black mb-6">Legal Documents</h4>
-								<div class="space-y-4">
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📄</div>
-											<div>
-												<div class="font-semibold text-black">Asset Purchase Agreement</div>
-												<div class="text-sm text-black opacity-70">PDF • 2.4 MB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📄</div>
-											<div class="">
-												<div class="font-semibold text-black">Operating License PEDL 183</div>
-												<div class="text-sm text-black opacity-70">PDF • 1.8 MB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📄</div>
-											<div class="">
-												<div class="font-semibold text-black">Environmental Impact Assessment</div>
-												<div class="text-sm text-black opacity-70">PDF • 5.2 MB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📄</div>
-											<div class="">
-												<div class="font-semibold text-black">Token Terms & Conditions</div>
-												<div class="text-sm text-black opacity-70">PDF • 950 KB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
-								</div>
-							</div>
-
-							<div>
-								<h4 class="text-lg font-extrabold text-black mb-6">Technical Reports</h4>
-								<div class="space-y-4">
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📊</div>
-											<div class="">
-												<div class="font-semibold text-black">Geological Survey Report 2024</div>
-												<div class="text-sm text-black opacity-70">PDF • 12.1 MB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📊</div>
-											<div class="">
-												<div class="font-semibold text-black">Reserve Audit by Ryder Scott</div>
-												<div class="text-sm text-black opacity-70">PDF • 3.7 MB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📊</div>
-											<div class="">
-												<div class="font-semibold text-black">Production Forecast Model</div>
-												<div class="text-sm text-black opacity-70">PDF • 2.1 MB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">🗜️</div>
-											<div class="">
-												<div class="font-semibold text-black">Monthly Production Reports</div>
-												<div class="text-sm text-black opacity-70">ZIP • 8.9 MB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				{:else if activeTab === 'gallery'}
-					{@const galleryImages = assetData?.images || []}
-					<div class="flex-1 flex flex-col">
-						<div class="grid grid-cols-1 gap-8">
-							<div class="bg-white border border-light-gray p-8">
-								<h4>Asset Gallery</h4>
-								{#if galleryImages.length > 0}
-									<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-										{#each galleryImages as image}
-											<div class="border border-light-gray rounded overflow-hidden">
-												<div class="aspect-video overflow-hidden">
-													<img src={getImageUrl(image.url)} alt={image.title} class="w-full h-full object-cover" />
-												</div>
-												<div class="p-4 bg-white">
-													<h5 class="font-bold text-black mb-1">{image.title}</h5>
-													{#if image.caption}
-														<p class="text-sm text-gray-600">{image.caption}</p>
-													{/if}
-												</div>
-											</div>
-										{/each}
-									</div>
-								{:else}
-									<div class="text-center py-16 px-8">
-										<div class="text-6xl mb-4 opacity-50">📸</div>
-										<div class="text-black opacity-70">
-											<h5>No additional images available</h5>
-											<p>Additional photos and visual documentation will be displayed here when available.</p>
-										</div>
-									</div>
-								{/if}
-							</div>
-						</div>
-					</div>
-				{/if}
-			</div>
-		</div>
-		</ContentSection>
-
-		<!-- Token Information Section -->
-		<ContentSection background="white" padding="compact" maxWidth={false} className="-mt-8">
-			<div class="bg-white border border-light-gray md:p-12 p-6" id="token-section">
-			<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-				{#each assetTokens as token}
-					{@const supply = dataStoreService.getTokenSupply(token.contractAddress)}
-					{@const hasAvailableSupply = supply && supply.availableSupply > 0}
-					{@const tokenPayoutData = dataStoreService.getTokenPayoutHistory(token.contractAddress)}
-					{@const latestPayout = tokenPayoutData?.recentPayouts?.[0]}
-					{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
-					{@const isFlipped = flippedCards.has(token.contractAddress)}
-					<div id="token-{token.contractAddress}">
-						<Card hoverable clickable paddingClass="p-0" on:click={() => handleCardClick(token.contractAddress)}>
-							<CardContent paddingClass="p-0">
-								<div class="relative preserve-3d transform-gpu transition-transform duration-500 {isFlipped ? 'rotate-y-180' : ''}" style="min-height: 650px;">
-									<!-- Front of card -->
-									<div class="absolute inset-0 backface-hidden">
-										<!-- Full width availability banner -->
-										<div class="{!hasAvailableSupply ? 'text-base font-extrabold text-white bg-black text-center py-3 uppercase tracking-wider' : 'text-base font-extrabold text-black bg-primary text-center py-3 uppercase tracking-wider'} w-full">
-											{hasAvailableSupply ? 'Available for Purchase' : 'Currently Sold Out'}
-										</div>
-										
-										<div class="p-8 pb-0 relative">
-											<div class="flex-1 mt-6">
-												<div class="flex justify-between items-start mb-3 gap-4">
-													<h4 class="text-2xl font-extrabold text-black font-figtree flex-1">{token.name}</h4>
-													<div class="text-sm font-extrabold text-white bg-secondary px-3 py-1 tracking-wider rounded whitespace-nowrap">
-														{token.sharePercentage || 25}% of Asset
-													</div>
-												</div>
-												<p class="text-sm text-secondary font-medium break-all tracking-tight opacity-80 font-figtree">{token.contractAddress}</p>
-											</div>
-										</div>
-							
-									<div class="p-8 pt-6 space-y-4">
-										<div class="flex justify-between items-start">
-											<span class="text-base font-medium text-black opacity-70 relative font-figtree">Minted Supply</span>
-											<span class="text-base font-extrabold text-black text-right font-figtree">{supply?.mintedSupply.toLocaleString() || '0'}</span>
-										</div>
-										<div class="flex justify-between items-start">
-											<span class="text-base font-medium text-black opacity-70 relative font-figtree">Max Supply</span>
-											<span class="text-base font-extrabold text-black text-right font-figtree">{supply?.maxSupply.toLocaleString() || '0'}</span>
-										</div>
-										<div class="flex justify-between items-start relative">
-											<span class="text-base font-medium text-black opacity-70 relative font-figtree">
-												Implied Barrels/Token
-												<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100" 
-													on:mouseenter={() => showTooltipWithDelay('barrels')}
-													on:mouseleave={hideTooltip}
-													role="button"
-													tabindex="0">ⓘ</span>
-											</span>
-											<span class="text-sm font-extrabold text-black text-right">{calculatedReturns?.impliedBarrelsPerToken?.toFixed(6) || '0.000000'}</span>
-											{#if showTooltip === 'barrels'}
-												<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
-													Estimated barrels of oil equivalent per token based on reserves and token supply
-												</div>
-											{/if}
-										</div>
-										<div class="flex justify-between items-start relative">
-											<span class="text-sm font-medium text-black opacity-70 relative">
-												Breakeven Oil Price
-												<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
-													on:mouseenter={() => showTooltipWithDelay('breakeven')}
-													on:mouseleave={hideTooltip}
-													role="button"
-													tabindex="0">ⓘ</span>
-											</span>
-											<span class="text-sm font-extrabold text-black text-right">${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
-											{#if showTooltip === 'breakeven'}
-												<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
-													Oil price required to cover operational costs and maintain profitability
-												</div>
-											{/if}
-										</div>
-									</div>
-
-									<div class="p-8 pt-0 border-t border-light-gray">
-										<h5 class="text-sm font-extrabold text-black uppercase tracking-wider mb-4 pt-6">Estimated Returns</h5>
-										<div class="grid grid-cols-3 gap-3">
-											<div class="text-center p-3 bg-white">
-												<span class="text-xs font-medium text-black opacity-70 block mb-1 relative">
-													Base
-													<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
-														on:mouseenter={() => showTooltipWithDelay('base')}
-														on:mouseleave={hideTooltip}
-														role="button"
-														tabindex="0">ⓘ</span>
-												</span>
-												<span class="text-xl font-extrabold text-primary">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</span>
-												{#if showTooltip === 'base'}
-													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
-														Conservative return estimate based on current production and oil prices
-													</div>
-												{/if}
-											</div>
-											<div class="text-center p-3 bg-white">
-												<span class="text-xs font-medium text-black opacity-70 block mb-1 relative">
-													Bonus
-													<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
-														on:mouseenter={() => showTooltipWithDelay('bonus')}
-														on:mouseleave={hideTooltip}
-														role="button"
-														tabindex="0">ⓘ</span>
-												</span>
-												<span class="text-xl font-extrabold text-primary">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
-												{#if showTooltip === 'bonus'}
-													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
-														Additional potential return from improved oil prices or production efficiency
-													</div>
-												{/if}
-											</div>
-											<div class="text-center p-3 bg-white">
-												<span class="text-xs font-medium text-black opacity-70 block mb-1 relative">Total Expected</span>
-												<span class="text-xl font-extrabold text-primary">{calculatedReturns ? Math.round(calculatedReturns.baseReturn + calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
-											</div>
-										</div>
-									</div>
-
-
-									<div class="p-8 pt-0">
-										<div class="grid grid-cols-2 gap-3">
-											{#if hasAvailableSupply}
-												<PrimaryButton fullWidth on:click={(e) => { e.stopPropagation(); handleBuyTokens(token.contractAddress); }}>
-													Buy Tokens
-												</PrimaryButton>
-											{:else}
-												<PrimaryButton fullWidth disabled>
-													Sold Out
-												</PrimaryButton>
-											{/if}
-											<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCardFlip(token.contractAddress); }} role="button" tabindex="0" class="cursor-pointer">
-												<SecondaryButton fullWidth>
-													Distributions History
-												</SecondaryButton>
-											</div>
-										</div>
-									</div>
-								</div>
-								
-								<!-- Back of card -->
-								<div class="absolute inset-0 backface-hidden rotate-y-180 bg-white">
-									<div class="p-8 flex flex-col h-full">
-										<div class="flex justify-between items-center mb-6">
-										<h4 class="text-xl font-extrabold text-black uppercase tracking-wider">Distributions History</h4>
-										<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCardFlip(token.contractAddress); }} role="button" tabindex="0">
-											<SecondaryButton>
-												← Back
-											</SecondaryButton>
-										</div>
-									</div>
-									
-									{#if tokenPayoutData?.recentPayouts && tokenPayoutData.recentPayouts.length > 0}
-										<div class="flex-1 flex flex-col">
-											<div class="grid grid-cols-3 gap-2 text-xs font-bold text-black uppercase tracking-wider border-b border-light-gray pb-2 mb-4">
-												<div class="text-left">Month</div>
-												<div class="text-center">Total Payments</div>
-												<div class="text-right">Per Token</div>
-											</div>
-											<div class="space-y-2 flex-1">
-												{#each tokenPayoutData.recentPayouts.slice(-6) as payout}
-													<div class="grid grid-cols-3 gap-2 text-sm">
-														<div class="text-left font-medium text-black">{payout.month}</div>
-														<div class="text-center font-semibold text-black">${payout.totalPayout.toLocaleString()}</div>
-														<div class="text-right font-semibold text-black">${payout.payoutPerToken.toFixed(5)}</div>
-													</div>
-												{/each}
-											</div>
-											<div class="border-t border-light-gray my-4"></div>
-											<div class="mt-auto">
-												<div class="grid grid-cols-3 gap-2 text-sm font-extrabold">
-													<div class="text-left text-black">Total</div>
-													<div class="text-center text-black">${tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.totalPayout, 0).toLocaleString()}</div>
-													<div class="text-right text-black">${(tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.payoutPerToken, 0)).toFixed(5)}</div>
-												</div>
-											</div>
-										</div>
-									{:else}
-										{@const nextRelease = dataStoreService.getFutureReleaseByAsset(assetData?.id || '')}
-										<div class="text-center py-8 text-black opacity-70">
-											<p class="text-sm">No distributions available yet.</p>
-											<p class="text-sm">First payout expected in {nextRelease?.whenRelease || 'Q1 2025'}.</p>
-										</div>
-									{/if}
-									</div>
-								</div>
-								</div>
-							</CardContent>
-						</Card>
-					</div>
-				{/each}
-				<!-- Future Releases Cards -->
-				{#if assetData?.id}
-					{@const futureReleases = dataStoreService.getFutureReleasesByAsset(assetData.id)}
-					{#each futureReleases as release, index}
-				<Card hoverable>
-					<CardContent paddingClass="p-0">
-						<div class="flex flex-col justify-center text-center p-12" style="min-height: 650px;">
-							<div class="text-5xl mb-6">{release.emoji || '📅'}</div>
-							<h4 class="text-xl font-extrabold mb-4 text-black uppercase tracking-wider">{index === 0 ? 'Next Release' : 'Future Release'} - {release.whenRelease}</h4>
-							<p class="text-base mb-8 text-black opacity-70">{release.description || 'Token release planned'}</p>
-							<SecondaryButton on:click={handleGetNotified}>
-								Get Notified
-							</SecondaryButton>
-						</div>
-					</CardContent>
-				</Card>
-					{/each}
-					
-					{#if futureReleases.length === 0}
-					<!-- Fallback Coming Soon Card -->
-					<Card hoverable>
-						<CardContent paddingClass="p-0">
-							<div class="flex flex-col justify-center text-center p-12" style="min-height: 650px;">
-								<div class="text-5xl mb-6">🚀</div>
-								<h4 class="text-xl font-extrabold mb-4 text-black uppercase tracking-wider">New Release Coming Soon</h4>
-								<p class="text-base mb-8 text-black opacity-70">Next token release planned for Q1 2025</p>
-								<SecondaryButton on:click={handleGetNotified}>
-									Get Notified
-								</SecondaryButton>
-							</div>
+							</dl>
 						</CardContent>
 					</Card>
+					
+					<!-- Production Metrics -->
+					{#if metrics.production}
+						<Card>
+							<CardContent>
+								<SectionTitle level="h3" size="small" className="mb-4">Production Metrics</SectionTitle>
+								<dl class="space-y-3">
+									<div class="flex justify-between">
+										<dt class="text-gray-600">Total Production</dt>
+										<dd class="font-semibold">{metrics.production.totalProduction.toLocaleString()} BBL</dd>
+									</div>
+									<div class="flex justify-between">
+										<dt class="text-gray-600">Avg Monthly</dt>
+										<dd class="font-semibold">{Math.round(metrics.production.avgProduction).toLocaleString()} BBL</dd>
+									</div>
+									<div class="flex justify-between">
+										<dt class="text-gray-600">Growth Rate</dt>
+										<dd class="font-semibold">{metrics.production.growthRate.toFixed(1)}%</dd>
+									</div>
+									<div class="flex justify-between">
+										<dt class="text-gray-600">Reports</dt>
+										<dd class="font-semibold">{metrics.production.reportCount}</dd>
+									</div>
+								</dl>
+							</CardContent>
+						</Card>
 					{/if}
-				{/if}
-			</div>
-		</div>
+				</div>
+			{:else if activeTab === 'production'}
+				<div class="space-y-6">
+					<div class="flex justify-between items-center">
+						<SectionTitle level="h3" size="small">Production History</SectionTitle>
+						<SecondaryButton size="small" on:click={handleExportProduction}>
+							Export CSV
+						</SecondaryButton>
+					</div>
+					
+					{#if productionChartData.length > 0}
+						<Card>
+							<CardContent>
+								<Chart 
+									data={productionChartData}
+									type="line"
+									xKey="date"
+									yKeys={['production']}
+									height={300}
+								/>
+							</CardContent>
+						</Card>
+					{:else}
+						<p class="text-gray-500">No production data available</p>
+					{/if}
+				</div>
+			{:else if activeTab === 'financials'}
+				<div class="space-y-6">
+					<div class="flex justify-between items-center">
+						<SectionTitle level="h3" size="small">Financial Performance</SectionTitle>
+						<SecondaryButton size="small" on:click={handleExportPayments}>
+							Export Payments
+						</SecondaryButton>
+					</div>
+					
+					{#if financialChartData.length > 0}
+						<Card>
+							<CardContent>
+								<Chart 
+									data={financialChartData}
+									type="bar"
+									xKey="date"
+									yKeys={['revenue', 'expenses', 'netIncome']}
+									height={300}
+								/>
+							</CardContent>
+						</Card>
+					{/if}
+					
+					{#if metrics.revenue}
+						<Card>
+							<CardContent>
+								<SectionTitle level="h4" size="small" className="mb-4">Revenue Summary</SectionTitle>
+								<dl class="grid grid-cols-2 gap-4">
+									<div>
+										<dt class="text-gray-600 text-sm">Total Revenue</dt>
+										<dd class="font-semibold text-lg">{formatCurrency(metrics.revenue.totalRevenue)}</dd>
+									</div>
+									<div>
+										<dt class="text-gray-600 text-sm">Total Net Income</dt>
+										<dd class="font-semibold text-lg">{formatCurrency(metrics.revenue.totalNetIncome)}</dd>
+									</div>
+									<div>
+										<dt class="text-gray-600 text-sm">Avg Monthly Revenue</dt>
+										<dd class="font-semibold text-lg">{formatCurrency(metrics.revenue.avgMonthlyRevenue)}</dd>
+									</div>
+									<div>
+										<dt class="text-gray-600 text-sm">Profit Margin</dt>
+										<dd class="font-semibold text-lg">{metrics.revenue.profitMargin.toFixed(1)}%</dd>
+									</div>
+								</dl>
+							</CardContent>
+						</Card>
+					{/if}
+				</div>
+			{/if}
 		</ContentSection>
-	{/if}
-</PageLayout>
-
-<!-- Token Purchase Widget -->
-{#if showPurchaseWidget}
-	{#await import('$lib/components/TokenPurchaseWidget.svelte') then { default: TokenPurchaseWidget }}
-		<TokenPurchaseWidget 
-			bind:isOpen={showPurchaseWidget}
-			tokenAddress={selectedTokenAddress}
-			on:purchaseSuccess={handlePurchaseSuccess}
-			on:close={handleWidgetClose}
-		/>
-	{/await}
+		
+		<!-- Token Purchase Section -->
+		{#if $hasAvailableTokens && tokens.length > 0}
+			<ContentSection background="gray">
+				<div class="text-center">
+					<SectionTitle level="h2" size="section" className="mb-4">Invest in {asset.name}</SectionTitle>
+					<p class="text-gray-600 mb-6">Tokens available for purchase</p>
+					<div class="flex justify-center gap-4">
+						{#each tokens as token}
+							<PrimaryButton on:click={() => handleBuyTokens(token.contractAddress)}>
+								Buy {token.symbol} Tokens
+							</PrimaryButton>
+						{/each}
+					</div>
+				</div>
+			</ContentSection>
+		{/if}
+		
+		<!-- Email Notification -->
+		<ContentSection>
+			<Card>
+				<CardContent className="text-center py-8">
+					<h3 class="text-xl font-semibold mb-4">Stay Updated</h3>
+					<p class="text-gray-600 mb-6">Get notified about production updates and payment distributions</p>
+					<SecondaryButton on:click={() => emailState.showPopup = true}>
+						Subscribe to Updates
+					</SecondaryButton>
+				</CardContent>
+			</Card>
+		</ContentSection>
+	</PageLayout>
 {/if}
 
-<!-- Email Notification Popup -->
-{#if showEmailPopup}
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[200] p-4" on:click={handleCloseEmailPopup}>
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
-		<div class="bg-white border border-light-gray max-w-md w-full max-h-[90vh] overflow-y-auto" on:click|stopPropagation role="dialog" aria-modal="true" tabindex="0">
-			<div class="flex justify-between items-center p-6 border-b border-light-gray">
-				<h3 class="text-xl font-extrabold text-black">Get Notified</h3>
-				<button class="text-2xl font-bold text-black bg-transparent border-none cursor-pointer p-0 leading-none hover:opacity-70" on:click={handleCloseEmailPopup}>×</button>
-			</div>
-			<div class="p-6">
-				{#if emailSubmitted}
-					<div class="text-center text-black font-medium">
-						Thank you! We'll notify you when the new token release is available.
-					</div>
-				{:else}
-					<p>Enter your email address to be notified when the next token release becomes available.</p>
-					<form class="mt-4 space-y-4" on:submit|preventDefault={handleEmailSubmit}>
-						<input
-							type="email"
-							class="w-full px-4 py-3 border border-light-gray bg-white text-black placeholder-black placeholder-opacity-50 focus:outline-none focus:border-primary disabled:opacity-50"
-							placeholder="Enter your email address"
-							bind:value={emailAddress}
-							required
-							disabled={isSubmittingEmail}
-						/>
-						<PrimaryButton 
-							type="submit" 
-							disabled={isSubmittingEmail || !emailAddress}
-						>
-							{isSubmittingEmail ? 'Submitting...' : 'Notify Me'}
-						</PrimaryButton>
-					</form>
-				{/if}
+<!-- Tooltips -->
+{#if $tooltip.state.visible}
+	<div class="tooltip">
+		<!-- Tooltip content based on visible ID -->
+	</div>
+{/if}
+
+<!-- Email Modal -->
+{#if $emailState.showPopup}
+	<div class="modal-backdrop" on:click={() => emailState.showPopup = false}>
+		<div class="modal-content" on:click|stopPropagation>
+			<h3 class="text-xl font-semibold mb-4">Subscribe to Updates</h3>
+			<input
+				type="email"
+				placeholder="Enter your email"
+				bind:value={$emailState.email}
+				on:input={(e) => setEmail(e.target.value)}
+				class="w-full p-2 border rounded mb-4"
+			/>
+			{#if $emailState.error}
+				<p class="text-red-500 text-sm mb-4">{$emailState.error}</p>
+			{/if}
+			{#if $emailState.isSubmitted}
+				<p class="text-green-500 text-sm mb-4">Successfully subscribed!</p>
+			{/if}
+			<div class="flex gap-4">
+				<PrimaryButton 
+					on:click={handleEmailSubmit}
+					disabled={$emailState.isSubmitting}
+				>
+					{$emailState.isSubmitting ? 'Subscribing...' : 'Subscribe'}
+				</PrimaryButton>
+				<SecondaryButton on:click={() => emailState.showPopup = false}>
+					Cancel
+				</SecondaryButton>
 			</div>
 		</div>
 	</div>
 {/if}
 
+<!-- Purchase Widget -->
+{#if showPurchaseWidget && selectedTokenAddress}
+	<!-- Token purchase widget component -->
+{/if}
+
+<style>
+	.modal-backdrop {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 50;
+	}
+	
+	.modal-content {
+		background: white;
+		padding: 2rem;
+		border-radius: 0.5rem;
+		max-width: 400px;
+		width: 90%;
+	}
+	
+	.tooltip {
+		position: absolute;
+		background: black;
+		color: white;
+		padding: 0.5rem;
+		border-radius: 0.25rem;
+		font-size: 0.875rem;
+		z-index: 100;
+	}
+</style>

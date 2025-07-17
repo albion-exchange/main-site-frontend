@@ -68,6 +68,14 @@ class WalletDataService {
   }
 
   /**
+   * Get total claimed amount
+   */
+  getTotalClaimed(): number {
+    const claimTransactions = this.rawData.transactions.filter(tx => tx.type === 'claim');
+    return claimTransactions.reduce((sum, tx) => sum + tx.amount, 0);
+  }
+
+  /**
    * Calculate unclaimed payouts
    */
   getUnclaimedPayouts(): number {
@@ -321,6 +329,13 @@ class WalletDataService {
             100
           : 0;
 
+      // Find last claim transaction for this asset
+      const token = dataStoreService.getTokensByAssetId(holding.assetId)[0];
+      const contractAddress = token?.contractAddress;
+      const lastClaim = contractAddress ? this.rawData.transactions
+        .filter(tx => tx.type === 'claim' && tx.address === contractAddress)
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0] : null;
+
       return {
         assetId: holding.assetId,
         assetName: holding.assetName,
@@ -329,6 +344,7 @@ class WalletDataService {
         unclaimedAmount: holding.payoutsSummary.unclaimedAmount,
         lastPayoutAmount: lastPayout?.amount || 0,
         lastPayoutDate: lastPayout?.claimDate,
+        lastClaimDate: lastClaim?.timestamp,
         roi,
         monthlyPayouts,
       };
@@ -680,6 +696,32 @@ class WalletDataService {
    */
   formatCurrency(amount: number): string {
     return _formatCurrency(amount);
+  }
+
+  /**
+   * Get claim history
+   */
+  getClaimHistory(): Array<{
+    date: string;
+    amount: number;
+    asset: string;
+    txHash: string;
+    status: string;
+  }> {
+    const claimTransactions = this.rawData.transactions.filter(tx => tx.type === 'claim');
+    
+    return claimTransactions.map(tx => {
+      const token = dataStoreService.getTokenByAddress(tx.address);
+      const asset = token ? dataStoreService.getAssetById(token.assetId) : null;
+      
+      return {
+        date: tx.timestamp,
+        amount: tx.amount,
+        asset: asset ? asset.name : 'Unknown Asset',
+        txHash: tx.txHash,
+        status: 'completed'
+      };
+    });
   }
 
   /**
