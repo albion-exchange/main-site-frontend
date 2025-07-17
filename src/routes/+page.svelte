@@ -118,10 +118,11 @@
 	</ContentSection>
 
 	<!-- How It Works -->
-	<ContentSection background="gray" padding="standard" centered>
-		<SectionTitle level="h2" size="section" center className="mb-4 md:mb-6">How It Works</SectionTitle>
-		
-		<GridContainer columns={3} gap="large">
+	<ContentSection background="gray" padding="none" centered>
+		<div class="max-w-6xl mx-auto px-8 py-16">
+			<SectionTitle level="h2" size="section" center className="mb-4 md:mb-6">How It Works</SectionTitle>
+			
+			<GridContainer columns={3} gap="large">
 			<div class="text-center">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">1</div>
 				<h3 class="text-lg font-extrabold text-black mb-4">Browse Assets</h3>
@@ -139,7 +140,8 @@
 				<h3 class="text-lg font-extrabold text-black mb-4">Earn Payout</h3>
 				<p class="text-sm text-black">Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
 			</div>
-		</GridContainer>
+			</GridContainer>
+		</div>
 	</ContentSection>
 
 	<!-- Trust Indicators -->
@@ -198,8 +200,9 @@
 	</ContentSection>
 
 	<!-- Market Insights -->
-	<ContentSection background="secondary" padding="standard" className="hidden md:block">
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+	<ContentSection background="secondary" padding="none" centered className="hidden md:block">
+		<div class="max-w-6xl mx-auto px-8 py-16">
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 			<div class="space-y-6">
 				<h3 class="text-3xl font-extrabold mb-6 text-white">Market Indicators</h3>
 				<div class="flex flex-col gap-4">
@@ -222,6 +225,7 @@
 				<h4 class="text-2xl font-extrabold mb-4 text-white">Start Investing Today</h4>
 				<p class="mb-8 opacity-90">Join {formatted.activeInvestors} investors earning from energy assets</p>
 				<SecondaryButton href="/assets">Get Started Now</SecondaryButton>
+			</div>
 			</div>
 		</div>
 	</ContentSection>

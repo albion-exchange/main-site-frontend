@@ -29,9 +29,20 @@
 	let selectedTokenAddress: string | null = null;
 	
 	// Use composables
-	const { exportData } = useDataExport();
-	const { state: tooltipState, show: showTooltipWithDelay, hide: hideTooltip } = useTooltip();
-	const { state: emailState, setEmail, submit: submitEmail } = useEmailNotification();
+	const { exportProductionData: exportDataFunc, exportPaymentHistory } = useDataExport();
+	const { state: emailState, setEmail, submitEmail } = useEmailNotification();
+	
+	function showTooltipWithDelay(tooltipId: string) {
+		clearTimeout(tooltipTimer);
+		tooltipTimer = setTimeout(() => {
+			showTooltip = tooltipId;
+		}, 500);
+	}
+	
+	function hideTooltip() {
+		clearTimeout(tooltipTimer);
+		showTooltip = '';
+	}
 	
 	// Email popup state
 	let showEmailPopup = false;
@@ -41,6 +52,10 @@
 	
 	// Track flipped state for each token card
 	let flippedCards = new Set();
+	
+	// Tooltip state
+	let showTooltip = '';
+	let tooltipTimer: any = null;
 	
 	function toggleCardFlip(tokenAddress: string) {
 		if (flippedCards.has(tokenAddress)) {
@@ -52,63 +67,27 @@
 	}
 
 	function formatEndDate(dateStr: string): string {
-		if (!dateStr) return 'TBD';
-		const [year, month] = dateStr.split('-');
+		if (!dateStr || dateStr === 'undefined') return 'TBD';
+		const parts = dateStr.split('-');
+		if (parts.length < 2) return 'TBD';
+		const [year, month] = parts;
 		const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
 						 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		return `${monthNames[parseInt(month) - 1]} ${year}`;
+		const monthIndex = parseInt(month) - 1;
+		if (monthIndex < 0 || monthIndex >= 12) return 'TBD';
+		return `${monthNames[monthIndex]} ${year}`;
 	}
 
 	function exportProductionData() {
-		if (!assetData?.monthlyReports) return;
-		
-		const csvContent = [
-			['Month', 'Production (bbl)', 'Revenue (USD)', 'Expenses (USD)', 'Net Income (USD)', 'Payout Per Token (USD)'],
-			...assetData.monthlyReports.map(report => [
-				report.month,
-				report.production.toString(),
-				(report.revenue ?? 0).toString(),
-				(report.expenses ?? 0).toString(),
-				(report.netIncome ?? 0).toString(),
-				(report.payoutPerToken ?? 0).toString()
-			])
-		].map(row => row.join(',')).join('\n');
-		
-		const blob = new Blob([csvContent], { type: 'text/csv' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `${assetData.id}-production-data.csv`;
-		a.click();
-		URL.revokeObjectURL(url);
+		if (assetData) {
+			exportDataFunc(assetData);
+		}
 	}
 
 	function exportPaymentsData() {
-		if (assetTokens.length === 0) return;
-		
-		const paymentData = dataStoreService.getTokenPayoutHistory(assetTokens[0].contractAddress);
-		if (!paymentData?.recentPayouts) return;
-		
-		const csvContent = [
-			['Month', 'Date', 'Total Payout (USD)', 'Payout Per Token (USD)', 'Oil Price (USD/bbl)', 'Gas Price (USD/MMBtu)', 'Production Volume (bbl)'],
-			...paymentData.recentPayouts.map(payout => [
-				payout.month,
-				payout.date,
-				payout.totalPayout.toString(),
-				payout.payoutPerToken.toString(),
-				payout.oilPrice.toString(),
-				payout.gasPrice.toString(),
-				payout.productionVolume.toString()
-			])
-		].map(row => row.join(',')).join('\n');
-		
-		const blob = new Blob([csvContent], { type: 'text/csv' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `${assetData?.id || 'asset'}-payments-data.csv`;
-		a.click();
-		URL.revokeObjectURL(url);
+		if (assetTokens.length > 0) {
+			exportPaymentHistory(assetTokens);
+		}
 	}
 
 	function getAssetImage(assetData: Asset | null): string {
@@ -226,13 +205,16 @@
 		</div>
 	{:else}
 		<!-- Breadcrumb -->
-		<nav class="mb-8 text-sm font-medium">
-			<a href="/assets" class="text-secondary no-underline hover:text-black">← Back to Assets</a>
-			<span class="mx-2 text-light-gray">/</span>
-			<span class="text-black font-semibold">{assetData?.name || 'Asset Details'}</span>
-		</nav>
+		<div class="max-w-6xl mx-auto px-8">
+			<nav class="mb-8 text-sm font-medium">
+				<a href="/assets" class="text-secondary no-underline hover:text-black">← Back to Assets</a>
+				<span class="mx-2 text-light-gray">/</span>
+				<span class="text-black font-semibold">{assetData?.name || 'Asset Details'}</span>
+			</nav>
+		</div>
 
 		<!-- Asset Header -->
+		<div class="max-w-6xl mx-auto px-8">
 		<div class="bg-white border border-light-gray md:p-12 p-6 mb-8">
 			<div class="mb-12">
 				<div class="flex md:items-start items-center md:flex-row flex-col md:gap-8 gap-4 mb-8">
@@ -322,8 +304,9 @@
 			</div>
 
 		</div>
+	</div>
 
-		<!-- Tabs Navigation and Content -->
+	<!-- Tabs Navigation and Content -->
 		<ContentSection background="white" padding="compact" maxWidth={false}>
 			<div class="bg-white border border-light-gray mb-8" id="asset-details-tabs">
 			<div class="flex flex-wrap border-b border-light-gray">
@@ -410,7 +393,7 @@
 													on:mouseleave={hideTooltip}
 													role="button"
 													tabindex="0">ⓘ</span>
-												{#if $tooltipState.visible && $tooltipState.id === 'amount'}
+												{#if showTooltip === 'amount'}
 													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
 														{assetData?.assetTerms?.amountTooltip}
 													</div>
@@ -448,7 +431,7 @@
 									<Chart
 										data={productionReports.map(report => {
 											// Handle different date formats
-											let dateStr = report.month || report.date || '';
+											let dateStr = report.month || '';
 											if (dateStr && !dateStr.includes('-01')) {
 												dateStr = dateStr + '-01';
 											}
@@ -527,7 +510,7 @@
 									<Chart
 										data={monthlyReports.map(report => {
 											// Handle different date formats
-											let dateStr = report.month || report.date || '';
+											let dateStr = report.month || '';
 											if (dateStr && !dateStr.includes('-01')) {
 												dateStr = dateStr + '-01';
 											}
@@ -580,25 +563,39 @@
 				{:else if activeTab === 'gallery'}
 					<div class="flex-1 flex flex-col">
 						<div class="grid md:grid-cols-3 grid-cols-1 gap-6">
-							{#if assetData?.media?.gallery}
-								{#each assetData.media.gallery as image}
-									<div class="bg-white border border-light-gray overflow-hidden group cursor-pointer" on:click={() => window.open(getImageUrl(image.url), '_blank')}>
+							{#if assetData?.images && assetData.images.length > 0}
+								{#each assetData.images as image}
+									<div 
+										class="bg-white border border-light-gray overflow-hidden group cursor-pointer" 
+										on:click={() => window.open(getImageUrl(image.url), '_blank')}
+										on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(getImageUrl(image.url), '_blank'); } }}
+										role="button"
+										tabindex="0"
+										aria-label={`View ${image.caption || image.title || 'Asset image'} in new tab`}
+									>
 										<img 
 											src={getImageUrl(image.url)} 
-											alt={image.caption || 'Asset image'}
+											alt={image.caption || image.title || 'Asset image'}
 											loading="lazy"
 											class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
 										/>
-										{#if image.caption}
+										{#if image.caption || image.title}
 											<div class="p-4">
-												<p class="text-sm text-black">{image.caption}</p>
+												<p class="text-sm text-black">{image.caption || image.title}</p>
 											</div>
 										{/if}
 									</div>
 								{/each}
 							{:else}
 								<!-- Default gallery images -->
-								<div class="bg-white border border-light-gray overflow-hidden group cursor-pointer" on:click={() => window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank')}>
+								<div 
+									class="bg-white border border-light-gray overflow-hidden group cursor-pointer" 
+									on:click={() => window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank')}
+									on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank'); } }}
+									role="button"
+									tabindex="0"
+									aria-label="View asset overview image in new tab"
+								>
 									<img 
 										src={getImageUrl('/images/eur-wr-cover.jpg')} 
 										alt="Asset overview"
@@ -609,7 +606,14 @@
 										<p class="text-sm text-black">Asset overview</p>
 									</div>
 								</div>
-								<div class="bg-white border border-light-gray overflow-hidden group cursor-pointer" on:click={() => window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank')}>
+								<div 
+									class="bg-white border border-light-gray overflow-hidden group cursor-pointer" 
+									on:click={() => window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank')}
+									on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank'); } }}
+									role="button"
+									tabindex="0"
+									aria-label="View production facility image in new tab"
+								>
 									<img 
 										src={getImageUrl('/images/eur-wr-cover.jpg')} 
 										alt="Production facility"
@@ -620,7 +624,14 @@
 										<p class="text-sm text-black">Production facility</p>
 									</div>
 								</div>
-								<div class="bg-white border border-light-gray overflow-hidden group cursor-pointer" on:click={() => window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank')}>
+								<div 
+									class="bg-white border border-light-gray overflow-hidden group cursor-pointer" 
+									on:click={() => window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank')}
+									on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank'); } }}
+									role="button"
+									tabindex="0"
+									aria-label="View well site image in new tab"
+								>
 									<img 
 										src={getImageUrl('/images/eur-wr-cover.jpg')} 
 										alt="Well site"
@@ -736,7 +747,8 @@
 		</ContentSection>
 
 		<!-- Available Tokens Section -->
-		<ContentSection background="white" padding="large" id="token-section">
+		<ContentSection background="white" padding="none">
+			<div class="max-w-6xl mx-auto px-8">
 			<div class="bg-white border border-light-gray md:p-12 p-6">
 				<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -788,15 +800,15 @@
 														role="button"
 														tabindex="0">ⓘ</span>
 												</span>
-												<span class="text-sm font-extrabold text-black text-right">{calculatedReturns?.impliedBarrelsPerToken?.toFixed(6) || '0.000000'}</span>
-												{#if $tooltipState.visible && $tooltipState.id === 'barrels'}
+												<span class="text-base font-extrabold text-black text-right">{calculatedReturns?.impliedBarrelsPerToken?.toFixed(6) || '0.000000'}</span>
+												{#if showTooltip === 'barrels'}
 													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
 														Estimated barrels of oil equivalent per token based on reserves and token supply
 													</div>
 												{/if}
 											</div>
 											<div class="flex justify-between items-start relative">
-												<span class="text-sm font-medium text-black opacity-70 relative">
+												<span class="text-base font-medium text-black opacity-70 relative font-figtree">
 													Breakeven Oil Price
 													<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
 														on:mouseenter={() => showTooltipWithDelay('breakeven')}
@@ -804,8 +816,8 @@
 														role="button"
 														tabindex="0">ⓘ</span>
 												</span>
-												<span class="text-sm font-extrabold text-black text-right">${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
-												{#if $tooltipState.visible && $tooltipState.id === 'breakeven'}
+												<span class="text-base font-extrabold text-black text-right">${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
+												{#if showTooltip === 'breakeven'}
 													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
 														Oil price required to cover operational costs and maintain profitability
 													</div>
@@ -826,7 +838,7 @@
 															tabindex="0">ⓘ</span>
 													</span>
 													<span class="text-xl font-extrabold text-primary">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</span>
-													{#if $tooltipState.visible && $tooltipState.id === 'base'}
+													{#if showTooltip === 'base'}
 														<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
 															Conservative return estimate based on current production and oil prices
 														</div>
@@ -842,7 +854,7 @@
 															tabindex="0">ⓘ</span>
 													</span>
 													<span class="text-xl font-extrabold text-primary">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
-													{#if $tooltipState.visible && $tooltipState.id === 'bonus'}
+													{#if showTooltip === 'bonus'}
 														<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
 															Additional potential return from improved oil prices or production efficiency
 														</div>
@@ -963,6 +975,7 @@
 					{/if}
 				</div>
 			</div>
+		</div>
 		</ContentSection>
 
 		<!-- Token Purchase Widget -->

@@ -351,6 +351,10 @@ export class TypeTransformations {
       location: {
         state: asset.location.state,
         country: asset.location.country,
+        coordinates: {
+          lat: asset.location.coordinates.latitude,
+          lng: asset.location.coordinates.longitude
+        },
         waterDepth: display.location.waterDepth
       } as UIAssetLocation,
       coverImage: '', // Will be set by service layer

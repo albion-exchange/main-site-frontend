@@ -233,8 +233,18 @@ class DataStoreService {
         createdAt: tokenMetadata.metadata.createdAt,
         updatedAt: tokenMetadata.metadata.updatedAt,
       },
+      assetTerms: {
+        interestType: tokenMetadata.asset.assetTerms.interestType || '',
+        amount: tokenMetadata.asset.assetTerms.amount ? `${tokenMetadata.asset.assetTerms.amount}%` : '',
+        amountTooltip: tokenMetadata.asset.assetTerms.amountTooltip || undefined,
+        paymentFrequency: tokenMetadata.asset.assetTerms.paymentFrequencyDays 
+          ? `Every ${tokenMetadata.asset.assetTerms.paymentFrequencyDays} days`
+          : 'Monthly'
+      },
       technical: {
         ...uiAsset.technical,
+        firstOil: tokenMetadata.asset.technical.firstOil || '',
+        expectedEndDate: tokenMetadata.asset.technical.expectedEndDate || '',
         crudeBenchmark: tokenMetadata.asset.technical.crudeBenchmark || '',
         license: tokenMetadata.asset.technical.license || '',
         infrastructure: tokenMetadata.asset.technical.infrastructure || '',
