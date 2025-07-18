@@ -3,7 +3,6 @@
  * Central export for all service classes and service infrastructure
  */
 
-export { default as DataStoreService } from './DataStoreService';
 export { default as WalletDataService } from './WalletDataService';
 
 // Focused services

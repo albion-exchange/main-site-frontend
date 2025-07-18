@@ -169,15 +169,7 @@ class TokenService {
     );
   }
 
-  /**
-   * Get tokens by price range
-   * @deprecated Token doesn't have a price property - use market data instead
-   */
-  getTokensByPriceRange(minPrice: number, maxPrice: number): Token[] {
-    // Token interface doesn't include price
-    // This would need to be implemented with market data
-    return this.getAllTokens();
-  }
+
 
   /**
    * Search tokens by name or symbol

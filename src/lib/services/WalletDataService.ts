@@ -690,7 +690,7 @@ class WalletDataService {
   }
 
   /**
-   * Get holdings with asset details from DataStoreService
+   * Get holdings with asset details from focused services
    */
   getHoldingsWithAssetDetails(): Array<{
     holding: WalletHolding;
