@@ -49,7 +49,7 @@
 				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
 					<div class="text-center">
 						<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">1</div>
-						<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Asset Acquisition</h3>
+						<SectionTitle level="h3" size="small" uppercase>Asset Acquisition</SectionTitle>
 						<p class="text-sm text-black">We acquire proven oil & gas assets with established production and clear revenue streams from institutional operators.</p>
 					</div>
 				</Card>
@@ -57,7 +57,7 @@
 				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
 					<div class="text-center">
 						<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">2</div>
-						<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Tokenization</h3>
+						<SectionTitle level="h3" size="small" uppercase>Tokenization</SectionTitle>
 						<p class="text-sm text-black">Assets are tokenized on blockchain, creating fractional ownership opportunities with transparent smart contract governance.</p>
 					</div>
 				</Card>
@@ -65,7 +65,7 @@
 				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
 					<div class="text-center">
 						<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">3</div>
-						<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Investment Access</h3>
+						<SectionTitle level="h3" size="small" uppercase>Investment Access</SectionTitle>
 						<p class="text-sm text-black">Investors can purchase royalty tokens representing fractional ownership in real oil & gas production revenue.</p>
 					</div>
 				</Card>
@@ -73,7 +73,7 @@
 				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
 					<div class="text-center">
 						<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">4</div>
-						<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Revenue Distribution</h3>
+						<SectionTitle level="h3" size="small" uppercase>Revenue Distribution</SectionTitle>
 						<p class="text-sm text-black">Monthly payouts are automatically distributed to token holders based on actual production and oil prices.</p>
 					</div>
 				</Card>
@@ -88,7 +88,7 @@
 			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
 				<div class="text-center">
 					<div class="text-5xl mb-4">🔒</div>
-					<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Institutional Grade</h3>
+					<SectionTitle level="h3" size="small" uppercase>Institutional Grade</SectionTitle>
 					<p class="text-sm text-black">All assets are vetted by professional operators with proven track records and regulatory compliance.</p>
 				</div>
 			</Card>
