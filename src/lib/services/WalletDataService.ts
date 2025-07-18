@@ -16,7 +16,6 @@ import type {
 } from "$lib/types/wallet";
 import { useAssetService, useTokenService } from "$lib/services/ServiceContainer";
 import type { Asset, Token } from "$lib/types/uiTypes";
-import { formatCurrency as _formatCurrency, formatPercentage as _formatPercentage } from "$lib/utils/formatters";
 
 // Import mock wallet data
 import walletDataJson from "$lib/data/mockWallet/wallet.json";
@@ -773,12 +772,7 @@ class WalletDataService {
     };
   }
 
-  /**
-   * Format currency for display
-   */
-  formatCurrency(amount: number): string {
-    return _formatCurrency(amount);
-  }
+
 
   /**
    * Get claim history
@@ -806,12 +800,7 @@ class WalletDataService {
     });
   }
 
-  /**
-   * Format percentage for display
-   */
-  formatPercentage(value: number): string {
-    return _formatPercentage(value / 100);
-  }
+
 }
 
 // Export singleton instance

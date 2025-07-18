@@ -52,7 +52,7 @@
 	}
 	
 	function handlePurchaseSuccess(event: CustomEvent) {
-		console.log('Purchase successful:', event.detail);
+		// Purchase successful - could add user notification here
 		showPurchaseWidget = false;
 	}
 	

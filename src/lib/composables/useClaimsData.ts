@@ -191,7 +191,7 @@ export function useClaimsData() {
       throw new Error('Transaction failed. Please try again.');
     }
     
-    console.log('Claiming payouts for assets:', assetIds);
+
   }
 
   function showClaimModal(mode: 'claim' | 'reinvest' = 'claim') {

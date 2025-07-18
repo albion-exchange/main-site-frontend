@@ -3,6 +3,8 @@
 	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Token, Asset } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { formatCurrency } from '$lib/utils/formatters';
+	import { meetsSupplyThreshold, formatSupplyAmount, getAvailableSupplyBigInt } from '$lib/utils/tokenSupplyUtils';
 
 	export let autoPlay = true;
 	export let autoPlayInterval = 5000;
@@ -41,11 +43,7 @@
 
 			// Get active tokens with sufficient available supply (>= 1000)
 			const activeTokens = tokenService.getAvailableTokens()
-				.filter(token => {
-					const availableSupply = BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply);
-					const availableSupplyFormatted = Number(availableSupply) / Math.pow(10, token.decimals);
-					return availableSupplyFormatted >= 1000;
-				})
+				.filter(token => meetsSupplyThreshold(token, 1000))
 				.slice(0, 3);
 
 			featuredTokensWithAssets = activeTokens
@@ -160,14 +158,7 @@
 		dispatch('buyTokens', { tokenAddress });
 	}
 
-	function formatCurrency(amount: number): string {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD',
-			minimumFractionDigits: 1,
-			maximumFractionDigits: 1
-		}).format(amount);
-	}
+
 
 	function formatLargeNumber(value: number): string {
 		if (value >= 1000000) {
@@ -180,7 +171,7 @@
 	}
 
 	function formatSupply(supply: string, decimals: number): string {
-		const formatted = parseInt(supply) / Math.pow(10, decimals);
+		const formatted = formatSupplyAmount(supply, decimals);
 		return new Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 0
@@ -337,7 +328,7 @@
 									<div class={statItemClasses}>
 										<div class={statLabelClasses}>Available Supply</div>
 										<div class={statValueClasses}>
-											{formatSupply((BigInt(item.token.supply.maxSupply) - BigInt(item.token.supply.mintedSupply)).toString(), item.token.decimals)}
+											{formatSupply(getAvailableSupplyBigInt(item.token).toString(), item.token.decimals)}
 										</div>
 									</div>
 									<div class={statItemClasses}>

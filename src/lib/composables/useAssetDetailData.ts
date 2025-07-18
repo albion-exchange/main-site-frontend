@@ -33,13 +33,13 @@ export function useAssetDetailData(initialAssetId: string) {
   // Load asset and related data
   async function loadAssetData(assetId?: string) {
     const id = assetId || initialAssetId;
-    console.log(`useAssetDetailData: Loading data for asset ID: ${id}`);
+
     state.update(s => ({ ...s, loading: true, error: null }));
     
     try {
       // Load asset data
       const asset = assetService.getAssetById(id);
-      console.log(`useAssetDetailData: Asset found:`, asset);
+  
       if (!asset) {
         throw new Error('Asset not found');
       }
