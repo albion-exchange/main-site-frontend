@@ -3,51 +3,24 @@
  * Provides centralized access to all services and handles dependency management
  */
 
-import AssetService from './AssetService';
-import TokenService from './TokenService';
-import ConfigService from './ConfigService';
-import WalletDataService from './WalletDataService';
+import assetService from './AssetService';
+import tokenService from './TokenService';
+import configService from './ConfigService';
+import walletDataService from './WalletDataService';
 
 export interface ServiceContainer {
-  assetService: AssetService;
-  tokenService: TokenService;
-  configService: ConfigService;
-  walletDataService: WalletDataService;
+  assetService: typeof assetService;
+  tokenService: typeof tokenService;
+  configService: typeof configService;
+  walletDataService: typeof walletDataService;
 }
 
-class ServiceContainerImpl implements ServiceContainer {
-  private _assetService: AssetService;
-  private _tokenService: TokenService;
-  private _configService: ConfigService;
-  private _walletDataService: WalletDataService;
-
-  constructor() {
-    // Initialize services in dependency order
-    this._configService = new ConfigService();
-    this._assetService = new AssetService();
-    this._tokenService = new TokenService();
-    this._walletDataService = new WalletDataService();
-  }
-
-  get assetService(): AssetService {
-    return this._assetService;
-  }
-
-  get tokenService(): TokenService {
-    return this._tokenService;
-  }
-
-  get configService(): ConfigService {
-    return this._configService;
-  }
-
-  get walletDataService(): WalletDataService {
-    return this._walletDataService;
-  }
-}
-
-// Export singleton instance
-export const serviceContainer: ServiceContainer = new ServiceContainerImpl();
+export const serviceContainer: ServiceContainer = {
+  assetService,
+  tokenService,
+  configService,
+  walletDataService
+};
 
 // Export convenience functions for direct access
 export const useAssetService = () => serviceContainer.assetService;
