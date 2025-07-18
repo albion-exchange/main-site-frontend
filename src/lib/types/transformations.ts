@@ -129,6 +129,12 @@ export namespace Display {
     depth: string; // "3,200m"
     fieldType: string;
     estimatedLife: string; // "5+ years"
+    firstOil?: string;
+    expectedEndDate?: string;
+    crudeBenchmark?: string;
+    license?: string;
+    infrastructure?: string;
+    environmental?: string;
   }
 
   export interface AssetPricing {
@@ -248,11 +254,11 @@ export class TypeTransformations {
       };
     },
 
-    tokenSupply(supply: { maxSupply: string; mintedSupply: string; availableSupply: string }, decimals: number): Core.Token['supply'] {
+    tokenSupply(supply: { maxSupply: string; mintedSupply: string }, decimals: number): Core.Token['supply'] {
       return {
         maxSupply: BigInt(supply.maxSupply),
         mintedSupply: BigInt(supply.mintedSupply),
-        availableSupply: BigInt(supply.availableSupply)
+        availableSupply: BigInt(supply.maxSupply) - BigInt(supply.mintedSupply)
       };
     },
 
@@ -261,11 +267,15 @@ export class TypeTransformations {
         contractAddress: data.contractAddress,
         symbol: data.symbol,
         assetId: data.assetId,
-        assetName: data.assetName,
+        assetName: data.asset.assetName,
         sharePercentage: data.sharePercentage,
-        pricePerToken: data.pricePerToken,
+        pricePerToken: 0, // TokenMetadata doesn't have pricePerToken
         decimals: data.decimals,
-        supply: this.tokenSupply(data.supply, data.decimals)
+        supply: {
+        maxSupply: BigInt(data.supply.maxSupply),
+        mintedSupply: BigInt(data.supply.mintedSupply),
+        availableSupply: BigInt(data.supply.maxSupply) - BigInt(data.supply.mintedSupply)
+      }
       };
     }
   };
@@ -431,7 +441,7 @@ export class TypeTransformations {
         },
         hseMetrics: {
           incidentFreeDays: 0,
-          lastIncidentDate: new Date().toISOString() as any,
+          lastIncidentDate: new Date().toISOString(),
           safetyRating: 'Unknown'
         }
       },
@@ -443,12 +453,12 @@ export class TypeTransformations {
         depth: display.technical.depth,
         fieldType: asset.technical.fieldType,
         estimatedLife: display.technical.estimatedLife,
-        firstOil: display.technical.firstOil,
-        expectedEndDate: display.technical.expectedEndDate,
-        crudeBenchmark: display.technical.crudeBenchmark,
-        license: display.technical.license,
-        infrastructure: display.technical.infrastructure,
-        environmental: display.technical.environmental,
+        firstOil: display.technical.firstOil || '',
+        expectedEndDate: display.technical.expectedEndDate || '',
+        crudeBenchmark: display.technical.crudeBenchmark || '',
+        license: display.technical.license || '',
+        infrastructure: display.technical.infrastructure || '',
+        environmental: display.technical.environmental || '',
         pricing: {
           benchmarkPremium: display.pricing.benchmarkPremium,
           transportCosts: display.pricing.transportCosts
@@ -559,7 +569,7 @@ export class TypeTransformations {
   static tokenToUI(tokenData: TokenMetadata): UIToken {
     return {
       contractAddress: tokenData.contractAddress,
-      name: tokenData.releaseName || tokenData.assetName, // Use releaseName or fall back to assetName
+      name: tokenData.releaseName || tokenData.asset.assetName, // Use releaseName or fall back to asset.assetName
       symbol: tokenData.symbol,
       decimals: tokenData.decimals,
       tokenType: "royalty", // Default type, can be enhanced later
@@ -588,7 +598,7 @@ export class TypeTransformations {
       sharePercentage: tokenData.sharePercentage,
       firstPaymentDate: tokenData.firstPaymentDate,
       metadata: {
-        description: `Token representing ${tokenData.sharePercentage}% ownership in ${tokenData.assetName}`,
+        description: `Token representing ${tokenData.sharePercentage}% ownership in ${tokenData.asset.assetName}`,
         image: '', // Will be set by service layer
         external_url: '', // Will be set by service layer
         attributes: []
