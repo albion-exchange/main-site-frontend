@@ -3,9 +3,9 @@
 	import { useTokenService, useConfigService } from '$lib/services';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/ui';
-	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
-	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
-	import TabButton from '$lib/components/ui/TabButton.svelte';
+	import SectionTitle from '$lib/components/atoms/SectionTitle.svelte';
+	import MetricDisplay from '$lib/components/atoms/MetricDisplay.svelte';
+	import TabButton from '$lib/components/atoms/TabButton.svelte';
 	import { PageLayout, ContentSection } from '$lib/components/layout';
 	import { getImageUrl } from '$lib/utils/imagePath';
 	import { formatCurrency } from '$lib/utils/formatters';

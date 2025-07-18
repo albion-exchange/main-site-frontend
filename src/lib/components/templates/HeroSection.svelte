@@ -1,5 +1,5 @@
 <script lang="ts">
-	import PageHeader from '../ui/PageHeader.svelte';
+	import PageHeader from '../atoms/PageHeader.svelte';
 	
 	export let title: string;
 	export let subtitle = '';
