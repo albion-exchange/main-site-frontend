@@ -84,6 +84,7 @@ export interface AssetData {
   production: Production;
   plannedProduction: PlannedProduction;
   productionHistory: ProductionHistoryRecord[];
+  monthlyData?: AssetMonthlyData[]; // Add monthlyData field
   operationalMetrics: OperationalMetrics;
   documents: Document[];
   coverImage: string;

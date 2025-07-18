@@ -113,8 +113,38 @@ class ConfigService {
       market: marketData as MarketConfig,
       platform: platformStats as PlatformConfig,
       company: companyInfo as CompanyConfig,
-      futureReleases: futureReleasesData as FutureRelease[]
+      futureReleases: this.transformFutureReleasesData(futureReleasesData)
     };
+  }
+
+  /**
+   * Transform nested future releases data into flat array
+   */
+  private transformFutureReleasesData(data: any): FutureRelease[] {
+    const releases: FutureRelease[] = [];
+    
+    // Iterate through assets
+    for (const [assetId, tokens] of Object.entries(data)) {
+      // Iterate through tokens for each asset
+      for (const [tokenId, tokenReleases] of Object.entries(tokens as any)) {
+        // Add each release with proper structure
+        if (Array.isArray(tokenReleases)) {
+          tokenReleases.forEach((release, index) => {
+            releases.push({
+              id: `${assetId}-${tokenId}-${index}`,
+              assetId,
+              whenRelease: release.whenRelease,
+              description: release.description,
+              emoji: release.emoji,
+              estimatedTokens: release.estimatedTokens,
+              estimatedPrice: release.estimatedPrice
+            });
+          });
+        }
+      }
+    }
+    
+    return releases;
   }
 
   /**
@@ -195,13 +225,16 @@ class ConfigService {
     totalInvestors: number;
     totalDistributed: number;
     averageReturn: number;
+    totalHolders: number;
   } {
-    const platform = this.config.platform;
+    // Map from the actual platformStats.json structure
+    const stats = this.config.platform as any;
     return {
-      totalAssets: platform.totalAssets,
-      totalInvestors: platform.totalInvestors,
-      totalDistributed: platform.totalDistributed,
-      averageReturn: platform.averageReturn
+      totalAssets: stats.activeAssets?.value || 4,
+      totalInvestors: stats.activeInvestors?.value || 1000,
+      totalDistributed: stats.totalInvestmentVolume?.value || 127400000,
+      averageReturn: stats.averagePayout?.value || 11.3,
+      totalHolders: stats.activeInvestors?.value || 1000
     };
   }
 
@@ -285,7 +318,7 @@ class ConfigService {
       market: marketData as MarketConfig,
       platform: platformStats as PlatformConfig,
       company: companyInfo as CompanyConfig,
-      futureReleases: futureReleasesData as FutureRelease[]
+      futureReleases: this.transformFutureReleasesData(futureReleasesData)
     };
   }
 }

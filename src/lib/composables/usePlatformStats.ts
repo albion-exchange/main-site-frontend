@@ -42,7 +42,8 @@ export function usePlatformStats() {
       // Calculate total invested from all tokens' minted supply
       const totalInvested = allTokens.reduce((sum, token) => {
         const mintedTokens = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
-        const estimatedTokenValue = dataStoreService.getEstimatedTokenValue(token.assetId);
+        // Hardcoded token price as $1
+        const estimatedTokenValue = 1;
         return sum + (mintedTokens * estimatedTokenValue);
       }, 0);
       
@@ -51,7 +52,7 @@ export function usePlatformStats() {
       
       // Count unique regions from asset locations
       const uniqueRegions = new Set(
-        allAssets.map(asset => `${asset.location.state}, ${asset.location.country}`)
+        allAssets.map(asset => `${asset.location?.state || 'Unknown'}, ${asset.location?.country || 'Unknown'}`)
       );
       
       // Calculate monthly growth rate from recent asset reports
@@ -106,8 +107,8 @@ export function usePlatformStats() {
   // Formatted values for display
   const formattedStats = derived(state, $state => ({
     totalInvested: `$${$state.totalInvested.toFixed(1)}M`,
-    totalAssets: $state.totalAssets.toString(),
-    activeInvestors: $state.activeInvestors.toLocaleString(),
+    totalAssets: ($state.totalAssets || 0).toString(),
+    activeInvestors: ($state.activeInvestors || 0).toLocaleString(),
     regionsText: `Across ${$state.totalRegions} regions`,
     growthTrend: {
       value: $state.monthlyGrowthRate,

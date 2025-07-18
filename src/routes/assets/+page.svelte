@@ -31,7 +31,7 @@
 		const tokens = dataStoreService.getTokensByAssetId(asset.id);
 		return tokens.some(token => {
 			const supply = dataStoreService.getTokenSupply(token.contractAddress);
-			return supply && supply.availableSupply > 0;
+			return supply && supply.available > 0;
 		});
 	}
 	

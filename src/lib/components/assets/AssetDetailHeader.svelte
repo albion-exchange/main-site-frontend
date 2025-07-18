@@ -105,13 +105,13 @@
 				</div>
 				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4">
 					<MetricDisplay
-						value={asset?.monthlyReports?.[0]?.netIncome 
-							? formatCurrency(asset.monthlyReports[0].netIncome)
-							: '$20,000'}
-						label="Last Received Income"
-						note={asset?.monthlyReports?.[0]?.month 
-							? formatEndDate(asset.monthlyReports[0].month + '-01')
-							: 'May 2025'}
+						value={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.netIncome 
+							? formatCurrency(asset.monthlyReports[asset.monthlyReports.length - 1].netIncome)
+							: '$0'}
+						label="Last Monthly Revenue"
+						note={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.month 
+							? formatEndDate(asset.monthlyReports[asset.monthlyReports.length - 1].month + '-01')
+							: 'N/A'}
 						size="large"
 					/>
 				</div>

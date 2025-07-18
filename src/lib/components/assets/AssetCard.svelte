@@ -54,7 +54,7 @@
 	// Check if any tokens are available
 	$: hasAvailableTokens = assetTokens.some(token => {
 		const supply = dataStoreService.getTokenSupply(token.contractAddress);
-		return supply && supply.availableSupply > 0;
+		return supply && supply.available > 0;
 	});
 
 	// Extract token data with fallbacks
@@ -141,7 +141,7 @@
 		<!-- Highlighted Big Stats -->
 		<div class={mobileHighlightedStatsClasses}>
 			<div class={highlightStatClasses}>
-				<span class={mobileHighlightValueClasses}>{dataStoreService.getCalculatedRemainingProduction(asset.id)}</span>
+				<span class={mobileHighlightValueClasses}>{asset.production?.expectedRemainingProduction || 'TBD'}</span>
 				<span class={mobileHighlightLabelClasses}>Exp. Remaining</span>
 			</div>
 			<div class={highlightStatClasses}>
@@ -170,7 +170,7 @@
 			{#if hasAvailableTokens}
 			{@const availableTokens = assetTokens.filter(token => {
 				const supply = dataStoreService.getTokenSupply(token.contractAddress);
-				return supply && supply.availableSupply > 0;
+				return supply && supply.available > 0;
 			})}
 			<div class={tokensSectionClasses}>
 				<h4 class={mobileTokensTitleClasses}>Available Token Releases</h4>
@@ -204,7 +204,7 @@
 							<div class={tokenButtonLeftClasses}>
 								<div class="flex justify-between items-center w-full gap-2">
 									<span class={mobileTokenSymbolClasses}>{token.symbol}</span>
-									<span class="text-xs font-extrabold text-white bg-secondary px-2 py-1 tracking-wider rounded whitespace-nowrap">{token.sharePercentage || shareOfAsset} of Asset</span>
+									<span class="text-xs font-extrabold text-white bg-secondary px-2 py-1 tracking-wider rounded whitespace-nowrap">{token.sharePercentage ? `${token.sharePercentage}%` : shareOfAsset} of Asset</span>
 								</div>
 								<span class={mobileTokenNameClasses}>{token.name}</span>
 								<span class={mobileTokenPaymentDateClasses}>First payment: {firstPaymentMonth}</span>

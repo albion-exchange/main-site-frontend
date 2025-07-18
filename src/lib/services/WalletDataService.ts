@@ -222,9 +222,10 @@ class WalletDataService {
       
       const unclaimedAmount = totalEarned - claimedAmount;
 
-      // Skip holdings with invalid investment amounts
-      if (!investmentAmount || typeof investmentAmount !== 'number' || isNaN(investmentAmount) || investmentAmount <= 0) {
-        console.warn(`Skipping holding with invalid investment amount: ${investmentAmount} for contract ${contractAddress}`);
+      // Allow holdings with payouts even if no investment (could be airdrops, gifts, etc.)
+      if ((!investmentAmount || typeof investmentAmount !== 'number' || isNaN(investmentAmount) || investmentAmount <= 0) && 
+          (!totalEarned || totalEarned <= 0)) {
+        console.warn(`Skipping holding with no investment and no payouts for contract ${contractAddress}`);
         return;
       }
 
@@ -493,16 +494,18 @@ class WalletDataService {
    */
   getTokenAllocation(): TokenAllocation[] {
     const holdings = this.computeHoldings();
-    const totalPortfolioValue = this.getTotalInvested();
+    
+    // Calculate total portfolio value from valid holdings only
+    const validHoldings = holdings.filter(holding => {
+      return holding.investmentAmount && 
+             typeof holding.investmentAmount === 'number' && 
+             !isNaN(holding.investmentAmount) && 
+             holding.investmentAmount > 0;
+    });
+    
+    const totalPortfolioValue = validHoldings.reduce((sum, holding) => sum + holding.investmentAmount, 0);
 
-    return holdings
-      .filter(holding => {
-        // Filter out holdings with invalid investment amounts
-        return holding.investmentAmount && 
-               typeof holding.investmentAmount === 'number' && 
-               !isNaN(holding.investmentAmount) && 
-               holding.investmentAmount > 0;
-      })
+    return validHoldings
       .map((holding) => {
         const percentageOfPortfolio =
           totalPortfolioValue > 0
@@ -521,7 +524,8 @@ class WalletDataService {
           currentValue: holding.investmentAmount, // In real implementation, would fetch current market value
           totalEarned: holding.payoutsSummary.totalEarned,
         };
-      });
+      })
+      .sort((a, b) => b.percentageOfPortfolio - a.percentageOfPortfolio); // Sort by percentage descending
   }
 
   /**

@@ -20,6 +20,7 @@ import {
   getTokenReturns,
   type TokenReturns,
 } from "$lib/utils/returnCalculations";
+import assetService from "./AssetService";
 
 // Import configuration data
 import assetTokenMapping from "$lib/data/assetTokenMapping.json";
@@ -30,6 +31,7 @@ import bakHf2Metadata from "$lib/data/mockTokenMetadata/bak-hf2.json";
 import eurWr1Metadata from "$lib/data/mockTokenMetadata/eur-wr1.json";
 import eurWr2Metadata from "$lib/data/mockTokenMetadata/eur-wr2.json";
 import eurWr3Metadata from "$lib/data/mockTokenMetadata/eur-wr3.json";
+import eurWrLegacyMetadata from "$lib/data/mockTokenMetadata/eur-wr-legacy.json";
 import gomDw1Metadata from "$lib/data/mockTokenMetadata/gom-dw1.json";
 import perBv1Metadata from "$lib/data/mockTokenMetadata/per-bv1.json";
 
@@ -43,16 +45,24 @@ class TokenService {
   private assetTokenMapping: AssetTokenMapping;
 
   constructor() {
-    // Initialize token metadata map
-    this.tokenMetadataMap = {
-      'bak-hf1': bakHf1Metadata as TokenMetadata,
-      'bak-hf2': bakHf2Metadata as TokenMetadata,
-      'eur-wr1': eurWr1Metadata as TokenMetadata,
-      'eur-wr2': eurWr2Metadata as TokenMetadata,
-      'eur-wr3': eurWr3Metadata as TokenMetadata,
-      'gom-dw1': gomDw1Metadata as TokenMetadata,
-      'per-bv1': perBv1Metadata as TokenMetadata,
-    };
+    // Initialize token metadata map using contract addresses as keys
+    this.tokenMetadataMap = {};
+    
+    // Map each token metadata by its contract address
+    const tokenMetadataList = [
+      bakHf1Metadata as TokenMetadata,
+      bakHf2Metadata as TokenMetadata,
+      eurWr1Metadata as TokenMetadata,
+      eurWr2Metadata as TokenMetadata,
+      eurWr3Metadata as TokenMetadata,
+      eurWrLegacyMetadata as TokenMetadata,
+      gomDw1Metadata as TokenMetadata,
+      perBv1Metadata as TokenMetadata,
+    ];
+    
+    tokenMetadataList.forEach(metadata => {
+      this.tokenMetadataMap[metadata.contractAddress] = metadata;
+    });
 
     this.assetTokenMapping = assetTokenMapping as AssetTokenMapping;
   }
@@ -132,8 +142,6 @@ class TokenService {
       return null;
     }
 
-    // Import AssetService here to avoid circular dependencies
-    const assetService = require('./AssetService').default;
     const asset = assetService.getAssetById(assetId);
     if (!asset) {
       return null;
@@ -163,13 +171,12 @@ class TokenService {
 
   /**
    * Get tokens by price range
+   * @deprecated Token doesn't have a price property - use market data instead
    */
   getTokensByPriceRange(minPrice: number, maxPrice: number): Token[] {
-    const tokens = this.getAllTokens();
-    return tokens.filter(token => {
-      const price = token.price || 0;
-      return price >= minPrice && price <= maxPrice;
-    });
+    // Token interface doesn't include price
+    // This would need to be implemented with market data
+    return this.getAllTokens();
   }
 
   /**
@@ -185,8 +192,7 @@ class TokenService {
 
     return tokens.filter(token => 
       token.name?.toLowerCase().includes(lowercaseQuery) ||
-      token.symbol?.toLowerCase().includes(lowercaseQuery) ||
-      token.description?.toLowerCase().includes(lowercaseQuery)
+      token.symbol?.toLowerCase().includes(lowercaseQuery)
     );
   }
 
@@ -204,9 +210,13 @@ class TokenService {
       return null;
     }
 
-    const total = token.supply.total;
-    const available = token.supply.available;
-    const sold = total - available;
+    const maxSupply = BigInt(token.supply.maxSupply);
+    const mintedSupply = BigInt(token.supply.mintedSupply);
+    const availableSupply = maxSupply - mintedSupply;
+    
+    const total = Number(maxSupply) / Math.pow(10, token.decimals);
+    const available = Number(availableSupply) / Math.pow(10, token.decimals);
+    const sold = Number(mintedSupply) / Math.pow(10, token.decimals);
     const percentageSold = total > 0 ? (sold / total) * 100 : 0;
 
     return {
@@ -222,19 +232,30 @@ class TokenService {
    */
   isTokenAvailable(tokenAddress: string): boolean {
     const token = this.getTokenByAddress(tokenAddress);
-    if (!token) {
+    if (!token || !token.supply) {
       return false;
     }
 
-    return !token.soldOut && (token.supply?.available || 0) > 0;
+    const availableSupply = BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply);
+    return token.isActive && availableSupply > 0n;
   }
 
   /**
    * Get token payout history
    */
-  getTokenPayoutHistory(tokenAddress: string): any[] {
-    const tokenMetadata = this.getTokenMetadata(tokenAddress);
-    return tokenMetadata?.payouts || [];
+  getTokenPayoutHistory(tokenAddress: string): { recentPayouts: any[] } | null {
+    const token = this.getTokenByAddress(tokenAddress);
+    if (!token || !token.payoutHistory) {
+      return null;
+    }
+    
+    return {
+      recentPayouts: token.payoutHistory.map(payout => ({
+        month: payout.month,
+        totalPayout: payout.totalPayout,
+        payoutPerToken: payout.payoutPerToken
+      }))
+    };
   }
 
   /**

@@ -473,6 +473,7 @@
 						const claimTxs = walletDataService.getAllTransactions().filter(tx => tx.type === 'claim');
 						if (claimTxs.length === 0) return 'N/A';
 						const lastClaim = arrayUtils.latest(claimTxs, tx => tx.timestamp);
+						if (!lastClaim) return 'N/A';
 						const daysSince = dateUtils.daysBetween(lastClaim.timestamp, new Date());
 						return Math.max(0, daysSince).toString();
 					})()}
@@ -679,16 +680,4 @@
 />
 
 <style>
-	@keyframes spin {
-		from {
-			transform: rotate(0deg);
-		}
-		to {
-			transform: rotate(360deg);
-		}
-	}
-	
-	.animate-spin {
-		animation: spin 1s linear infinite;
-	}
 </style>

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import configService from '$lib/services/ConfigService';
+	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/ui';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
@@ -28,14 +28,35 @@
 	
 	// Get asset ID from URL params
 	$: assetId = $page.params.id;
+	console.log('Asset detail page - Asset ID from route:', assetId);
 	
-	// Use composables
-	const assetDetailData = useAssetDetailData(assetId);
+	// Use composables - initialize immediately with current assetId
+	const assetDetailComposable = useAssetDetailData(assetId);
+	const assetDetailState = assetDetailComposable.state;
+	const loadAssetData = assetDetailComposable.loadAssetData;
+	
+	// Debug logging
+	$: console.log('Asset detail state:', { assetData: $assetDetailState.asset, loading: $assetDetailState.loading, error: $assetDetailState.error });
+	
+	// Load data when asset ID changes
+	$: if (assetId) {
+		console.log('Loading asset data for ID:', assetId);
+		loadAssetData(assetId);
+	}
 	const { exportProductionData: exportDataFunc, exportPaymentHistory } = useDataExport();
 	const { state: emailState, setEmail, submitEmail } = useEmailNotification();
 	
 	// Reactive data from composable
-	$: ({ asset: assetData, tokens: assetTokens, loading, error } = $assetDetailData.state);
+	$: ({ asset: assetData, tokens: assetTokens, loading, error } = $assetDetailState);
+	
+	// Debug asset data
+	$: {
+		if (assetData) {
+			console.log('[Asset Detail Page] assetData loaded:', assetData);
+			console.log('[Asset Detail Page] assetData.monthlyReports:', assetData.monthlyReports);
+			console.log('[Asset Detail Page] monthlyReports length:', assetData.monthlyReports?.length);
+		}
+	}
 	
 	function showTooltipWithDelay(tooltipId: string) {
 		clearTimeout(tooltipTimer);
@@ -164,11 +185,6 @@
 		}
 	}
 
-	onMount(async () => {
-		if (assetId) {
-			await assetDetailData.loadAssetData();
-		}
-	});
 </script>
 
 <svelte:head>
@@ -312,10 +328,13 @@
 					</div>
 				{:else if activeTab === 'payments'}
 					{@const monthlyReports = assetData?.monthlyReports || []}
-					{@const maxRevenue = monthlyReports.length > 0 ? Math.max(...monthlyReports.map(r => r.revenue ?? 0)) : 1500}
+					{@const maxRevenue = monthlyReports.length > 0 ? Math.max(...monthlyReports.map(r => r.netIncome ?? 0)) : 1500}
 					{@const latestReport = monthlyReports[monthlyReports.length - 1]}
-					{@const nextMonth = latestReport ? new Date(new Date(latestReport.month + '-01').getTime() + 32 * 24 * 60 * 60 * 1000) : new Date()}
-					{@const avgRevenue = monthlyReports.length > 0 ? monthlyReports.reduce((sum, r) => sum + (r.revenue ?? 0), 0) / monthlyReports.length : 0}
+					{@const nextMonth = latestReport ? (() => {
+						const lastDate = new Date(latestReport.month + '-01');
+						return new Date(lastDate.getFullYear(), lastDate.getMonth() + 1, 1);
+					})() : new Date()}
+					{@const avgRevenue = monthlyReports.length > 0 ? monthlyReports.reduce((sum, r) => sum + (r.netIncome ?? 0), 0) / monthlyReports.length : 0}
 					<div class="flex-1 flex flex-col">
 						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">
 							<div class="bg-white border border-light-gray p-6 md:col-span-3">
@@ -325,7 +344,7 @@
 										📊 Export Data
 									</SecondaryButton>
 								</div>
-								<div class="w-full overflow-x-auto">
+								<div class="w-full">
 									<Chart
 										data={monthlyReports.map(report => {
 											// Handle different date formats
@@ -335,10 +354,10 @@
 											}
 											return {
 												label: dateStr,
-												value: report.revenue ?? 0
+												value: report.netIncome ?? 0
 											};
 										})}
-										width={950}
+										width={700}
 										height={350}
 										valuePrefix="$"
 										barColor="#08bccc"
@@ -357,8 +376,8 @@
 								<div class="grid grid-cols-1 gap-4 mb-6">
 									<div class="text-center p-3 bg-white">
 										<div class="text-3xl font-extrabold text-black mb-1">
-											{#if latestReport?.revenue !== undefined}
-												${latestReport.revenue.toFixed(0)}
+											{#if latestReport?.netIncome !== undefined}
+												${latestReport.netIncome.toFixed(0)}
 											{:else}
 												<span class="text-gray-400">N/A</span>
 											{/if}
@@ -382,8 +401,8 @@
 				{:else if activeTab === 'gallery'}
 					<div class="flex-1 flex flex-col">
 						<div class="grid md:grid-cols-3 grid-cols-1 gap-6">
-							{#if assetData?.images && assetData.images.length > 0}
-								{#each assetData.images as image}
+							{#if assetData?.galleryImages && assetData.galleryImages.length > 0}
+								{#each assetData.galleryImages as image}
 									<div 
 										class="bg-white border border-light-gray overflow-hidden group cursor-pointer" 
 										on:click={() => window.open(getImageUrl(image.url), '_blank')}
@@ -406,60 +425,9 @@
 									</div>
 								{/each}
 							{:else}
-								<!-- Default gallery images -->
-								<div 
-									class="bg-white border border-light-gray overflow-hidden group cursor-pointer" 
-									on:click={() => window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank')}
-									on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank'); } }}
-									role="button"
-									tabindex="0"
-									aria-label="View asset overview image in new tab"
-								>
-									<img 
-										src={getImageUrl('/images/eur-wr-cover.jpg')} 
-										alt="Asset overview"
-										loading="lazy"
-										class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-									/>
-									<div class="p-4">
-										<p class="text-sm text-black">Asset overview</p>
-									</div>
-								</div>
-								<div 
-									class="bg-white border border-light-gray overflow-hidden group cursor-pointer" 
-									on:click={() => window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank')}
-									on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank'); } }}
-									role="button"
-									tabindex="0"
-									aria-label="View production facility image in new tab"
-								>
-									<img 
-										src={getImageUrl('/images/eur-wr-cover.jpg')} 
-										alt="Production facility"
-										loading="lazy"
-										class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-									/>
-									<div class="p-4">
-										<p class="text-sm text-black">Production facility</p>
-									</div>
-								</div>
-								<div 
-									class="bg-white border border-light-gray overflow-hidden group cursor-pointer" 
-									on:click={() => window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank')}
-									on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(getImageUrl('/images/eur-wr-cover.jpg'), '_blank'); } }}
-									role="button"
-									tabindex="0"
-									aria-label="View well site image in new tab"
-								>
-									<img 
-										src={getImageUrl('/images/eur-wr-cover.jpg')} 
-										alt="Well site"
-										loading="lazy"
-										class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-									/>
-									<div class="p-4">
-										<p class="text-sm text-black">Well site</p>
-									</div>
+								<!-- No gallery images available -->
+								<div class="col-span-full text-center py-16">
+									<p class="text-lg text-black opacity-70">No gallery images available for this asset.</p>
 								</div>
 							{/if}
 						</div>
@@ -574,7 +542,7 @@
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 					{#each assetTokens as token}
 						{@const supply = dataStoreService.getTokenSupply(token.contractAddress)}
-						{@const hasAvailableSupply = supply && supply.availableSupply > 0}
+						{@const hasAvailableSupply = supply && supply.available > 0}
 						{@const tokenPayoutData = dataStoreService.getTokenPayoutHistory(token.contractAddress)}
 						{@const latestPayout = tokenPayoutData?.recentPayouts?.[0]}
 						{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
@@ -605,11 +573,11 @@
 										<div class="p-8 pt-6 space-y-4">
 											<div class="flex justify-between items-start">
 												<span class="text-base font-medium text-black opacity-70 relative font-figtree">Minted Supply</span>
-												<span class="text-base font-extrabold text-black text-right font-figtree">{supply?.mintedSupply.toLocaleString() || '0'}</span>
+												<span class="text-base font-extrabold text-black text-right font-figtree">{token.supplyNumbers?.mintedSupply?.toLocaleString() || supply?.sold?.toLocaleString() || '0'}</span>
 											</div>
 											<div class="flex justify-between items-start">
 												<span class="text-base font-medium text-black opacity-70 relative font-figtree">Max Supply</span>
-												<span class="text-base font-extrabold text-black text-right font-figtree">{supply?.maxSupply.toLocaleString() || '0'}</span>
+												<span class="text-base font-extrabold text-black text-right font-figtree">{token.supplyNumbers?.maxSupply?.toLocaleString() || supply?.total?.toLocaleString() || '0'}</span>
 											</div>
 											<div class="flex justify-between items-start relative">
 												<span class="text-base font-medium text-black opacity-70 relative font-figtree">

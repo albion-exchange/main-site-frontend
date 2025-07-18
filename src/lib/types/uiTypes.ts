@@ -159,6 +159,10 @@ export interface Token {
   assetId: string; // Links to Asset.id
   isActive: boolean;
   supply: TokenSupply;
+  supplyNumbers?: {
+    maxSupply: number;
+    mintedSupply: number;
+  };
   holders: TokenHolder[];
   payoutHistory: TokenPayoutRecord[];
   sharePercentage?: number; // Percentage of asset ownership (for royalty tokens)

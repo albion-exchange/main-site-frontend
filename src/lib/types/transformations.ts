@@ -52,6 +52,12 @@ export namespace Core {
     depth: number; // Meters as number
     fieldType: string;
     estimatedLifeMonths: number;
+    firstOil?: string;
+    expectedEndDate?: string;
+    crudeBenchmark?: string;
+    license?: string;
+    infrastructure?: string;
+    environmental?: string;
   }
 
   export interface AssetPricing {
@@ -185,11 +191,17 @@ export class TypeTransformations {
         technical: {
           depth: data.technical.depth,
           fieldType: data.technical.fieldType,
-          estimatedLifeMonths: data.technical.estimatedLifeMonths
+          estimatedLifeMonths: data.technical.estimatedLifeMonths,
+          firstOil: data.technical.firstOil,
+          expectedEndDate: data.technical.expectedEndDate,
+          crudeBenchmark: data.technical.crudeBenchmark,
+          license: data.technical.license,
+          infrastructure: data.technical.infrastructure,
+          environmental: data.technical.environmental
         },
         pricing: {
-          benchmarkPremium: data.technical.pricing.benchmarkPremium,
-          transportCosts: data.technical.pricing.transportCosts
+          benchmarkPremium: data.technical.pricing?.benchmarkPremium || 0,
+          transportCosts: data.technical.pricing?.transportCosts || 0
         },
         location: {
           state: data.location.state,
@@ -282,7 +294,13 @@ export class TypeTransformations {
         technical: {
           depth: `${formatNumber(asset.technical.depth)}m`,
           fieldType: asset.technical.fieldType,
-          estimatedLife: `${Math.ceil(asset.technical.estimatedLifeMonths / 12)}+ years`
+          estimatedLife: `${Math.ceil(asset.technical.estimatedLifeMonths / 12)}+ years`,
+          firstOil: asset.technical.firstOil || '',
+          expectedEndDate: asset.technical.expectedEndDate || 'TBD',
+          crudeBenchmark: asset.technical.crudeBenchmark || '',
+          license: asset.technical.license || '',
+          infrastructure: asset.technical.infrastructure || '',
+          environmental: asset.technical.environmental || ''
         },
         pricing: {
           benchmarkPremium: asset.pricing.benchmarkPremium < 0
@@ -300,7 +318,7 @@ export class TypeTransformations {
           status: asset.production.status,
           statusDisplay: asset.production.status.charAt(0).toUpperCase() + asset.production.status.slice(1),
           expectedRemainingProduction: asset.production.expectedRemainingProduction !== null
-            ? `${(asset.production.expectedRemainingProduction / 1000).toFixed(0)}k BOE`
+            ? `${(asset.production.expectedRemainingProduction / 1000).toFixed(1)}k boe`
             : 'TBD',
           expectedEndDate: asset.production.expectedEndDate
             ? this.formatEndDate(asset.production.expectedEndDate)
@@ -360,7 +378,7 @@ export class TypeTransformations {
     return {
       id: asset.id,
       name: asset.name,
-      description: '', // Will be set by service layer
+      description: '', // Set in assetToUI when called with AssetData
       location: {
         state: asset.location.state,
         country: asset.location.country,
@@ -370,7 +388,7 @@ export class TypeTransformations {
         },
         waterDepth: display.location.waterDepth
       } as UIAssetLocation,
-      coverImage: '', // Will be set by service layer
+      coverImage: '', // Set in assetToUI when called with AssetData
       images: [], // Legacy field
       galleryImages: [],
       terms: display.terms,
@@ -381,7 +399,7 @@ export class TypeTransformations {
       production: {
         status: asset.production.status,
         expectedRemainingProduction: display.production.expectedRemainingProduction,
-        current: '', // Will be set by service layer
+        current: '', // Set in assetToUI from latest monthly report
         units: {
           production: 'BOE (Barrels of Oil Equivalent)',
           revenue: 'USD'
@@ -397,8 +415,8 @@ export class TypeTransformations {
         production: report.production,
         revenue: report.revenue,
         netIncome: report.netIncome,
-        expenses: 0, // Will be set by service layer
-        payoutPerToken: 0 // Will be set by service layer
+        expenses: 0, // Not available in current data
+        payoutPerToken: 0 // Calculated separately by TokenService
       })),
       operationalMetrics: {
         uptime: {
@@ -425,12 +443,12 @@ export class TypeTransformations {
         depth: display.technical.depth,
         fieldType: asset.technical.fieldType,
         estimatedLife: display.technical.estimatedLife,
-        firstOil: '', // Will be set by service layer
-        expectedEndDate: display.production.expectedEndDate,
-        crudeBenchmark: '', // Will be set by service layer
-        license: '', // Will be set by service layer
-        infrastructure: '', // Will be set by service layer
-        environmental: '', // Will be set by service layer
+        firstOil: display.technical.firstOil,
+        expectedEndDate: display.technical.expectedEndDate,
+        crudeBenchmark: display.technical.crudeBenchmark,
+        license: display.technical.license,
+        infrastructure: display.technical.infrastructure,
+        environmental: display.technical.environmental,
         pricing: {
           benchmarkPremium: display.pricing.benchmarkPremium,
           transportCosts: display.pricing.transportCosts
@@ -442,10 +460,10 @@ export class TypeTransformations {
   /**
    * Convenience method: Transform AssetData directly to UI Asset
    */
-  static assetToUI(assetData: AssetData): UIAsset {
+  static assetToUI(assetData: AssetData, assetId?: string): UIAsset {
     const coreAsset = this.apiToCore.assetData(assetData);
     const fullCoreAsset: Core.Asset = {
-      id: assetData.assetName?.toLowerCase().replace(/\s+/g, '-') || 'unknown-asset',
+      id: assetId || assetData.assetName?.toLowerCase().replace(/\s+/g, '-') || 'unknown-asset',
       name: assetData.assetName || 'Unknown Asset',
       location: coreAsset.location!,
       terms: coreAsset.terms!,
@@ -454,12 +472,92 @@ export class TypeTransformations {
       operator: coreAsset.operator!,
       production: {
         status: this.apiToCore.productionStatus(assetData.production.status),
-        expectedRemainingProduction: null, // Will be set by service layer
-        expectedEndDate: null // Will be set by service layer
+        expectedRemainingProduction: null, // Set below from planned production
+        expectedEndDate: null // Set from technical.expectedEndDate
       },
-      monthlyReports: [] // Will be set by service layer
+      monthlyReports: [] // Populated below from productionHistory
     };
-    return this.coreToUI(fullCoreAsset);
+    const uiAsset = this.coreToUI(fullCoreAsset);
+    // Add the missing fields from assetData
+    uiAsset.description = assetData.description || '';
+    uiAsset.coverImage = assetData.coverImage || '';
+    uiAsset.galleryImages = assetData.galleryImages || [];
+    
+    // Map monthly reports from monthlyData (which contains actual payout data)
+    console.log('[assetToUI] assetData.monthlyData:', assetData.monthlyData);
+    if (assetData.monthlyData && assetData.monthlyData.length > 0) {
+      console.log('[assetToUI] monthlyData length:', assetData.monthlyData.length);
+      uiAsset.monthlyReports = assetData.monthlyData.map(data => {
+        console.log('[assetToUI] Processing monthly data:', data);
+        const report = {
+          month: data.month,
+          production: data.assetData.production,
+          revenue: data.assetData.revenue,
+          expenses: data.assetData.expenses || 0,
+          netIncome: data.assetData.netIncome,
+          payoutPerToken: data.tokenPayout?.payoutPerToken || 0
+        };
+        console.log('[assetToUI] Transformed report:', report);
+        return report;
+      });
+      console.log('[assetToUI] Final monthlyReports:', uiAsset.monthlyReports);
+    } else {
+      console.log('[assetToUI] No monthlyData found or empty array');
+    }
+    // No fallback to productionHistory - monthlyReports should only contain payment data
+    
+    // Set productionHistory for the production tab
+    if (assetData.productionHistory && assetData.productionHistory.length > 0) {
+      uiAsset.productionHistory = assetData.productionHistory.map(record => ({
+        month: record.month,
+        production: record.production || 0
+      }));
+    }
+    
+    // Calculate expected remaining production from planned production
+    if (assetData.plannedProduction?.projections) {
+      const totalPlannedProduction = assetData.plannedProduction.projections.reduce(
+        (sum, proj) => sum + proj.production, 
+        0
+      );
+      uiAsset.production.expectedRemainingProduction = totalPlannedProduction ? 
+        `${(totalPlannedProduction / 1000).toFixed(1)}k boe` : 
+        'TBD';
+    }
+    
+    // Set current production from latest monthly report
+    if (uiAsset.monthlyReports && uiAsset.monthlyReports.length > 0) {
+      const latestReport = uiAsset.monthlyReports[uiAsset.monthlyReports.length - 1];
+      uiAsset.production.current = `${latestReport.production.toFixed(0)} BOE/month`;
+    }
+    
+    // Set planned production data
+    if (assetData.plannedProduction) {
+      uiAsset.plannedProduction = assetData.plannedProduction;
+    }
+    
+    // Set operational metrics from actual data
+    if (assetData.operationalMetrics) {
+      uiAsset.operationalMetrics = {
+        uptime: {
+          percentage: assetData.operationalMetrics.uptime?.percentage || 0,
+          period: assetData.operationalMetrics.uptime?.period || 'N/A',
+          unit: 'percentage'
+        },
+        dailyProduction: {
+          current: assetData.operationalMetrics.dailyProduction?.current || 0,
+          target: assetData.operationalMetrics.dailyProduction?.target || 0,
+          unit: 'BOE/day'
+        },
+        hseMetrics: {
+          incidentFreeDays: assetData.operationalMetrics.hseMetrics?.incidentFreeDays || 0,
+          lastIncidentDate: assetData.operationalMetrics.hseMetrics?.lastIncidentDate || new Date().toISOString(),
+          safetyRating: assetData.operationalMetrics.hseMetrics?.safetyRating || 'Unknown'
+        }
+      };
+    }
+    
+    return uiAsset;
   }
 
   /**
@@ -468,7 +566,7 @@ export class TypeTransformations {
   static tokenToUI(tokenData: TokenMetadata): UIToken {
     return {
       contractAddress: tokenData.contractAddress,
-      name: tokenData.assetName, // Use assetName as the token name
+      name: tokenData.releaseName || tokenData.assetName, // Use releaseName or fall back to assetName
       symbol: tokenData.symbol,
       decimals: tokenData.decimals,
       tokenType: "royalty", // Default type, can be enhanced later
@@ -476,15 +574,26 @@ export class TypeTransformations {
       isActive: true,
       supply: {
         maxSupply: tokenData.supply.maxSupply,
-        mintedSupply: tokenData.supply.mintedSupply,
-        availableSupply: tokenData.supply.availableSupply
+        mintedSupply: tokenData.supply.mintedSupply
+      },
+      // Add converted supply values for calculations
+      supplyNumbers: {
+        maxSupply: Number(BigInt(tokenData.supply.maxSupply) / BigInt(10 ** tokenData.decimals)),
+        mintedSupply: Number(BigInt(tokenData.supply.mintedSupply) / BigInt(10 ** tokenData.decimals))
       },
       holders: [], // Will be populated by service layer
-      payoutHistory: tokenData.payouts || [],
+      payoutHistory: tokenData.monthlyData?.map(data => ({
+        month: data.month,
+        date: data.tokenPayout.date.split('T')[0] as any, // Convert to YYYY-MM-DD format
+        totalPayout: data.tokenPayout.totalPayout,
+        payoutPerToken: data.tokenPayout.payoutPerToken,
+        oilPrice: data.realisedPrice.oilPrice,
+        gasPrice: data.realisedPrice.gasPrice,
+        productionVolume: data.assetData.production,
+        txHash: data.tokenPayout.txHash
+      })) || [],
       sharePercentage: tokenData.sharePercentage,
-      firstPaymentDate: tokenData.payouts && tokenData.payouts.length > 0 
-        ? tokenData.payouts[0].month 
-        : undefined,
+      firstPaymentDate: tokenData.firstPaymentDate,
       metadata: {
         description: `Token representing ${tokenData.sharePercentage}% ownership in ${tokenData.assetName}`,
         image: '', // Will be set by service layer

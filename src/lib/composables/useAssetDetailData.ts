@@ -20,7 +20,7 @@ interface AssetDetailState {
 /**
  * Composable for managing asset detail data
  */
-export function useAssetDetailData(assetId: string) {
+export function useAssetDetailData(initialAssetId: string) {
   // State management
   const state: Writable<AssetDetailState> = writable({
     asset: null,
@@ -31,21 +31,24 @@ export function useAssetDetailData(assetId: string) {
   });
 
   // Load asset and related data
-  async function loadAssetData() {
+  async function loadAssetData(assetId?: string) {
+    const id = assetId || initialAssetId;
+    console.log(`useAssetDetailData: Loading data for asset ID: ${id}`);
     state.update(s => ({ ...s, loading: true, error: null }));
     
     try {
       // Load asset data
-      const asset = assetService.getAssetById(assetId);
+      const asset = assetService.getAssetById(id);
+      console.log(`useAssetDetailData: Asset found:`, asset);
       if (!asset) {
         throw new Error('Asset not found');
       }
       
       // Load related tokens
-      const tokens = tokenService.getTokensByAssetId(assetId);
+      const tokens = tokenService.getTokensByAssetId(id);
       
       // Load future releases for this asset
-      const futureReleases = configService.getFutureReleasesByAsset(assetId);
+      const futureReleases = configService.getFutureReleasesByAsset(id);
       
       state.update(s => ({
         ...s,
@@ -64,18 +67,21 @@ export function useAssetDetailData(assetId: string) {
   }
 
   // Get latest monthly report
-  function getLatestReport() {
-    return assetService.getLatestMonthlyReport(assetId);
+  function getLatestReport(assetId?: string) {
+    const id = assetId || initialAssetId;
+    return assetService.getLatestMonthlyReport(id);
   }
 
   // Get average monthly revenue
-  function getAverageRevenue() {
-    return assetService.getAverageMonthlyRevenue(assetId);
+  function getAverageRevenue(assetId?: string) {
+    const id = assetId || initialAssetId;
+    return assetService.getAverageMonthlyRevenue(id);
   }
 
   // Get production timeline
-  function getProductionTimeline() {
-    return assetService.getProductionTimeline(assetId);
+  function getProductionTimeline(assetId?: string) {
+    const id = assetId || initialAssetId;
+    return assetService.getProductionTimeline(id);
   }
 
   // Check if token is available
@@ -89,9 +95,12 @@ export function useAssetDetailData(assetId: string) {
   }
 
   // Refresh data
-  async function refresh() {
-    await loadAssetData();
+  async function refresh(assetId?: string) {
+    await loadAssetData(assetId);
   }
+
+  // Load initial data
+  loadAssetData(initialAssetId);
 
   return {
     state,

@@ -387,7 +387,7 @@
 								<div class={assetStatsClasses}>
 									<div class={statItemClasses}>
 										<div class={statLabelClasses}>Expected Remaining Production</div>
-										<div class={statValueClasses}>{dataStoreService.getCalculatedRemainingProduction(item.asset.id)}</div>
+										<div class={statValueClasses}>{item.asset.production?.expectedRemainingProduction || 'TBD'}</div>
 									</div>
 								</div>
 
