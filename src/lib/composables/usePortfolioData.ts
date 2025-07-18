@@ -279,6 +279,7 @@ export function getHoldingPayoutChartData(holding: any): Array<{label: string; v
   ];
   
   // Get payout history for this specific asset
+  const walletDataService = useWalletDataService();
   const assetPayouts = walletDataService.getHoldingsByAsset();
   const assetPayout = assetPayouts.find(p => p.assetId === holding.id);
   
