@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { fly, fade } from 'svelte/transition';
-	import { useAssetService, useTokenService, useConfigService } from '$lib/services';
+	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
 	import { formatCurrency } from '$lib/utils/formatters';
@@ -13,7 +13,6 @@
 	const dispatch = createEventDispatcher();
 	const assetService = useAssetService();
 	const tokenService = useTokenService();
-	const configService = useConfigService();
 
 	// Purchase form state
 	let investmentAmount = 5000;
@@ -34,8 +33,7 @@
 
 	$: order = {
 		investment: investmentAmount,
-		platformFee: investmentAmount * configService.getPlatformFee(),
-		totalCost: investmentAmount + (investmentAmount * configService.getPlatformFee()),
+		totalCost: investmentAmount,
 		tokens: investmentAmount // 1:1 ratio for simplicity
 	};
 
@@ -287,10 +285,6 @@
 								<div class={summaryRowClasses}>
 									<span>Investment Amount</span>
 									<span>{formatCurrency(investmentAmount, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-								</div>
-								<div class={summaryRowClasses}>
-									<span>Platform Fee <span class={strikethroughClasses}>(0.5%)</span></span>
-									<span class={freeTextClasses}>FREE</span>
 								</div>
 								<div class={summaryTotalClasses}>
 									<span>Total Cost</span>

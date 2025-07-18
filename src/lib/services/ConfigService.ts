@@ -55,7 +55,6 @@ export interface PlatformConfig {
   totalInvestors: number;
   totalDistributed: number;
   averageReturn: number;
-  platformFee: number;
   minimumInvestment: number;
   supportedCurrencies: string[];
   supportedNetworks: string[];
@@ -236,13 +235,6 @@ class ConfigService {
       averageReturn: stats.averagePayout?.value || 11.3,
       totalHolders: stats.activeInvestors?.value || 1000
     };
-  }
-
-  /**
-   * Get platform fee
-   */
-  getPlatformFee(): number {
-    return this.config.platform.platformFee;
   }
 
   /**

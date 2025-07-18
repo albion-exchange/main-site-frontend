@@ -20,7 +20,6 @@
 	let loading = true;
 	let claiming = false;
 	let claimSuccess = false;
-	let selectedAssets: string[] = [];
 	let claimMethod = 'wallet';
 	let showWalletModal = false;
 	let estimatedGas = 0;
@@ -129,28 +128,6 @@
 		});
 	}
 
-	function handleAssetSelect(assetId: string) {
-		if (selectedAssets.includes(assetId)) {
-			selectedAssets = selectedAssets.filter(id => id !== assetId);
-		} else {
-			selectedAssets = [...selectedAssets, assetId];
-		}
-	}
-
-	function handleSelectAll() {
-		if (selectedAssets.length === holdings.length) {
-			selectedAssets = [];
-		} else {
-			selectedAssets = holdings.map(holding => holding.id);
-		}
-	}
-
-	function getSelectedAmount(): number {
-		return holdings
-			.filter(holding => selectedAssets.includes(holding.id))
-			.reduce((sum, holding) => sum + holding.unclaimedAmount, 0);
-	}
-
 	async function handleClaim() {
 		claiming = true;
 		claimSuccess = false;
@@ -159,11 +136,10 @@
 			// Simulate claim transaction
 			await new Promise(resolve => setTimeout(resolve, 2000));
 			
-			const claimedAmount = getSelectedAmount() || unclaimedPayout;
+			const claimedAmount = unclaimedPayout;
 			totalClaimed += claimedAmount;
 			unclaimedPayout = Math.max(0, unclaimedPayout - claimedAmount);
 			
-			selectedAssets = [];
 			claimSuccess = true;
 			
 			// Reset success message after 3 seconds
@@ -236,10 +212,8 @@
 
 
 
-	// Calculate selected amount
-	$: selectedAmount = holdings
-		.filter(h => selectedAssets.includes(h.id))
-		.reduce((sum, h) => sum + h.unclaimedAmount, 0);
+	// Selected amount now equals total unclaimed payout (asset selection removed)
+	$: selectedAmount = unclaimedPayout;
 
 	// Calculate total pages for pagination
 	$: totalPages = Math.ceil(claimHistory.length / itemsPerPage);
@@ -383,81 +357,6 @@
 				</div>
 			</div>
 		</FullWidthSection>
-
-		<!-- Asset-by-Asset Claiming -->
-		<ContentSection background="white" padding="compact" maxWidth={false}>
-			<div class="max-w-6xl mx-auto px-8">
-			<div class="flex justify-between items-center mb-6">
-				<SectionTitle level="h2" size="section">Claim by Asset</SectionTitle>
-				<div class="flex gap-4">
-					<SecondaryButton
-						size="small"
-						on:click={handleSelectAll}
-					>
-						{selectedAssets.length === holdings.length ? 'Deselect All' : 'Select All'}
-					</SecondaryButton>
-					{#if selectedAssets.length > 0}
-						<PrimaryButton
-							size="small"
-							on:click={() => handleClaimWithModal('claim')}
-							disabled={claiming}
-						>
-							{#if claiming}
-								Claiming...
-							{:else}
-								Claim Selected {formatCurrency(getSelectedAmount())}
-							{/if}
-						</PrimaryButton>
-					{/if}
-				</div>
-			</div>
-
-			<div class="space-y-4">
-				{#each holdings as holding}
-					<div class="{selectedAssets.includes(holding.id) ? 'ring-2 ring-primary rounded-lg' : ''}">
-						<Card hoverable showBorder>
-							<CardContent paddingClass="p-6">
-							<div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
-								<div class="flex items-center gap-4">
-									<input 
-										type="checkbox" 
-										class="w-4 h-4"
-										checked={selectedAssets.includes(holding.id)}
-										on:change={() => handleAssetSelect(holding.id)}
-									/>
-									<div>
-										<div class="font-extrabold text-black text-sm">{holding.name}</div>
-										<div class="text-xs text-black opacity-70">{holding.location}</div>
-									</div>
-								</div>
-								<div class="text-center">
-									<StatusBadge 
-										status={holding.status}
-										size="small"
-										showIcon={true}
-									/>
-								</div>
-								<div class="text-center">
-									<div class="text-lg font-extrabold text-primary mb-1">{formatCurrency(holding.unclaimedAmount)}</div>
-									<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Unclaimed</div>
-									<div class="text-xs text-black opacity-60 mt-1">Last claimed: {holding.lastClaimDate ? formatDate(holding.lastClaimDate) : 'Never'}</div>
-								</div>
-								<div class="text-center">
-									<div class="text-lg font-extrabold text-black mb-1">{formatCurrency(holding.totalEarned)}</div>
-									<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Total Earned</div>
-									<div class="text-xs text-black opacity-60 mt-1">Last payout: {holding.lastPayout ? formatDate(holding.lastPayout) : 'Never'}</div>
-								</div>
-								<div class="text-center">
-									<SecondaryButton size="small" on:click={() => handleAssetSelect(holding.id)}>Claim</SecondaryButton>
-								</div>
-							</div>
-						</CardContent>
-					</Card>
-					</div>
-				{/each}
-			</div>
-			</div>
-		</ContentSection>
 
 		<!-- Payout Statistics -->
 		<FullWidthSection background="gray" padding="standard">
