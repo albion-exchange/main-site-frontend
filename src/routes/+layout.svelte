@@ -2,7 +2,7 @@
 	import '../app.css';
 	import { page } from '$app/stores';
 	import { walletStore, walletActions, formatAddress } from '$lib/stores/wallet';
-	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { PrimaryButton, SecondaryButton } from '$lib/components/atoms';
 	import WalletModal from '$lib/components/organisms/WalletModal.svelte';
 	
 	$: currentPath = $page.url.pathname;

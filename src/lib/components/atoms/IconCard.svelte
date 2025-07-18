@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Card, CardContent } from '$lib/components/ui';
+	import { Card, CardContent } from '$lib/components/atoms';
 	import Label from './Label.svelte';
 	import TextBlock from './TextBlock.svelte';
 	

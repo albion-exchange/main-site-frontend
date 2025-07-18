@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { useConfigService } from '$lib/services';
 	import SectionTitle from '$lib/components/atoms/SectionTitle.svelte';
-	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/templates';
 	
 	let formData = {
 		name: '',

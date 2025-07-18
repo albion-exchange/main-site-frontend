@@ -4,10 +4,10 @@
 	import { usePlatformStats } from '$lib/composables/usePlatformStats';
 	import FeaturedTokenCarousel from '$lib/components/organisms/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/organisms/TokenPurchaseWidget.svelte';
-	import { PrimaryButton, SecondaryButton, StatsCard, ButtonGroup } from '$lib/components/ui';
+	import { PrimaryButton, SecondaryButton, StatsCard, ButtonGroup } from '$lib/components/atoms';
 	import SectionTitle from '$lib/components/atoms/SectionTitle.svelte';
 	import GridContainer from '$lib/components/atoms/GridContainer.svelte';
-	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/templates';
 	import marketData from '$lib/data/marketData.json';
 
 	// Composables

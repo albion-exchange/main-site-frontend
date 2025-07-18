@@ -4,8 +4,8 @@
 	import type { Asset } from '$lib/types/uiTypes';
 	import AssetCard from '$lib/components/organisms/assets/AssetCard.svelte';
 	import TokenPurchaseWidget from '$lib/components/organisms/TokenPurchaseWidget.svelte';
-	import { SecondaryButton, SectionTitle, Card, CardContent } from '$lib/components/ui';
-	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
+	import { SecondaryButton, SectionTitle, Card, CardContent } from '$lib/components/atoms';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/templates';
 
 	let loading = true;
 	let allAssets: Asset[] = [];

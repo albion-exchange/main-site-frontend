@@ -3,7 +3,7 @@
 	import { fly, fade } from 'svelte/transition';
 	import { useAssetService, useTokenService, useConfigService } from '$lib/services';
 	import type { Asset, Token } from '$lib/types/uiTypes';
-	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { PrimaryButton, SecondaryButton } from '$lib/components/atoms';
 	import { formatCurrency } from '$lib/utils/formatters';
 
 	export let isOpen = false;

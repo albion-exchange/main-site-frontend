@@ -5,7 +5,7 @@
 	import PrimaryButton from '$lib/components/atoms/PrimaryButton.svelte';
 	import SecondaryButton from '$lib/components/atoms/SecondaryButton.svelte';
 	import Card from '$lib/components/atoms/Card.svelte';
-	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/templates';
 	
 	let platformStats: any = {};
 	let loading = true;

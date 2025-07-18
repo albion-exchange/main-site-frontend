@@ -1,7 +1,7 @@
 <script lang="ts">
 	import SectionTitle from '$lib/components/atoms/SectionTitle.svelte';
 	import ControlButton from '$lib/components/atoms/ControlButton.svelte';
-	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/templates';
 	
 	let activeSection = 'terms';
 </script>
