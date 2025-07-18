@@ -38,7 +38,6 @@ class AssetService {
   private tokensByAsset: Map<string, any[]> = new Map();
 
   constructor() {
-    console.log('=== AssetService Constructor ===');
     // Initialize asset metadata map - deduplicate by assetId
     const tokenMetadataList = [
       bakHf1Metadata,
@@ -56,19 +55,13 @@ class AssetService {
     // Group tokens by assetId to avoid duplicates
     const assetGroups = new Map<string, any[]>();
     tokenMetadataList.forEach((metadata: any) => {
-      console.log(`Token ${metadata.symbol} has assetId: ${metadata.assetId}`);
       const existing = assetGroups.get(metadata.assetId) || [];
       existing.push(metadata);
       assetGroups.set(metadata.assetId, existing);
     });
     
-    console.log('Unique asset IDs found:', Array.from(assetGroups.keys()));
-    
     // Create one asset per unique assetId, aggregating monthlyData from all tokens
     assetGroups.forEach((metadataList, assetId) => {
-      console.log(`Creating asset for ID ${assetId} with ${metadataList.length} tokens`);
-      console.log(`Tokens for this asset:`, metadataList.map(m => m.symbol));
-      
       // Use the first token's metadata as base
       const baseAssetData = this.createAssetData(metadataList[0]);
       
@@ -77,8 +70,6 @@ class AssetService {
       
       this.assetMetadataMap[assetId] = baseAssetData;
     });
-    
-    console.log('Final assetMetadataMap keys:', Object.keys(this.assetMetadataMap));
   }
 
   /**
@@ -112,11 +103,9 @@ class AssetService {
    */
   getAllAssets(): Asset[] {
     // Always regenerate to avoid stale data during development
-    console.log('getAllAssets - assetMetadataMap entries:', Object.entries(this.assetMetadataMap).length);
     this.allAssets = Object.entries(this.assetMetadataMap).map(([assetId, assetData]) => {
       const monthlyData = this.getMonthlyDataForAsset(assetId);
       const uiAsset = TypeTransformations.assetToUI(assetData, assetId, monthlyData);
-      console.log(`Transformed asset ${assetId} to UI asset with id: ${uiAsset.id}`);
       return uiAsset;
     });
 
@@ -155,26 +144,18 @@ class AssetService {
    * Get asset by ID
    */
   getAssetById(assetId: string): Asset | null {
-    console.log(`getAssetById called with: ${assetId}`);
-    console.log(`assetMetadataMap keys:`, Object.keys(this.assetMetadataMap));
-    
     // First try direct lookup in metadata map
     const assetData = this.assetMetadataMap[assetId];
     if (assetData) {
-      console.log(`Found asset in metadata map for ID: ${assetId}`);
       // Get monthlyData from tokens
       const monthlyData = this.getMonthlyDataForAsset(assetId);
-      console.log(`Got monthlyData for asset ${assetId}:`, monthlyData.length, 'entries');
       const uiAsset = TypeTransformations.assetToUI(assetData, assetId, monthlyData);
-      console.log(`Transformed UI asset monthlyReports:`, uiAsset.monthlyReports);
       return uiAsset;
     }
     
     // Fallback to searching through all assets
     const assets = this.getAllAssets();
-    console.log(`Available asset IDs:`, assets.map(a => a.id));
     const found = assets.find(asset => asset.id === assetId);
-    console.log(`Found asset by search:`, found ? 'yes' : 'no');
     return found || null;
   }
 

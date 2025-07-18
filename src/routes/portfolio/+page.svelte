@@ -32,7 +32,6 @@
 		const assetPayout = assetPayouts.find(p => p.assetId === holding.id);
 		
 		if (!assetPayout || !assetPayout.monthlyPayouts || assetPayout.monthlyPayouts.length === 0) {
-			console.warn(`No payout data found for asset ${holding.id}`);
 			return [];
 		}
 		
@@ -45,7 +44,6 @@
 			}))
 			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 		
-		// If no real data, return empty array instead of fake data
 		return chartData;
 	}
 
@@ -101,20 +99,17 @@
 				
 				// Find tokens for this asset and sum their monthlyData production
 				const assetTokens = allTokens.filter(token => token.assetId === asset.id);
-				console.log(`Found ${assetTokens.length} tokens for asset ${asset.id}`);
 				
 				if (assetTokens.length > 0) {
 					// Use the first token's payout history as they should all have the same production data
 					const token = assetTokens[0];
 					if (token.payoutHistory && token.payoutHistory.length > 0) {
 						cumulativeProduction = token.payoutHistory.reduce((sum, payout) => sum + (payout.productionVolume || 0), 0);
-						console.log(`Calculated cumulative production from token ${token.symbol} payoutHistory:`, cumulativeProduction);
 					}
 				}
 				
 				// Fallback to asset monthlyReports if no token data
 				if (cumulativeProduction === 0 && asset.monthlyReports && asset.monthlyReports.length > 0) {
-					console.log('No token data found, falling back to asset monthlyReports');
 					cumulativeProduction = asset.monthlyReports.reduce((sum, report) => sum + (report.production || 0), 0);
 				}
 				
@@ -127,19 +122,12 @@
 					}
 				}
 				
-				// Debug logging for depletion calculation
-				console.log(`\n=== Asset Depletion: ${asset.name} ===`);
-				console.log(`Cumulative Production: ${cumulativeProduction} BOE`);
-				console.log(`Expected Remaining: "${asset.production?.expectedRemainingProduction}" => ${expectedRemainingProduction} BOE`);
-				
 				// Calculate depletion percentage
 				// Depletion = (production so far) / (production so far + expected remaining production)
 				const totalExpectedProduction = cumulativeProduction + expectedRemainingProduction;
 				if (totalExpectedProduction > 0 && cumulativeProduction > 0) {
 					assetDepletion = (cumulativeProduction / totalExpectedProduction) * 100;
 				}
-				
-				console.log(`Depletion: ${cumulativeProduction} / ${totalExpectedProduction} * 100 = ${assetDepletion.toFixed(1)}%`);
 				
 				return {
 					id: holding.assetId,

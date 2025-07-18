@@ -28,19 +28,14 @@
 	
 	// Get asset ID from URL params
 	$: assetId = $page.params.id;
-	console.log('Asset detail page - Asset ID from route:', assetId);
 	
 	// Use composables - initialize immediately with current assetId
 	const assetDetailComposable = useAssetDetailData(assetId);
 	const assetDetailState = assetDetailComposable.state;
 	const loadAssetData = assetDetailComposable.loadAssetData;
 	
-	// Debug logging
-	$: console.log('Asset detail state:', { assetData: $assetDetailState.asset, loading: $assetDetailState.loading, error: $assetDetailState.error });
-	
 	// Load data when asset ID changes
 	$: if (assetId) {
-		console.log('Loading asset data for ID:', assetId);
 		loadAssetData(assetId);
 	}
 	const { exportProductionData: exportDataFunc, exportPaymentHistory } = useDataExport();
@@ -49,14 +44,6 @@
 	// Reactive data from composable
 	$: ({ asset: assetData, tokens: assetTokens, loading, error } = $assetDetailState);
 	
-	// Debug asset data
-	$: {
-		if (assetData) {
-			console.log('[Asset Detail Page] assetData loaded:', assetData);
-			console.log('[Asset Detail Page] assetData.monthlyReports:', assetData.monthlyReports);
-			console.log('[Asset Detail Page] monthlyReports length:', assetData.monthlyReports?.length);
-		}
-	}
 	
 	function showTooltipWithDelay(tooltipId: string) {
 		clearTimeout(tooltipTimer);

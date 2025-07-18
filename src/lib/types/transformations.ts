@@ -484,11 +484,8 @@ export class TypeTransformations {
     uiAsset.galleryImages = assetData.galleryImages || [];
     
     // Map monthly reports from monthlyData parameter (which contains actual payout data from tokens)
-    console.log('[assetToUI] monthlyData parameter:', monthlyData);
     if (monthlyData && monthlyData.length > 0) {
-      console.log('[assetToUI] monthlyData length:', monthlyData.length);
       uiAsset.monthlyReports = monthlyData.map(data => {
-        console.log('[assetToUI] Processing monthly data:', data);
         const report = {
           month: data.month,
           production: data.assetData.production,
@@ -497,12 +494,8 @@ export class TypeTransformations {
           netIncome: data.assetData.netIncome,
           payoutPerToken: data.tokenPayout?.payoutPerToken || 0
         };
-        console.log('[assetToUI] Transformed report:', report);
         return report;
       });
-      console.log('[assetToUI] Final monthlyReports:', uiAsset.monthlyReports);
-    } else {
-      console.log('[assetToUI] No monthlyData found or empty array');
     }
     // No fallback to productionHistory - monthlyReports should only contain payment data
     
