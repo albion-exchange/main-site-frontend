@@ -23,8 +23,8 @@
 	let showWalletModal = false;
 	
 	// Use composables
-	const { state: tooltipState, show: showTooltipWithDelay, hide: hideTooltip } = useTooltip();
-	const { toggle: toggleCardFlip, isFlipped } = useCardFlip();
+	const { show: showTooltipWithDelay, hide: hideTooltip, isVisible: isTooltipVisible } = useTooltip();
+	const { toggle: toggleCardFlip, flippedCards } = useCardFlip();
 	
 	function getPayoutChartData(holding: any): Array<{date: string; value: number}> {
 		// Always return sample data to ensure the chart displays
@@ -110,8 +110,9 @@
 				// Get total reserves (estimated remaining + cumulative)
 				// Parse the expected remaining production string
 				let totalReserves = 0;
-				const remainingProdStr = asset.production.expectedRemainingProduction || 
-					dataStoreService.getCalculatedRemainingProduction(asset.id);
+				const remainingProdStr = asset.production?.expectedRemainingProduction || 
+					dataStoreService.getCalculatedRemainingProduction(asset.id, cumulativeProduction);
+				
 				if (remainingProdStr && remainingProdStr !== 'TBD') {
 					const match = remainingProdStr.match(/[\d.]+/);
 					if (match) {
@@ -120,9 +121,29 @@
 					}
 				}
 				
-				const assetDepletion = totalReserves > 0 
+				let assetDepletion = totalReserves > 0 
 					? (cumulativeProduction / totalReserves) * 100 
 					: 0;
+				
+				// Fallback: If no data available but asset is producing, estimate based on typical field life
+				if (assetDepletion === 0 && asset.production?.status === 'producing' && cumulativeProduction > 0) {
+					// Estimate based on typical 20-year field life with peak production in years 3-7
+					const monthsProducing = asset.monthlyReports?.length || 0;
+					const yearsProducing = monthsProducing / 12;
+					
+					if (yearsProducing < 7) {
+						// Early stage - assume 15-30% depleted
+						assetDepletion = 15 + (yearsProducing * 2.5);
+					} else if (yearsProducing < 15) {
+						// Mid stage - assume 30-70% depleted
+						assetDepletion = 30 + ((yearsProducing - 7) * 5);
+					} else {
+						// Late stage - assume 70-90% depleted
+						assetDepletion = 70 + ((yearsProducing - 15) * 4);
+					}
+					
+					assetDepletion = Math.min(90, assetDepletion); // Cap at 90%
+				}
 				
 				return {
 					id: holding.assetId,
@@ -295,12 +316,12 @@
 							<div class="text-center py-12 text-black opacity-70">Loading portfolio holdings...</div>
 						{:else}
 							{#each holdings as holding}
-								{@const flipped = isFlipped(holding.id)}
+								{@const flipped = $flippedCards.has(holding.id)}
 								{@const payoutData = flipped ? getPayoutChartData(holding) : []}
 								<div class="mb-3" style="perspective: 1000px;">
-									<div class="relative w-full transition-transform duration-500 preserve-3d" style="transform: rotateY({flipped ? 180 : 0}deg); height: 360px;">
+									<div class="relative w-full transition-transform duration-500" style="transform-style: preserve-3d; transform: rotateY({flipped ? 180 : 0}deg); height: 360px;">
 										<!-- Front of card -->
-										<div class="absolute inset-0 w-full h-full backface-hidden">
+										<div class="absolute inset-0 w-full h-full" style="backface-visibility: hidden;">
 											<Card hoverable showBorder>
 											<CardContent paddingClass="p-9 h-full flex flex-col justify-between">
 												<div class="flex justify-between items-start mb-7">
@@ -358,7 +379,7 @@
 												</div>
 												<div class="text-xl font-extrabold text-black mb-3">{formatPercentage(holding.capitalReturned / 100, { decimals: 1 })}</div>
 												<div class="text-sm text-black opacity-70">To Date</div>
-												{#if tooltipState.show === 'capital-returned-' + holding.id}
+												{#if isTooltipVisible('capital-returned-' + holding.id)}
 													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-3 rounded text-xs z-[1000] mb-[5px] w-48 text-left leading-relaxed">
 														The portion of your initial<br/>investment already recovered
 													</div>
@@ -379,7 +400,7 @@
 													{holding.assetDepletion > 0 ? `${holding.assetDepletion.toFixed(1)}%` : 'TBD'}
 												</div>
 												<div class="text-sm text-black opacity-70">To Date</div>
-												{#if tooltipState.show === 'depletion-' + holding.id}
+												{#if isTooltipVisible('depletion-' + holding.id)}
 													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-3 rounded text-xs z-[1000] mb-[5px] w-48 text-left leading-relaxed">
 														The portion of total expected<br/>oil and gas extracted so far
 													</div>
@@ -404,7 +425,7 @@
 										</div>
 										
 										<!-- Back of card -->
-										<div class="absolute inset-0 w-full h-full backface-hidden" style="transform: rotateY(180deg);">
+										<div class="absolute inset-0 w-full h-full" style="backface-visibility: hidden; transform: rotateY(180deg);">
 											<Card hoverable showBorder>
 												<CardContent paddingClass="p-8 h-full flex flex-col">
 												<div class="flex justify-between items-start mb-2">
@@ -416,11 +437,11 @@
 												
 												<div class="flex-1 flex gap-6">
 													{#if payoutData && payoutData.length > 0}
-														{@const cumulativeData = payoutData.reduce((acc, d, i) => {
+														{@const cumulativeData = payoutData.reduce((acc: Array<{label: string; value: number}>, d, i) => {
 															const prevTotal = i > 0 ? acc[i-1].value : 0;
 															acc.push({ label: d.date, value: prevTotal + d.value });
 															return acc;
-														}, [])}
+														}, [] as Array<{label: string; value: number}>)}
 														<!-- Monthly Payouts Chart -->
 														<div class="flex-1">
 															<h5 class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-1">Monthly Payouts</h5>
@@ -480,7 +501,7 @@
 						let cumulativePurchases = 0;
 						let cumulativePayouts = 0;
 						let maxDeficit = 0;
-						let houseMoneyCrossDate = null;
+						let houseMoneyCrossDate: string | null = null;
 						
 						// Sort transactions by date
 						const sortedTx = [...allTransactions].sort((a, b) => 
@@ -649,7 +670,7 @@
 								>
 									?
 								</div>
-								{#if tooltipState.show === 'external-capital'}
+								{#if isTooltipVisible('external-capital')}
 									<div class="absolute right-0 top-10 bg-black text-white p-4 rounded text-xs z-10 w-56">
 										Max cash you ever had to supply from outside, assuming payouts were available for reinvestment
 									</div>
@@ -673,7 +694,7 @@
 								>
 									?
 								</div>
-								{#if tooltipState.show === 'gross-deployed'}
+								{#if isTooltipVisible('gross-deployed')}
 									<div class="absolute right-0 top-10 bg-black text-white p-3 rounded text-xs z-10 w-48">
 										Total amount invested across all assets
 									</div>
@@ -697,7 +718,7 @@
 								>
 									?
 								</div>
-								{#if tooltipState.show === 'gross-payout'}
+								{#if isTooltipVisible('gross-payout')}
 									<div class="absolute right-0 top-10 bg-black text-white p-3 rounded text-xs z-10 w-48">
 										Total distributions received from all assets
 									</div>
@@ -723,7 +744,7 @@
 								>
 									?
 								</div>
-								{#if tooltipState.show === 'realised-profit'}
+								{#if isTooltipVisible('realised-profit')}
 									<div class="absolute right-0 top-10 bg-black text-white p-3 rounded text-xs z-10 w-48">
 										Your current profit/loss position accounting for all investments and payouts received
 									</div>
@@ -746,8 +767,8 @@
 										width={280}
 										height={280}
 										showLabels={true}
-										showLegend={true}
-										animate={true}
+										showLegend={false}
+										animate={false}
 									/>
 								{:else}
 									<div class="text-center py-12 text-black opacity-70">
@@ -789,6 +810,43 @@
 			</div>
 		</div>
 	</ContentSection>
+
+	<!-- Quick Actions -->
+	<FullWidthSection background="gray" padding="standard">
+		<div class="text-center">
+			<SectionTitle level="h2" size="section" center className="mb-12">Quick Actions</SectionTitle>
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+				<ActionCard
+					title="Add Investment"
+					description="Diversify with new assets"
+					icon="➕"
+					actionText="Browse Assets"
+					actionVariant="primary"
+					href="/assets"
+					size="medium"
+				/>
+
+				<ActionCard
+					title="Claim Payouts"
+					description="{formatCurrency(unclaimedPayout)} available"
+					icon="💰"
+					actionText="Claim Now"
+					actionVariant="claim"
+					href="/claims"
+					size="medium"
+				/>
+
+				<ActionCard
+					title="Export Data"
+					description="Tax & accounting reports"
+					icon="📥"
+					actionText="Download"
+					actionVariant="secondary"
+					size="medium"
+				/>
+			</div>
+		</div>
+	</FullWidthSection>
 </PageLayout>
 {/if}
 
@@ -801,28 +859,5 @@
 />
 
 <style>
-	.preserve-3d {
-		transform-style: preserve-3d;
-	}
-	
-	.backface-hidden {
-		backface-visibility: hidden;
-	}
-	
-	.rotate-y-180 {
-		transform: rotateY(180deg);
-	}
-	
-	@keyframes spin {
-		from {
-			transform: rotate(0deg);
-		}
-		to {
-			transform: rotate(360deg);
-		}
-	}
-	
-	.animate-spin {
-		animation: spin 1s linear infinite;
-	}
+	/* CSS classes removed - styles are now inline for better browser compatibility */
 </style>

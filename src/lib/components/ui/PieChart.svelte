@@ -12,12 +12,12 @@
 	export let colors: string[] = [
 		'#08bccc', // Primary blue
 		'#283c84', // Secondary blue
-		'#f8f4f4', // Light gray
-		'#000000', // Black
 		'#0a8a96', // Darker primary
 		'#1a2557', // Darker secondary
-		'#e5e5e5', // Medium gray
-		'#666666', // Dark gray
+		'#35D1DC', // Lighter primary
+		'#4A5BA7', // Lighter secondary
+		'#7CE8F5', // Very light primary
+		'#8899CC', // Very light secondary
 	];
 	export let showLabels: boolean = true;
 	export let showLegend: boolean = true;

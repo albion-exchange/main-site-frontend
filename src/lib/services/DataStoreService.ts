@@ -649,20 +649,23 @@ class DataStoreService {
   /**
    * Calculate expected remaining production from planned production data
    */
-  getCalculatedRemainingProduction(assetId: string): string {
+  getCalculatedRemainingProduction(assetId: string, cumulativeProduction: number = 0): string {
     const asset = this.getAssetById(assetId);
-    if (!asset?.plannedProduction?.projections) {
+    if (!asset?.plannedProduction?.projections || asset.plannedProduction.projections.length === 0) {
       return "TBD";
     }
 
     // Sum all production from planned production projections
-    const totalProduction = asset.plannedProduction.projections.reduce(
+    const totalPlannedProduction = asset.plannedProduction.projections.reduce(
       (sum, projection) => sum + projection.production,
       0,
     );
 
+    // Calculate remaining production (planned - cumulative)
+    const remainingProduction = Math.max(0, totalPlannedProduction - cumulativeProduction);
+
     // Convert to mboe (thousand barrels)
-    const productionInMboe = totalProduction / 1000;
+    const productionInMboe = remainingProduction / 1000;
 
     // Format with appropriate precision
     if (productionInMboe >= 10) {
