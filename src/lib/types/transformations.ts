@@ -242,6 +242,19 @@ export class TypeTransformations {
         mintedSupply: BigInt(supply.mintedSupply),
         availableSupply: BigInt(supply.availableSupply)
       };
+    },
+
+    tokenMetadata(data: TokenMetadata): Core.Token {
+      return {
+        contractAddress: data.contractAddress,
+        symbol: data.symbol,
+        assetId: data.assetId,
+        assetName: data.assetName,
+        sharePercentage: data.sharePercentage,
+        pricePerToken: data.pricePerToken,
+        decimals: data.decimals,
+        supply: this.tokenSupply(data.supply, data.decimals)
+      };
     }
   };
 
@@ -422,6 +435,61 @@ export class TypeTransformations {
           benchmarkPremium: display.pricing.benchmarkPremium,
           transportCosts: display.pricing.transportCosts
         }
+      }
+    };
+  }
+
+  /**
+   * Convenience method: Transform AssetData directly to UI Asset
+   */
+  static assetToUI(assetData: AssetData): UIAsset {
+    const coreAsset = this.apiToCore.assetData(assetData);
+    const fullCoreAsset: Core.Asset = {
+      id: assetData.assetName.toLowerCase().replace(/\s+/g, '-'),
+      name: assetData.assetName,
+      location: coreAsset.location!,
+      terms: coreAsset.terms!,
+      technical: coreAsset.technical!,
+      pricing: coreAsset.pricing!,
+      operator: coreAsset.operator!,
+      production: {
+        status: this.apiToCore.productionStatus(assetData.production.status),
+        expectedRemainingProduction: null, // Will be set by service layer
+        expectedEndDate: null // Will be set by service layer
+      },
+      monthlyReports: [] // Will be set by service layer
+    };
+    return this.coreToUI(fullCoreAsset);
+  }
+
+  /**
+   * Convenience method: Transform TokenMetadata directly to UI Token
+   */
+  static tokenToUI(tokenData: TokenMetadata): UIToken {
+    return {
+      contractAddress: tokenData.contractAddress,
+      name: tokenData.assetName, // Use assetName as the token name
+      symbol: tokenData.symbol,
+      decimals: tokenData.decimals,
+      tokenType: "royalty", // Default type, can be enhanced later
+      assetId: tokenData.assetId,
+      isActive: true,
+      supply: {
+        maxSupply: tokenData.supply.maxSupply,
+        mintedSupply: tokenData.supply.mintedSupply,
+        availableSupply: tokenData.supply.availableSupply
+      },
+      holders: [], // Will be populated by service layer
+      payoutHistory: tokenData.payouts || [],
+      sharePercentage: tokenData.sharePercentage,
+      firstPaymentDate: tokenData.payouts && tokenData.payouts.length > 0 
+        ? tokenData.payouts[0].month 
+        : undefined,
+      metadata: {
+        description: `Token representing ${tokenData.sharePercentage}% ownership in ${tokenData.assetName}`,
+        image: '', // Will be set by service layer
+        external_url: '', // Will be set by service layer
+        attributes: []
       }
     };
   }
