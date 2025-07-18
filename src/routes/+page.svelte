@@ -60,7 +60,8 @@
 		showButtons={false}
 	>
 		<!-- Platform Stats -->
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto mb-12">
+		<div class="max-w-6xl mx-auto px-8 mb-12">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
 			{#if stats.loading}
 				<StatsCard
 					title="Total Invested"
@@ -102,6 +103,7 @@
 					size="large"
 				/>
 			{/if}
+			</div>
 		</div>
 
 		<!-- Buttons Below Stats -->

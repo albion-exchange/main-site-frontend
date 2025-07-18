@@ -215,7 +215,7 @@
 
 		<!-- Asset Header -->
 		<div class="max-w-6xl mx-auto px-8">
-		<div class="bg-white mb-8">
+		<div class="bg-white border border-light-gray section-no-border mb-8">
 			<div class="py-12">
 				<div class="mb-12">
 				<div class="flex md:items-start items-center md:flex-row flex-col md:gap-8 gap-4 mb-8">
@@ -751,7 +751,7 @@
 		<!-- Available Tokens Section -->
 		<ContentSection background="white" padding="none">
 			<div class="max-w-6xl mx-auto px-8">
-			<div class="bg-white">
+			<div class="bg-white border border-light-gray section-no-border">
 				<div class="py-12">
 					<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">

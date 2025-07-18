@@ -130,9 +130,9 @@
   }
 }
 
-/* Hide all borders with border-light-gray class universally */
+/* Hide borders specifically for sections only */
 @layer utilities {
-  .border-light-gray {
+  .section-no-border {
     border-color: transparent !important;
   }
 }
