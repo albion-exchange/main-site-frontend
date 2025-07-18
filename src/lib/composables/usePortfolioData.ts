@@ -136,14 +136,21 @@ export function usePortfolioData() {
   function calculateAssetDepletion(asset: Asset): number {
     // Get cumulative production from asset data
     let cumulativeProduction = 0;
+    
+    // Add production from monthly reports (recent months with payouts)
     if (asset.monthlyReports) {
-      cumulativeProduction = asset.monthlyReports.reduce((sum, report) => sum + report.production, 0);
+      cumulativeProduction += asset.monthlyReports.reduce((sum, report) => sum + report.production, 0);
+    }
+    
+    // Add production from historical data (older months without payouts)
+    if (asset.productionHistory) {
+      cumulativeProduction += asset.productionHistory.reduce((sum, record) => sum + record.production, 0);
     }
     
     // Get total reserves (estimated remaining + cumulative)
     let totalReserves = 0;
     const remainingProdStr = asset.production.expectedRemainingProduction || 
-      dataStoreService.getCalculatedRemainingProduction(asset.id);
+      dataStoreService.getCalculatedRemainingProduction(asset.id, cumulativeProduction);
     
     if (remainingProdStr && remainingProdStr !== 'TBD') {
       const match = remainingProdStr.match(/[\d.]+/);

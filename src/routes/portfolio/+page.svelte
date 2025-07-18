@@ -27,22 +27,13 @@
 	const { toggle: toggleCardFlip, flippedCards } = useCardFlip();
 	
 	function getPayoutChartData(holding: any): Array<{date: string; value: number}> {
-		// Always return sample data to ensure the chart displays
-		const sampleData = [
-			{ date: '2024-07-01', value: 350 },
-			{ date: '2024-08-01', value: 375 },
-			{ date: '2024-09-01', value: 395 },
-			{ date: '2024-10-01', value: 412 },
-			{ date: '2024-11-01', value: 428 },
-			{ date: '2024-12-01', value: 445 }
-		];
-		
 		// Get payout history for this specific asset
 		const assetPayouts = walletDataService.getHoldingsByAsset();
 		const assetPayout = assetPayouts.find(p => p.assetId === holding.id);
 		
 		if (!assetPayout || !assetPayout.monthlyPayouts || assetPayout.monthlyPayouts.length === 0) {
-			return sampleData;
+			console.warn(`No payout data found for asset ${holding.id}`);
+			return [];
 		}
 		
 		// Convert monthly payouts to chart data format
@@ -54,7 +45,8 @@
 			}))
 			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 		
-		return chartData.length > 0 ? chartData : sampleData;
+		// If no real data, return empty array instead of fake data
+		return chartData;
 	}
 
 	onMount(async () => {
@@ -100,49 +92,30 @@
 				// Calculate unrecovered capital
 				const unrecoveredCapital = Math.max(0, holding.totalInvested - holding.totalEarned);
 				
-				// Calculate asset depletion
-				// Get cumulative production from asset data
+				// Calculate asset depletion = production so far / total expected production
+				let assetDepletion = 0;
+				
+				// Calculate cumulative production so far
 				let cumulativeProduction = 0;
-				if (asset.monthlyReports) {
-					cumulativeProduction = asset.monthlyReports.reduce((sum, report) => sum + report.production, 0);
+				if (asset.monthlyReports && asset.monthlyReports.length > 0) {
+					cumulativeProduction = asset.monthlyReports.reduce((sum, report) => sum + (report.production || 0), 0);
 				}
 				
-				// Get total reserves (estimated remaining + cumulative)
-				// Parse the expected remaining production string
-				let totalReserves = 0;
-				const remainingProdStr = asset.production?.expectedRemainingProduction || 
-					dataStoreService.getCalculatedRemainingProduction(asset.id, cumulativeProduction);
+				// Get total expected production (sum of planned production)
+				let totalExpectedProduction = cumulativeProduction; // Start with what's already produced
 				
-				if (remainingProdStr && remainingProdStr !== 'TBD') {
-					const match = remainingProdStr.match(/[\d.]+/);
-					if (match) {
-						const remainingMboe = parseFloat(match[0]) * 1000; // Convert mboe to boe
-						totalReserves = cumulativeProduction + remainingMboe;
-					}
+				if (asset.plannedProduction?.projections && asset.plannedProduction.projections.length > 0) {
+					// Add remaining planned production
+					const remainingPlannedProduction = asset.plannedProduction.projections.reduce(
+						(sum, projection) => sum + (projection.production || 0), 
+						0
+					);
+					totalExpectedProduction = cumulativeProduction + remainingPlannedProduction;
 				}
 				
-				let assetDepletion = totalReserves > 0 
-					? (cumulativeProduction / totalReserves) * 100 
-					: 0;
-				
-				// Fallback: If no data available but asset is producing, estimate based on typical field life
-				if (assetDepletion === 0 && asset.production?.status === 'producing' && cumulativeProduction > 0) {
-					// Estimate based on typical 20-year field life with peak production in years 3-7
-					const monthsProducing = asset.monthlyReports?.length || 0;
-					const yearsProducing = monthsProducing / 12;
-					
-					if (yearsProducing < 7) {
-						// Early stage - assume 15-30% depleted
-						assetDepletion = 15 + (yearsProducing * 2.5);
-					} else if (yearsProducing < 15) {
-						// Mid stage - assume 30-70% depleted
-						assetDepletion = 30 + ((yearsProducing - 7) * 5);
-					} else {
-						// Late stage - assume 70-90% depleted
-						assetDepletion = 70 + ((yearsProducing - 15) * 4);
-					}
-					
-					assetDepletion = Math.min(90, assetDepletion); // Cap at 90%
+				// Calculate depletion percentage
+				if (totalExpectedProduction > 0 && cumulativeProduction > 0) {
+					assetDepletion = (cumulativeProduction / totalExpectedProduction) * 100;
 				}
 				
 				return {

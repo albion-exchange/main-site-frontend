@@ -153,6 +153,42 @@
       "amount": 800,
       "amountUSD": 800.0,
       "txHash": "0x901234abc5678defabcdef1234567890abcdef1234567890abcdef1234567890"
+    },
+    {
+      "id": "tx_016",
+      "timestamp": "2025-03-20T14:00:00Z",
+      "address": "0x7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f60",
+      "type": "claim",
+      "amount": 44.38,
+      "amountUSD": 44.38,
+      "txHash": "0x000000000000000000000000254bfab614bc6e08"
+    },
+    {
+      "id": "tx_017",
+      "timestamp": "2025-04-20T14:00:00Z",
+      "address": "0x7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f60",
+      "type": "claim",
+      "amount": 42.18,
+      "amountUSD": 42.18,
+      "txHash": "0x0000000000000000000000003213a19c9bf0f95e"
+    },
+    {
+      "id": "tx_018",
+      "timestamp": "2025-05-20T14:00:00Z",
+      "address": "0x7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f60",
+      "type": "claim",
+      "amount": 46.14,
+      "amountUSD": 46.14,
+      "txHash": "0x00000000000000000000000048fe65b0e25d8d28"
+    },
+    {
+      "id": "tx_019",
+      "timestamp": "2025-06-20T14:00:00Z",
+      "address": "0x7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f60",
+      "type": "claim",
+      "amount": 43.06,
+      "amountUSD": 43.06,
+      "txHash": "0xffffffffffffffffffffffffaae10e0b867ea547"
     }
   ],
   "payouts": [
@@ -335,6 +371,54 @@
       "walletShare": 0.003252,
       "amount": 19.46,
       "txHash": "0xffffffffffffffffffffffffe791cdaa42d67782"
+    },
+    {
+      "id": "payout_gom_001",
+      "timestamp": "2025-03-15T00:00:00Z",
+      "address": "0x7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f60",
+      "month": "2025-03",
+      "totalPayout": 192757.6,
+      "mintedSupply": 3475000,
+      "walletTokens": 800,
+      "walletShare": 0.00023022,
+      "amount": 44.38,
+      "txHash": "0x000000000000000000000000254bfab614bc6e08"
+    },
+    {
+      "id": "payout_gom_002",
+      "timestamp": "2025-04-15T00:00:00Z",
+      "address": "0x7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f60",
+      "month": "2025-04",
+      "totalPayout": 183215.2,
+      "mintedSupply": 3475000,
+      "walletTokens": 800,
+      "walletShare": 0.00023022,
+      "amount": 42.18,
+      "txHash": "0x0000000000000000000000003213a19c9bf0f95e"
+    },
+    {
+      "id": "payout_gom_003",
+      "timestamp": "2025-05-15T00:00:00Z",
+      "address": "0x7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f60",
+      "month": "2025-05",
+      "totalPayout": 200390.4,
+      "mintedSupply": 3475000,
+      "walletTokens": 800,
+      "walletShare": 0.00023022,
+      "amount": 46.14,
+      "txHash": "0x00000000000000000000000048fe65b0e25d8d28"
+    },
+    {
+      "id": "payout_gom_004",
+      "timestamp": "2025-06-15T00:00:00Z",
+      "address": "0x7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f60",
+      "month": "2025-06",
+      "totalPayout": 187034.4,
+      "mintedSupply": 3475000,
+      "walletTokens": 800,
+      "walletShare": 0.00023022,
+      "amount": 43.06,
+      "txHash": "0xffffffffffffffffffffffffaae10e0b867ea547"
     }
   ]
 }
