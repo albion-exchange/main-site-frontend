@@ -275,7 +275,7 @@
 		className="py-12"
 	>
 		<!-- Platform Stats -->
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto mt-2">
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto mt-2 px-8">
 			{#if loading}
 				<StatsCard
 					title="Total Earned"
@@ -332,34 +332,49 @@
 
 		<!-- Quick Claim Section -->
 		<FullWidthSection background="gray" padding="standard">
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-				<div>
-					<SectionTitle level="h2" size="subsection" className="mb-6">Quick Claim All</SectionTitle>
-					<div class="text-3xl font-extrabold text-primary mb-2">{formatCurrency(unclaimedPayout)}</div>
-					<div class="text-sm text-black opacity-70 font-semibold mb-6">Total Available</div>
-					<div class="space-y-2 text-sm">
-						<div class="flex justify-between">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="md:pl-16">
+					<SectionTitle level="h2" size="section" className="mb-6">Quick Claim All</SectionTitle>
+					<div class="flex items-center gap-3 mb-6">
+						<span class="text-2xl font-extrabold text-primary">{formatCurrency(unclaimedPayout)}</span>
+						<span class="text-2xl font-extrabold text-primary">available</span>
+					</div>
+					<div class="space-y-2 text-lg">
+						<div class="flex gap-2">
 							<span class="text-black opacity-70 font-semibold">Estimated Gas:</span>
 							<span class="font-extrabold">{formatCurrency(estimatedGas)}</span>
 						</div>
-						<div class="flex justify-between">
+						<div class="flex gap-2">
 							<span class="text-black opacity-70 font-semibold">Net Amount:</span>
 							<span class="font-extrabold text-primary">{formatCurrency(unclaimedPayout - estimatedGas)}</span>
 						</div>
 					</div>
 				</div>
-				<div class="flex flex-col gap-4 justify-center">
-					<PrimaryButton
-						on:click={() => handleClaimWithModal('claim')}
-						disabled={claiming || unclaimedPayout <= 0}
-					>
-						{#if claiming}
-							Claiming...
-						{:else}
-							Claim All {formatCurrency(unclaimedPayout)}
-						{/if}
-					</PrimaryButton>
-					<SecondaryButton on:click={() => handleClaimWithModal('reinvest')} disabled={claiming || unclaimedPayout <= 0}>Claim & Reinvest</SecondaryButton>
+				<div class="flex items-center justify-center">
+					<div class="flex gap-4">
+						<div class="text-lg">
+							<PrimaryButton
+								on:click={() => handleClaimWithModal('claim')}
+								disabled={claiming || unclaimedPayout <= 0}
+								size="large"
+							>
+								{#if claiming}
+									Claiming...
+								{:else}
+									Claim All {formatCurrency(unclaimedPayout)}
+								{/if}
+							</PrimaryButton>
+						</div>
+						<div class="text-lg">
+							<SecondaryButton 
+								on:click={() => handleClaimWithModal('reinvest')} 
+								disabled={claiming || unclaimedPayout <= 0}
+								size="large"
+							>
+								Claim & Reinvest
+							</SecondaryButton>
+						</div>
+					</div>
 				</div>
 			</div>
 		</FullWidthSection>
