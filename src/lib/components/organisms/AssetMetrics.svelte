@@ -12,9 +12,10 @@ to show key performance indicators for assets.
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { MetricCard } from '../molecules';
+	import { mockAssets, type AssetOverview } from '$lib/data/assets';
 
-	// Local type definitions
-	interface Asset {
+	// Local type definitions for metrics
+	interface AssetMetrics {
 		id: string;
 		name: string;
 		totalValue: number;
@@ -29,28 +30,33 @@ to show key performance indicators for assets.
 	export let assetId: string;
 
 	// State
-	let asset: Asset | null = null;
+	let asset: AssetMetrics | null = null;
 	let loading = true;
 	let error: string | null = null;
 
-	// Mock data for demonstration
-	const mockAsset: Asset = {
-		id: assetId,
-		name: 'Sample Asset',
-		totalValue: 2500000,
-		currentValue: 2750000,
-		totalReturn: 250000,
-		monthlyReturn: 15000,
-		efficiency: 88.2,
-		uptime: 95.5
-	};
-
 	onMount(() => {
-		// Simulate loading
-		setTimeout(() => {
-			asset = mockAsset;
+		// Find asset from mock data and simulate additional metrics
+		const foundAsset = mockAssets.find(a => a.id === assetId);
+		
+		if (foundAsset) {
+			// Simulate loading
+			setTimeout(() => {
+				asset = {
+					id: foundAsset.id,
+					name: foundAsset.name,
+					totalValue: foundAsset.totalValue,
+					currentValue: foundAsset.totalValue * 1.1, // 10% growth
+					totalReturn: foundAsset.totalValue * foundAsset.expectedReturn,
+					monthlyReturn: foundAsset.totalValue * foundAsset.expectedReturn / 12,
+					efficiency: 85 + Math.random() * 10, // Random efficiency 85-95%
+					uptime: 90 + Math.random() * 8 // Random uptime 90-98%
+				};
+				loading = false;
+			}, 1000);
+		} else {
+			error = 'Asset not found';
 			loading = false;
-		}, 1000);
+		}
 	});
 
 	// Computed values

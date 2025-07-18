@@ -4,84 +4,11 @@
 	import { modalState } from '$lib/stores/ui';
 	import { Button } from '$lib/components/atoms';
 	import { MetricCard } from '$lib/components/molecules';
+	import { mockAssets, mockPlatformStats, type AssetOverview } from '$lib/data/assets';
 
-	// Local type definitions
-	interface AssetOverview {
-		id: string;
-		name: string;
-		location: string;
-		totalValue: number;
-		tokenPrice: number;
-		tokensAvailable: number;
-		totalTokens: number;
-		expectedReturn: number;
-		productionStart: Date;
-		images: string[];
-		status: 'active' | 'funding' | 'completed';
-		riskLevel: 'low' | 'medium' | 'high';
-		estimatedProduction: number;
-		operator: string;
-	}
-
-	// Mock data for featured assets
-	let featuredAssets: AssetOverview[] = [
-		{
-			id: '1',
-			name: 'Permian Basin Well #247',
-			location: 'Texas, USA',
-			totalValue: 2500000,
-			tokenPrice: 50,
-			tokensAvailable: 45000,
-			totalTokens: 50000,
-			expectedReturn: 0.12,
-			productionStart: new Date('2024-03-15'),
-			images: ['/assets/well-1.jpg', '/assets/well-1-aerial.jpg'],
-			status: 'active' as const,
-			riskLevel: 'medium' as const,
-			estimatedProduction: 150000,
-			operator: 'Eagle Energy Partners'
-		},
-		{
-			id: '2', 
-			name: 'Eagle Ford Shale Project',
-			location: 'Texas, USA',
-			totalValue: 1800000,
-			tokenPrice: 25,
-			tokensAvailable: 12000,
-			totalTokens: 72000,
-			expectedReturn: 0.15,
-			productionStart: new Date('2024-04-01'),
-			images: ['/assets/well-2.jpg'],
-			status: 'active' as const,
-			riskLevel: 'medium' as const,
-			estimatedProduction: 120000,
-			operator: 'Lone Star Drilling'
-		},
-		{
-			id: '3',
-			name: 'Bakken Formation Site',
-			location: 'North Dakota, USA', 
-			totalValue: 3200000,
-			tokenPrice: 75,
-			tokensAvailable: 8500,
-			totalTokens: 42667,
-			expectedReturn: 0.18,
-			productionStart: new Date('2024-05-15'),
-			images: ['/assets/well-3.jpg'],
-			status: 'funding' as const,
-			riskLevel: 'high' as const,
-			estimatedProduction: 200000,
-			operator: 'Northern Plains Energy'
-		}
-	];
-
-	// Platform statistics
-	let platformStats = {
-		totalValue: 52000000,
-		activeInvestors: 1247,
-		averageReturn: 0.145,
-		totalWells: 23
-	};
+	// Use the imported mock data
+	let featuredAssets: AssetOverview[] = mockAssets.slice(0, 3); // Show first 3 assets
+	let platformStats = mockPlatformStats;
 
 	function handleGetStarted() {
 		goto('/assets');

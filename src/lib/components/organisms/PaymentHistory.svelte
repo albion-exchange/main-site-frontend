@@ -12,16 +12,7 @@ with payment data management and filtering capabilities.
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { DataTable } from '../molecules';
-
-	// Local type definitions
-	interface Payment {
-		id: string;
-		date: string;
-		amount: number;
-		asset: string;
-		status: 'completed' | 'pending' | 'failed';
-		txHash?: string;
-	}
+	import { getPaymentsByUser, type Payment } from '$lib/data/payments';
 
 	// Props
 	export let userId: string;
@@ -30,33 +21,6 @@ with payment data management and filtering capabilities.
 	let payments: Payment[] = [];
 	let loading = true;
 	let error: string | null = null;
-
-	// Mock data for demonstration
-	const mockPayments: Payment[] = [
-		{
-			id: '1',
-			date: '2024-01-15',
-			amount: 1250.00,
-			asset: 'Permian Basin Well #247',
-			status: 'completed',
-			txHash: '0x123...abc'
-		},
-		{
-			id: '2',
-			date: '2024-01-01',
-			amount: 980.50,
-			asset: 'Eagle Ford Shale Project',
-			status: 'completed',
-			txHash: '0x456...def'
-		},
-		{
-			id: '3',
-			date: '2023-12-15',
-			amount: 1450.75,
-			asset: 'Bakken Formation Site',
-			status: 'pending'
-		}
-	];
 
 	// Table configuration
 	const columns = [
@@ -68,10 +32,15 @@ with payment data management and filtering capabilities.
 	];
 
 	onMount(() => {
-		// Simulate loading
+		// Load payments for the user
 		setTimeout(() => {
-			payments = mockPayments;
-			loading = false;
+			try {
+				payments = getPaymentsByUser(userId);
+				loading = false;
+			} catch (err) {
+				error = 'Failed to load payments';
+				loading = false;
+			}
 		}, 1000);
 	});
 
@@ -85,7 +54,24 @@ with payment data management and filtering capabilities.
 
 	function handleExport() {
 		// Export functionality
-		console.log('Exporting payment history...');
+		const csvContent = [
+			['Date', 'Asset', 'Amount', 'Status', 'Transaction Hash'],
+			...payments.map(p => [
+				p.date,
+				p.asset,
+				p.amount.toString(),
+				p.status,
+				p.txHash || 'N/A'
+			])
+		].map(row => row.join(',')).join('\n');
+		
+		const blob = new Blob([csvContent], { type: 'text/csv' });
+		const url = window.URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = `payment-history-${userId}.csv`;
+		link.click();
+		window.URL.revokeObjectURL(url);
 	}
 
 	function handleViewTransaction(payment: Payment) {
@@ -120,7 +106,7 @@ with payment data management and filtering capabilities.
 		</div>
 	{:else if payments.length === 0}
 		<div class="text-center py-8 text-gray-500">
-			<p>No payments found</p>
+			<p>No payments found for user {userId}</p>
 		</div>
 	{:else}
 		<DataTable
