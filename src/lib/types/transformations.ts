@@ -22,7 +22,6 @@ import { ProductionStatus as MetaboardProductionStatus } from './MetaboardTypes'
 import type { 
   Asset as UIAsset, 
   Token as UIToken,
-  AssetTerms as UIAssetTerms,
   AssetLocation as UIAssetLocation
 } from './uiTypes';
 import type { ISODateOnlyString, ISODateTimeString } from './sharedTypes';
@@ -360,7 +359,7 @@ export class TypeTransformations {
       coverImage: '', // Will be set by service layer
       images: [], // Legacy field
       galleryImages: [],
-      terms: display.terms as UIAssetTerms,
+      terms: display.terms,
       operator: {
         name: asset.operator.name,
         experience: display.operator.experience

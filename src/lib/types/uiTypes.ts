@@ -12,6 +12,7 @@ import type {
   ISODateOnlyString,
   ISOYearMonthString,
 } from "./sharedTypes";
+import type { Display } from "./transformations";
 
 // AssetLocation extends the shared Location type with optional waterDepth
 export interface AssetLocation extends Omit<Location, "waterDepth"> {
@@ -50,12 +51,8 @@ export interface AssetProduction {
   };
 }
 
-export interface AssetTerms {
-  interestType: string;
-  amount: string;
-  amountTooltip?: string;
-  paymentFrequency: string;
-}
+// AssetTerms moved to transformations.ts to avoid duplication
+// Use Display.AssetTerms from transformations for UI components
 
 export interface MonthlyReport {
   month: string; // YYYY-MM format
@@ -110,7 +107,7 @@ export interface Asset {
   operator: AssetOperator;
   technical: AssetTechnical;
   production: AssetProduction;
-  assetTerms: AssetTerms;
+  assetTerms: Display.AssetTerms;
   tokenContracts: string[]; // Array of contract addresses
   monthlyReports: MonthlyReport[];
   productionHistory?: ProductionHistoryRecord[]; // Historical production data without financial details
@@ -283,12 +280,7 @@ export interface AssetTemplate {
       transportCosts: string;
     };
   };
-  assetTerms: {
-    interestType: string;
-    amount: string;
-    amountTooltip?: string;
-    paymentFrequency: string;
-  };
+  assetTerms: Display.AssetTerms;
   production: {
     current: string;
     status: "funding" | "producing" | "completed";

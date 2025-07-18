@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import configService from '$lib/services/ConfigService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/ui';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
@@ -11,26 +11,31 @@
 	import { getImageUrl } from '$lib/utils/imagePath';
 	import { formatCurrency } from '$lib/utils/formatters';
 	import { 
-		useAssetData, 
+		useAssetDetailData,
 		useDataExport, 
 		useTooltip, 
 		useEmailNotification
 	} from '$lib/composables';
+	import AssetDetailHeader from '$lib/components/assets/AssetDetailHeader.svelte';
+	import AssetOverviewTab from '$lib/components/assets/AssetOverviewTab.svelte';
 
-	let loading = true;
-	let error: string | null = null;
 	let activeTab = 'overview';
 	let unclaimedPayout = 0; // Will be calculated from actual token holdings
-	let assetData: Asset | null = null;
-	let assetTokens: Token[] = [];
 	
 	// Purchase widget state
 	let showPurchaseWidget = false;
 	let selectedTokenAddress: string | null = null;
 	
+	// Get asset ID from URL params
+	$: assetId = $page.params.id;
+	
 	// Use composables
+	const assetDetailData = useAssetDetailData(assetId);
 	const { exportProductionData: exportDataFunc, exportPaymentHistory } = useDataExport();
 	const { state: emailState, setEmail, submitEmail } = useEmailNotification();
+	
+	// Reactive data from composable
+	$: ({ asset: assetData, tokens: assetTokens, loading, error } = $assetDetailData.state);
 	
 	function showTooltipWithDelay(tooltipId: string) {
 		clearTimeout(tooltipTimer);
@@ -159,30 +164,9 @@
 		}
 	}
 
-	onMount(() => {
-		const assetId = $page.params.id;
-		
-		try {
-			// Load asset data from store
-			const asset = dataStoreService.getAssetById(assetId);
-			
-			if (!asset) {
-				error = 'Asset not found';
-				loading = false;
-				return;
-			}
-			
-			assetData = asset;
-			
-			// Load associated tokens
-			const tokens = dataStoreService.getTokensByAssetId(assetId);
-			assetTokens = tokens;
-			
-			loading = false;
-		} catch (err) {
-			console.error('Error loading asset:', err);
-			error = 'Error loading asset data';
-			loading = false;
+	onMount(async () => {
+		if (assetId) {
+			await assetDetailData.loadAssetData();
 		}
 	});
 </script>
@@ -204,109 +188,11 @@
 			<a href="/assets" class="px-8 py-4 no-underline font-semibold text-sm uppercase tracking-wider transition-colors duration-200 inline-block bg-black text-white hover:bg-secondary inline-block">Back to Assets</a>
 		</div>
 	{:else}
-		<!-- Breadcrumb -->
-		<div class="max-w-6xl mx-auto px-8">
-			<nav class="mb-8 text-sm font-medium">
-				<a href="/assets" class="text-secondary no-underline hover:text-black">← Back to Assets</a>
-				<span class="mx-2 text-light-gray">/</span>
-				<span class="text-black font-semibold">{assetData?.name || 'Asset Details'}</span>
-			</nav>
-		</div>
-
-		<!-- Asset Header -->
-		<div class="max-w-6xl mx-auto px-8">
-		<div class="bg-white border border-light-gray section-no-border mb-8">
-			<div class="py-12">
-				<div class="mb-12">
-				<div class="flex md:items-start items-center md:flex-row flex-col md:gap-8 gap-4 mb-8">
-					<div class="w-16 h-16 rounded-lg overflow-hidden border border-light-gray">
-						<img 
-							src={getImageUrl(getAssetImage(assetData))} 
-							alt={assetData?.name || 'Asset'}
-							loading="lazy"
-							class="w-full h-full object-cover"
-						/>
-					</div>
-					<div class="flex-1">
-						<div class="flex justify-between items-start gap-4 mb-4">
-							<h1 class="text-4xl md:text-5xl font-extrabold text-black uppercase tracking-tight m-0">{assetData?.name}</h1>
-							<div class="flex flex-col items-end gap-2 flex-shrink-0">
-								<div class="text-xs font-medium text-black uppercase tracking-wider">Share this investment:</div>
-								<div class="flex gap-2">
-									<button class="flex items-center justify-center w-8 h-8 bg-white border border-light-gray text-black cursor-pointer transition-all duration-200 rounded hover:bg-light-gray hover:border-secondary hover:text-secondary" title="Share asset on Twitter" aria-label="Share asset on Twitter" on:click={() => window.open(`https://twitter.com/intent/tweet?text=Check out this energy investment opportunity: ${assetData?.name} on @Albion&url=${encodeURIComponent(window.location.href)}`, '_blank')}>
-										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-											<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-										</svg>
-									</button>
-									<button class="flex items-center justify-center w-8 h-8 bg-white border border-light-gray text-black cursor-pointer transition-all duration-200 rounded hover:bg-light-gray hover:border-secondary hover:text-secondary" title="Share asset on LinkedIn" aria-label="Share asset on LinkedIn" on:click={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank')}>
-										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-											<path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-										</svg>
-									</button>
-									<button class="flex items-center justify-center w-8 h-8 bg-white border border-light-gray text-black cursor-pointer transition-all duration-200 rounded hover:bg-light-gray hover:border-secondary hover:text-secondary" title="Share asset on Telegram" aria-label="Share asset on Telegram" on:click={() => window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=Check out this energy investment opportunity: ${assetData?.name}`, '_blank')}>
-										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-											<path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-										</svg>
-									</button>
-									<button class="flex items-center justify-center w-8 h-8 bg-white border border-light-gray text-black cursor-pointer transition-all duration-200 rounded hover:bg-light-gray hover:border-secondary hover:text-secondary" title="Share asset via email" aria-label="Share asset via email" on:click={() => window.open(`mailto:?subject=Investment Opportunity: ${assetData?.name}&body=I thought you might be interested in this energy investment opportunity:%0D%0A%0D%0A${assetData?.name}%0D%0A${window.location.href}%0D%0A%0D%0ACheck it out on Albion!`, '_blank')}>
-										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-											<path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-										</svg>
-									</button>
-									<button class="flex items-center justify-center w-8 h-8 bg-white border border-light-gray text-black cursor-pointer transition-all duration-200 rounded hover:bg-light-gray hover:border-secondary hover:text-secondary" title="Copy asset link" aria-label="Copy asset link" on:click={() => { navigator.clipboard.writeText(window.location.href); /* You could add a toast notification here */ }}>
-										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-											<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-											<path d="m14 11-7.54.54-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-										</svg>
-									</button>
-								</div>
-							</div>
-						</div>
-						<div class="flex items-center gap-4 mb-2">
-							<span class="text-secondary font-medium text-sm">📍 {assetData?.location?.state}, {assetData?.location?.country}</span>
-						</div>
-						<div class="text-black opacity-70 text-sm">
-							<span>Operated by {assetData?.operator?.name}</span>
-							<span>•</span>
-							<span>License {assetData?.technical?.license}</span>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="grid md:grid-cols-3 grid-cols-1 gap-8 mb-8">
-				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4">
-					<MetricDisplay
-						value={assetData?.production?.current || '0'}
-						label="Current Production"
-						size="large"
-					/>
-				</div>
-				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4">
-					<MetricDisplay
-						value={assetData?.monthlyReports?.[0]?.netIncome 
-							? formatCurrency(assetData.monthlyReports[0].netIncome)
-							: '$20,000'}
-						label="Last Received Income"
-						note={assetData?.monthlyReports?.[0]?.month 
-							? formatEndDate(assetData.monthlyReports[0].month + '-01')
-							: 'May 2025'}
-						size="large"
-					/>
-				</div>
-				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4 cursor-pointer transition-all duration-200 rounded border-2 border-light-gray bg-white shadow-sm hover:bg-light-gray hover:-translate-y-1 hover:border-primary hover:shadow-card-hover focus:outline-none focus:border-primary focus:bg-light-gray focus:shadow-card-hover" on:click={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' }); } }} role="button" tabindex="0">
-					<MetricDisplay
-						value={assetTokens.length.toString()}
-						label="Available Tokens"
-						note="👆 Click to view tokens"
-						size="large"
-					/>
-				</div>
-			</div>
-		</div>
-
-		</div>
-	</div>
+		<AssetDetailHeader 
+			asset={assetData} 
+			tokenCount={assetTokens.length} 
+			onTokenSectionClick={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })}
+		/>
 
 	<!-- Tabs Navigation and Content -->
 		<ContentSection background="white" padding="compact" maxWidth={false}>
@@ -347,76 +233,7 @@
 			<!-- Tab Content -->
 			<div class="p-8 min-h-[500px] flex flex-col">
 				{#if activeTab === 'overview'}
-					<div class="flex-1 flex flex-col">
-						<div class="grid md:grid-cols-2 grid-cols-1 gap-12 mb-12">
-							<div>
-								<SectionTitle level="h3" size="subsection" className="mb-6 uppercase tracking-wider">Asset Fundamentals</SectionTitle>
-								<div class="flex flex-col gap-4">
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Field Type</span>
-										<span class="text-black">{assetData?.technical?.fieldType}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Crude Benchmark</span>
-										<span class="text-black">{assetData?.technical?.crudeBenchmark}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Pricing</span>
-										<span class="text-black">{formatPricing(assetData?.technical?.pricing?.benchmarkPremium || '')}, {assetData?.technical?.pricing?.transportCosts}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">First Oil</span>
-										<span class="text-black">{assetData?.technical?.firstOil}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Estimated End Date</span>
-										<span class="text-black">{formatEndDate(assetData?.technical?.expectedEndDate || '')}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Coordinates</span>
-										<span class="text-black">{assetData?.location?.coordinates?.lat}°, {assetData?.location?.coordinates?.lng}°</span>
-									</div>
-								</div>
-							</div>
-
-							<div>
-								<SectionTitle level="h3" size="subsection" className="mb-6 uppercase tracking-wider">Asset Terms</SectionTitle>
-								<div class="flex flex-col gap-4">
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Interest Type</span>
-										<span class="text-black">{assetData?.assetTerms?.interestType}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black relative">
-											Amount
-											{#if assetData?.assetTerms?.amountTooltip}
-												<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
-													on:mouseenter={() => showTooltipWithDelay('amount')}
-													on:mouseleave={hideTooltip}
-													role="button"
-													tabindex="0">ⓘ</span>
-												{#if showTooltip === 'amount'}
-													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
-														{assetData?.assetTerms?.amountTooltip}
-													</div>
-												{/if}
-											{/if}
-										</span>
-										<span class="text-black">{assetData?.assetTerms?.amount}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Payment Frequency</span>
-										<span class="text-black">{assetData?.assetTerms?.paymentFrequency}</span>
-									</div>
-									<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
-										<span class="font-semibold text-black">Infrastructure</span>
-										<span class="text-black">{assetData?.technical?.infrastructure}</span>
-									</div>
-								</div>
-							</div>
-						</div>
-
-					</div>
+					<AssetOverviewTab asset={assetData} />
 				{:else if activeTab === 'production'}
 					{@const productionReports = assetData?.productionHistory || assetData?.monthlyReports || []}
 					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map((r: any) => r.production)) : 100}

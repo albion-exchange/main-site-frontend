@@ -4,6 +4,7 @@
  */
 
 export { useAssetData } from './useAssetData';
+export { useAssetDetailData } from './useAssetDetailData';
 export { useDataExport } from './useDataExport';
 export { useTooltip, tooltipContent } from './useTooltip';
 export { useCardFlip } from './useCardFlip';
