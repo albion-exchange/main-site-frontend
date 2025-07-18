@@ -133,7 +133,7 @@ export function useEmailNotification() {
     }
     
     // Log subscription data (replace with actual API call)
-    console.log('Email subscription:', data);
+          // Email subscription successful
   }
   
   /**

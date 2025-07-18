@@ -4,7 +4,8 @@
  */
 
 import type { Asset, Token } from '$lib/types/uiTypes';
-import dataStoreService from '$lib/services/DataStoreService';
+import { useTokenService } from '$lib/services';
+import { withSyncErrorHandling } from '$lib/utils/errorHandling';
 import { formatCurrency, formatNumber } from '$lib/utils/formatters';
 
 export interface ExportOptions {
@@ -80,13 +81,18 @@ export function useDataExport() {
    * Export token payment history
    */
   function exportPaymentHistory(tokens: Token[], options: ExportOptions = {}): void {
+    const tokenService = useTokenService();
+    
     if (!tokens.length) {
       console.warn('No tokens to export payment data for');
       return;
     }
     
     // Get payment data from the first token (they should all have same payment history)
-    const paymentData = dataStoreService.getTokenPayoutHistory(tokens[0].contractAddress);
+    const paymentData = withSyncErrorHandling(
+      () => tokenService.getTokenPayoutHistory(tokens[0].contractAddress),
+      { service: 'TokenService', operation: 'getTokenPayoutHistory' }
+    );
     if (!paymentData?.recentPayouts?.length) {
       console.warn('No payment history found');
       return;

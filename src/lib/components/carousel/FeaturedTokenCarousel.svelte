@@ -1,13 +1,17 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Token, Asset } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { formatCurrency } from '$lib/utils/formatters';
+	import { meetsSupplyThreshold, formatSupplyAmount, getAvailableSupplyBigInt } from '$lib/utils/tokenSupplyUtils';
 
 	export let autoPlay = true;
 	export let autoPlayInterval = 5000;
 	
 	const dispatch = createEventDispatcher();
+	const assetService = useAssetService();
+	const tokenService = useTokenService();
 
 	let currentIndex = 0;
 	let featuredTokensWithAssets: Array<{ token: Token; asset: Asset }> = [];
@@ -38,17 +42,13 @@
 			error = null;
 
 			// Get active tokens with sufficient available supply (>= 1000)
-			const activeTokens = dataStoreService.getActiveTokens()
-				.filter(token => {
-					const availableSupply = BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply);
-					const availableSupplyFormatted = Number(availableSupply) / Math.pow(10, token.decimals);
-					return availableSupplyFormatted >= 1000;
-				})
+			const activeTokens = tokenService.getAvailableTokens()
+				.filter(token => meetsSupplyThreshold(token, 1000))
 				.slice(0, 3);
 
 			featuredTokensWithAssets = activeTokens
 				.map(token => {
-					const asset = dataStoreService.getAssetById(token.assetId);
+					const asset = assetService.getAssetById(token.assetId);
 					return asset ? { token, asset } : null;
 				})
 				.filter(Boolean) as Array<{ token: Token; asset: Asset }>;
@@ -158,14 +158,7 @@
 		dispatch('buyTokens', { tokenAddress });
 	}
 
-	function formatCurrency(amount: number): string {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD',
-			minimumFractionDigits: 1,
-			maximumFractionDigits: 1
-		}).format(amount);
-	}
+
 
 	function formatLargeNumber(value: number): string {
 		if (value >= 1000000) {
@@ -178,7 +171,7 @@
 	}
 
 	function formatSupply(supply: string, decimals: number): string {
-		const formatted = parseInt(supply) / Math.pow(10, decimals);
+		const formatted = formatSupplyAmount(supply, decimals);
 		return new Intl.NumberFormat('en-US', {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 0
@@ -312,7 +305,7 @@
 				style="transform: translateX(-{currentIndex * 100}%)"
 			>
 				{#each featuredTokensWithAssets as item, index}
-					{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(item.token.contractAddress)}
+					{@const calculatedReturns = tokenService.getTokenReturns(item.token.contractAddress)}
 					<div class="{mobileCarouselSlideClasses} {index === currentIndex ? activeSlideClasses : inactiveSlideClasses}">
 						<div class={mobileBannerCardClasses}>
 							<!-- Token Section -->
@@ -335,7 +328,7 @@
 									<div class={statItemClasses}>
 										<div class={statLabelClasses}>Available Supply</div>
 										<div class={statValueClasses}>
-											{formatSupply((BigInt(item.token.supply.maxSupply) - BigInt(item.token.supply.mintedSupply)).toString(), item.token.decimals)}
+											{formatSupply(getAvailableSupplyBigInt(item.token).toString(), item.token.decimals)}
 										</div>
 									</div>
 									<div class={statItemClasses}>

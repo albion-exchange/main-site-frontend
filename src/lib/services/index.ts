@@ -1,15 +1,24 @@
 /**
  * @fileoverview Services index
- * Central export for all service classes
+ * Central export for all service classes and service infrastructure
  */
 
-export { default as DataStoreService } from './DataStoreService';
 export { default as WalletDataService } from './WalletDataService';
 
-// New focused services
+// Focused services
 export { default as AssetService } from './AssetService';
 export { default as TokenService } from './TokenService';
 export { default as ConfigService } from './ConfigService';
+
+// Service infrastructure
+export { 
+  serviceContainer,
+  useAssetService,
+  useTokenService,
+  useConfigService,
+  useWalletDataService,
+  type ServiceContainer
+} from './ServiceContainer';
 
 // Re-export types
 export type { 

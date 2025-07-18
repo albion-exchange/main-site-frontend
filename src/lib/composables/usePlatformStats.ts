@@ -4,7 +4,8 @@
  */
 
 import { writable, derived, type Readable, type Writable } from 'svelte/store';
-import dataStoreService from '$lib/services/DataStoreService';
+import { useConfigService, useAssetService, useTokenService } from '$lib/services';
+import { withSyncErrorHandling } from '$lib/utils/errorHandling';
 
 interface PlatformStatsState {
   totalAssets: number;
@@ -20,6 +21,10 @@ interface PlatformStatsState {
  * Composable for platform statistics
  */
 export function usePlatformStats() {
+  const configService = useConfigService();
+  const assetService = useAssetService();
+  const tokenService = useTokenService();
+
   const state: Writable<PlatformStatsState> = writable({
     totalAssets: 0,
     totalInvested: 0,
@@ -35,9 +40,18 @@ export function usePlatformStats() {
     
     try {
       // Get platform statistics from real data
-      const stats = dataStoreService.getPlatformStatistics();
-      const allAssets = dataStoreService.getAllAssets();
-      const allTokens = dataStoreService.getAllTokens();
+      const stats = withSyncErrorHandling(
+        () => configService.getPlatformStats(),
+        { service: 'ConfigService', operation: 'getPlatformStats' }
+      );
+      const allAssets = withSyncErrorHandling(
+        () => assetService.getAllAssets(),
+        { service: 'AssetService', operation: 'getAllAssets' }
+      ) || [];
+      const allTokens = withSyncErrorHandling(
+        () => tokenService.getAllTokens(),
+        { service: 'TokenService', operation: 'getAllTokens' }
+      ) || [];
       
       // Calculate total invested from all tokens' minted supply
       const totalInvested = allTokens.reduce((sum, token) => {
@@ -80,7 +94,11 @@ export function usePlatformStats() {
     const assetsWithReports = assets.filter(asset => asset.monthlyReports.length >= 2);
     
     if (assetsWithReports.length === 0) {
-      return dataStoreService.getMarketData().defaultGrowthRate;
+      const marketConfig = withSyncErrorHandling(
+        () => configService.getMarketConfig(),
+        { service: 'ConfigService', operation: 'getMarketConfig' }
+      );
+      return marketConfig?.defaultGrowthRate || 0;
     }
     
     const growthRates = assetsWithReports.map(asset => {
@@ -101,7 +119,11 @@ export function usePlatformStats() {
       return Number(avgGrowth.toFixed(1));
     }
     
-    return dataStoreService.getMarketData().defaultGrowthRate;
+    const marketConfig = withSyncErrorHandling(
+      () => configService.getMarketConfig(),
+      { service: 'ConfigService', operation: 'getMarketConfig' }
+    );
+    return marketConfig?.defaultGrowthRate || 0;
   }
 
   // Formatted values for display

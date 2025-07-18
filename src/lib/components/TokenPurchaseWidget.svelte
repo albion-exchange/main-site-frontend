@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { fly, fade } from 'svelte/transition';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import { useAssetService, useTokenService, useConfigService } from '$lib/services';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
 	import { formatCurrency } from '$lib/utils/formatters';
@@ -11,6 +11,9 @@
 	export let assetId: string | null = null;
 
 	const dispatch = createEventDispatcher();
+	const assetService = useAssetService();
+	const tokenService = useTokenService();
+	const configService = useConfigService();
 
 	// Purchase form state
 	let investmentAmount = 5000;
@@ -31,8 +34,8 @@
 
 	$: order = {
 		investment: investmentAmount,
-		platformFee: investmentAmount * dataStoreService.getPlatformFees().transactionFee,
-		totalCost: investmentAmount + (investmentAmount * dataStoreService.getPlatformFees().transactionFee),
+		platformFee: investmentAmount * configService.getPlatformFee(),
+		totalCost: investmentAmount + (investmentAmount * configService.getPlatformFee()),
 		tokens: investmentAmount // 1:1 ratio for simplicity
 	};
 
@@ -47,23 +50,21 @@
 	function loadTokenData() {
 		try {
 			if (tokenAddress) {
-				tokenData = dataStoreService.getTokenByAddress(tokenAddress);
+				tokenData = tokenService.getTokenByAddress(tokenAddress);
 				if (tokenData) {
-					const assetWithTokens = dataStoreService.getAssetWithTokens(tokenData.assetId);
-					assetData = assetWithTokens?.asset || null;
-					supply = dataStoreService.getTokenSupply(tokenAddress);
+					assetData = assetService.getAssetById(tokenData.assetId);
+					supply = tokenService.getTokenSupply(tokenAddress);
 				}
 			} else if (assetId) {
-				const assetWithTokens = dataStoreService.getAssetWithTokens(assetId);
-				if (assetWithTokens) {
-					assetData = assetWithTokens.asset;
-					// Get first available active token
-					const availableTokens = assetWithTokens.tokens.filter(
+				assetData = assetService.getAssetById(assetId);
+				if (assetData) {
+					// Get first available active token for this asset
+					const availableTokens = tokenService.getTokensByAssetId(assetId).filter(
 						token => token.isActive
 					);
 					if (availableTokens.length > 0) {
 						tokenData = availableTokens[0];
-						supply = dataStoreService.getTokenSupply(availableTokens[0].contractAddress);
+						supply = tokenService.getTokenSupply(availableTokens[0].contractAddress);
 					}
 				}
 			}

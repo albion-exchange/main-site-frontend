@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import type { Asset } from '$lib/types/uiTypes';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import { useTokenService } from '$lib/services';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/ui';
 	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
 
 	export let asset: Asset;
 	
 	const dispatch = createEventDispatcher();
+	const tokenService = useTokenService();
 	
 	// Scroll state management
 	let scrollContainer: HTMLDivElement;
@@ -48,12 +49,12 @@
 	$: latestReport = asset.monthlyReports[asset.monthlyReports.length - 1] || null;
 
 	// Get the primary token for this asset (first active token found)
-	$: assetTokens = dataStoreService.getTokensByAssetId(asset.id);
+	$: assetTokens = tokenService.getTokensByAssetId(asset.id);
 	$: primaryToken = assetTokens.length > 0 ? assetTokens[0] : null;
 	
 	// Check if any tokens are available
 	$: hasAvailableTokens = assetTokens.some(token => {
-		const supply = dataStoreService.getTokenSupply(token.contractAddress);
+		const supply = tokenService.getTokenSupply(token.contractAddress);
 		return supply && supply.available > 0;
 	});
 
@@ -169,7 +170,7 @@
 			<!-- Available Tokens Section -->
 			{#if hasAvailableTokens}
 			{@const availableTokens = assetTokens.filter(token => {
-				const supply = dataStoreService.getTokenSupply(token.contractAddress);
+				const supply = tokenService.getTokenSupply(token.contractAddress);
 				return supply && supply.available > 0;
 			})}
 			<div class={tokensSectionClasses}>
@@ -193,7 +194,7 @@
 						on:scroll={handleScroll}
 						class="{availableTokens.length > 2 ? tokensListScrollableClasses : tokensListClasses} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
 						{#each availableTokens as token}
-						{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
+						{@const calculatedReturns = tokenService.getTokenReturns(token.contractAddress)}
 						{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) : 0}
 						{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) : 0}
 						{@const firstPaymentMonth = token.firstPaymentDate || 'TBD'}

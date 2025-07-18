@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import configService from '$lib/services/ConfigService';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import { useTokenService, useConfigService } from '$lib/services';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/ui';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
@@ -25,6 +24,10 @@
 	// Purchase widget state
 	let showPurchaseWidget = false;
 	let selectedTokenAddress: string | null = null;
+	
+	// Use services
+	const tokenService = useTokenService();
+	const configService = useConfigService();
 	
 	// Get asset ID from URL params
 	$: assetId = $page.params.id;
@@ -528,11 +531,11 @@
 					<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 					{#each assetTokens as token}
-						{@const supply = dataStoreService.getTokenSupply(token.contractAddress)}
+						{@const supply = tokenService.getTokenSupply(token.contractAddress)}
 						{@const hasAvailableSupply = supply && supply.available > 0}
-						{@const tokenPayoutData = dataStoreService.getTokenPayoutHistory(token.contractAddress)}
+						{@const tokenPayoutData = tokenService.getTokenPayoutHistory(token.contractAddress)}
 						{@const latestPayout = tokenPayoutData?.recentPayouts?.[0]}
-						{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
+						{@const calculatedReturns = tokenService.getTokenReturns(token.contractAddress)}
 						{@const isFlipped = flippedCards.has(token.contractAddress)}
 						<div id="token-{token.contractAddress}">
 							<Card hoverable clickable paddingClass="p-0" on:click={() => handleCardClick(token.contractAddress)}>
@@ -701,7 +704,7 @@
 												</div>
 											</div>
 										{:else}
-											{@const nextRelease = dataStoreService.getFutureReleaseByAsset(assetData?.id || '')}
+											{@const nextRelease = configService.getFutureReleasesByAsset(assetData?.id || '')?.[0]}
 											<div class="text-center py-8 text-black opacity-70">
 												<p class="text-sm">No distributions available yet.</p>
 												<p class="text-sm">First payout expected in {nextRelease?.whenRelease || 'Q1 2025'}.</p>
@@ -716,7 +719,7 @@
 					{/each}
 					<!-- Future Releases Cards -->
 					{#if assetData?.id}
-						{@const futureReleases = dataStoreService.getFutureReleasesByAsset(assetData.id)}
+						{@const futureReleases = configService.getFutureReleasesByAsset(assetData.id)}
 						{#each futureReleases as release, index}
 					<Card hoverable>
 						<CardContent paddingClass="p-0">

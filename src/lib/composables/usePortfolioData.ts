@@ -4,8 +4,8 @@
  */
 
 import { writable, derived, type Readable, type Writable } from 'svelte/store';
-import dataStoreService from '$lib/services/DataStoreService';
-import walletDataService from '$lib/services/WalletDataService';
+import { useAssetService, useWalletDataService } from '$lib/services';
+import { withSyncErrorHandling } from '$lib/utils/errorHandling';
 import type { Asset } from '$lib/types/uiTypes';
 import { arrayUtils } from '$lib/utils/arrayHelpers';
 import { formatCurrency, formatPercentage } from '$lib/utils/formatters';
@@ -26,6 +26,9 @@ interface PortfolioState {
  * Composable for managing portfolio data
  */
 export function usePortfolioData() {
+  const assetService = useAssetService();
+  const walletDataService = useWalletDataService();
+
   const state: Writable<PortfolioState> = writable({
     totalInvested: 0,
     totalPayoutsEarned: 0,
@@ -49,7 +52,10 @@ export function usePortfolioData() {
       
       // Get holdings with asset info
       const assetPayouts = walletDataService.getHoldingsByAsset();
-      const allAssets = dataStoreService.getAllAssets();
+      const allAssets = withSyncErrorHandling(
+        () => assetService.getAllAssets(),
+        { service: 'AssetService', operation: 'getAllAssets' }
+      ) || [];
       
       // Count active assets
       const activeAssetsCount = assetPayouts.length;
@@ -150,8 +156,7 @@ export function usePortfolioData() {
     
     // Get total reserves (estimated remaining + cumulative)
     let totalReserves = 0;
-    const remainingProdStr = asset.production.expectedRemainingProduction || 
-      dataStoreService.getCalculatedRemainingProduction(asset.id, cumulativeProduction);
+    const remainingProdStr = asset.production.expectedRemainingProduction || 'N/A';
     
     if (remainingProdStr && remainingProdStr !== 'TBD') {
       const match = remainingProdStr.match(/[\d.]+/);
@@ -274,6 +279,7 @@ export function getHoldingPayoutChartData(holding: any): Array<{label: string; v
   ];
   
   // Get payout history for this specific asset
+  const walletDataService = useWalletDataService();
   const assetPayouts = walletDataService.getHoldingsByAsset();
   const assetPayout = assetPayouts.find(p => p.assetId === holding.id);
   

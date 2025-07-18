@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import { useAssetService, useTokenService } from '$lib/services';
 	import walletDataService from '$lib/services/WalletDataService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
@@ -25,6 +25,10 @@
 	// Use composables
 	const { show: showTooltipWithDelay, hide: hideTooltip, isVisible: isTooltipVisible } = useTooltip();
 	const { toggle: toggleCardFlip, flippedCards } = useCardFlip();
+	
+	// Use services
+	const assetService = useAssetService();
+	const tokenService = useTokenService();
 	
 	function getPayoutChartData(holding: any): Array<{date: string; value: number}> {
 		// Get payout history for this specific asset
@@ -66,8 +70,8 @@
 			
 			// Get holdings with asset info
 			const assetPayouts = walletDataService.getHoldingsByAsset();
-			const allAssets = dataStoreService.getAllAssets();
-			const allTokens = dataStoreService.getAllTokens();
+			const allAssets = assetService.getAllAssets();
+			const allTokens = tokenService.getAllTokens();
 			
 			// Count active assets
 			activeAssetsCount = assetPayouts.length;
@@ -766,7 +770,7 @@
 							<SectionTitle level="h3" size="subsection" className="mb-6">Allocation Breakdown</SectionTitle>
 							<div class="space-y-4 mb-8">
 								{#each tokenAllocations as allocation}
-									{@const allocationAsset = dataStoreService.getAssetById(allocation.assetId)}
+									{@const allocationAsset = assetService.getAssetById(allocation.assetId)}
 									<div class="flex justify-between items-center pb-4 border-b border-light-gray last:border-b-0 last:pb-0">
 										<div class="flex items-center gap-3">
 											<div class="w-8 h-8 bg-light-gray rounded overflow-hidden flex items-center justify-center">
