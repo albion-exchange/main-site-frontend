@@ -329,8 +329,8 @@
 											<!-- Tokens -->
 											<div class="pr-6 flex flex-col">
 												<div class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-4 h-10 flex items-start">Tokens</div>
-												<div class="text-xl font-extrabold text-black mb-3">{holding.tokensOwned.toLocaleString()}</div>
-												<div class="text-sm text-black opacity-70">${Math.round(holding.totalInvested).toLocaleString()}</div>
+															<div class="text-xl font-extrabold text-black mb-3">{formatNumber(holding.tokensOwned)}</div>
+			<div class="text-sm text-black opacity-70">{formatCurrency(Math.round(holding.totalInvested), { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
 											</div>
 
 											<!-- Payouts to Date -->

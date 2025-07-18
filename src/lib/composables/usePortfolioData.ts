@@ -7,6 +7,7 @@ import { writable, derived, type Readable, type Writable } from 'svelte/store';
 import dataStoreService from '$lib/services/DataStoreService';
 import walletDataService from '$lib/services/WalletDataService';
 import type { Asset } from '$lib/types/uiTypes';
+import { arrayUtils } from '$lib/utils/arrayHelpers';
 import { formatCurrency, formatPercentage } from '$lib/utils/formatters';
 
 interface PortfolioState {
@@ -138,14 +139,14 @@ export function usePortfolioData() {
     let cumulativeProduction = 0;
     
     // Add production from monthly reports (recent months with payouts)
-    if (asset.monthlyReports) {
-      cumulativeProduction += asset.monthlyReports.reduce((sum, report) => sum + report.production, 0);
-    }
+    			if (asset.monthlyReports) {
+				cumulativeProduction += arrayUtils.sum(asset.monthlyReports, report => report.production);
+			}
     
     // Add production from historical data (older months without payouts)
-    if (asset.productionHistory) {
-      cumulativeProduction += asset.productionHistory.reduce((sum, record) => sum + record.production, 0);
-    }
+    			if (asset.productionHistory) {
+				cumulativeProduction += arrayUtils.sum(asset.productionHistory, record => record.production);
+			}
     
     // Get total reserves (estimated remaining + cumulative)
     let totalReserves = 0;

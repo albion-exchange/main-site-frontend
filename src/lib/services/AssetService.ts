@@ -16,6 +16,7 @@ import type { AssetData, MonthlyData } from "$lib/types/MetaboardTypes";
 import type { Asset } from "$lib/types/uiTypes";
 import { TypeTransformations } from "$lib/types/transformations";
 import type { ISODateOnlyString } from "$lib/types/sharedTypes";
+import { arrayUtils } from "$lib/utils/arrayHelpers";
 
 // Import asset metadata
 import bakHf1Metadata from "$lib/data/mockTokenMetadata/bak-hf1.json";
@@ -116,11 +117,7 @@ class AssetService {
     }
 
     // Find the most recent report
-    return asset.monthlyReports.reduce((latest, current) => {
-      const latestDate = new Date(latest.month + '-01');
-      const currentDate = new Date(current.month + '-01');
-      return currentDate > latestDate ? current : latest;
-    });
+    return arrayUtils.latest(asset.monthlyReports, report => report.month + '-01');
   }
 
   /**
@@ -132,11 +129,7 @@ class AssetService {
       return 0;
     }
 
-    const totalRevenue = asset.monthlyReports.reduce((sum, report) => 
-      sum + (report.revenue ?? 0), 0
-    );
-
-    return totalRevenue / asset.monthlyReports.length;
+    return arrayUtils.average(asset.monthlyReports, report => report.revenue ?? 0);
   }
 
   /**

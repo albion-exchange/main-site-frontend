@@ -25,6 +25,7 @@ import type {
   AssetLocation as UIAssetLocation
 } from './uiTypes';
 import type { ISODateOnlyString, ISODateTimeString } from './sharedTypes';
+import { formatCurrency, formatNumber } from '../utils/formatters';
 
 /**
  * Core domain types - pure data representation
@@ -256,7 +257,7 @@ export class TypeTransformations {
           state: asset.location.state,
           country: asset.location.country,
           waterDepth: asset.location.waterDepth !== null 
-            ? `${asset.location.waterDepth.toLocaleString()}m` 
+            ? `${formatNumber(asset.location.waterDepth)}m` 
             : 'Onshore',
           displayName: `${asset.location.state}, ${asset.location.country}`
         },
@@ -266,7 +267,7 @@ export class TypeTransformations {
           paymentFrequency: `Monthly within ${asset.terms.paymentFrequencyDays} days`
         },
         technical: {
-          depth: `${asset.technical.depth.toLocaleString()}m`,
+          depth: `${formatNumber(asset.technical.depth)}m`,
           fieldType: asset.technical.fieldType,
           estimatedLife: `${Math.ceil(asset.technical.estimatedLifeMonths / 12)}+ years`
         },
@@ -299,9 +300,9 @@ export class TypeTransformations {
     monthlyReport(report: Core.MonthlyReport): Display.DisplayMonthlyReport {
       return {
         month: this.formatYearMonth(report.month),
-        production: `${report.production.toLocaleString()} BOE`,
-        revenue: `$${report.revenue.toLocaleString()}`,
-        netIncome: `$${report.netIncome.toLocaleString()}`
+        production: `${formatNumber(report.production)} BOE`,
+        revenue: formatCurrency(report.revenue, { minimumFractionDigits: 0, maximumFractionDigits: 0 }),
+        netIncome: formatCurrency(report.netIncome, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
       };
     },
 
