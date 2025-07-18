@@ -1,17 +1,17 @@
-/**
- * @fileoverview DataTable Component (Molecule)
- * 
- * A data table molecule that provides consistent table styling and basic
- * functionality like sorting and loading states.
- * 
- * @component DataTable
- * @example
- * <DataTable 
- *   columns={[{ key: 'name', label: 'Name', sortable: true }]}
- *   data={items}
- *   loading={false}
- * />
- */
+<!--
+   @fileoverview DataTable Component (Molecule)
+   
+   A data table molecule that provides consistent table styling and basic
+   functionality like sorting and loading states.
+   
+   @component DataTable
+   @example
+   <DataTable 
+     columns={[{ key: 'name', label: 'Name', sortable: true }]}
+     data={items}
+     loading={false}
+ -->>
+-->
 
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';

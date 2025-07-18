@@ -1,19 +1,19 @@
-/**
- * @fileoverview PageTemplate Component (Template)
- * 
- * A page template that provides consistent layout structure for all pages.
- * This template handles the overall page layout, navigation, and content areas.
- * 
- * @component PageTemplate
- * @example
- * <PageTemplate title="Dashboard" breadcrumb={breadcrumbItems}>
- *   <svelte:fragment slot="header-actions">
- *     <Button>Action</Button>
- *   </svelte:fragment>
- *   
- *   <main>Page content here</main>
- * </PageTemplate>
- */
+<!--
+   @fileoverview PageTemplate Component (Template)
+   
+   A page template that provides consistent layout structure for all pages.
+   This template handles the overall page layout, navigation, and content areas.
+   
+   @component PageTemplate
+   @example
+   <PageTemplate title="Dashboard" breadcrumb={breadcrumbItems}>
+     <svelte:fragment slot="header-actions">
+       <Button>Action</Button>
+     </svelte:fragment>
+     
+     <main>Page content here</main>
+   </PageTemplate>
+-->
 
 <script lang="ts">
 	import { Icon, Button } from '../atoms';

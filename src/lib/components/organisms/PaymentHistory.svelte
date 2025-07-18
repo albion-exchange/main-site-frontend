@@ -1,14 +1,14 @@
-/**
- * @fileoverview PaymentHistory Component (Organism)
- * 
- * A payment history organism that displays payment data in a table format
- * with filtering, sorting, and export capabilities. Contains business logic
- * for payment data management.
- * 
- * @component PaymentHistory
- * @example
- * <PaymentHistory {payments} loading={false} />
- */
+<!--
+   @fileoverview PaymentHistory Component (Organism)
+   
+   A payment history organism that displays payment data in a table format
+   with filtering, sorting, and export capabilities. Contains business logic
+   for payment data management.
+   
+   @component PaymentHistory
+   @example
+   <PaymentHistory {payments} loading={false} />
+-->
 
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';

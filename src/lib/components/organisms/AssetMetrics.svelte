@@ -1,14 +1,14 @@
-/**
- * @fileoverview AssetMetrics Component (Organism)
- * 
- * An asset metrics organism that displays multiple asset-related metrics
- * in a grid layout using MetricCard molecules. This component contains
- * business logic for formatting and displaying asset data.
- * 
- * @component AssetMetrics
- * @example
- * <AssetMetrics {asset} loading={false} />
- */
+<!--
+   @fileoverview AssetMetrics Component (Organism)
+   
+   An asset metrics organism that displays multiple asset-related metrics
+   in a grid layout using MetricCard molecules. This component contains
+   business logic for formatting and displaying asset data.
+   
+   @component AssetMetrics
+   @example
+   <AssetMetrics {asset} loading={false} />
+-->
 
 <script lang="ts">
 	import { MetricCard } from '../molecules';

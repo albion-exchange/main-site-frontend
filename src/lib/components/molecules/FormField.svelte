@@ -1,19 +1,19 @@
-/**
- * @fileoverview FormField Component (Molecule)
- * 
- * A form field molecule that combines Label and Input atoms with error handling
- * and help text. This provides a consistent form field experience across the app.
- * 
- * @component FormField
- * @example
- * <FormField 
- *   label="Email Address"
- *   type="email"
- *   bind:value={email}
- *   error={errors.email}
- *   required
- * />
- */
+<!--
+@fileoverview FormField Component (Molecule)
+
+A form field molecule that combines Label and Input atoms with error handling
+and help text. This provides a consistent form field experience across the app.
+
+@component FormField
+@example
+<FormField 
+  label="Email Address"
+  type="email"
+  bind:value={email}
+  error={errors.email}
+  required
+/>
+-->
 
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';

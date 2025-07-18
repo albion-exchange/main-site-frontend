@@ -1,16 +1,16 @@
-/**
- * @fileoverview Base Button Component (Atom)
- * 
- * A foundational button component that provides consistent styling and behavior
- * across the application. This is an atom-level component that should contain
- * minimal logic and focus on presentation.
- * 
- * @component Button
- * @example
- * <Button variant="primary" size="medium" on:click={handleClick}>
- *   Click me
- * </Button>
- */
+<!--
+@fileoverview Base Button Component (Atom)
+
+A foundational button component that provides consistent styling and behavior
+across the application. This is an atom-level component that should contain
+minimal logic and focus on presentation.
+
+@component Button
+@example
+<Button variant="primary" size="medium" on:click={handleClick}>
+  Click me
+</Button>
+-->
 
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';

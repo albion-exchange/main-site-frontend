@@ -1,243 +1,274 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { usePlatformStats } from '$lib/composables/usePlatformStats';
-	import FeaturedTokenCarousel from '$lib/components/carousel/FeaturedTokenCarousel.svelte';
-	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
-	import { PrimaryButton, SecondaryButton, StatsCard, ButtonGroup } from '$lib/components/ui';
-	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
-	import GridContainer from '$lib/components/ui/GridContainer.svelte';
-	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
-	import marketData from '$lib/data/marketData.json';
+	import type { AssetOverview } from '$lib/types/assets';
+	import { modalState } from '$lib/stores/ui';
+	import { Button } from '$lib/components/atoms';
+	import { MetricCard } from '$lib/components/molecules';
 
-	// Composables
-	const { state, formattedStats, loadStats } = usePlatformStats();
-	
-	// Token purchase widget state
-	let showPurchaseWidget = false;
-	let selectedTokenAddress: string | null = null;
-	let selectedAssetId: string | null = null;
-	
-	// Reactive data
-	$: stats = $state;
-	$: formatted = $formattedStats;
-	
-	function handleBuyTokensFromCarousel(event: CustomEvent) {
-		selectedTokenAddress = event.detail.tokenAddress;
-		selectedAssetId = null;
-		showPurchaseWidget = true;
+	// Mock data for featured assets
+	let featuredAssets: AssetOverview[] = [
+		{
+			id: '1',
+			name: 'Permian Basin Well #247',
+			location: 'Texas, USA',
+			totalValue: 2500000,
+			tokenPrice: 50,
+			tokensAvailable: 45000,
+			totalTokens: 50000,
+			expectedReturn: 0.12,
+			productionStart: new Date('2024-03-15'),
+			images: ['/assets/well-1.jpg', '/assets/well-1-aerial.jpg'],
+			status: 'active' as const,
+			riskLevel: 'medium' as const,
+			estimatedProduction: 150000,
+			operator: 'Eagle Energy Partners'
+		},
+		{
+			id: '2', 
+			name: 'Eagle Ford Shale Project',
+			location: 'Texas, USA',
+			totalValue: 1800000,
+			tokenPrice: 25,
+			tokensAvailable: 12000,
+			totalTokens: 72000,
+			expectedReturn: 0.15,
+			productionStart: new Date('2024-04-01'),
+			images: ['/assets/well-2.jpg'],
+			status: 'active' as const,
+			riskLevel: 'medium' as const,
+			estimatedProduction: 120000,
+			operator: 'Lone Star Drilling'
+		},
+		{
+			id: '3',
+			name: 'Bakken Formation Site',
+			location: 'North Dakota, USA', 
+			totalValue: 3200000,
+			tokenPrice: 75,
+			tokensAvailable: 8500,
+			totalTokens: 42667,
+			expectedReturn: 0.18,
+			productionStart: new Date('2024-05-15'),
+			images: ['/assets/well-3.jpg'],
+			status: 'funding' as const,
+			riskLevel: 'high' as const,
+			estimatedProduction: 200000,
+			operator: 'Northern Plains Energy'
+		}
+	];
+
+	// Platform statistics
+	let platformStats = {
+		totalValue: 52000000,
+		activeInvestors: 1247,
+		averageReturn: 0.145,
+		totalWells: 23
+	};
+
+	function handleGetStarted() {
+		goto('/assets');
 	}
-	
-	function handleBuyTokens(event: CustomEvent) {
-		selectedAssetId = event.detail.assetId;
-		selectedTokenAddress = null;
-		showPurchaseWidget = true;
+
+	function handleLearnMore() {
+		goto('/about');
 	}
-	
-	function handlePurchaseSuccess(event: CustomEvent) {
-		// Purchase successful - could add user notification here
-		showPurchaseWidget = false;
-	}
-	
-	function handleWidgetClose() {
-		showPurchaseWidget = false;
-		selectedTokenAddress = null;
-		selectedAssetId = null;
-	}
+
+	onMount(() => {
+		// Any initialization logic
+	});
 </script>
 
-<svelte:head>
-	<title>Albion - Institutional Grade Oil & Gas DeFi</title>
-	<meta name="description" content="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality oil & gas investments through blockchain technology." />
-</svelte:head>
-
-<PageLayout>
+<div class="flex flex-col min-h-screen bg-gray-50">
 	<!-- Hero Section -->
-	<HeroSection 
-		title="Institutional Grade Oil & Gas DeFi"
-		subtitle="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality oil & gas investments through blockchain technology."
-		showBorder={true}
-		showButtons={false}
-	>
-		<!-- Platform Stats -->
-		<div class="max-w-6xl mx-auto px-8 mb-12">
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-			{#if stats.loading}
-				<StatsCard
-					title="Total Invested"
-					value="--"
-					subtitle="Loading..."
-					size="large"
-				/>
-				<StatsCard
-					title="Assets"
-					value="--"
-					subtitle="Loading..."
-					size="large"
-				/>
-				<StatsCard
-					title="Active Investors"
-					value="--"
-					subtitle="Loading..."
-					size="large"
-				/>
-			{:else}
-				<StatsCard
-					title="Total Invested"
-					value={formatted.totalInvested}
-					subtitle="this month"
-					trend={formatted.growthTrend}
-					size="large"
-					valueColor="primary"
-				/>
-				<StatsCard
-					title="Assets"
-					value={formatted.totalAssets}
-					subtitle={formatted.regionsText}
-					size="large"
-				/>
-				<StatsCard
-					title="Active Investors"
-					value={formatted.activeInvestors}
-					subtitle="Token holders"
-					size="large"
-				/>
-			{/if}
+	<section class="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-20">
+		<div class="max-w-4xl mx-auto text-center px-4">
+			<h1 class="text-4xl md:text-6xl font-bold mb-6">
+				Invest in 
+				<span class="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+					Oil & Gas
+				</span>
+				Projects
+			</h1>
+			<p class="text-xl md:text-2xl mb-8 text-blue-100">
+				Democratizing access to institutional-grade energy investments through blockchain technology
+			</p>
+			<div class="flex flex-col sm:flex-row gap-4 justify-center">
+				<Button variant="primary" size="large" on:click={handleGetStarted}>Explore Investments</Button>
+				<Button variant="secondary" size="large" on:click={handleLearnMore}>Learn How It Works</Button>
 			</div>
 		</div>
+	</section>
 
-		<!-- Buttons Below Stats -->
-		<ButtonGroup centered direction="horizontal">
-			<PrimaryButton href="/assets">Explore Investments</PrimaryButton>
-			<SecondaryButton href="/about">Learn How It Works</SecondaryButton>
-		</ButtonGroup>
-	</HeroSection>
+	<!-- Platform Stats -->
+	<section class="py-16 bg-white">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="text-center mb-12">
+				<h2 class="text-3xl font-bold text-gray-900 mb-4">Platform Overview</h2>
+				<p class="text-lg text-gray-600 max-w-2xl mx-auto">
+					Join thousands of investors who trust Albion for their energy investment needs
+				</p>
+			</div>
+			
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+				<MetricCard
+					title="Total Value Locked"
+					value="${(platformStats.totalValue / 1000000).toFixed(1)}M"
+					trend={{ value: 8.2, direction: 'up' }}
+					icon="DollarSign"
+				/>
+				<MetricCard
+					title="Active Investors"
+					value="{platformStats.activeInvestors.toLocaleString()}"
+					trend={{ value: 12.5, direction: 'up' }}
+					icon="Users"
+				/>
+				<MetricCard
+					title="Average Return"
+					value="{(platformStats.averageReturn * 100).toFixed(1)}%"
+					trend={{ value: 2.1, direction: 'up' }}
+					icon="TrendingUp"
+				/>
+				<MetricCard
+					title="Active Wells"
+					value="{platformStats.totalWells}"
+					trend={{ value: 4, direction: 'up' }}
+					icon="Zap"
+				/>
+			</div>
+		</div>
+	</section>
 
-	<!-- Featured Tokens Carousel -->
-	<ContentSection background="white" padding="standard" centered>
-		<SectionTitle level="h2" size="section" center className="mb-6">Featured Token Releases</SectionTitle>
-		<FeaturedTokenCarousel autoPlay={true} autoPlayInterval={6000} on:buyTokens={handleBuyTokensFromCarousel} />
-	</ContentSection>
+	<!-- Featured Assets -->
+	<section class="py-16 bg-gray-50">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="text-center mb-12">
+				<h2 class="text-3xl font-bold text-gray-900 mb-4">Featured Investment Opportunities</h2>
+				<p class="text-lg text-gray-600 max-w-2xl mx-auto">
+					Discover our most promising oil and gas projects available for tokenized investment
+				</p>
+			</div>
+
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+				{#each featuredAssets as asset}
+					<div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+						<div class="relative">
+							<img 
+								src={asset.images[0] || '/assets/placeholder-well.jpg'} 
+								alt={asset.name}
+								class="w-full h-48 object-cover"
+							/>
+							<div class="absolute top-4 left-4">
+								<span class="px-3 py-1 rounded-full text-sm font-medium
+									{asset.status === 'active' ? 'bg-green-100 text-green-800' : 
+									 asset.status === 'funding' ? 'bg-blue-100 text-blue-800' : 
+									 'bg-gray-100 text-gray-800'}"
+								>
+									{asset.status === 'active' ? 'Active' : 
+									 asset.status === 'funding' ? 'Funding' : 
+									 'Completed'}
+								</span>
+							</div>
+						</div>
+						
+						<div class="p-6">
+							<h3 class="text-xl font-bold text-gray-900 mb-2">{asset.name}</h3>
+							<p class="text-gray-600 mb-4">{asset.location}</p>
+							
+							<div class="grid grid-cols-2 gap-4 mb-6">
+								<div>
+									<div class="text-sm text-gray-500">Expected Return</div>
+									<div class="text-lg font-semibold text-green-600">
+										{(asset.expectedReturn * 100).toFixed(1)}%
+									</div>
+								</div>
+								<div>
+									<div class="text-sm text-gray-500">Token Price</div>
+									<div class="text-lg font-semibold text-gray-900">
+										${asset.tokenPrice}
+									</div>
+								</div>
+							</div>
+							
+							<div class="flex gap-3">
+								<Button variant="primary" size="small" fullWidth>
+									Buy Tokens
+								</Button>
+								<Button variant="secondary" size="small" fullWidth>
+									View Details
+								</Button>
+							</div>
+						</div>
+					</div>
+				{/each}
+			</div>
+			
+			<div class="text-center mt-12">
+				<Button variant="secondary" size="large" href="/assets">View All Assets</Button>
+			</div>
+		</div>
+	</section>
 
 	<!-- How It Works -->
-	<ContentSection background="gray" padding="none" centered>
-		<div class="max-w-6xl mx-auto px-8 py-16">
-			<SectionTitle level="h2" size="section" center className="mb-4 md:mb-6">How It Works</SectionTitle>
-			
-			<GridContainer columns={3} gap="large">
-			<div class="text-center">
-				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">1</div>
-				<h3 class="text-lg font-extrabold text-black mb-4">Browse Assets</h3>
-				<p class="text-sm text-black">Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
+	<section class="py-16 bg-white">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="text-center mb-12">
+				<h2 class="text-3xl font-bold text-gray-900 mb-4">How It Works</h2>
+				<p class="text-lg text-gray-600 max-w-2xl mx-auto">
+					Simple, transparent, and secure energy investments through blockchain technology
+				</p>
 			</div>
-			
-			<div class="text-center">
-				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">2</div>
-				<h3 class="text-lg font-extrabold text-black mb-4">Buy Tokens</h3>
-				<p class="text-sm text-black">Purchase royalty tokens using our smart payment system with automatic collateral management and instant settlement.</p>
-			</div>
-			
-			<div class="text-center">
-				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">3</div>
-				<h3 class="text-lg font-extrabold text-black mb-4">Earn Payout</h3>
-				<p class="text-sm text-black">Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
-			</div>
-			</GridContainer>
-		</div>
-	</ContentSection>
 
-	<!-- Trust Indicators -->
-	<ContentSection background="white" padding="standard" centered>
-		<SectionTitle level="h2" size="section" center className="mb-4 md:mb-6">Why Choose Albion</SectionTitle>
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-			<div class="flex flex-col items-center text-center">
-				<div class="mb-6 text-black flex items-center justify-center w-16 h-16 relative">
-					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M24 2L30 14H42L32 22L36 34L24 26L12 34L16 22L6 14H18L24 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-						<circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="2"/>
-					</svg>
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+				<div class="text-center">
+					<div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+						<svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+						</svg>
+					</div>
+					<h3 class="text-xl font-semibold text-gray-900 mb-4">1. Browse Assets</h3>
+					<p class="text-gray-600">
+						Explore our curated selection of oil and gas projects with detailed performance data and geological reports.
+					</p>
 				</div>
-				<h3 class="text-lg font-extrabold text-black mb-2 text-sm md:text-base">SEC Compliant</h3>
-				<p class="text-xs text-black opacity-70">Full regulatory compliance</p>
-			</div>
-			
-			<div class="flex flex-col items-center text-center">
-				<div class="mb-6 text-black flex items-center justify-center w-16 h-16 relative">
-					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M20 28L28 20M20 28L16 32L20 28ZM28 20L32 16L28 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
-						<path d="M15 24C15 24 18 30 24 30C30 30 33 24 33 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-					</svg>
+
+				<div class="text-center">
+					<div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+						<svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+						</svg>
+					</div>
+					<h3 class="text-xl font-semibold text-gray-900 mb-4">2. Purchase Tokens</h3>
+					<p class="text-gray-600">
+						Buy fractional ownership tokens representing shares in productive oil and gas wells using cryptocurrency.
+					</p>
 				</div>
-				<h3 class="text-lg font-extrabold text-black mb-2 text-sm md:text-base">Audited Assets</h3>
-				<p class="text-xs text-black opacity-70">Third-party verified</p>
-			</div>
-			
-			<div class="flex flex-col items-center text-center">
-				<div class="mb-6 text-black flex items-center justify-center w-16 h-16 relative">
-					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<rect x="8" y="12" width="32" height="28" stroke="currentColor" stroke-width="2"/>
-						<path d="M8 20H40" stroke="currentColor" stroke-width="2"/>
-						<path d="M16 8V12M32 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-						<path d="M16 28H24M16 32H32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-					</svg>
+
+				<div class="text-center">
+					<div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+						<svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+						</svg>
+					</div>
+					<h3 class="text-xl font-semibold text-gray-900 mb-4">3. Earn Returns</h3>
+					<p class="text-gray-600">
+						Receive proportional payouts from oil and gas production directly to your wallet on a monthly basis.
+					</p>
 				</div>
-				<h3 class="text-lg font-extrabold text-black mb-2 text-sm md:text-base">Institutional Grade</h3>
-				<p class="text-xs text-black opacity-70">Professional operators</p>
-			</div>
-			
-			<div class="flex flex-col items-center text-center">
-				<div class="mb-6 text-black flex items-center justify-center w-16 h-16 relative">
-					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
-						<path d="M24 24L32 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-						<circle cx="24" cy="24" r="3" fill="currentColor"/>
-						<path d="M12 28L16 24L20 26L28 20L36 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
-				</div>
-				<h3 class="text-lg font-extrabold text-black mb-2 text-sm md:text-base">Transparent</h3>
-				<p class="text-xs text-black opacity-70">Real-time reporting</p>
 			</div>
 		</div>
-	</ContentSection>
+	</section>
 
-	<!-- Market Insights -->
-	<ContentSection background="secondary" padding="none" centered className="hidden md:block">
-		<div class="max-w-6xl mx-auto px-8 py-16">
-			<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-			<div class="space-y-6">
-				<h3 class="text-3xl font-extrabold mb-6 text-white">Market Indicators</h3>
-				<div class="flex flex-col gap-4">
-					<div class="flex justify-between items-center font-semibold">
-						<span>WTI Crude Oil</span>
-						<span class="text-primary font-extrabold">${marketData.oilPrices.wti.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.wti.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.wti.change >= 0 ? '+' : ''}{marketData.oilPrices.wti.change}%</span></span>
-					</div>
-					<div class="flex justify-between items-center font-semibold">
-						<span>Brent Crude</span>
-						<span class="text-primary font-extrabold">${marketData.oilPrices.brent.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.brent.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.brent.change >= 0 ? '+' : ''}{marketData.oilPrices.brent.change}%</span></span>
-					</div>
-					<div class="flex justify-between items-center font-semibold">
-						<span>Natural Gas</span>
-						<span class="text-primary font-extrabold">${marketData.oilPrices.naturalGas.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.naturalGas.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.naturalGas.change >= 0 ? '+' : ''}{marketData.oilPrices.naturalGas.change}%</span></span>
-					</div>
-				</div>
-			</div>
-			
-			<div class="text-center p-12 bg-white/10 border border-white/20">
-				<h4 class="text-2xl font-extrabold mb-4 text-white">Start Investing Today</h4>
-				<p class="mb-8 opacity-90">Join {formatted.activeInvestors} investors earning from energy assets</p>
-				<SecondaryButton href="/assets">Get Started Now</SecondaryButton>
-			</div>
-			</div>
+	<!-- Call to Action -->
+	<section class="py-16 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+		<div class="max-w-4xl mx-auto text-center px-4">
+			<h2 class="text-3xl font-bold mb-4">Ready to Start Investing?</h2>
+			<p class="text-xl mb-8 text-blue-100">
+				Join the future of energy investments with institutional-grade opportunities accessible to everyone
+			</p>
+			<Button variant="secondary" size="large" class="bg-white text-blue-600 hover:bg-gray-100">
+				Get Started Now
+			</Button>
 		</div>
-	</ContentSection>
-</PageLayout>
-
-<!-- Token Purchase Widget -->
-<TokenPurchaseWidget 
-	bind:isOpen={showPurchaseWidget}
-	tokenAddress={selectedTokenAddress}
-	assetId={selectedAssetId}
-	on:purchaseSuccess={handlePurchaseSuccess}
-	on:close={handleWidgetClose}
-/>
+	</section>
+</div>

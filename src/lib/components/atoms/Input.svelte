@@ -1,18 +1,18 @@
-/**
- * @fileoverview Base Input Component (Atom)
- * 
- * A foundational input component that provides consistent styling and behavior
- * for all form inputs across the application.
- * 
- * @component Input
- * @example
- * <Input 
- *   type="email" 
- *   placeholder="Enter your email"
- *   bind:value={email}
- *   error={emailError}
- * />
- */
+<!--
+@fileoverview Base Input Component (Atom)
+
+A foundational input component that provides consistent styling and behavior
+for all form inputs across the application.
+
+@component Input
+@example
+<Input 
+  type="email" 
+  placeholder="Enter your email"
+  bind:value={email}
+  error={emailError}
+/>
+-->
 
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';

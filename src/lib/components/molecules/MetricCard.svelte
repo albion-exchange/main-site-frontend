@@ -1,18 +1,18 @@
-/**
- * @fileoverview MetricCard Component (Molecule)
- * 
- * A metric card molecule that displays a key metric with optional icon,
- * description, and change indicator. Used throughout the dashboard.
- * 
- * @component MetricCard
- * @example
- * <MetricCard 
- *   title="Total Assets"
- *   value="$2.4M"
- *   icon="building"
- *   trend={{ value: 12.5, direction: 'up' }}
- * />
- */
+<!--
+@fileoverview MetricCard Component (Molecule)
+
+A metric card molecule that displays a key metric with optional icon,
+description, and change indicator. Used throughout the dashboard.
+
+@component MetricCard
+@example
+<MetricCard 
+  title="Total Assets"
+  value="$2.4M"
+  icon="building"
+  trend={{ value: 12.5, direction: 'up' }}
+/>
+-->
 
 <script lang="ts">
 	import { Icon } from '../atoms';

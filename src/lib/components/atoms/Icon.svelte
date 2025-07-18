@@ -1,13 +1,13 @@
-/**
- * @fileoverview Base Icon Component (Atom)
- * 
- * A foundational icon component that provides consistent sizing and styling
- * for all icons across the application using Lucide icons.
- * 
- * @component Icon
- * @example
- * <Icon name="user" size="medium" color="gray" />
- */
+<!--
+   @fileoverview Base Icon Component (Atom)
+   
+   A foundational icon component that provides consistent sizing and styling
+   for all icons across the application using Lucide icons.
+   
+   @component Icon
+   @example
+   <Icon name="user" size="medium" color="gray" />
+-->
 
 <script lang="ts">
 	import * as lucide from 'lucide-svelte';

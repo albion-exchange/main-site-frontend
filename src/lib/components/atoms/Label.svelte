@@ -1,13 +1,13 @@
-/**
- * @fileoverview Base Label Component (Atom)
- * 
- * A foundational label component that provides consistent styling and behavior
- * for form labels across the application.
- * 
- * @component Label
- * @example
- * <Label for="email" required>Email Address</Label>
- */
+<!--
+@fileoverview Base Label Component (Atom)
+
+A foundational label component that provides consistent styling and behavior
+for form labels across the application.
+
+@component Label
+@example
+<Label for="email" required>Email Address</Label>
+-->
 
 <script lang="ts">
 	// Props with clear types and defaults
