@@ -145,7 +145,7 @@ class TokenService {
    */
   getTokensByType(tokenType: string): Token[] {
     const tokens = this.getAllTokens();
-    return tokens.filter(token => token.type === tokenType);
+    return tokens.filter(token => token.tokenType === tokenType);
   }
 
   /**
@@ -154,7 +154,8 @@ class TokenService {
   getAvailableTokens(): Token[] {
     const tokens = this.getAllTokens();
     return tokens.filter(token => 
-      !token.soldOut && token.supply && token.supply.available > 0
+      token.isActive && token.supply && 
+      (BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply)) > 0n
     );
   }
 

@@ -445,8 +445,8 @@ export class TypeTransformations {
   static assetToUI(assetData: AssetData): UIAsset {
     const coreAsset = this.apiToCore.assetData(assetData);
     const fullCoreAsset: Core.Asset = {
-      id: assetData.assetName.toLowerCase().replace(/\s+/g, '-'),
-      name: assetData.assetName,
+      id: assetData.assetName?.toLowerCase().replace(/\s+/g, '-') || 'unknown-asset',
+      name: assetData.assetName || 'Unknown Asset',
       location: coreAsset.location!,
       terms: coreAsset.terms!,
       technical: coreAsset.technical!,

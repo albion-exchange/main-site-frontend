@@ -36,15 +36,41 @@ class AssetService {
   private allAssets: Asset[] | null = null;
 
   constructor() {
-    // Initialize asset metadata map
+    // Initialize asset metadata map - extract and enhance asset data from token metadata
     this.assetMetadataMap = {
-      'bak-hf1': bakHf1Metadata as AssetData,
-      'bak-hf2': bakHf2Metadata as AssetData,
-      'eur-wr1': eurWr1Metadata as AssetData,
-      'eur-wr2': eurWr2Metadata as AssetData,
-      'eur-wr3': eurWr3Metadata as AssetData,
-      'gom-dw1': gomDw1Metadata as AssetData,
-      'per-bv1': perBv1Metadata as AssetData,
+      'bak-hf1': this.createAssetData(bakHf1Metadata as any),
+      'bak-hf2': this.createAssetData(bakHf2Metadata as any),
+      'eur-wr1': this.createAssetData(eurWr1Metadata as any),
+      'eur-wr2': this.createAssetData(eurWr2Metadata as any),
+      'eur-wr3': this.createAssetData(eurWr3Metadata as any),
+      'gom-dw1': this.createAssetData(gomDw1Metadata as any),
+      'per-bv1': this.createAssetData(perBv1Metadata as any),
+    };
+  }
+
+  /**
+   * Create AssetData from TokenMetadata by combining asset and parent metadata
+   */
+  private createAssetData(tokenMetadata: any): AssetData {
+    const asset = tokenMetadata.asset;
+    return {
+      assetName: tokenMetadata.assetName || asset.assetName || 'Unknown Asset',
+      description: asset.description || '',
+      location: asset.location,
+      operator: asset.operator,
+      technical: asset.technical,
+      assetTerms: asset.assetTerms,
+      production: asset.production,
+      plannedProduction: asset.plannedProduction || { oilPriceAssumption: 70, oilPriceAssumptionCurrency: 'USD', projections: [] },
+      productionHistory: tokenMetadata.productionHistory || [],
+      operationalMetrics: tokenMetadata.operationalMetrics || asset.operationalMetrics || {
+        uptime: { percentage: 0, unit: 'percent', period: 'N/A' },
+        dailyProduction: { current: 0, target: 0, unit: 'boe' },
+        hseMetrics: { incidentFreeDays: 0, lastIncidentDate: new Date().toISOString(), safetyRating: 'Unknown' }
+      },
+      documents: asset.documents || [],
+      coverImage: tokenMetadata.coverImage || asset.coverImage || '',
+      galleryImages: tokenMetadata.galleryImages || asset.galleryImages || []
     };
   }
 
