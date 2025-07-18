@@ -34,7 +34,6 @@
 
 	$: order = {
 		investment: investmentAmount,
-		totalCost: investmentAmount,
 		tokens: investmentAmount // 1:1 ratio for simplicity
 	};
 
@@ -281,16 +280,9 @@
 
 						<!-- Order Summary -->
 						<div class={orderSummaryClasses}>
-							<h4 class={orderSummaryTitleClasses}>Order Summary</h4>
-							<div class={summaryDetailsClasses}>
-								<div class={summaryRowClasses}>
-									<span>Investment Amount</span>
-									<span>{formatCurrency(investmentAmount, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-								</div>
-								<div class={summaryTotalClasses}>
-									<span>Total Cost</span>
-									<span>{formatCurrency(order.totalCost, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-								</div>
+							<h4 class={orderSummaryTitleClasses}>Investment Amount</h4>
+							<div class="text-center">
+								<span class="text-2xl font-extrabold text-black">{formatCurrency(investmentAmount, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
 							</div>
 						</div>
 
