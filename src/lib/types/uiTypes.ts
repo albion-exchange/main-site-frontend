@@ -83,14 +83,18 @@ export interface PlannedProduction {
 export interface OperationalMetrics {
   dailyProduction: {
     current: number;
+    target?: number;
     unit: string;
   };
   uptime: {
     percentage: number;
     period: string;
+    unit?: string;
   };
   hseMetrics: {
     incidentFreeDays: number;
+    lastIncidentDate?: string;
+    safetyRating?: string;
   };
 }
 
@@ -103,17 +107,28 @@ export interface Asset {
   description: string;
   coverImage: string;
   images: GalleryImage[];
+  galleryImages?: GalleryImage[]; // Optional for compatibility
   location: AssetLocation;
   operator: AssetOperator;
   technical: AssetTechnical;
   production: AssetProduction;
-  assetTerms: Display.AssetTerms;
-  tokenContracts: string[]; // Array of contract addresses
+  assetTerms?: Display.AssetTerms;
+  terms?: Display.AssetTerms; // Alias for assetTerms
+  pricing?: {
+    benchmarkPremium: string;
+    transportCosts: string;
+  };
+  geology?: {
+    depth: string;
+    type: string;
+    estimatedLife: string;
+  };
+  tokenContracts?: string[]; // Array of contract addresses
   monthlyReports: MonthlyReport[];
   productionHistory?: ProductionHistoryRecord[]; // Historical production data without financial details
   plannedProduction?: PlannedProduction;
   operationalMetrics?: OperationalMetrics;
-  metadata: Metadata;
+  metadata?: Metadata;
 }
 
 /**
@@ -167,7 +182,14 @@ export interface Token {
   payoutHistory: TokenPayoutRecord[];
   sharePercentage?: number; // Percentage of asset ownership (for royalty tokens)
   firstPaymentDate?: string; // YYYY-MM format or "Month YYYY" format
-  metadata: Metadata;
+  metadata?: Metadata | {
+    description?: string;
+    image?: string;
+    external_url?: string;
+    attributes?: any[];
+    createdAt?: string;
+    updatedAt?: string;
+  };
 }
 
 /**
