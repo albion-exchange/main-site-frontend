@@ -460,7 +460,7 @@ export class TypeTransformations {
   /**
    * Convenience method: Transform AssetData directly to UI Asset
    */
-  static assetToUI(assetData: AssetData, assetId?: string): UIAsset {
+  static assetToUI(assetData: AssetData, assetId?: string, monthlyData?: any[]): UIAsset {
     const coreAsset = this.apiToCore.assetData(assetData);
     const fullCoreAsset: Core.Asset = {
       id: assetId || assetData.assetName?.toLowerCase().replace(/\s+/g, '-') || 'unknown-asset',
@@ -483,11 +483,11 @@ export class TypeTransformations {
     uiAsset.coverImage = assetData.coverImage || '';
     uiAsset.galleryImages = assetData.galleryImages || [];
     
-    // Map monthly reports from monthlyData (which contains actual payout data)
-    console.log('[assetToUI] assetData.monthlyData:', assetData.monthlyData);
-    if (assetData.monthlyData && assetData.monthlyData.length > 0) {
-      console.log('[assetToUI] monthlyData length:', assetData.monthlyData.length);
-      uiAsset.monthlyReports = assetData.monthlyData.map(data => {
+    // Map monthly reports from monthlyData parameter (which contains actual payout data from tokens)
+    console.log('[assetToUI] monthlyData parameter:', monthlyData);
+    if (monthlyData && monthlyData.length > 0) {
+      console.log('[assetToUI] monthlyData length:', monthlyData.length);
+      uiAsset.monthlyReports = monthlyData.map(data => {
         console.log('[assetToUI] Processing monthly data:', data);
         const report = {
           month: data.month,

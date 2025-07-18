@@ -35,6 +35,7 @@ interface AssetMetadataMap {
 class AssetService {
   private assetMetadataMap: AssetMetadataMap;
   private allAssets: Asset[] | null = null;
+  private tokensByAsset: Map<string, any[]> = new Map();
 
   constructor() {
     console.log('=== AssetService Constructor ===');
@@ -71,26 +72,8 @@ class AssetService {
       // Use the first token's metadata as base
       const baseAssetData = this.createAssetData(metadataList[0]);
       
-      // If there are multiple tokens for this asset, aggregate their monthlyData
-      if (metadataList.length > 1) {
-        // Combine monthlyData from all tokens for this asset
-        const allMonthlyData = metadataList.flatMap(metadata => metadata.monthlyData || []);
-        
-        // Group by month and take the first entry for each month (assuming they're the same)
-        const monthlyDataMap = new Map();
-        allMonthlyData.forEach(data => {
-          if (!monthlyDataMap.has(data.month)) {
-            monthlyDataMap.set(data.month, data);
-          }
-        });
-        
-        // Convert back to array and sort by month
-        baseAssetData.monthlyData = Array.from(monthlyDataMap.values()).sort((a, b) => {
-          return a.month.localeCompare(b.month);
-        });
-        
-        console.log(`Aggregated monthlyData for ${assetId}:`, baseAssetData.monthlyData?.length || 0, 'entries');
-      }
+      // Store token metadata for this asset (including monthlyData)
+      this.tokensByAsset.set(assetId, metadataList);
       
       this.assetMetadataMap[assetId] = baseAssetData;
     });
@@ -113,7 +96,6 @@ class AssetService {
       production: asset.production,
       plannedProduction: asset.plannedProduction || { oilPriceAssumption: 70, oilPriceAssumptionCurrency: 'USD', projections: [] },
       productionHistory: tokenMetadata.asset?.productionHistory || [],
-      monthlyData: tokenMetadata.monthlyData || [], // Add monthlyData from tokenMetadata
       operationalMetrics: tokenMetadata.operationalMetrics || asset.operationalMetrics || {
         uptime: { percentage: 0, unit: 'percent', period: 'N/A' },
         dailyProduction: { current: 0, target: 0, unit: 'boe' },
@@ -132,7 +114,8 @@ class AssetService {
     // Always regenerate to avoid stale data during development
     console.log('getAllAssets - assetMetadataMap entries:', Object.entries(this.assetMetadataMap).length);
     this.allAssets = Object.entries(this.assetMetadataMap).map(([assetId, assetData]) => {
-      const uiAsset = TypeTransformations.assetToUI(assetData, assetId);
+      const monthlyData = this.getMonthlyDataForAsset(assetId);
+      const uiAsset = TypeTransformations.assetToUI(assetData, assetId, monthlyData);
       console.log(`Transformed asset ${assetId} to UI asset with id: ${uiAsset.id}`);
       return uiAsset;
     });
@@ -148,6 +131,27 @@ class AssetService {
   }
 
   /**
+   * Get monthlyData for an asset by aggregating from its tokens
+   */
+  getMonthlyDataForAsset(assetId: string): any[] {
+    const tokens = this.tokensByAsset.get(assetId) || [];
+    
+    // Aggregate monthlyData from all tokens
+    const allMonthlyData = tokens.flatMap(token => token.monthlyData || []);
+    
+    // Deduplicate by month
+    const monthlyDataMap = new Map();
+    allMonthlyData.forEach(data => {
+      if (!monthlyDataMap.has(data.month)) {
+        monthlyDataMap.set(data.month, data);
+      }
+    });
+    
+    // Convert back to array and sort by month
+    return Array.from(monthlyDataMap.values()).sort((a, b) => a.month.localeCompare(b.month));
+  }
+
+  /**
    * Get asset by ID
    */
   getAssetById(assetId: string): Asset | null {
@@ -158,9 +162,10 @@ class AssetService {
     const assetData = this.assetMetadataMap[assetId];
     if (assetData) {
       console.log(`Found asset in metadata map for ID: ${assetId}`);
-      console.log(`Asset data monthlyData:`, assetData.monthlyData);
-      console.log(`Asset data monthlyData length:`, assetData.monthlyData?.length);
-      const uiAsset = TypeTransformations.assetToUI(assetData, assetId);
+      // Get monthlyData from tokens
+      const monthlyData = this.getMonthlyDataForAsset(assetId);
+      console.log(`Got monthlyData for asset ${assetId}:`, monthlyData.length, 'entries');
+      const uiAsset = TypeTransformations.assetToUI(assetData, assetId, monthlyData);
       console.log(`Transformed UI asset monthlyReports:`, uiAsset.monthlyReports);
       return uiAsset;
     }
