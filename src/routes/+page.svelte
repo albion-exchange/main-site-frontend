@@ -2,8 +2,8 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { usePlatformStats } from '$lib/composables/usePlatformStats';
-	import FeaturedTokenCarousel from '$lib/components/carousel/FeaturedTokenCarousel.svelte';
-	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
+	import FeaturedTokenCarousel from '$lib/components/organisms/carousel/FeaturedTokenCarousel.svelte';
+	import TokenPurchaseWidget from '$lib/components/organisms/TokenPurchaseWidget.svelte';
 	import { PrimaryButton, SecondaryButton, StatsCard, ButtonGroup } from '$lib/components/ui';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
 	import GridContainer from '$lib/components/ui/GridContainer.svelte';

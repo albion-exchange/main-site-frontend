@@ -2,8 +2,8 @@
 	import { onMount } from 'svelte';
 	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Asset } from '$lib/types/uiTypes';
-	import AssetCard from '$lib/components/assets/AssetCard.svelte';
-	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
+	import AssetCard from '$lib/components/organisms/assets/AssetCard.svelte';
+	import TokenPurchaseWidget from '$lib/components/organisms/TokenPurchaseWidget.svelte';
 	import { SecondaryButton, SectionTitle, Card, CardContent } from '$lib/components/ui';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 

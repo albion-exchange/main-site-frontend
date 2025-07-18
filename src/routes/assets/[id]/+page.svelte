@@ -16,8 +16,8 @@
 		useTooltip, 
 		useEmailNotification
 	} from '$lib/composables';
-	import AssetDetailHeader from '$lib/components/assets/AssetDetailHeader.svelte';
-	import AssetOverviewTab from '$lib/components/assets/AssetOverviewTab.svelte';
+	import AssetDetailHeader from '$lib/components/organisms/assets/AssetDetailHeader.svelte';
+	import AssetOverviewTab from '$lib/components/organisms/assets/AssetOverviewTab.svelte';
 
 	let activeTab = 'overview';
 	let unclaimedPayout = 0; // Will be calculated from actual token holdings
@@ -760,7 +760,7 @@
 
 		<!-- Token Purchase Widget -->
 		{#if showPurchaseWidget}
-			{#await import('$lib/components/TokenPurchaseWidget.svelte') then { default: TokenPurchaseWidget }}
+			{#await import('$lib/components/organisms/TokenPurchaseWidget.svelte') then { default: TokenPurchaseWidget }}
 				<TokenPurchaseWidget 
 					bind:isOpen={showPurchaseWidget}
 					tokenAddress={selectedTokenAddress}

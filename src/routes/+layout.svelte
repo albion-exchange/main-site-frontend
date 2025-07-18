@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 	import { walletStore, walletActions, formatAddress } from '$lib/stores/wallet';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
-	import WalletModal from '$lib/components/WalletModal.svelte';
+	import WalletModal from '$lib/components/organisms/WalletModal.svelte';
 	
 	$: currentPath = $page.url.pathname;
 	let mobileMenuOpen = false;

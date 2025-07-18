@@ -1,10 +1,4 @@
 <script lang="ts">
-	export let paddingClass = 'p-8';
-	
-	// Tailwind class mapping
-	$: contentClasses = `relative ${paddingClass}`;
+  import Component from "../atoms/CardContent.svelte";
+  export default Component;
 </script>
-
-<div class={contentClasses}>
-	<slot />
-</div>
