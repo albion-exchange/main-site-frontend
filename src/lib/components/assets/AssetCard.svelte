@@ -1,10 +1,15 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
-	import type { Asset } from '$lib/types/uiTypes';
+	import type { Asset, Token } from '$lib/types/uiTypes';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/ui';
+    import { getCalculatedRemainingProduction } from '$lib/decodeMetadata/addSchemaToReceipts';
+    import { getTokenReturns } from '$lib/utils/returnCalculations';
 
 	export let asset: Asset;
+	export let token: Token;
+
+	$: console.log('asset : ', asset);
 	
 	const dispatch = createEventDispatcher();
 	
@@ -47,14 +52,11 @@
 	$: latestReport = asset.monthlyReports[asset.monthlyReports.length - 1] || null;
 
 	// Get the primary token for this asset (first active token found)
-	$: assetTokens = dataStoreService.getTokensByAssetId(asset.id);
-	$: primaryToken = assetTokens.length > 0 ? assetTokens[0] : null;
+	// $: assetTokens = dataStoreService.getTokensByAssetId(asset.id);
+	$: primaryToken = token;
 	
 	// Check if any tokens are available
-	$: hasAvailableTokens = assetTokens.some(token => {
-		const supply = dataStoreService.getTokenSupply(token.contractAddress);
-		return supply && supply.availableSupply > 0;
-	});
+	$: hasAvailableTokens = BigInt(token.supply.maxSupply) > BigInt(token.supply.mintedSupply);
 
 	// Extract token data with fallbacks
 	$: shareOfAsset = primaryToken?.sharePercentage ? `${primaryToken.sharePercentage}%` : 'TBD';
@@ -160,7 +162,7 @@
 		<!-- Highlighted Big Stats -->
 		<div class={mobileHighlightedStatsClasses}>
 			<div class={highlightStatClasses}>
-				<span class={mobileHighlightValueClasses}>{dataStoreService.getCalculatedRemainingProduction(asset.id)}</span>
+				<span class={mobileHighlightValueClasses}>{getCalculatedRemainingProduction(asset)}</span>
 				<span class={mobileHighlightLabelClasses}>Exp. Remaining</span>
 			</div>
 			<div class={highlightStatClasses}>
@@ -187,10 +189,7 @@
 
 			<!-- Available Tokens Section -->
 			{#if hasAvailableTokens}
-			{@const availableTokens = assetTokens.filter(token => {
-				const supply = dataStoreService.getTokenSupply(token.contractAddress);
-				return supply && supply.availableSupply > 0;
-			})}
+			{@const availableTokens = [token]}
 			<div class={tokensSectionClasses}>
 				<h4 class={mobileTokensTitleClasses}>Available Token Releases</h4>
 				<div class="flex flex-col">
@@ -212,7 +211,7 @@
 						on:scroll={handleScroll}
 						class="{availableTokens.length > 2 ? tokensListScrollableClasses : tokensListClasses} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
 						{#each availableTokens as token}
-						{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
+						{@const calculatedReturns = getTokenReturns(asset, token)}
 						{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) : 0}
 						{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) : 0}
 						{@const firstPaymentMonth = token.firstPaymentDate || 'TBD'}

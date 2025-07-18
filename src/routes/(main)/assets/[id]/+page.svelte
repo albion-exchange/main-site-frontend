@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { readContract } from '@wagmi/core';
+	import { signerAddress, wagmiConfig, chainId } from 'svelte-wagmi';
 	import dataStoreService from '$lib/services/DataStoreService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { Card, CardContent, PrimaryButton, SecondaryButton } from '$lib/components/ui';
@@ -8,6 +10,11 @@
 	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
 	import TabButton from '$lib/components/ui/TabButton.svelte';
 	import { PageLayout, ContentSection } from '$lib/components/layout';
+    import { sftMetadata, sfts } from '$lib/stores';
+    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
+    import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
+    import type { Hex } from 'viem';
+    import { getTokenReturns, getTokenSupply } from '$lib/utils/returnCalculations';
 
 	let loading = true;
 	let error: string | null = null;
@@ -73,6 +80,7 @@
 	}
 
 	function exportPaymentsData() {
+
 		if (assetTokens.length === 0) return;
 		
 		const paymentData = dataStoreService.getTokenPayoutHistory(assetTokens[0].contractAddress);
@@ -193,41 +201,62 @@
 		}
 	}
 
+	$: if($sftMetadata && $sfts) {
+		loadAssetAndTokenData();
+	}
 
-	onMount(() => {
-		const assetId = $page.params.id;
-		
+	async function loadAssetAndTokenData() {
+		const assetId = $page.params.id;		
 		try {
-			// Load asset data from store
-			const asset = dataStoreService.getAssetById(assetId);
-			
-			if (!asset) {
-				error = 'Asset not found';
+
+			if($sftMetadata && $sfts) {
+				const deocdedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
+				const sft = $sfts.find(sft => sft.id.toLowerCase() === assetId.toLowerCase());
+				if(sft) {
+					const pinnedMetadata: any = deocdedMeta.find(
+						(meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
+					);
+					if(pinnedMetadata) {
+						const sftMaxSharesSupply = await readContract($wagmiConfig, {
+							abi: [{
+									"inputs": [],
+									"name": "maxSharesSupply",
+									"outputs": [
+										{
+											"internalType": "uint256",
+											"name": "",
+											"type": "uint256"
+										}
+									],
+									"stateMutability": "view",
+									"type": "function"
+								}],
+
+								
+							address: sft.activeAuthorizer?.address as Hex,
+							functionName: 'maxSharesSupply',
+							args: []
+						});
+						
+						const tokenInstance = generateTokenInstanceFromSft(sft, sftMaxSharesSupply.toString());
+						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
+
+						assetData = assetInstance;
+						assetTokens = [tokenInstance];
+
+					}
+				}
 				loading = false;
-				return;
 			}
-			
-			assetData = asset;
-			
-			// Load associated tokens
-			const tokens = dataStoreService.getTokensByAssetId(assetId);
-			assetTokens = tokens;
-			
-			loading = false;
+
+					
 		} catch (err) {
 			console.error('Error loading asset:', err);
 			error = 'Error loading asset data';
 			loading = false;
 		}
-	});
-	
-	
-	
-	
-	
-	
-	
-	
+
+	}	
 </script>
 
 <svelte:head>
@@ -801,11 +830,11 @@
 			<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 				{#each assetTokens as token}
-					{@const supply = dataStoreService.getTokenSupply(token.contractAddress)}
+					{@const supply = getTokenSupply(token)}
 					{@const hasAvailableSupply = supply && supply.availableSupply > 0}
 					{@const tokenPayoutData = dataStoreService.getTokenPayoutHistory(token.contractAddress)}
 					{@const latestPayout = tokenPayoutData?.recentPayouts?.[0]}
-					{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
+					{@const calculatedReturns = getTokenReturns(assetData || {} as Asset, token)}
 					{@const isFlipped = flippedCards.has(token.contractAddress)}
 					<div id="token-{token.contractAddress}">
 						<Card hoverable clickable paddingClass="p-0" on:click={() => handleCardClick(token.contractAddress)}>
@@ -822,6 +851,8 @@
 											<div class="flex-1 mt-6">
 												<div class="flex justify-between items-start mb-3 gap-4">
 													<h4 class="text-2xl font-extrabold text-black font-figtree flex-1">{token.name}</h4>
+													<!-- <h4 class="text-2xl font-extrabold text-black font-figtree flex-1">{token.supply}</h4> -->
+
 													<div class="text-sm font-extrabold text-white bg-secondary px-3 py-1 tracking-wider rounded whitespace-nowrap">
 														{token.sharePercentage || 25}% of Asset
 													</div>

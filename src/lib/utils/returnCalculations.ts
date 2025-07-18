@@ -105,6 +105,8 @@ export function getTokenReturns(asset: Asset, token: Token): TokenReturns {
   
   const returns = calculateTokenReturns(asset, token);
   returnCache.set(cacheKey, returns);
+
+  console.log('returns : ', returns);
   
   return returns;
 }
@@ -115,3 +117,74 @@ export function getTokenReturns(asset: Asset, token: Token): TokenReturns {
 export function clearReturnsCache(): void {
   returnCache.clear();
 }
+
+export function getTokenSupply(token: Token) {
+  if (!token) return null;
+
+  const maxSupply = parseFloat(token.supply.maxSupply) / Math.pow(10, token.decimals);
+  const mintedSupply = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
+  const supplyUtilization = (mintedSupply / maxSupply) * 100;
+
+  return {
+    maxSupply,
+    mintedSupply,
+    supplyUtilization,
+    availableSupply: maxSupply - mintedSupply
+  };
+}
+
+export function getTokenPayoutHistory(asset: Asset) {
+  const assetMetadata = asset.metadata;
+  if (!assetMetadata) return null;
+
+  const recentPayouts = asset.monthlyData.map(data => ({
+    month: data.month,
+    date: data.tokenPayout.date.split('T')[0],
+    totalPayout: data.tokenPayout.totalPayout,
+    payoutPerToken: data.tokenPayout.payoutPerToken,
+    oilPrice: data.realisedPrice.oilPrice,
+    gasPrice: data.realisedPrice.gasPrice,
+    productionVolume: data.assetData.production,
+    txHash: data.tokenPayout.txHash
+  }));
+
+  const totalPayouts = recentPayouts.length;
+  const averageMonthlyPayout = recentPayouts.length > 0 
+    ? recentPayouts.reduce((sum, payout) => sum + payout.payoutPerToken, 0) / totalPayouts 
+    : 0;
+
+  return {
+    recentPayouts,
+    totalPayouts,
+    averageMonthlyPayout,
+    totalPaid: recentPayouts.reduce((sum, payout) => sum + payout.totalPayout, 0)
+  };
+}
+
+// export function getTokenPayoutHistory(contractAddress: string) {
+//   const assetMetadata = this.assetMetadata[contractAddress];
+//   if (!assetMetadata) return null;
+
+//   const recentPayouts = assetMetadata.monthlyData.map(data => ({
+//     month: data.month,
+//     date: data.tokenPayout.date.split('T')[0],
+//     totalPayout: data.tokenPayout.totalPayout,
+//     payoutPerToken: data.tokenPayout.payoutPerToken,
+//     oilPrice: data.realisedPrice.oilPrice,
+//     gasPrice: data.realisedPrice.gasPrice,
+//     productionVolume: data.assetData.production,
+//     txHash: data.tokenPayout.txHash
+//   }));
+
+//   const totalPayouts = recentPayouts.length;
+//   const averageMonthlyPayout = recentPayouts.length > 0 
+//     ? recentPayouts.reduce((sum, payout) => sum + payout.payoutPerToken, 0) / totalPayouts 
+//     : 0;
+
+//   return {
+//     recentPayouts,
+//     totalPayouts,
+//     averageMonthlyPayout,
+//     totalPaid: recentPayouts.reduce((sum, payout) => sum + payout.totalPayout, 0)
+//   };
+// }

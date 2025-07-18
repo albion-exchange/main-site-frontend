@@ -1,47 +1,95 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import dataStoreService from '$lib/services/DataStoreService';
-	import type { Asset } from '$lib/types/uiTypes';
+	// import { onMount } from 'svelte';
+	// import dataStoreService from '$lib/services/DataStoreService';
+	import type { Asset, Token } from '$lib/types/uiTypes';
 	import AssetCard from '$lib/components/assets/AssetCard.svelte';
 	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
+	import { readContract } from '@wagmi/core';
+	import { signerAddress, wagmiConfig, chainId } from 'svelte-wagmi';
 	import { SecondaryButton, SectionTitle, Card, CardContent } from '$lib/components/ui';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
+    import { sfts, sftMetadata } from '$lib/stores';
+    import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
+    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
+    import type { Hex } from 'viem';
 
 	let loading = true;
-	let allAssets: Asset[] = [];
+	// let allAssets: Asset[] = [];
 	let showSoldOutAssets = false;
+	let featuredTokensWithAssets: Array<{ token: Token; asset: Asset }> = [];
+	let filteredAssets: Array<{ token: Token; asset: Asset }> = [];
 	
 	// Token purchase widget state
 	let showPurchaseWidget = false;
 	let selectedAssetId: string | null = null;
 
-	onMount(async () => {
+	async function loadTokenAndAssets() {
 		try {
-			// Load assets from data store
-			allAssets = dataStoreService.getAllAssets();
+			loading = true;
+			if($sftMetadata && $sfts) {
+				const deocdedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
+				for(const sft of $sfts) {
+					const pinnedMetadata: any = deocdedMeta.find(
+						(meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
+					);
+					if(pinnedMetadata) {
+	
+						const sftMaxSharesSupply = await readContract($wagmiConfig, {
+							abi: [{
+									"inputs": [],
+									"name": "maxSharesSupply",
+									"outputs": [
+										{
+											"internalType": "uint256",
+											"name": "",
+											"type": "uint256"
+										}
+									],
+									"stateMutability": "view",
+									"type": "function"
+								}],
+
+								
+							address: sft.activeAuthorizer?.address as Hex,
+							functionName: 'maxSharesSupply',
+							args: []
+						});
+						
+						const tokenInstance = generateTokenInstanceFromSft(sft, sftMaxSharesSupply.toString());
+						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
+	
+						featuredTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
+					
+					}
+				}
+			}
 			loading = false;
-		} catch (error) {
-			console.error('Error loading assets:', error);
+
+		} catch(err) {
+			console.error('Featured tokens loading error:', err);
 			loading = false;
 		}
-	});
-
+	}
+	$: if($sfts && $sftMetadata){
+		loadTokenAndAssets();
+	}
 	// Check if an asset has available tokens
-	function hasAvailableTokens(asset: Asset): boolean {
-		const tokens = dataStoreService.getTokensByAssetId(asset.id);
-		return tokens.some(token => {
-			const supply = dataStoreService.getTokenSupply(token.contractAddress);
-			return supply && supply.availableSupply > 0;
-		});
+	function hasAvailableTokens(asset: { token: Token; asset: Asset }): boolean {
+		const hasAvailable = BigInt(asset.token.supply.maxSupply) > BigInt(asset.token.supply.mintedSupply);
+		return hasAvailable;
 	}
 	
 	// Filter assets based on availability
-	$: filteredAssets = showSoldOutAssets 
-		? allAssets 
-		: allAssets.filter(asset => hasAvailableTokens(asset));
+	$: {
+		if (!loading) {
+			filteredAssets = showSoldOutAssets 
+				? featuredTokensWithAssets 
+				: featuredTokensWithAssets.filter(asset => hasAvailableTokens(asset));
+		}
+	}
 	
 	// Count sold out assets
-	$: soldOutCount = allAssets.filter(asset => !hasAvailableTokens(asset)).length;
+	$: soldOutCount = featuredTokensWithAssets.filter(asset => !hasAvailableTokens(asset)).length;
 	
 	function handleBuyTokens(event: CustomEvent) {
 		selectedAssetId = event.detail.assetId;
@@ -103,7 +151,7 @@
 				<!-- Assets Grid -->
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
 					{#each filteredAssets as asset}
-						<AssetCard {asset} on:buyTokens={handleBuyTokens} />
+						<AssetCard asset={asset.asset} token={asset.token} on:buyTokens={handleBuyTokens} />
 					{/each}
 				</div>
 			{/if}

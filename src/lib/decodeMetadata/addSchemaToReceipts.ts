@@ -142,3 +142,25 @@ export function generateAssetInstanceFromSftMeta(sft: OffchainAssetReceiptVault,
 
 	return assetInstance
 }
+
+export function getCalculatedRemainingProduction(asset: Asset): string {
+    if (!asset?.plannedProduction?.projections) {
+      return 'TBD';
+    }
+
+    // Sum all production from planned production projections
+    const totalProduction = asset.plannedProduction.projections.reduce(
+      (sum, projection) => sum + projection.production, 
+      0
+    );
+
+    // Convert to mboe (thousand barrels)
+    const productionInMboe = totalProduction / 1000;
+
+    // Format with appropriate precision
+    if (productionInMboe >= 10) {
+      return `${Math.round(productionInMboe * 10) / 10} mboe`;
+    } else {
+      return `${Math.round(productionInMboe * 100) / 100} mboe`;
+    }
+  }
