@@ -140,38 +140,96 @@
 		}
 	}
 
-	function handleConnectWallet() {
+	function getSelectedAmount(): number {
+		return holdings
+			.filter(holding => selectedAssets.includes(holding.id))
+			.reduce((sum, holding) => sum + holding.unclaimedAmount, 0);
+	}
+
+	async function handleClaim() {
+		claiming = true;
+		claimSuccess = false;
+		
+		try {
+			// Simulate claim transaction
+			await new Promise(resolve => setTimeout(resolve, 2000));
+			
+			const claimedAmount = getSelectedAmount() || unclaimedPayout;
+			totalClaimed += claimedAmount;
+			unclaimedPayout = Math.max(0, unclaimedPayout - claimedAmount);
+			
+			selectedAssets = [];
+			claimSuccess = true;
+			
+			// Reset success message after 3 seconds
+			setTimeout(() => {
+				claimSuccess = false;
+			}, 3000);
+			
+		} catch (error) {
+			console.error('Claim error:', error);
+		} finally {
+			claiming = false;
+		}
+	}
+
+	async function handleWalletConnect() {
+		await walletActions.connect();
 		showWalletModal = false;
-		// Reload data after wallet connection
+		
+		// Reload the page content now that wallet is connected
 		if ($walletStore.isConnected) {
+			loading = true;
 			loadClaimsData();
 		}
 	}
 
-	function openClaimModal(mode: 'claim' | 'reinvest') {
+	function handleWalletModalClose() {
+		showWalletModal = false;
+		// Redirect to home if wallet not connected
+		if (!$walletStore.isConnected) {
+			window.location.href = '/';
+		}
+	}
+	
+	function exportClaimHistory() {
+		if (claimHistory.length === 0) return;
+		
+		const csvContent = [
+			['Date', 'Asset', 'Amount', 'Transaction Hash'],
+			...claimHistory.map(claim => [
+				formatDate(claim.date),
+				claim.asset,
+				claim.amount.toString(),
+				claim.txHash
+			])
+		].map(row => row.join(',')).join('\n');
+		
+		const blob = new Blob([csvContent], { type: 'text/csv' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `claim-history-${new Date().toISOString().split('T')[0]}.csv`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+	
+	async function handleClaimWithModal(mode: 'claim' | 'reinvest' = 'claim') {
 		claimModalMode = mode;
 		showClaimModal = true;
 	}
-
-	async function handleClaimPayouts() {
-		if (selectedAssets.length === 0) return;
-		
-		claiming = true;
-		
-		// Simulate claim process
-		setTimeout(() => {
-			claiming = false;
-			claimSuccess = true;
-			showClaimModal = false;
-			
-			// Reset after showing success
+	
+	async function confirmClaim() {
+		showClaimModal = false;
+		await handleClaim();
+		if (claimModalMode === 'reinvest' && claimSuccess) {
 			setTimeout(() => {
-				claimSuccess = false;
-				selectedAssets = [];
-				loadClaimsData(); // Reload data
-			}, 3000);
-		}, 2000);
+				window.location.href = '/assets';
+			}, 2000);
+		}
 	}
+
+
 
 	// Calculate selected amount
 	$: selectedAmount = holdings
@@ -187,325 +245,321 @@
 		currentPage * itemsPerPage
 	);
 
-	function handlePageChange(page: number) {
-		currentPage = page;
-	}
 </script>
 
 <svelte:head>
-	<title>Claims - Albion</title>
-	<meta name="description" content="Claim your oil & gas token payouts and track your earnings history on Albion." />
+	<title>Claim Payouts - Albion</title>
+	<meta name="description" content="Claim your oil & gas investment payouts and track earnings history" />
 </svelte:head>
 
-{#if showWalletModal}
-	<WalletModal 
-		onClose={() => showWalletModal = false}
-		onConnect={handleConnectWallet}
-	/>
-{/if}
-
-<PageLayout variant="fullWidth">
-	{#if !$walletStore.isConnected}
-		<!-- Not Connected State -->
-		<ContentSection background="white" padding="large">
-			<div class="text-center py-16">
-				<div class="inline-flex items-center justify-center w-24 h-24 bg-light-gray rounded-full mb-6">
-					<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-secondary">
-						<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-						<line x1="7" y1="7" x2="7.01" y2="7"/>
-					</svg>
-				</div>
-				<h1 class="text-3xl font-extrabold text-black mb-4 uppercase tracking-tight">Connect Your Wallet</h1>
-				<p class="text-lg text-black opacity-70 mb-8 max-w-2xl mx-auto">
-					Connect your wallet to view and claim your oil & gas token payouts.
-				</p>
-				<PrimaryButton on:click={() => showWalletModal = true} size="large">
-					Connect Wallet →
+{#if !$walletStore.isConnected && !showWalletModal}
+	<PageLayout variant="constrained">
+		<ContentSection background="white" padding="large" centered>
+			<div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
+				<SectionTitle level="h1" size="page" center>Wallet Connection Required</SectionTitle>
+				<p class="text-lg text-black opacity-80 mb-8 max-w-md">Please connect your wallet to view and claim your payouts.</p>
+				<PrimaryButton on:click={() => showWalletModal = true}>
+					Connect Wallet
 				</PrimaryButton>
 			</div>
 		</ContentSection>
-	{:else if loading}
-		<!-- Loading State -->
-		<ContentSection background="white" padding="large">
-			<div class="text-center py-16">
-				<div class="inline-flex items-center justify-center w-16 h-16 bg-light-gray rounded-full mb-4 animate-pulse">
-					<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-secondary animate-spin">
-						<path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-					</svg>
-				</div>
-				<p class="text-lg text-black opacity-70">Loading your payouts...</p>
-			</div>
-		</ContentSection>
-	{:else}
-		<!-- Claims Header -->
-		<ContentSection background="gray" padding="large">
-			<div class="mb-8">
-				<h1 class="text-4xl md:text-5xl font-extrabold text-black uppercase tracking-tight mb-2">Claim Payouts</h1>
-				<p class="text-lg text-black opacity-70">Claim your earnings from oil & gas token investments</p>
-			</div>
-
-			<!-- Key Metrics -->
-			<div class="grid md:grid-cols-4 grid-cols-1 gap-6 mb-8">
+	</PageLayout>
+{:else if $walletStore.isConnected}
+<PageLayout variant="default">
+	<!-- Hero Section -->
+	<HeroSection 
+		title="Claim Payouts"
+		subtitle="Claim your investment earnings and track your payout history."
+		showBorder={true}
+		showButtons={false}
+		className="py-12"
+	>
+		<!-- Platform Stats -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto mt-2">
+			{#if loading}
+				<StatsCard
+					title="Total Earned"
+					value="--"
+					subtitle="Loading..."
+					size="large"
+				/>
+				<StatsCard
+					title="Total Claimed"
+					value="--"
+					subtitle="Loading..."
+					size="large"
+				/>
+				<StatsCard
+					title="Available to Claim"
+					value="--"
+					subtitle="Loading..."
+					size="large"
+				/>
+			{:else}
 				<StatsCard
 					title="Total Earned"
 					value={formatCurrency(totalEarned)}
-					icon="💰"
-					trend={0}
-					variant="default"
+					subtitle="All time earnings"
+					size="large"
 				/>
 				<StatsCard
 					title="Total Claimed"
 					value={formatCurrency(totalClaimed)}
-					icon="✅"
-					trend={0}
-					variant="success"
+					subtitle="Successfully withdrawn"
+					size="large"
 				/>
 				<StatsCard
-					title="Unclaimed Payouts"
+					title="Available to Claim"
 					value={formatCurrency(unclaimedPayout)}
-					icon="🎯"
-					trend={0}
-					variant="warning"
+					subtitle="Ready for withdrawal"
+					valueColor="primary"
+					size="large"
 				/>
-				<StatsCard
-					title="Available Now"
-					value={formatCurrency(unclaimedPayout - estimatedGas)}
-					icon="💵"
-					trend={0}
-					variant="primary"
-					note="After gas fees"
-				/>
+			{/if}
+		</div>
+	</HeroSection>
+
+	{#if !loading}
+		<!-- Success Message -->
+		{#if claimSuccess}
+			<ContentSection background="white" padding="compact">
+				<div class="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+					<div class="text-green-600 font-extrabold text-lg mb-2">✅ Claim Successful!</div>
+					<p class="text-green-800">Your payouts have been successfully transferred to your wallet.</p>
+				</div>
+			</ContentSection>
+		{/if}
+
+		<!-- Quick Claim Section -->
+		<FullWidthSection background="gray" padding="standard">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+				<div>
+					<SectionTitle level="h2" size="subsection" className="mb-6">Quick Claim All</SectionTitle>
+					<div class="text-3xl font-extrabold text-primary mb-2">{formatCurrency(unclaimedPayout)}</div>
+					<div class="text-sm text-black opacity-70 font-semibold mb-6">Total Available</div>
+					<div class="space-y-2 text-sm">
+						<div class="flex justify-between">
+							<span class="text-black opacity-70 font-semibold">Estimated Gas:</span>
+							<span class="font-extrabold">{formatCurrency(estimatedGas)}</span>
+						</div>
+						<div class="flex justify-between">
+							<span class="text-black opacity-70 font-semibold">Net Amount:</span>
+							<span class="font-extrabold text-primary">{formatCurrency(unclaimedPayout - estimatedGas)}</span>
+						</div>
+					</div>
+				</div>
+				<div class="flex flex-col gap-4 justify-center">
+					<PrimaryButton
+						on:click={() => handleClaimWithModal('claim')}
+						disabled={claiming || unclaimedPayout <= 0}
+					>
+						{#if claiming}
+							Claiming...
+						{:else}
+							Claim All {formatCurrency(unclaimedPayout)}
+						{/if}
+					</PrimaryButton>
+					<SecondaryButton on:click={() => handleClaimWithModal('reinvest')} disabled={claiming || unclaimedPayout <= 0}>Claim & Reinvest</SecondaryButton>
+				</div>
+			</div>
+		</FullWidthSection>
+
+		<!-- Asset-by-Asset Claiming -->
+		<ContentSection background="white" padding="compact" maxWidth={false}>
+			<div class="max-w-6xl mx-auto px-8">
+			<div class="flex justify-between items-center mb-6">
+				<SectionTitle level="h2" size="section">Claim by Asset</SectionTitle>
+				<div class="flex gap-4">
+					<SecondaryButton
+						size="small"
+						on:click={handleSelectAll}
+					>
+						{selectedAssets.length === holdings.length ? 'Deselect All' : 'Select All'}
+					</SecondaryButton>
+					{#if selectedAssets.length > 0}
+						<PrimaryButton
+							size="small"
+							on:click={() => handleClaimWithModal('claim')}
+							disabled={claiming}
+						>
+							{#if claiming}
+								Claiming...
+							{:else}
+								Claim Selected {formatCurrency(getSelectedAmount())}
+							{/if}
+						</PrimaryButton>
+					{/if}
+				</div>
+			</div>
+
+			<div class="space-y-4">
+				{#each holdings as holding}
+					<div class="{selectedAssets.includes(holding.id) ? 'ring-2 ring-primary rounded-lg' : ''}">
+						<Card hoverable showBorder>
+							<CardContent paddingClass="p-6">
+							<div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+								<div class="flex items-center gap-4">
+									<input 
+										type="checkbox" 
+										class="w-4 h-4"
+										checked={selectedAssets.includes(holding.id)}
+										on:change={() => handleAssetSelect(holding.id)}
+									/>
+									<div>
+										<div class="font-extrabold text-black text-sm">{holding.name}</div>
+										<div class="text-xs text-black opacity-70">{holding.location}</div>
+									</div>
+								</div>
+								<div class="text-center">
+									<StatusBadge 
+										status={holding.status}
+										size="small"
+										showIcon={true}
+									/>
+								</div>
+								<div class="text-center">
+									<div class="text-lg font-extrabold text-primary mb-1">{formatCurrency(holding.unclaimedAmount)}</div>
+									<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Unclaimed</div>
+									<div class="text-xs text-black opacity-60 mt-1">Last claimed: {holding.lastClaimDate ? formatDate(holding.lastClaimDate) : 'Never'}</div>
+								</div>
+								<div class="text-center">
+									<div class="text-lg font-extrabold text-black mb-1">{formatCurrency(holding.totalEarned)}</div>
+									<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Total Earned</div>
+									<div class="text-xs text-black opacity-60 mt-1">Last payout: {holding.lastPayout ? formatDate(holding.lastPayout) : 'Never'}</div>
+								</div>
+								<div class="text-center">
+									<SecondaryButton size="small" on:click={() => handleAssetSelect(holding.id)}>Claim</SecondaryButton>
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+					</div>
+				{/each}
+			</div>
 			</div>
 		</ContentSection>
 
-		<!-- Claims Content -->
-		<ContentSection background="white" padding="large">
-			{#if claimSuccess}
-				<!-- Success Message -->
-				<div class="bg-green-50 border border-green-200 p-6 rounded-lg mb-8">
-					<div class="flex items-center">
-						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-green-600 mr-3">
-							<path d="M20 6L9 17l-5-5"/>
-						</svg>
-						<div>
-							<h3 class="text-lg font-semibold text-green-800">Claim Successful!</h3>
-							<p class="text-green-700">Your payouts have been claimed and will be available in your wallet shortly.</p>
-						</div>
+		<!-- Payout Statistics -->
+		<FullWidthSection background="gray" padding="standard">
+			<div class="text-center">
+				<SectionTitle level="h2" size="section" center className="mb-8">Payout Statistics</SectionTitle>
+				<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+				<StatsCard
+					title="Total Payouts"
+					value={walletDataService.getMonthlyPayoutHistory().length.toString()}
+					subtitle="This year"
+					size="medium"
+				/>
+				<StatsCard
+					title="Days Since Last Claim"
+					value={(() => {
+						const claimTxs = walletDataService.getAllTransactions().filter(tx => tx.type === 'claim');
+						if (claimTxs.length === 0) return 'N/A';
+						const lastClaim = claimTxs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+						const daysSince = Math.floor((Date.now() - new Date(lastClaim.timestamp).getTime()) / (1000 * 60 * 60 * 24));
+						return Math.max(0, daysSince).toString();
+					})()}
+					subtitle="Since last withdrawal"
+					size="medium"
+				/>
+				<StatsCard
+					title="Number of Claims"
+					value={claimHistory.length.toString()}
+					subtitle="Lifetime total"
+					size="medium"
+				/>
+				<StatsCard
+					title="Average Claim Size"
+					value={claimHistory.length > 0 ? formatCurrency(totalClaimed / claimHistory.length) : '$0'}
+					subtitle="Per transaction"
+					valueColor="primary"
+					size="medium"
+				/>
+				</div>
+			</div>
+		</FullWidthSection>
+
+		<!-- Claim History -->
+		<ContentSection background="white" padding="compact" maxWidth={false}>
+			<div class="max-w-6xl mx-auto px-8">
+			<div class="flex justify-between items-center mb-6">
+				<SectionTitle level="h2" size="section">Claim History</SectionTitle>
+				<SecondaryButton size="small" on:click={() => exportClaimHistory()}>📊 Export History</SecondaryButton>
+			</div>
+			
+			<div class="bg-white border border-light-gray overflow-hidden">
+				<table class="w-full">
+					<thead>
+						<tr class="bg-light-gray border-b border-light-gray">
+							<th class="text-left p-4 text-xs text-black uppercase tracking-wide font-bold">Date</th>
+							<th class="text-left p-4 text-xs text-black uppercase tracking-wide font-bold">Asset</th>
+							<th class="text-left p-4 text-xs text-black uppercase tracking-wide font-bold">Amount</th>
+							<th class="text-center p-4 text-xs text-black uppercase tracking-wide font-bold">Transaction</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each claimHistory.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) as claim}
+							<tr class="border-b border-light-gray hover:bg-light-gray transition-colors">
+								<td class="p-4 text-sm text-black">{formatDate(claim.date)}</td>
+								<td class="p-4 text-sm text-black">{claim.asset}</td>
+								<td class="p-4 text-sm text-black">{formatCurrency(claim.amount)}</td>
+								<td class="p-4 text-center">
+									<a 
+										href="https://basescan.org/tx/{claim.txHash}" 
+										target="_blank" 
+										rel="noopener noreferrer"
+										class="text-xs text-black opacity-70 font-mono hover:text-secondary transition-colors inline-flex items-center gap-1"
+									>
+										{claim.txHash.slice(0, 12)}...{claim.txHash.slice(-8)}
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+											<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+											<polyline points="15 3 21 3 21 9"></polyline>
+											<line x1="10" y1="14" x2="21" y2="3"></line>
+										</svg>
+									</a>
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+			
+			<!-- Pagination -->
+			{#if claimHistory.length > itemsPerPage}
+				<div class="flex justify-center items-center gap-4 mt-6">
+					<button 
+						class="px-3 py-1 text-sm text-black border border-light-gray rounded hover:bg-light-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						disabled={currentPage === 1}
+						on:click={() => currentPage -= 1}
+					>
+						Previous
+					</button>
+					
+					<div class="flex gap-2">
+						{#each Array(Math.ceil(claimHistory.length / itemsPerPage)) as _, i}
+							<button 
+								class="w-8 h-8 text-sm text-black border border-light-gray rounded hover:bg-light-gray transition-colors {currentPage === i + 1 ? 'bg-light-gray' : ''}"
+								on:click={() => currentPage = i + 1}
+							>
+								{i + 1}
+							</button>
+						{/each}
 					</div>
+					
+					<button 
+						class="px-3 py-1 text-sm text-black border border-light-gray rounded hover:bg-light-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						disabled={currentPage === Math.ceil(claimHistory.length / itemsPerPage)}
+						on:click={() => currentPage += 1}
+					>
+						Next
+					</button>
+				</div>
+			{:else}
+				<div class="flex justify-center items-center gap-2 mt-6">
+					<span class="text-sm text-black">Page</span>
+					<span class="w-8 h-8 text-sm text-black border border-light-gray rounded bg-light-gray flex items-center justify-center">1</span>
 				</div>
 			{/if}
-
-			<!-- Pending Payouts Table -->
-			<div class="mb-8">
-				<div class="flex justify-between items-center mb-6">
-					<SectionTitle level="h2" className="mb-0">Pending Payouts</SectionTitle>
-					{#if holdings.length > 0}
-						<button
-							class="text-primary font-semibold hover:text-secondary transition-colors duration-200"
-							on:click={handleSelectAll}
-						>
-							{selectedAssets.length === holdings.length ? 'Deselect All' : 'Select All'}
-						</button>
-					{/if}
-				</div>
-
-				{#if holdings.length > 0}
-					<Card>
-						<CardContent className="p-0">
-							<div class="overflow-x-auto">
-								<table class="w-full">
-									<thead class="bg-light-gray">
-										<tr>
-											<th class="w-12 px-6 py-4">
-												<input
-													type="checkbox"
-													checked={selectedAssets.length === holdings.length}
-													on:change={handleSelectAll}
-													class="w-4 h-4 text-primary bg-white border-gray-300 rounded focus:ring-primary"
-													aria-label="Select all assets"
-												/>
-											</th>
-											<th class="px-6 py-4 text-left text-xs font-medium text-black uppercase tracking-wider">Asset</th>
-											<th class="px-6 py-4 text-left text-xs font-medium text-black uppercase tracking-wider">Location</th>
-											<th class="px-6 py-4 text-left text-xs font-medium text-black uppercase tracking-wider">Unclaimed</th>
-											<th class="px-6 py-4 text-left text-xs font-medium text-black uppercase tracking-wider">Total Earned</th>
-											<th class="px-6 py-4 text-left text-xs font-medium text-black uppercase tracking-wider">Last Payout</th>
-											<th class="px-6 py-4 text-left text-xs font-medium text-black uppercase tracking-wider">Status</th>
-										</tr>
-									</thead>
-									<tbody class="bg-white divide-y divide-light-gray">
-										{#each holdings as holding}
-											<tr class="hover:bg-light-gray transition-colors duration-200">
-												<td class="px-6 py-4">
-													<input
-														type="checkbox"
-														checked={selectedAssets.includes(holding.id)}
-														on:change={() => handleAssetSelect(holding.id)}
-														class="w-4 h-4 text-primary bg-white border-gray-300 rounded focus:ring-primary"
-														aria-label="Select {holding.name}"
-													/>
-												</td>
-												<td class="px-6 py-4 whitespace-nowrap">
-													<div>
-														<div class="text-sm font-semibold text-black">{holding.name}</div>
-													</div>
-												</td>
-												<td class="px-6 py-4 whitespace-nowrap text-sm text-black opacity-70">
-													{holding.location}
-												</td>
-												<td class="px-6 py-4 whitespace-nowrap">
-													<span class="text-sm font-bold text-primary">
-														{formatCurrency(holding.unclaimedAmount)}
-													</span>
-												</td>
-												<td class="px-6 py-4 whitespace-nowrap text-sm text-black">
-													{formatCurrency(holding.totalEarned)}
-												</td>
-												<td class="px-6 py-4 whitespace-nowrap text-sm text-black opacity-70">
-													{holding.lastPayout ? formatDate(holding.lastPayout) : 'N/A'}
-												</td>
-												<td class="px-6 py-4 whitespace-nowrap">
-													<StatusBadge status={holding.status === 'producing' ? 'success' : 'warning'}>
-														{holding.status}
-													</StatusBadge>
-												</td>
-											</tr>
-										{/each}
-									</tbody>
-								</table>
-							</div>
-						</CardContent>
-					</Card>
-
-					<!-- Claim Actions -->
-					{#if selectedAssets.length > 0}
-						<div class="mt-6 bg-light-gray p-6 rounded-lg">
-							<div class="flex justify-between items-center mb-4">
-								<div>
-									<p class="text-sm text-black opacity-70 mb-1">Selected Payouts</p>
-									<p class="text-2xl font-extrabold text-black">{formatCurrency(selectedAmount)}</p>
-								</div>
-								<div class="text-right">
-									<p class="text-sm text-black opacity-70 mb-1">Estimated Gas</p>
-									<p class="text-lg font-semibold text-black">{formatCurrency(estimatedGas)}</p>
-								</div>
-							</div>
-							<div class="flex gap-4">
-								<PrimaryButton on:click={() => openClaimModal('claim')} className="flex-1">
-									Claim to Wallet ({formatCurrency(selectedAmount - estimatedGas)})
-								</PrimaryButton>
-								<SecondaryButton on:click={() => openClaimModal('reinvest')} className="flex-1">
-									Reinvest Payouts
-								</SecondaryButton>
-							</div>
-						</div>
-					{/if}
-				{:else}
-					<div class="text-center py-16">
-						<div class="inline-flex items-center justify-center w-24 h-24 bg-light-gray rounded-full mb-6">
-							<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-secondary">
-								<circle cx="12" cy="12" r="10"/>
-								<path d="M8 12h8"/>
-							</svg>
-						</div>
-						<h3 class="text-2xl font-extrabold text-black mb-4">No Pending Payouts</h3>
-						<p class="text-black opacity-70 mb-8 max-w-lg mx-auto">
-							You don't have any unclaimed payouts at the moment. Check back after the next distribution period.
-						</p>
-						<PrimaryButton href="/portfolio">
-							View Portfolio →
-						</PrimaryButton>
-					</div>
-				{/if}
-			</div>
-
-			<!-- Claim History -->
-			<div>
-				<SectionTitle level="h2" className="mb-6">Claim History</SectionTitle>
-
-				{#if claimHistory.length > 0}
-					<Card>
-						<CardContent className="p-0">
-							<div class="overflow-x-auto">
-								<table class="w-full">
-									<thead class="bg-light-gray">
-										<tr>
-											<th class="px-6 py-4 text-left text-xs font-medium text-black uppercase tracking-wider">Date</th>
-											<th class="px-6 py-4 text-left text-xs font-medium text-black uppercase tracking-wider">Asset</th>
-											<th class="px-6 py-4 text-left text-xs font-medium text-black uppercase tracking-wider">Amount</th>
-											<th class="px-6 py-4 text-left text-xs font-medium text-black uppercase tracking-wider">Transaction</th>
-											<th class="px-6 py-4 text-left text-xs font-medium text-black uppercase tracking-wider">Status</th>
-										</tr>
-									</thead>
-									<tbody class="bg-white divide-y divide-light-gray">
-										{#each paginatedClaimHistory as claim}
-											<tr>
-												<td class="px-6 py-4 whitespace-nowrap text-sm text-black">
-													{formatDate(claim.date)}
-												</td>
-												<td class="px-6 py-4 whitespace-nowrap text-sm text-black">
-													{claim.asset}
-												</td>
-												<td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-													+{formatCurrency(claim.amount)}
-												</td>
-												<td class="px-6 py-4 whitespace-nowrap text-sm">
-													<a 
-														href={`https://etherscan.io/tx/${claim.txHash}`}
-														target="_blank"
-														rel="noopener noreferrer"
-														class="text-primary hover:text-secondary font-mono text-xs"
-													>
-														{claim.txHash.slice(0, 8)}...{claim.txHash.slice(-6)}
-													</a>
-												</td>
-												<td class="px-6 py-4 whitespace-nowrap">
-													<StatusBadge status="success">Completed</StatusBadge>
-												</td>
-											</tr>
-										{/each}
-									</tbody>
-								</table>
-							</div>
-						</CardContent>
-					</Card>
-
-					<!-- Pagination -->
-					{#if totalPages > 1}
-						<div class="mt-6 flex justify-center">
-							<nav class="flex gap-2">
-								<button
-									class="px-3 py-2 text-sm font-semibold bg-white border border-light-gray rounded hover:bg-light-gray disabled:opacity-50 disabled:cursor-not-allowed"
-									disabled={currentPage === 1}
-									on:click={() => handlePageChange(currentPage - 1)}
-								>
-									Previous
-								</button>
-								{#each Array(totalPages) as _, i}
-									<button
-										class="px-3 py-2 text-sm font-semibold rounded {currentPage === i + 1 ? 'bg-secondary text-white' : 'bg-white border border-light-gray hover:bg-light-gray'}"
-										on:click={() => handlePageChange(i + 1)}
-									>
-										{i + 1}
-									</button>
-								{/each}
-								<button
-									class="px-3 py-2 text-sm font-semibold bg-white border border-light-gray rounded hover:bg-light-gray disabled:opacity-50 disabled:cursor-not-allowed"
-									disabled={currentPage === totalPages}
-									on:click={() => handlePageChange(currentPage + 1)}
-								>
-									Next
-								</button>
-							</nav>
-						</div>
-					{/if}
-				{:else}
-					<Card>
-						<CardContent className="text-center py-12">
-							<p class="text-black opacity-70">No claim history yet. Your claimed payouts will appear here.</p>
-						</CardContent>
-					</Card>
-				{/if}
 			</div>
 		</ContentSection>
 	{/if}
@@ -580,16 +634,16 @@
 			
 			<div class="flex gap-4">
 				<PrimaryButton 
-					on:click={handleClaimPayouts} 
+					on:click={confirmClaim} 
 					disabled={claiming}
-					className="flex-1"
+					fullWidth={true}
 				>
 					{claiming ? 'Processing...' : claimModalMode === 'claim' ? 'Confirm Claim' : 'Confirm Reinvestment'}
 				</PrimaryButton>
 				<SecondaryButton 
 					on:click={() => showClaimModal = false}
 					disabled={claiming}
-					className="flex-1"
+					fullWidth={true}
 				>
 					Cancel
 				</SecondaryButton>
@@ -597,6 +651,15 @@
 		</div>
 	</div>
 {/if}
+{/if}
+
+<!-- Wallet Modal -->
+<WalletModal
+	bind:isOpen={showWalletModal}
+	isConnecting={$walletStore.isConnecting}
+	on:connect={handleWalletConnect}
+	on:close={handleWalletModalClose}
+/>
 
 <style>
 	@keyframes spin {
