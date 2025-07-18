@@ -2,8 +2,8 @@
 	import '../app.css';
 	import { page } from '$app/stores';
 	import { walletStore, walletActions, formatAddress } from '$lib/stores/wallet';
-	import { PrimaryButton, SecondaryButton } from '$lib/components/atoms';
-	import WalletModal from '$lib/components/organisms/WalletModal.svelte';
+	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
+	import WalletModal from '$lib/components/patterns/WalletModal.svelte';
 	
 	$: currentPath = $page.url.pathname;
 	let mobileMenuOpen = false;

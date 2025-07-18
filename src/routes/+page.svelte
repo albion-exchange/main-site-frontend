@@ -2,12 +2,12 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { usePlatformStats } from '$lib/composables/usePlatformStats';
-	import FeaturedTokenCarousel from '$lib/components/organisms/carousel/FeaturedTokenCarousel.svelte';
-	import TokenPurchaseWidget from '$lib/components/organisms/TokenPurchaseWidget.svelte';
-	import { PrimaryButton, SecondaryButton, StatsCard, ButtonGroup } from '$lib/components/atoms';
-	import SectionTitle from '$lib/components/atoms/SectionTitle.svelte';
-	import GridContainer from '$lib/components/atoms/GridContainer.svelte';
-	import { PageLayout, HeroSection, ContentSection } from '$lib/components/templates';
+	import FeaturedTokenCarousel from '$lib/components/patterns/carousel/FeaturedTokenCarousel.svelte';
+	import TokenPurchaseWidget from '$lib/components/patterns/TokenPurchaseWidget.svelte';
+	import { PrimaryButton, SecondaryButton, StatsCard, ButtonGroup } from '$lib/components/components';
+	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
+	import GridContainer from '$lib/components/components/GridContainer.svelte';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	import marketData from '$lib/data/marketData.json';
 
 	// Composables

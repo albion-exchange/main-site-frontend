@@ -4,9 +4,9 @@
 	import walletDataService from '$lib/services/WalletDataService';
 	import type { Asset } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
-	import WalletModal from '$lib/components/organisms/WalletModal.svelte';
-	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, StatsCard, MetricDisplay, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard } from '$lib/components/atoms';
-	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/templates';
+	import WalletModal from '$lib/components/patterns/WalletModal.svelte';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, StatsCard, MetricDisplay, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard } from '$lib/components/components';
+	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
 	import { formatCurrency } from '$lib/utils/formatters';
 	import { dateUtils } from '$lib/utils/dateHelpers';
 	import { arrayUtils } from '$lib/utils/arrayHelpers';

@@ -2,7 +2,7 @@
 	import type { Asset } from '$lib/types/uiTypes';
 	import { getImageUrl } from '$lib/utils/imagePath';
 	import { formatCurrency } from '$lib/utils/formatters';
-	import MetricDisplay from '$lib/components/atoms/MetricDisplay.svelte';
+	import MetricDisplay from '$lib/components/components/MetricDisplay.svelte';
 
 	export let asset: Asset;
 	export let tokenCount: number = 0;

@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { useConfigService } from '$lib/services';
-	import SectionTitle from '$lib/components/atoms/SectionTitle.svelte';
-	import PrimaryButton from '$lib/components/atoms/PrimaryButton.svelte';
-	import SecondaryButton from '$lib/components/atoms/SecondaryButton.svelte';
-	import Card from '$lib/components/atoms/Card.svelte';
-	import { PageLayout, HeroSection, ContentSection } from '$lib/components/templates';
+	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
+	import PrimaryButton from '$lib/components/components/PrimaryButton.svelte';
+	import SecondaryButton from '$lib/components/components/SecondaryButton.svelte';
+	import Card from '$lib/components/components/Card.svelte';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	
 	let platformStats: any = {};
 	let loading = true;

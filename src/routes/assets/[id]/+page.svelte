@@ -2,11 +2,11 @@
 	import { page } from '$app/stores';
 	import { useTokenService, useConfigService } from '$lib/services';
 	import type { Asset, Token } from '$lib/types/uiTypes';
-	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/atoms';
-	import SectionTitle from '$lib/components/atoms/SectionTitle.svelte';
-	import MetricDisplay from '$lib/components/atoms/MetricDisplay.svelte';
-	import TabButton from '$lib/components/atoms/TabButton.svelte';
-	import { PageLayout, ContentSection } from '$lib/components/templates';
+	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/components';
+	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
+	import MetricDisplay from '$lib/components/components/MetricDisplay.svelte';
+	import TabButton from '$lib/components/components/TabButton.svelte';
+	import { PageLayout, ContentSection } from '$lib/components/layout';
 	import { getImageUrl } from '$lib/utils/imagePath';
 	import { formatCurrency } from '$lib/utils/formatters';
 	import { 
@@ -15,8 +15,8 @@
 		useTooltip, 
 		useEmailNotification
 	} from '$lib/composables';
-	import AssetDetailHeader from '$lib/components/organisms/assets/AssetDetailHeader.svelte';
-	import AssetOverviewTab from '$lib/components/organisms/assets/AssetOverviewTab.svelte';
+	import AssetDetailHeader from '$lib/components/patterns/assets/AssetDetailHeader.svelte';
+	import AssetOverviewTab from '$lib/components/patterns/assets/AssetOverviewTab.svelte';
 
 	let activeTab = 'overview';
 	let unclaimedPayout = 0; // Will be calculated from actual token holdings
@@ -759,7 +759,7 @@
 
 		<!-- Token Purchase Widget -->
 		{#if showPurchaseWidget}
-			{#await import('$lib/components/organisms/TokenPurchaseWidget.svelte') then { default: TokenPurchaseWidget }}
+			{#await import('$lib/components/patterns/TokenPurchaseWidget.svelte') then { default: TokenPurchaseWidget }}
 				<TokenPurchaseWidget 
 					bind:isOpen={showPurchaseWidget}
 					tokenAddress={selectedTokenAddress}
