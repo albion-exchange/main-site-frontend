@@ -205,7 +205,7 @@
 		</div>
 	{:else}
 		<!-- Breadcrumb -->
-		<div class="max-w-6xl mx-auto">
+		<div class="max-w-6xl mx-auto px-8">
 			<nav class="mb-8 text-sm font-medium">
 				<a href="/assets" class="text-secondary no-underline hover:text-black">← Back to Assets</a>
 				<span class="mx-2 text-light-gray">/</span>
@@ -294,7 +294,7 @@
 						size="large"
 					/>
 				</div>
-				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4 cursor-pointer transition-all duration-200 rounded p-4 -m-4 border-2 border-light-gray bg-white shadow-sm hover:bg-light-gray hover:-translate-y-1 hover:border-primary hover:shadow-card-hover focus:outline-none focus:border-primary focus:bg-light-gray focus:shadow-card-hover" on:click={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' }); } }} role="button" tabindex="0">
+				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4 cursor-pointer transition-all duration-200 rounded border-2 border-light-gray bg-white shadow-sm hover:bg-light-gray hover:-translate-y-1 hover:border-primary hover:shadow-card-hover focus:outline-none focus:border-primary focus:bg-light-gray focus:shadow-card-hover" on:click={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' }); } }} role="button" tabindex="0">
 					<MetricDisplay
 						value={assetTokens.length.toString()}
 						label="Available Tokens"
