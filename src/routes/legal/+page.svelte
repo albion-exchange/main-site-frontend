@@ -72,13 +72,10 @@
 					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">5. Investment Terms</h3>
 					<p class="leading-relaxed mb-4 text-black">All investments are subject to specific terms outlined in the respective token offering documents. Past performance does not guarantee future results. Investments may lose value.</p>
 					
-					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">6. Platform Fees</h3>
-					<p class="leading-relaxed mb-4 text-black">Albion charges management fees and transaction fees as disclosed in the relevant offering materials. All fees are clearly outlined before investment.</p>
-					
-					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">7. Limitation of Liability</h3>
+					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">6. Limitation of Liability</h3>
 					<p class="leading-relaxed mb-4 text-black">Albion's liability is limited to the maximum extent permitted by law. We are not liable for investment losses, market volatility, or technical issues beyond our control.</p>
 					
-					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">8. Termination</h3>
+					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">7. Termination</h3>
 					<p class="leading-relaxed mb-4 text-black">We may terminate or suspend your account at any time for violation of these terms or applicable laws. You may close your account at any time subject to existing investment commitments.</p>
 				</div>
 			</div>

@@ -34,8 +34,7 @@
 
 	$: order = {
 		investment: investmentAmount,
-		platformFee: investmentAmount * configService.getPlatformFee(),
-		totalCost: investmentAmount + (investmentAmount * configService.getPlatformFee()),
+		totalCost: investmentAmount,
 		tokens: investmentAmount // 1:1 ratio for simplicity
 	};
 
@@ -287,10 +286,6 @@
 								<div class={summaryRowClasses}>
 									<span>Investment Amount</span>
 									<span>{formatCurrency(investmentAmount, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-								</div>
-								<div class={summaryRowClasses}>
-									<span>Platform Fee <span class={strikethroughClasses}>(0.5%)</span></span>
-									<span class={freeTextClasses}>FREE</span>
 								</div>
 								<div class={summaryTotalClasses}>
 									<span>Total Cost</span>

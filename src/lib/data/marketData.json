@@ -57,9 +57,5 @@
       }
     }
   },
-  "platformFees": {
-    "transactionFee": 0.0,
-    "managementFee": 0.0,
-    "currency": "USD"
-  }
+
 }

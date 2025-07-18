@@ -9,7 +9,7 @@ export { default as CardImage } from "./CardImage.svelte";
 export { default as Card } from "./Card.svelte";
 export { default as Chart } from "./Chart.svelte";
 export { default as ChartTooltip } from "./ChartTooltip.svelte";
-export { default as Checkbox } from "./Checkbox.svelte";
+
 export { default as ControlButton } from "./ControlButton.svelte";
 export { default as DataRow } from "./DataRow.svelte";
 export { default as DataTable } from "./DataTable.svelte";
