@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Card, CardContent } from '$lib/components/ui';
+	import Card from './Card.svelte';
+	import CardContent from './CardContent.svelte';
 	import Label from './Label.svelte';
 	import TextBlock from './TextBlock.svelte';
 	

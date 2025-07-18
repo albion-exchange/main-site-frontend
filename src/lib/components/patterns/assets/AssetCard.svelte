@@ -2,7 +2,7 @@
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import type { Asset } from '$lib/types/uiTypes';
 	import { useTokenService } from '$lib/services';
-	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/components';
 	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
 
 	export let asset: Asset;

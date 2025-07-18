@@ -2,9 +2,9 @@
 	import { onMount } from 'svelte';
 	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Asset } from '$lib/types/uiTypes';
-	import AssetCard from '$lib/components/assets/AssetCard.svelte';
-	import TokenPurchaseWidget from '$lib/components/TokenPurchaseWidget.svelte';
-	import { SecondaryButton, SectionTitle, Card, CardContent } from '$lib/components/ui';
+	import AssetCard from '$lib/components/patterns/assets/AssetCard.svelte';
+	import TokenPurchaseWidget from '$lib/components/patterns/TokenPurchaseWidget.svelte';
+	import { SecondaryButton, SectionTitle, Card, CardContent } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 
 	let loading = true;

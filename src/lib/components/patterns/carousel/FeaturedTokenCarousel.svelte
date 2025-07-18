@@ -2,7 +2,7 @@
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Token, Asset } from '$lib/types/uiTypes';
-	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
 	import { formatCurrency } from '$lib/utils/formatters';
 	import { meetsSupplyThreshold, formatSupplyAmount, getAvailableSupplyBigInt } from '$lib/utils/tokenSupplyUtils';
 

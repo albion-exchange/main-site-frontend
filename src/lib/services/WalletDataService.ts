@@ -14,7 +14,8 @@ import type {
   WalletPayout,
   PayoutHistoryItem,
 } from "$lib/types/wallet";
-import { useAssetService, useTokenService } from "$lib/services/ServiceContainer";
+import assetService from "./AssetService";
+import tokenService from "./TokenService";
 import type { Asset, Token } from "$lib/types/uiTypes";
 
 // Import mock wallet data
@@ -28,15 +29,13 @@ interface SimpleWalletData {
 
 class WalletDataService {
   private rawData: SimpleWalletData;
-  private assetService: ReturnType<typeof useAssetService>;
-  private tokenService: ReturnType<typeof useTokenService>;
+  private assetService = assetService;
+  private tokenService = tokenService;
 
   constructor() {
     // Initialize with mock data
     this.rawData = walletDataJson as SimpleWalletData;
     // Initialize services
-    this.assetService = useAssetService();
-    this.tokenService = useTokenService();
   }
 
   /**

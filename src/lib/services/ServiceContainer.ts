@@ -15,30 +15,12 @@ export interface ServiceContainer {
   walletDataService: typeof walletDataService;
 }
 
-class ServiceContainerImpl implements ServiceContainer {
-  constructor() {
-    // Services are already singleton instances
-  }
-
-  get assetService() {
-    return assetService;
-  }
-
-  get tokenService() {
-    return tokenService;
-  }
-
-  get configService() {
-    return configService;
-  }
-
-  get walletDataService() {
-    return walletDataService;
-  }
-}
-
-// Export singleton instance
-export const serviceContainer: ServiceContainer = new ServiceContainerImpl();
+export const serviceContainer: ServiceContainer = {
+  assetService,
+  tokenService,
+  configService,
+  walletDataService
+};
 
 // Export convenience functions for direct access
 export const useAssetService = () => serviceContainer.assetService;

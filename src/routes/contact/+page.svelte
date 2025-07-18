@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { useConfigService } from '$lib/services';
-	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
+	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	
 	let formData = {

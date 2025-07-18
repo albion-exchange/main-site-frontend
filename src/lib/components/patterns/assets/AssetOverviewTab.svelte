@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Asset } from '$lib/types/uiTypes';
-	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
+	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
 	import { useTooltip } from '$lib/composables';
 
 	export let asset: Asset;

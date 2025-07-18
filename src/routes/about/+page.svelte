@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { useConfigService } from '$lib/services';
-	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
-	import PrimaryButton from '$lib/components/ui/PrimaryButton.svelte';
-	import SecondaryButton from '$lib/components/ui/SecondaryButton.svelte';
-	import Card from '$lib/components/ui/Card.svelte';
+	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
+	import PrimaryButton from '$lib/components/components/PrimaryButton.svelte';
+	import SecondaryButton from '$lib/components/components/SecondaryButton.svelte';
+	import Card from '$lib/components/components/Card.svelte';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	
 	let platformStats: any = {};

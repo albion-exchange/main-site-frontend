@@ -1,6 +1,6 @@
 <script lang="ts">
-	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
-	import ControlButton from '$lib/components/ui/ControlButton.svelte';
+	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
+	import ControlButton from '$lib/components/components/ControlButton.svelte';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	
 	let activeSection = 'terms';

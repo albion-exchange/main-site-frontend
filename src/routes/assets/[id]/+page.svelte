@@ -2,10 +2,10 @@
 	import { page } from '$app/stores';
 	import { useTokenService, useConfigService } from '$lib/services';
 	import type { Asset, Token } from '$lib/types/uiTypes';
-	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/ui';
-	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
-	import MetricDisplay from '$lib/components/ui/MetricDisplay.svelte';
-	import TabButton from '$lib/components/ui/TabButton.svelte';
+	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/components';
+	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
+	import MetricDisplay from '$lib/components/components/MetricDisplay.svelte';
+	import TabButton from '$lib/components/components/TabButton.svelte';
 	import { PageLayout, ContentSection } from '$lib/components/layout';
 	import { getImageUrl } from '$lib/utils/imagePath';
 	import { formatCurrency } from '$lib/utils/formatters';
@@ -15,8 +15,8 @@
 		useTooltip, 
 		useEmailNotification
 	} from '$lib/composables';
-	import AssetDetailHeader from '$lib/components/assets/AssetDetailHeader.svelte';
-	import AssetOverviewTab from '$lib/components/assets/AssetOverviewTab.svelte';
+	import AssetDetailHeader from '$lib/components/patterns/assets/AssetDetailHeader.svelte';
+	import AssetOverviewTab from '$lib/components/patterns/assets/AssetOverviewTab.svelte';
 
 	let activeTab = 'overview';
 	let unclaimedPayout = 0; // Will be calculated from actual token holdings
@@ -759,7 +759,7 @@
 
 		<!-- Token Purchase Widget -->
 		{#if showPurchaseWidget}
-			{#await import('$lib/components/TokenPurchaseWidget.svelte') then { default: TokenPurchaseWidget }}
+			{#await import('$lib/components/patterns/TokenPurchaseWidget.svelte') then { default: TokenPurchaseWidget }}
 				<TokenPurchaseWidget 
 					bind:isOpen={showPurchaseWidget}
 					tokenAddress={selectedTokenAddress}
