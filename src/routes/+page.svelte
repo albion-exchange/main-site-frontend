@@ -1,10 +1,27 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import type { AssetOverview } from '$lib/types/assets';
 	import { modalState } from '$lib/stores/ui';
 	import { Button } from '$lib/components/atoms';
 	import { MetricCard } from '$lib/components/molecules';
+
+	// Local type definitions
+	interface AssetOverview {
+		id: string;
+		name: string;
+		location: string;
+		totalValue: number;
+		tokenPrice: number;
+		tokensAvailable: number;
+		totalTokens: number;
+		expectedReturn: number;
+		productionStart: Date;
+		images: string[];
+		status: 'active' | 'funding' | 'completed';
+		riskLevel: 'low' | 'medium' | 'high';
+		estimatedProduction: number;
+		operator: string;
+	}
 
 	// Mock data for featured assets
 	let featuredAssets: AssetOverview[] = [

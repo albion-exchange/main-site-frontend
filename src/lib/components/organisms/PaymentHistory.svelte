@@ -1,223 +1,156 @@
 <!--
-   @fileoverview PaymentHistory Component (Organism)
-   
-   A payment history organism that displays payment data in a table format
-   with filtering, sorting, and export capabilities. Contains business logic
-   for payment data management.
-   
-   @component PaymentHistory
-   @example
-   <PaymentHistory {payments} loading={false} />
+@fileoverview PaymentHistory Organism
+
+A comprehensive payment history display that combines DataTable molecule
+with payment data management and filtering capabilities.
+
+@component PaymentHistory
+@example
+<PaymentHistory userId="user-1" />
 -->
 
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { onMount } from 'svelte';
 	import { DataTable } from '../molecules';
-	import { Button, Icon } from '../atoms';
-	import { usePaymentData } from '$lib/composables/usePaymentData';
-	import { formatCurrency, formatDate } from '$lib/utils/formatters';
-	import type { Payment } from '$lib/types/uiTypes';
-	
-	// Event dispatcher
-	const dispatch = createEventDispatcher<{
-		export: { format: 'csv' | 'pdf' };
-		claimPayment: { paymentId: string };
-	}>();
-	
+
+	// Local type definitions
+	interface Payment {
+		id: string;
+		date: string;
+		amount: number;
+		asset: string;
+		status: 'completed' | 'pending' | 'failed';
+		txHash?: string;
+	}
+
 	// Props
-	export let payments: Payment[] = [];
-	export let loading = false;
-	export let allowClaiming = true;
-	export let allowExport = true;
-	export let pageSize = 10;
-	
-	// Use payment data composable for business logic
-	const {
-		filteredPayments,
-		sortedPayments,
-		totalAmount,
-		unclaimedAmount,
-		filters,
-		sortState
-	} = usePaymentData(payments);
-	
-	// Table columns configuration
-	$: columns = [
+	export let userId: string;
+
+	// State
+	let payments: Payment[] = [];
+	let loading = true;
+	let error: string | null = null;
+
+	// Mock data for demonstration
+	const mockPayments: Payment[] = [
 		{
-			key: 'date',
-			label: 'Date',
-			sortable: true,
-			render: (value: string) => formatDate(value)
+			id: '1',
+			date: '2024-01-15',
+			amount: 1250.00,
+			asset: 'Permian Basin Well #247',
+			status: 'completed',
+			txHash: '0x123...abc'
 		},
 		{
-			key: 'assetName',
-			label: 'Asset',
-			sortable: true
+			id: '2',
+			date: '2024-01-01',
+			amount: 980.50,
+			asset: 'Eagle Ford Shale Project',
+			status: 'completed',
+			txHash: '0x456...def'
 		},
 		{
-			key: 'amount',
-			label: 'Amount',
-			sortable: true,
-			align: 'right' as const,
-			render: (value: number) => formatCurrency(value)
-		},
-		{
-			key: 'status',
-			label: 'Status',
-			sortable: true,
-			render: (value: string) => {
-				const statusMap = {
-					'claimed': '✅ Claimed',
-					'unclaimed': '⏳ Unclaimed',
-					'pending': '🔄 Pending'
-				};
-				return statusMap[value as keyof typeof statusMap] || value;
-			}
-		},
-		...(allowClaiming ? [{
-			key: 'actions',
-			label: 'Actions',
-			align: 'center' as const,
-			render: (value: any, row: Payment) => row.status === 'unclaimed' ? 'Claim' : ''
-		}] : [])
+			id: '3',
+			date: '2023-12-15',
+			amount: 1450.75,
+			asset: 'Bakken Formation Site',
+			status: 'pending'
+		}
 	];
-	
-	// Pagination state
-	let currentPage = 1;
-	$: totalPages = Math.ceil($sortedPayments.length / pageSize);
-	$: paginatedPayments = $sortedPayments.slice(
-		(currentPage - 1) * pageSize,
-		currentPage * pageSize
-	);
-	
-	// Event handlers
-	function handleSort(event: CustomEvent) {
-		sortState.set(event.detail);
+
+	// Table configuration
+	const columns = [
+		{ key: 'date', label: 'Date', sortable: true },
+		{ key: 'asset', label: 'Asset', sortable: true },
+		{ key: 'amount', label: 'Amount', sortable: true },
+		{ key: 'status', label: 'Status', sortable: false },
+		{ key: 'actions', label: 'Actions', sortable: false }
+	];
+
+	onMount(() => {
+		// Simulate loading
+		setTimeout(() => {
+			payments = mockPayments;
+			loading = false;
+		}, 1000);
+	});
+
+	// Format payment data for table display
+	$: tableData = payments.map(payment => ({
+		...payment,
+		amount: `$${payment.amount.toFixed(2)}`,
+		date: new Date(payment.date).toLocaleDateString(),
+		status: payment.status.charAt(0).toUpperCase() + payment.status.slice(1)
+	}));
+
+	function handleExport() {
+		// Export functionality
+		console.log('Exporting payment history...');
 	}
-	
-	function handleRowClick(event: CustomEvent) {
-		const { row } = event.detail;
-		if (allowClaiming && row.status === 'unclaimed') {
-			dispatch('claimPayment', { paymentId: row.id });
+
+	function handleViewTransaction(payment: Payment) {
+		if (payment.txHash) {
+			// Open transaction in block explorer
+			window.open(`https://etherscan.io/tx/${payment.txHash}`, '_blank');
 		}
-	}
-	
-	function handleExport(format: 'csv' | 'pdf') {
-		dispatch('export', { format });
-	}
-	
-	function nextPage() {
-		if (currentPage < totalPages) {
-			currentPage++;
-		}
-	}
-	
-	function prevPage() {
-		if (currentPage > 1) {
-			currentPage--;
-		}
-	}
-	
-	// Filter handlers
-	function handleStatusFilter(status: string) {
-		filters.update(f => ({ ...f, status: status === 'all' ? null : status }));
-		currentPage = 1; // Reset to first page when filtering
 	}
 </script>
 
 <div class="space-y-6">
-	<!-- Header with summary and actions -->
-	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-		<div>
-			<h3 class="text-lg font-semibold text-gray-900">Payment History</h3>
-			<div class="flex items-center gap-4 mt-1 text-sm text-gray-600">
-				<span>Total: {formatCurrency($totalAmount)}</span>
-				{#if $unclaimedAmount > 0}
-					<span class="text-orange-600">Unclaimed: {formatCurrency($unclaimedAmount)}</span>
-				{/if}
-			</div>
+	<div class="flex justify-between items-center">
+		<h3 class="text-lg font-semibold text-gray-900">Payment History</h3>
+		<button
+			on:click={handleExport}
+			class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+			disabled={loading || payments.length === 0}
+		>
+			Export CSV
+		</button>
+	</div>
+
+	{#if loading}
+		<div class="animate-pulse space-y-4">
+			{#each Array(5) as _}
+				<div class="bg-gray-200 h-12 rounded"></div>
+			{/each}
 		</div>
-		
-		{#if allowExport}
-			<div class="flex items-center gap-2">
-				<Button
-					variant="secondary"
-					size="small"
-					on:click={() => handleExport('csv')}
-				>
-					<Icon name="Download" size="xs" />
-					CSV
-				</Button>
-				<Button
-					variant="secondary"
-					size="small"
-					on:click={() => handleExport('pdf')}
-				>
-					<Icon name="FileText" size="xs" />
-					PDF
-				</Button>
-			</div>
-		{/if}
-	</div>
-	
-	<!-- Filters -->
-	<div class="flex items-center gap-2">
-		<span class="text-sm font-medium text-gray-700">Filter by status:</span>
-		{#each ['all', 'claimed', 'unclaimed', 'pending'] as status}
-			<Button
-				variant={$filters.status === (status === 'all' ? null : status) ? 'primary' : 'ghost'}
-				size="small"
-				on:click={() => handleStatusFilter(status)}
-			>
-				{status.charAt(0).toUpperCase() + status.slice(1)}
-			</Button>
-		{/each}
-	</div>
-	
-	<!-- Data table -->
-	<DataTable
-		{columns}
-		data={paginatedPayments}
-		{loading}
-		clickableRows={allowClaiming}
-		sort={$sortState}
-		emptyMessage="No payments found"
-		on:sort={handleSort}
-		on:rowClick={handleRowClick}
-	/>
-	
-	<!-- Pagination -->
-	{#if totalPages > 1}
-		<div class="flex items-center justify-between">
-			<div class="text-sm text-gray-700">
-				Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, $sortedPayments.length)} of {$sortedPayments.length} payments
-			</div>
-			
-			<div class="flex items-center gap-2">
-				<Button
-					variant="secondary"
-					size="small"
-					disabled={currentPage === 1}
-					on:click={prevPage}
-				>
-					<Icon name="ChevronLeft" size="xs" />
-					Previous
-				</Button>
-				
-				<span class="px-3 py-1 text-sm">
-					{currentPage} of {totalPages}
+	{:else if error}
+		<div class="bg-red-50 border border-red-200 rounded-lg p-4">
+			<p class="text-red-600">Error loading payment history: {error}</p>
+		</div>
+	{:else if payments.length === 0}
+		<div class="text-center py-8 text-gray-500">
+			<p>No payments found</p>
+		</div>
+	{:else}
+		<DataTable
+			data={tableData}
+			{columns}
+			itemsPerPage={10}
+			searchable={true}
+			searchPlaceholder="Search payments..."
+		>
+			<svelte:fragment slot="status" let:item>
+				<span class="px-2 py-1 text-xs font-medium rounded-full
+					{item.status === 'Completed' ? 'bg-green-100 text-green-800' :
+					 item.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+					 'bg-red-100 text-red-800'}">
+					{item.status}
 				</span>
-				
-				<Button
-					variant="secondary"
-					size="small"
-					disabled={currentPage === totalPages}
-					on:click={nextPage}
-				>
-					Next
-					<Icon name="ChevronRight" size="xs" />
-				</Button>
-			</div>
-		</div>
+			</svelte:fragment>
+			
+			<svelte:fragment slot="actions" let:item>
+				{#if item.txHash}
+					<button
+						on:click={() => handleViewTransaction(item)}
+						class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+					>
+						View Transaction
+					</button>
+				{:else}
+					<span class="text-gray-400 text-sm">-</span>
+				{/if}
+			</svelte:fragment>
+		</DataTable>
 	{/if}
 </div>

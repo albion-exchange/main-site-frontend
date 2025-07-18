@@ -1,16 +1,17 @@
 /**
  * @fileoverview Organisms Index
  * 
- * Exports all organism-level components. These components combine molecules
- * and atoms to create complex, feature-rich sections of the application.
+ * Organisms are complex UI components that combine molecules and atoms to form
+ * distinct sections of an interface. They typically contain business logic
+ * and application-specific functionality.
  * 
- * Organisms should:
- * - Combine multiple molecules and atoms
- * - Contain business logic and data management
- * - Be context-specific but reusable
- * - Handle user interactions and state management
- * - Integrate with services and composables
+ * Design Principles:
+ * - Combine multiple molecules to create meaningful interface sections
+ * - Contain minimal business logic (prefer composition over implementation)
+ * - Maintain clear responsibilities and single purpose
+ * - Provide complete functional units of the interface
  */
 
+// Export all organism components
 export { default as AssetMetrics } from './AssetMetrics.svelte';
 export { default as PaymentHistory } from './PaymentHistory.svelte';
