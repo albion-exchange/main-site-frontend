@@ -14,7 +14,7 @@ import type {
   WalletPayout,
   PayoutHistoryItem,
 } from "$lib/types/wallet";
-import dataStoreService from "$lib/services/DataStoreService";
+import { useAssetService, useTokenService } from "$lib/services/ServiceContainer";
 import type { Asset, Token } from "$lib/types/uiTypes";
 import { formatCurrency as _formatCurrency, formatPercentage as _formatPercentage } from "$lib/utils/formatters";
 
@@ -29,10 +29,15 @@ interface SimpleWalletData {
 
 class WalletDataService {
   private rawData: SimpleWalletData;
+  private assetService: ReturnType<typeof useAssetService>;
+  private tokenService: ReturnType<typeof useTokenService>;
 
   constructor() {
     // Initialize with mock data
     this.rawData = walletDataJson as SimpleWalletData;
+    // Initialize services
+    this.assetService = useAssetService();
+    this.tokenService = useTokenService();
   }
 
   /**
@@ -100,9 +105,9 @@ class WalletDataService {
     this.rawData.transactions
       .filter((tx) => tx.type === "mint")
       .forEach((tx) => {
-        const token = dataStoreService.getTokenByAddress(tx.address);
+        const token = this.tokenService.getTokenByAddress(tx.address);
         if (token) {
-          const asset = dataStoreService.getAssetById(token.assetId);
+          const asset = this.assetService.getAssetById(token.assetId);
           if (
             asset &&
             (asset.production.status === "producing" ||
@@ -155,13 +160,13 @@ class WalletDataService {
 
     holdingsByAddress.forEach((data, contractAddress) => {
       // Get token and asset info
-      const token = dataStoreService.getTokenByAddress(contractAddress);
+      const token = this.tokenService.getTokenByAddress(contractAddress);
       if (!token) {
         console.warn(`Token not found for contract address: ${contractAddress}`);
         return;
       }
 
-      const asset = dataStoreService.getAssetById(token.assetId);
+      const asset = this.assetService.getAssetById(token.assetId);
       if (!asset) {
         console.warn(`Asset not found for token assetId: ${token.assetId}`);
         return;
@@ -375,7 +380,7 @@ class WalletDataService {
           : 0;
 
       // Find last claim transaction for this asset
-      const token = dataStoreService.getTokensByAssetId(holding.assetId)[0];
+              const token = this.tokenService.getTokensByAssetId(holding.assetId)[0];
       const contractAddress = token?.contractAddress;
       const lastClaim = contractAddress ? this.rawData.transactions
         .filter(tx => tx.type === 'claim' && tx.address === contractAddress)
@@ -455,9 +460,9 @@ class WalletDataService {
       );
 
       const assetBreakdown = monthPayouts.map((payout) => {
-        const token = dataStoreService.getTokenByAddress(payout.address);
+        const token = this.tokenService.getTokenByAddress(payout.address);
         const asset = token
-          ? dataStoreService.getAssetById(token.assetId)
+          ? this.assetService.getAssetById(token.assetId)
           : null;
 
         // Check if claimed
@@ -695,8 +700,8 @@ class WalletDataService {
     const holdings = this.computeHoldings();
 
     return holdings.map((holding) => {
-      const asset = dataStoreService.getAssetById(holding.assetId);
-      const token = dataStoreService.getTokenByAddress(holding.contractAddress);
+      const asset = this.assetService.getAssetById(holding.assetId);
+      const token = this.tokenService.getTokenByAddress(holding.contractAddress);
 
       return {
         holding,
@@ -788,8 +793,8 @@ class WalletDataService {
     const claimTransactions = this.rawData.transactions.filter(tx => tx.type === 'claim');
     
     return claimTransactions.map(tx => {
-      const token = dataStoreService.getTokenByAddress(tx.address);
-      const asset = token ? dataStoreService.getAssetById(token.assetId) : null;
+              const token = this.tokenService.getTokenByAddress(tx.address);
+        const asset = token ? this.assetService.getAssetById(token.assetId) : null;
       
       return {
         date: tx.timestamp,

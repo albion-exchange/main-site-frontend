@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import { useAssetService, useTokenService } from '$lib/services';
 	import walletDataService from '$lib/services/WalletDataService';
 	import type { Asset } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
@@ -10,6 +10,9 @@
 	import { formatCurrency } from '$lib/utils/formatters';
 	import { dateUtils } from '$lib/utils/dateHelpers';
 	import { arrayUtils } from '$lib/utils/arrayHelpers';
+	
+	const assetService = useAssetService();
+	const tokenService = useTokenService();
 
 	let totalEarned = 0;
 	let totalClaimed = 0;
@@ -46,7 +49,7 @@
 			// Get holdings by asset
 			const assetPayouts = walletDataService.getHoldingsByAsset();
 			holdings = assetPayouts.map(assetPayout => {
-				const asset = dataStoreService.getAssetById(assetPayout.assetId);
+				const asset = assetService.getAssetById(assetPayout.assetId);
 				if (!asset) return null;
 				
 				// Find last payout date from monthly payouts
@@ -55,7 +58,7 @@
 					.sort((a, b) => b.month.localeCompare(a.month))[0];
 				
 				// Get the contract address for this asset
-				const tokens = dataStoreService.getTokensByAssetId(assetPayout.assetId);
+				const tokens = tokenService.getTokensByAssetId(assetPayout.assetId);
 				const contractAddress = tokens.length > 0 ? tokens[0].contractAddress : null;
 				
 				// Find last claim for this asset
@@ -78,8 +81,8 @@
 			// Get claim history from transactions
 			claimHistory = claimTransactions.map(tx => {
 				// Find the asset name for this transaction
-				const token = dataStoreService.getTokenByAddress(tx.address);
-				const asset = token ? dataStoreService.getAssetById(token.assetId) : null;
+				const token = tokenService.getTokenByAddress(tx.address);
+				const asset = token ? assetService.getAssetById(token.assetId) : null;
 				
 				return {
 					date: tx.timestamp,

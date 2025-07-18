@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import { useConfigService } from '$lib/services';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
 	import PrimaryButton from '$lib/components/ui/PrimaryButton.svelte';
 	import SecondaryButton from '$lib/components/ui/SecondaryButton.svelte';
@@ -9,10 +9,11 @@
 	
 	let platformStats: any = {};
 	let loading = true;
+	const configService = useConfigService();
 
 	onMount(async () => {
 		try {
-			platformStats = dataStoreService.getPlatformStats();
+			platformStats = configService.getPlatformStats();
 			loading = false;
 		} catch (error) {
 			console.error('Error loading platform stats:', error);

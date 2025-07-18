@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Token, Asset } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/ui';
 
@@ -8,6 +8,8 @@
 	export let autoPlayInterval = 5000;
 	
 	const dispatch = createEventDispatcher();
+	const assetService = useAssetService();
+	const tokenService = useTokenService();
 
 	let currentIndex = 0;
 	let featuredTokensWithAssets: Array<{ token: Token; asset: Asset }> = [];
@@ -38,7 +40,7 @@
 			error = null;
 
 			// Get active tokens with sufficient available supply (>= 1000)
-			const activeTokens = dataStoreService.getActiveTokens()
+			const activeTokens = tokenService.getAvailableTokens()
 				.filter(token => {
 					const availableSupply = BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply);
 					const availableSupplyFormatted = Number(availableSupply) / Math.pow(10, token.decimals);
@@ -48,7 +50,7 @@
 
 			featuredTokensWithAssets = activeTokens
 				.map(token => {
-					const asset = dataStoreService.getAssetById(token.assetId);
+					const asset = assetService.getAssetById(token.assetId);
 					return asset ? { token, asset } : null;
 				})
 				.filter(Boolean) as Array<{ token: Token; asset: Asset }>;
@@ -312,7 +314,7 @@
 				style="transform: translateX(-{currentIndex * 100}%)"
 			>
 				{#each featuredTokensWithAssets as item, index}
-					{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(item.token.contractAddress)}
+					{@const calculatedReturns = tokenService.getTokenReturns(item.token.contractAddress)}
 					<div class="{mobileCarouselSlideClasses} {index === currentIndex ? activeSlideClasses : inactiveSlideClasses}">
 						<div class={mobileBannerCardClasses}>
 							<!-- Token Section -->

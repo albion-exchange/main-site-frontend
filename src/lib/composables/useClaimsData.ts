@@ -4,8 +4,8 @@
  */
 
 import { writable, derived, type Readable, type Writable } from 'svelte/store';
-import dataStoreService from '$lib/services/DataStoreService';
-import walletDataService from '$lib/services/WalletDataService';
+import { useAssetService, useWalletDataService } from '$lib/services';
+import { withSyncErrorHandling } from '$lib/utils/errorHandling';
 import type { Asset } from '$lib/types/uiTypes';
 
 interface ClaimsState {
@@ -32,6 +32,9 @@ interface ClaimModalState {
  * Composable for managing claims data
  */
 export function useClaimsData() {
+  const assetService = useAssetService();
+  const walletDataService = useWalletDataService();
+
   const state: Writable<ClaimsState> = writable({
     totalEarned: 0,
     totalClaimed: 0,
@@ -63,7 +66,10 @@ export function useClaimsData() {
       
       // Get holdings with unclaimed amounts
       const assetPayouts = walletDataService.getHoldingsByAsset();
-      const allAssets = dataStoreService.getAllAssets();
+      const allAssets = withSyncErrorHandling(
+        () => assetService.getAllAssets(),
+        { service: 'AssetService', operation: 'getAllAssets' }
+      ) || [];
       
       // Transform holdings data
       const holdings = assetPayouts.map(holding => {

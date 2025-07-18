@@ -4,7 +4,8 @@
  */
 
 import { derived, writable, type Readable, type Writable } from 'svelte/store';
-import dataStoreService from '$lib/services/DataStoreService';
+import { useAssetService, useTokenService } from '$lib/services';
+import { withSyncErrorHandling, createNotFoundError, errorReporter } from '$lib/utils/errorHandling';
 import type { Asset, Token } from '$lib/types/uiTypes';
 
 interface AssetDataState {
@@ -18,6 +19,9 @@ interface AssetDataState {
  * Composable for managing asset data and related operations
  */
 export function useAssetData(assetId: string) {
+  const assetService = useAssetService();
+  const tokenService = useTokenService();
+
   // State management
   const state: Writable<AssetDataState> = writable({
     asset: null,
@@ -31,12 +35,21 @@ export function useAssetData(assetId: string) {
     state.update(s => ({ ...s, loading: true, error: null }));
     
     try {
-      const asset = dataStoreService.getAssetById(assetId);
+      const asset = withSyncErrorHandling(
+        () => assetService.getAssetById(assetId),
+        { service: 'AssetService', operation: 'getAssetById' }
+      );
+      
       if (!asset) {
-        throw new Error('Asset not found');
+        const error = createNotFoundError('Asset', assetId);
+        errorReporter.handle(error);
+        throw error;
       }
       
-      const tokens = dataStoreService.getTokensByAssetId(assetId);
+      const tokens = withSyncErrorHandling(
+        () => tokenService.getTokensByAssetId(assetId),
+        { service: 'TokenService', operation: 'getTokensByAssetId' }
+      ) || [];
       
       state.update(s => ({
         ...s,
@@ -58,7 +71,10 @@ export function useAssetData(assetId: string) {
     if (!$state.tokens.length) return false;
     
     return $state.tokens.some(token => {
-      const supply = dataStoreService.getTokenSupply(token.contractAddress);
+      const supply = withSyncErrorHandling(
+        () => tokenService.getTokenSupply(token.contractAddress),
+        { service: 'TokenService', operation: 'getTokenSupply' }
+      );
       return supply && supply.availableSupply > 0;
     });
   });
