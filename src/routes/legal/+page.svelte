@@ -1,6 +1,6 @@
 <script lang="ts">
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
-	import ControlButton from '$lib/components/components/ControlButton.svelte';
+	import TabButton from '$lib/components/components/TabButton.svelte';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	
 	let activeSection = 'terms';
@@ -22,30 +22,30 @@
 	<!-- Legal Navigation -->
 	<ContentSection background="gray" padding="compact" centered>
 		<div class="flex md:flex-row flex-col md:gap-4 gap-3 md:flex-wrap md:justify-center items-center">
-			<ControlButton 
+			<TabButton 
 				active={activeSection === 'terms'}
 				on:click={() => activeSection = 'terms'}
 			>
 				Terms of Service
-			</ControlButton>
-			<ControlButton 
+			</TabButton>
+			<TabButton 
 				active={activeSection === 'privacy'}
 				on:click={() => activeSection = 'privacy'}
 			>
 				Privacy Policy
-			</ControlButton>
-			<ControlButton 
+			</TabButton>
+			<TabButton 
 				active={activeSection === 'disclosures'}
 				on:click={() => activeSection = 'disclosures'}
 			>
 				Investment Disclosures
-			</ControlButton>
-			<ControlButton 
+			</TabButton>
+			<TabButton 
 				active={activeSection === 'compliance'}
 				on:click={() => activeSection = 'compliance'}
 			>
 				Compliance
-			</ControlButton>
+			</TabButton>
 		</div>
 	</ContentSection>
 

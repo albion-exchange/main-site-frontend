@@ -4,7 +4,7 @@
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/components';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
-	import MetricDisplay from '$lib/components/components/MetricDisplay.svelte';
+
 	import TabButton from '$lib/components/components/TabButton.svelte';
 	import { PageLayout, ContentSection } from '$lib/components/layout';
 	import { getImageUrl } from '$lib/utils/imagePath';

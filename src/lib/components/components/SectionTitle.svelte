@@ -5,19 +5,27 @@
 	export let center = false;
 	export let className = '';
 	export let uppercase = false;
+	export let textColor: 'black' | 'white' | 'primary' | 'secondary' = 'black';
 	
 	const sizeClasses = {
-		page: 'text-4xl md:text-5xl font-extrabold text-black mb-8 font-figtree',
-		section: 'text-2xl md:text-3xl font-extrabold text-black mb-6 font-figtree',
-		card: 'text-xl md:text-2xl font-extrabold text-black mb-4 font-figtree',
-		subsection: 'text-lg md:text-xl font-extrabold text-black font-figtree',
-		legal: 'text-xl font-extrabold text-black mt-8 mb-4 font-figtree',
-		small: 'text-lg font-extrabold text-black mb-4 font-figtree',
-		'large-stat': 'text-4xl font-extrabold text-black mb-2 font-figtree',
-		modal: 'text-xl font-extrabold text-black m-0 font-figtree'
+		page: 'text-4xl md:text-5xl font-extrabold mb-8 font-figtree',
+		section: 'text-2xl md:text-3xl font-extrabold mb-6 font-figtree',
+		card: 'text-xl md:text-2xl font-extrabold mb-4 font-figtree',
+		subsection: 'text-lg md:text-xl font-extrabold font-figtree',
+		legal: 'text-xl font-extrabold mt-8 mb-4 font-figtree',
+		small: 'text-lg font-extrabold mb-4 font-figtree',
+		'large-stat': 'text-4xl font-extrabold mb-2 font-figtree',
+		modal: 'text-xl font-extrabold m-0 font-figtree'
 	};
 	
-	$: classes = `${sizeClasses[size]} ${center ? 'text-center' : ''} ${uppercase ? 'uppercase tracking-wider' : ''} ${className}`;
+	const colorClasses = {
+		black: 'text-black',
+		white: 'text-white',
+		primary: 'text-primary',
+		secondary: 'text-secondary'
+	};
+	
+	$: classes = `${sizeClasses[size]} ${colorClasses[textColor]} ${center ? 'text-center' : ''} ${uppercase ? 'uppercase tracking-wider' : ''} ${className}`;
 </script>
 
 {#if level === 'h1'}

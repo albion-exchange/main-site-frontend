@@ -160,7 +160,7 @@
 					<div class="flex items-start gap-4">
 						<div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-xl flex-shrink-0">📧</div>
 						<div class="flex-1">
-							<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2">Email</h3>
+							<SectionTitle level="h3" size="small" uppercase className="mb-2">Email</SectionTitle>
 							<p class="text-black font-semibold mb-1">contact@albion.com</p>
 							<span class="text-xs text-black opacity-70">We respond within 24 hours</span>
 						</div>
@@ -169,7 +169,7 @@
 					<div class="flex items-start gap-4">
 						<div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-xl flex-shrink-0">💬</div>
 						<div class="flex-1">
-							<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2">Live Chat</h3>
+							<SectionTitle level="h3" size="small" uppercase className="mb-2">Live Chat</SectionTitle>
 							<p class="text-black font-semibold mb-1">Available 24/7</p>
 							<span class="text-xs text-black opacity-70">Instant support for platform users</span>
 						</div>
@@ -178,7 +178,7 @@
 					<div class="flex items-start gap-4">
 						<div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-xl flex-shrink-0">📞</div>
 						<div class="flex-1">
-							<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2">Phone</h3>
+							<SectionTitle level="h3" size="small" uppercase className="mb-2">Phone</SectionTitle>
 							<p class="text-black font-semibold mb-1">{companyInfo.contact?.phone || 'N/A'}</p>
 							<span class="text-xs text-black opacity-70">Mon-Fri, 9AM-6PM EST</span>
 						</div>
@@ -187,7 +187,7 @@
 					<div class="flex items-start gap-4">
 						<div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-xl flex-shrink-0">📍</div>
 						<div class="flex-1">
-							<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2">Office</h3>
+							<SectionTitle level="h3" size="small" uppercase className="mb-2">Office</SectionTitle>
 							<p class="text-black font-semibold mb-1">{companyInfo.contact?.address?.street || 'N/A'}<br>{companyInfo.contact?.address?.city || 'N/A'}, {companyInfo.contact?.address?.state || 'N/A'} {companyInfo.contact?.address?.zipCode || 'N/A'}</p>
 							<span class="text-xs text-black opacity-70">By appointment only</span>
 						</div>
@@ -204,22 +204,22 @@
 		
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 			<div class="bg-white p-8 text-left">
-				<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">How do I start investing?</h3>
+				<SectionTitle level="h3" size="small" uppercase>How do I start investing?</SectionTitle>
 				<p class="text-sm text-black">Create an account, complete KYC verification, connect your wallet, and browse available assets to make your first investment.</p>
 			</div>
 			
 			<div class="bg-white p-8 text-left">
-				<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">What is the minimum investment?</h3>
+				<SectionTitle level="h3" size="small" uppercase>What is the minimum investment?</SectionTitle>
 				<p class="text-sm text-black">Minimum investments vary by asset, typically ranging from $1,000 to $5,000 depending on the tranche selected.</p>
 			</div>
 			
 			<div class="bg-white p-8 text-left">
-				<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">How often are payouts distributed?</h3>
+				<SectionTitle level="h3" size="small" uppercase>How often are payouts distributed?</SectionTitle>
 				<p class="text-sm text-black">Payouts are distributed monthly based on actual production revenue from the underlying oil & gas assets.</p>
 			</div>
 			
 			<div class="bg-white p-8 text-left">
-				<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Can I sell my tokens?</h3>
+				<SectionTitle level="h3" size="small" uppercase>Can I sell my tokens?</SectionTitle>
 				<p class="text-sm text-black">Secondary market trading will be available in Q2 2024. Currently, tokens can be held until asset maturity.</p>
 			</div>
 		</div>
@@ -232,21 +232,21 @@
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
 			<div class="bg-white/10 border border-white/20 p-8 text-center">
 				<div class="text-5xl mb-4">📚</div>
-				<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4 text-white">Knowledge Base</h3>
+				<SectionTitle level="h3" size="small" uppercase textColor="white">Knowledge Base</SectionTitle>
 				<p class="mb-6 opacity-90 text-sm">Comprehensive guides and tutorials</p>
 				<a href="/help" class="text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200">Browse Articles</a>
 			</div>
 			
 			<div class="bg-white/10 border border-white/20 p-8 text-center">
 				<div class="text-5xl mb-4">🎥</div>
-				<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4 text-white">Video Tutorials</h3>
+				<SectionTitle level="h3" size="small" uppercase textColor="white">Video Tutorials</SectionTitle>
 				<p class="mb-6 opacity-90 text-sm">Step-by-step platform walkthroughs</p>
 				<a href="/tutorials" class="text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200">Watch Videos</a>
 			</div>
 			
 			<div class="bg-white/10 border border-white/20 p-8 text-center">
 				<div class="text-5xl mb-4">💬</div>
-				<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4 text-white">Community Forum</h3>
+				<SectionTitle level="h3" size="small" uppercase textColor="white">Community Forum</SectionTitle>
 				<p class="mb-6 opacity-90 text-sm">Connect with other investors</p>
 				<a href="/community" class="text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200">Join Discussion</a>
 			</div>

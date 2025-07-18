@@ -96,7 +96,7 @@
 			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
 				<div class="text-center">
 					<div class="text-5xl mb-4">💰</div>
-					<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Direct Revenue Share</h3>
+					<SectionTitle level="h3" size="small" uppercase>Direct Revenue Share</SectionTitle>
 					<p class="text-sm text-black">Token holders receive proportional revenue from real oil & gas production with transparent accounting.</p>
 				</div>
 			</Card>
@@ -104,7 +104,7 @@
 			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
 				<div class="text-center">
 					<div class="text-5xl mb-4">📊</div>
-					<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Real-Time Transparency</h3>
+					<SectionTitle level="h3" size="small" uppercase>Real-Time Transparency</SectionTitle>
 					<p class="text-sm text-black">Live production data, financial reporting, and market metrics provide complete investment visibility.</p>
 				</div>
 			</Card>
@@ -112,7 +112,7 @@
 			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
 				<div class="text-center">
 					<div class="text-5xl mb-4">🌐</div>
-					<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-4">Global Access</h3>
+					<SectionTitle level="h3" size="small" uppercase>Global Access</SectionTitle>
 					<p class="text-sm text-black">Blockchain technology enables worldwide access to premium energy investments previously reserved for institutions.</p>
 				</div>
 			</Card>
@@ -127,7 +127,7 @@
 				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
 					<div class="text-center">
 						<div class="w-20 h-20 bg-secondary text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-4">JD</div>
-						<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2">John Doe</h3>
+						<SectionTitle level="h3" size="small" uppercase className="mb-2">John Doe</SectionTitle>
 						<p class="text-sm text-primary font-semibold mb-4">CEO & Founder</p>
 						<p class="text-sm text-black">Former energy sector executive with 15+ years experience in oil & gas operations and financial markets.</p>
 					</div>
@@ -136,7 +136,7 @@
 				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
 					<div class="text-center">
 						<div class="w-20 h-20 bg-secondary text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-4">JS</div>
-						<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2">Jane Smith</h3>
+						<SectionTitle level="h3" size="small" uppercase className="mb-2">Jane Smith</SectionTitle>
 						<p class="text-sm text-primary font-semibold mb-4">CTO</p>
 						<p class="text-sm text-black">Blockchain technology expert specializing in smart contract development and decentralized finance protocols.</p>
 					</div>
@@ -145,7 +145,7 @@
 				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
 					<div class="text-center">
 						<div class="w-20 h-20 bg-secondary text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-4">MB</div>
-						<h3 class="text-lg font-extrabold text-black uppercase tracking-wider mb-2">Mike Brown</h3>
+						<SectionTitle level="h3" size="small" uppercase className="mb-2">Mike Brown</SectionTitle>
 						<p class="text-sm text-primary font-semibold mb-4">Head of Operations</p>
 						<p class="text-sm text-black">Petroleum engineer with extensive experience in asset evaluation, production optimization, and regulatory compliance.</p>
 					</div>

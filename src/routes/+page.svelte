@@ -127,19 +127,19 @@
 			<GridContainer columns={3} gap="large">
 			<div class="text-center">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">1</div>
-				<h3 class="text-lg font-extrabold text-black mb-4">Browse Assets</h3>
+				<SectionTitle level="h3" size="small">Browse Assets</SectionTitle>
 				<p class="text-sm text-black">Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
 			</div>
 			
 			<div class="text-center">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">2</div>
-				<h3 class="text-lg font-extrabold text-black mb-4">Buy Tokens</h3>
+				<SectionTitle level="h3" size="small">Buy Tokens</SectionTitle>
 				<p class="text-sm text-black">Purchase royalty tokens using our smart payment system with automatic collateral management and instant settlement.</p>
 			</div>
 			
 			<div class="text-center">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">3</div>
-				<h3 class="text-lg font-extrabold text-black mb-4">Earn Payout</h3>
+				<SectionTitle level="h3" size="small">Earn Payout</SectionTitle>
 				<p class="text-sm text-black">Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
 			</div>
 			</GridContainer>
@@ -157,7 +157,7 @@
 						<circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="2"/>
 					</svg>
 				</div>
-				<h3 class="text-lg font-extrabold text-black mb-2 text-sm md:text-base">SEC Compliant</h3>
+				<SectionTitle level="h3" size="small" className="mb-2 text-sm md:text-base">SEC Compliant</SectionTitle>
 				<p class="text-xs text-black opacity-70">Full regulatory compliance</p>
 			</div>
 			
@@ -169,7 +169,7 @@
 						<path d="M15 24C15 24 18 30 24 30C30 30 33 24 33 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 					</svg>
 				</div>
-				<h3 class="text-lg font-extrabold text-black mb-2 text-sm md:text-base">Audited Assets</h3>
+				<SectionTitle level="h3" size="small" className="mb-2 text-sm md:text-base">Audited Assets</SectionTitle>
 				<p class="text-xs text-black opacity-70">Third-party verified</p>
 			</div>
 			
@@ -182,7 +182,7 @@
 						<path d="M16 28H24M16 32H32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 					</svg>
 				</div>
-				<h3 class="text-lg font-extrabold text-black mb-2 text-sm md:text-base">Institutional Grade</h3>
+				<SectionTitle level="h3" size="small" className="mb-2 text-sm md:text-base">Institutional Grade</SectionTitle>
 				<p class="text-xs text-black opacity-70">Professional operators</p>
 			</div>
 			
@@ -195,7 +195,7 @@
 						<path d="M12 28L16 24L20 26L28 20L36 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
 				</div>
-				<h3 class="text-lg font-extrabold text-black mb-2 text-sm md:text-base">Transparent</h3>
+				<SectionTitle level="h3" size="small" className="mb-2 text-sm md:text-base">Transparent</SectionTitle>
 				<p class="text-xs text-black opacity-70">Real-time reporting</p>
 			</div>
 		</div>

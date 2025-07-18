@@ -10,14 +10,14 @@ export { default as Card } from "./Card.svelte";
 export { default as Chart } from "./Chart.svelte";
 export { default as ChartTooltip } from "./ChartTooltip.svelte";
 
-export { default as ControlButton } from "./ControlButton.svelte";
+
 export { default as DataRow } from "./DataRow.svelte";
 export { default as DataTable } from "./DataTable.svelte";
 export { default as FormField } from "./FormField.svelte";
 export { default as GridContainer } from "./GridContainer.svelte";
 export { default as IconCard } from "./IconCard.svelte";
 export { default as Label } from "./Label.svelte";
-export { default as MetricDisplay } from "./MetricDisplay.svelte";
+
 export { default as Metric } from "./Metric.svelte";
 export { default as Modal } from "./Modal.svelte";
 export { default as PageHeader } from "./PageHeader.svelte";

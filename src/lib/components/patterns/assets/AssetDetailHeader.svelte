@@ -2,7 +2,7 @@
 	import type { Asset } from '$lib/types/uiTypes';
 	import { getImageUrl } from '$lib/utils/imagePath';
 	import { formatCurrency } from '$lib/utils/formatters';
-	import MetricDisplay from '$lib/components/components/MetricDisplay.svelte';
+	import Metric from '$lib/components/components/Metric.svelte';
 
 	export let asset: Asset;
 	export let tokenCount: number = 0;
@@ -97,14 +97,14 @@
 
 			<div class="grid md:grid-cols-3 grid-cols-1 gap-8 mb-8">
 				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4">
-					<MetricDisplay
+					<Metric
 						value={asset?.production?.current || '0'}
 						label="Current Production"
 						size="large"
 					/>
 				</div>
 				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4">
-					<MetricDisplay
+					<Metric
 						value={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.netIncome 
 							? formatCurrency(asset.monthlyReports[asset.monthlyReports.length - 1].netIncome)
 							: '$0'}
@@ -120,7 +120,7 @@
 					 on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTokenSectionClick?.(); } }} 
 					 role="button" 
 					 tabindex="0">
-					<MetricDisplay
+					<Metric
 						value={tokenCount.toString()}
 						label="Available Tokens"
 						note="👆 Click to view tokens"
