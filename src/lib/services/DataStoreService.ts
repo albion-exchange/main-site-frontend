@@ -197,10 +197,10 @@ class DataStoreService {
   }
 
   /**
-   * @deprecated Use configService.getPlatformConfig() directly
+   * @deprecated Use configService.getPlatformStats() directly
    */
   getPlatformStats() {
-    return configService.getPlatformConfig();
+    return configService.getPlatformStats();
   }
 
   /**

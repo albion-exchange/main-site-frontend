@@ -40,7 +40,7 @@ interface TokenMetadataMap {
 class TokenService {
   private tokenMetadataMap: TokenMetadataMap;
   private allTokens: Token[] | null = null;
-  private assetTokenMap: AssetTokenMapping[];
+  private assetTokenMapping: AssetTokenMapping;
 
   constructor() {
     // Initialize token metadata map
@@ -54,7 +54,7 @@ class TokenService {
       'per-bv1': perBv1Metadata as TokenMetadata,
     };
 
-    this.assetTokenMap = assetTokenMapping as AssetTokenMapping[];
+    this.assetTokenMapping = assetTokenMapping as AssetTokenMapping;
   }
 
   /**
@@ -88,12 +88,12 @@ class TokenService {
    * Get tokens by asset ID
    */
   getTokensByAssetId(assetId: string): Token[] {
-    const mapping = this.assetTokenMap.find(m => m.assetId === assetId);
-    if (!mapping) {
+    const assetInfo = this.assetTokenMapping.assets[assetId];
+    if (!assetInfo) {
       return [];
     }
 
-    return mapping.tokenAddresses
+    return assetInfo.tokens
       .map(address => this.getTokenByAddress(address))
       .filter((token): token is Token => token !== null);
   }
@@ -109,10 +109,12 @@ class TokenService {
    * Get asset ID for a token
    */
   getAssetIdForToken(tokenAddress: string): string | null {
-    const mapping = this.assetTokenMap.find(m => 
-      m.tokenAddresses.includes(tokenAddress)
-    );
-    return mapping?.assetId || null;
+    for (const [assetId, assetInfo] of Object.entries(this.assetTokenMapping.assets)) {
+      if (assetInfo.tokens.includes(tokenAddress)) {
+        return assetId;
+      }
+    }
+    return null;
   }
 
   /**
