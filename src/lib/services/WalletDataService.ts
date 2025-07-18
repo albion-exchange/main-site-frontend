@@ -14,7 +14,7 @@ import type {
   WalletPayout,
   PayoutHistoryItem,
 } from "$lib/types/wallet";
-import { dataStoreService } from "$lib/services/DataStoreService";
+import dataStoreService from "$lib/services/DataStoreService";
 import type { Asset, Token } from "$lib/types/uiTypes";
 import { formatCurrency as _formatCurrency, formatPercentage as _formatPercentage } from "$lib/utils/formatters";
 
