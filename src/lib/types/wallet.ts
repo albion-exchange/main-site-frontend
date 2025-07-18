@@ -105,6 +105,7 @@ export interface AssetPayoutInfo {
   unclaimedAmount: number;
   lastPayoutAmount: number;
   lastPayoutDate?: string;
+  lastClaimDate?: string;
   roi: number; // Return on investment percentage
   monthlyPayouts: Array<{
     month: string;

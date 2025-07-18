@@ -421,7 +421,6 @@
       }
     },
     "assetName": "Wressle-1 Royalty Stream",
-    "documents": [],
     "coverImage": "/images/eur-wr-cover.jpg",
     "galleryImages": [
       {
@@ -444,7 +443,8 @@
         "url": "/images/eur-wr-infrastructure.jpg",
         "caption": "Oil processing and storage infrastructure on site"
       }
-    ]
+    ],
+    "documents": []
   },
   "metadata": {
     "createdAt": "2024-05-10T14:20:00.000Z",

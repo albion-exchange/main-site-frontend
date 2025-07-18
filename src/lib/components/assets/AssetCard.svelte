@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import type { Asset } from '$lib/types/uiTypes';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import { useTokenService } from '$lib/services';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/ui';
+	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
 
 	export let asset: Asset;
 	
 	const dispatch = createEventDispatcher();
+	const tokenService = useTokenService();
 	
 	// Scroll state management
 	let scrollContainer: HTMLDivElement;
@@ -47,38 +49,18 @@
 	$: latestReport = asset.monthlyReports[asset.monthlyReports.length - 1] || null;
 
 	// Get the primary token for this asset (first active token found)
-	$: assetTokens = dataStoreService.getTokensByAssetId(asset.id);
+	$: assetTokens = tokenService.getTokensByAssetId(asset.id);
 	$: primaryToken = assetTokens.length > 0 ? assetTokens[0] : null;
 	
 	// Check if any tokens are available
 	$: hasAvailableTokens = assetTokens.some(token => {
-		const supply = dataStoreService.getTokenSupply(token.contractAddress);
-		return supply && supply.availableSupply > 0;
+		const supply = tokenService.getTokenSupply(token.contractAddress);
+		return supply && supply.available > 0;
 	});
 
 	// Extract token data with fallbacks
 	$: shareOfAsset = primaryToken?.sharePercentage ? `${primaryToken.sharePercentage}%` : 'TBD';
 
-	function formatCurrency(amount: number): string {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD',
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 0
-		}).format(amount);
-	}
-
-	function formatNumber(num: number): string {
-		return new Intl.NumberFormat('en-US').format(Math.round(num));
-	}
-
-	function formatEndDate(dateStr: string): string {
-		if (!dateStr) return 'TBD';
-		const [year, month] = dateStr.split('-');
-		const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-							 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		return `${monthNames[parseInt(month) - 1]} ${year}`;
-	}
 
 	
 	function handleBuyTokens() {
@@ -160,7 +142,7 @@
 		<!-- Highlighted Big Stats -->
 		<div class={mobileHighlightedStatsClasses}>
 			<div class={highlightStatClasses}>
-				<span class={mobileHighlightValueClasses}>{dataStoreService.getCalculatedRemainingProduction(asset.id)}</span>
+				<span class={mobileHighlightValueClasses}>{asset.production?.expectedRemainingProduction || 'TBD'}</span>
 				<span class={mobileHighlightLabelClasses}>Exp. Remaining</span>
 			</div>
 			<div class={highlightStatClasses}>
@@ -169,7 +151,7 @@
 			</div>
 			{#if latestReport}
 				<div class={highlightStatClasses}>
-					<span class={mobileHighlightValueClasses}>{formatCurrency(latestReport.netIncome ?? 0)}</span>
+					<span class={mobileHighlightValueClasses}>{formatCurrency(latestReport.netIncome ?? 0, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
 					<span class={mobileHighlightLabelClasses}>Last Payment</span>
 				</div>
 			{/if}
@@ -188,8 +170,8 @@
 			<!-- Available Tokens Section -->
 			{#if hasAvailableTokens}
 			{@const availableTokens = assetTokens.filter(token => {
-				const supply = dataStoreService.getTokenSupply(token.contractAddress);
-				return supply && supply.availableSupply > 0;
+				const supply = tokenService.getTokenSupply(token.contractAddress);
+				return supply && supply.available > 0;
 			})}
 			<div class={tokensSectionClasses}>
 				<h4 class={mobileTokensTitleClasses}>Available Token Releases</h4>
@@ -212,7 +194,7 @@
 						on:scroll={handleScroll}
 						class="{availableTokens.length > 2 ? tokensListScrollableClasses : tokensListClasses} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
 						{#each availableTokens as token}
-						{@const calculatedReturns = dataStoreService.getCalculatedTokenReturns(token.contractAddress)}
+						{@const calculatedReturns = tokenService.getTokenReturns(token.contractAddress)}
 						{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) : 0}
 						{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) : 0}
 						{@const firstPaymentMonth = token.firstPaymentDate || 'TBD'}
@@ -223,7 +205,7 @@
 							<div class={tokenButtonLeftClasses}>
 								<div class="flex justify-between items-center w-full gap-2">
 									<span class={mobileTokenSymbolClasses}>{token.symbol}</span>
-									<span class="text-xs font-extrabold text-white bg-secondary px-2 py-1 tracking-wider rounded whitespace-nowrap">{token.sharePercentage || shareOfAsset} of Asset</span>
+									<span class="text-xs font-extrabold text-white bg-secondary px-2 py-1 tracking-wider rounded whitespace-nowrap">{token.sharePercentage ? `${token.sharePercentage}%` : shareOfAsset} of Asset</span>
 								</div>
 								<span class={mobileTokenNameClasses}>{token.name}</span>
 								<span class={mobileTokenPaymentDateClasses}>First payment: {firstPaymentMonth}</span>

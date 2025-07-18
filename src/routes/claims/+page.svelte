@@ -1,12 +1,18 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import { useAssetService, useTokenService } from '$lib/services';
 	import walletDataService from '$lib/services/WalletDataService';
 	import type { Asset } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/WalletModal.svelte';
 	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, StatsCard, MetricDisplay, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard } from '$lib/components/ui';
-import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
+	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
+	import { formatCurrency } from '$lib/utils/formatters';
+	import { dateUtils } from '$lib/utils/dateHelpers';
+	import { arrayUtils } from '$lib/utils/arrayHelpers';
+	
+	const assetService = useAssetService();
+	const tokenService = useTokenService();
 
 	let totalEarned = 0;
 	let totalClaimed = 0;
@@ -43,7 +49,7 @@ import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/
 			// Get holdings by asset
 			const assetPayouts = walletDataService.getHoldingsByAsset();
 			holdings = assetPayouts.map(assetPayout => {
-				const asset = dataStoreService.getAssetById(assetPayout.assetId);
+				const asset = assetService.getAssetById(assetPayout.assetId);
 				if (!asset) return null;
 				
 				// Find last payout date from monthly payouts
@@ -52,7 +58,7 @@ import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/
 					.sort((a, b) => b.month.localeCompare(a.month))[0];
 				
 				// Get the contract address for this asset
-				const tokens = dataStoreService.getTokensByAssetId(assetPayout.assetId);
+				const tokens = tokenService.getTokensByAssetId(assetPayout.assetId);
 				const contractAddress = tokens.length > 0 ? tokens[0].contractAddress : null;
 				
 				// Find last claim for this asset
@@ -75,8 +81,8 @@ import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/
 			// Get claim history from transactions
 			claimHistory = claimTransactions.map(tx => {
 				// Find the asset name for this transaction
-				const token = dataStoreService.getTokenByAddress(tx.address);
-				const asset = token ? dataStoreService.getAssetById(token.assetId) : null;
+				const token = tokenService.getTokenByAddress(tx.address);
+				const asset = token ? assetService.getAssetById(token.assetId) : null;
 				
 				return {
 					date: tx.timestamp,
@@ -103,15 +109,6 @@ import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/
 		
 		loadClaimsData();
 	});
-
-	function formatCurrency(amount: number): string {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD',
-			minimumFractionDigits: 2,
-			maximumFractionDigits: 2
-		}).format(amount);
-	}
 
 	function formatDate(dateString: string): string {
 		// Handle YYYY-MM format
@@ -217,7 +214,7 @@ import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = `claim-history-${new Date().toISOString().split('T')[0]}.csv`;
+		a.download = `claim-history-${dateUtils.filenameDateString()}.csv`;
 		a.click();
 		URL.revokeObjectURL(url);
 	}
@@ -236,6 +233,23 @@ import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/
 			}, 2000);
 		}
 	}
+
+
+
+	// Calculate selected amount
+	$: selectedAmount = holdings
+		.filter(h => selectedAssets.includes(h.id))
+		.reduce((sum, h) => sum + h.unclaimedAmount, 0);
+
+	// Calculate total pages for pagination
+	$: totalPages = Math.ceil(claimHistory.length / itemsPerPage);
+
+	// Get current page of claim history
+	$: paginatedClaimHistory = claimHistory.slice(
+		(currentPage - 1) * itemsPerPage,
+		currentPage * itemsPerPage
+	);
+
 </script>
 
 <svelte:head>
@@ -266,7 +280,7 @@ import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/
 		className="py-12"
 	>
 		<!-- Platform Stats -->
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto mt-2">
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto mt-2 px-8">
 			{#if loading}
 				<StatsCard
 					title="Total Earned"
@@ -323,34 +337,49 @@ import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/
 
 		<!-- Quick Claim Section -->
 		<FullWidthSection background="gray" padding="standard">
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-				<div>
-					<SectionTitle level="h2" size="subsection" className="mb-6">Quick Claim All</SectionTitle>
-					<div class="text-3xl font-extrabold text-primary mb-2">{formatCurrency(unclaimedPayout)}</div>
-					<div class="text-sm text-black opacity-70 font-semibold mb-6">Total Available</div>
-					<div class="space-y-2 text-sm">
-						<div class="flex justify-between">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="md:pl-16">
+					<SectionTitle level="h2" size="section" className="mb-6">Quick Claim All</SectionTitle>
+					<div class="flex items-center gap-3 mb-6">
+						<span class="text-2xl font-extrabold text-primary">{formatCurrency(unclaimedPayout)}</span>
+						<span class="text-2xl font-extrabold text-primary">available</span>
+					</div>
+					<div class="space-y-2 text-lg">
+						<div class="flex gap-2">
 							<span class="text-black opacity-70 font-semibold">Estimated Gas:</span>
 							<span class="font-extrabold">{formatCurrency(estimatedGas)}</span>
 						</div>
-						<div class="flex justify-between">
+						<div class="flex gap-2">
 							<span class="text-black opacity-70 font-semibold">Net Amount:</span>
 							<span class="font-extrabold text-primary">{formatCurrency(unclaimedPayout - estimatedGas)}</span>
 						</div>
 					</div>
 				</div>
-				<div class="flex flex-col gap-4 justify-center">
-					<PrimaryButton
-						on:click={() => handleClaimWithModal('claim')}
-						disabled={claiming || unclaimedPayout <= 0}
-					>
-						{#if claiming}
-							Claiming...
-						{:else}
-							Claim All {formatCurrency(unclaimedPayout)}
-						{/if}
-					</PrimaryButton>
-					<SecondaryButton on:click={() => handleClaimWithModal('reinvest')} disabled={claiming || unclaimedPayout <= 0}>Claim & Reinvest</SecondaryButton>
+				<div class="flex items-center justify-center">
+					<div class="flex gap-4">
+						<div class="text-lg">
+							<PrimaryButton
+								on:click={() => handleClaimWithModal('claim')}
+								disabled={claiming || unclaimedPayout <= 0}
+								size="large"
+							>
+								{#if claiming}
+									Claiming...
+								{:else}
+									Claim All {formatCurrency(unclaimedPayout)}
+								{/if}
+							</PrimaryButton>
+						</div>
+						<div class="text-lg">
+							<SecondaryButton 
+								on:click={() => handleClaimWithModal('reinvest')} 
+								disabled={claiming || unclaimedPayout <= 0}
+								size="large"
+							>
+								Claim & Reinvest
+							</SecondaryButton>
+						</div>
+					</div>
 				</div>
 			</div>
 		</FullWidthSection>
@@ -446,8 +475,9 @@ import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/
 					value={(() => {
 						const claimTxs = walletDataService.getAllTransactions().filter(tx => tx.type === 'claim');
 						if (claimTxs.length === 0) return 'N/A';
-						const lastClaim = claimTxs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
-						const daysSince = Math.floor((Date.now() - new Date(lastClaim.timestamp).getTime()) / (1000 * 60 * 60 * 24));
+						const lastClaim = arrayUtils.latest(claimTxs, tx => tx.timestamp);
+						if (!lastClaim) return 'N/A';
+						const daysSince = dateUtils.daysBetween(lastClaim.timestamp, new Date());
 						return Math.max(0, daysSince).toString();
 					})()}
 					subtitle="Since last withdrawal"
@@ -555,6 +585,93 @@ import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/
 		</ContentSection>
 	{/if}
 </PageLayout>
+
+<!-- Claim Modal -->
+{#if showClaimModal}
+	<div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+		<div class="bg-white max-w-md w-full p-8 relative rounded-lg">
+			<button 
+				class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-light-gray text-black rounded-full hover:bg-secondary hover:text-white transition-all duration-200"
+				on:click={() => showClaimModal = false}
+				aria-label="Close modal"
+			>
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+				</svg>
+			</button>
+			
+			<h2 class="text-2xl font-extrabold text-black mb-6 uppercase tracking-tight">
+				{claimModalMode === 'claim' ? 'Confirm Claim' : 'Reinvest Payouts'}
+			</h2>
+			
+			<div class="mb-6">
+				<div class="bg-light-gray p-4 rounded mb-4">
+					<div class="flex justify-between mb-2">
+						<span class="text-black opacity-70">Selected Payouts:</span>
+						<span class="font-semibold text-black">{formatCurrency(selectedAmount)}</span>
+					</div>
+					<div class="flex justify-between mb-2">
+						<span class="text-black opacity-70">Gas Fees:</span>
+						<span class="font-semibold text-black">-{formatCurrency(estimatedGas)}</span>
+					</div>
+					<div class="border-t border-gray-300 pt-2 mt-2">
+						<div class="flex justify-between">
+							<span class="font-semibold text-black">
+								{claimModalMode === 'claim' ? 'You Will Receive:' : 'Available to Reinvest:'}
+							</span>
+							<span class="text-xl font-extrabold text-primary">
+								{formatCurrency(selectedAmount - estimatedGas)}
+							</span>
+						</div>
+					</div>
+				</div>
+				
+				{#if claimModalMode === 'claim'}
+					<p class="text-sm text-black opacity-70">
+						Funds will be sent to your connected wallet address. Transaction may take a few minutes to complete.
+					</p>
+				{:else}
+					<p class="text-sm text-black opacity-70 mb-4">
+						Choose assets to reinvest your payouts into:
+					</p>
+					<div class="space-y-2 max-h-48 overflow-y-auto">
+						<label class="flex items-center p-3 bg-light-gray rounded hover:bg-gray-200 cursor-pointer">
+							<input type="radio" name="reinvest" class="mr-3" />
+							<div>
+								<div class="font-semibold text-black">EUR WR-1 Well</div>
+								<div class="text-sm text-black opacity-70">Current yield: 2.8%</div>
+							</div>
+						</label>
+						<label class="flex items-center p-3 bg-light-gray rounded hover:bg-gray-200 cursor-pointer">
+							<input type="radio" name="reinvest" class="mr-3" />
+							<div>
+								<div class="font-semibold text-black">BLK PAD-2 Well</div>
+								<div class="text-sm text-black opacity-70">Current yield: 3.1%</div>
+							</div>
+						</label>
+					</div>
+				{/if}
+			</div>
+			
+			<div class="flex gap-4">
+				<PrimaryButton 
+					on:click={confirmClaim} 
+					disabled={claiming}
+					fullWidth={true}
+				>
+					{claiming ? 'Processing...' : claimModalMode === 'claim' ? 'Confirm Claim' : 'Confirm Reinvestment'}
+				</PrimaryButton>
+				<SecondaryButton 
+					on:click={() => showClaimModal = false}
+					disabled={claiming}
+					fullWidth={true}
+				>
+					Cancel
+				</SecondaryButton>
+			</div>
+		</div>
+	</div>
+{/if}
 {/if}
 
 <!-- Wallet Modal -->
@@ -565,59 +682,5 @@ import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/
 	on:close={handleWalletModalClose}
 />
 
-<!-- Claim Modal -->
-{#if showClaimModal}
-	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-		<div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
-			<h3 class="text-xl font-extrabold text-black mb-4">Confirm Claim</h3>
-			
-			<div class="space-y-4 mb-6">
-				<div class="bg-light-gray rounded-lg p-4">
-					<div class="flex justify-between items-center mb-2">
-						<span class="text-sm font-semibold text-black opacity-70">Claim Amount:</span>
-						<span class="font-extrabold text-black">{formatCurrency(getSelectedAmount() || unclaimedPayout)}</span>
-					</div>
-					<div class="flex justify-between items-center mb-2">
-						<span class="text-sm font-semibold text-black opacity-70">Gas Fee:</span>
-						<span class="font-extrabold text-black">-{formatCurrency(estimatedGas)}</span>
-					</div>
-					<div class="border-t border-gray-300 pt-2 mt-2">
-						<div class="flex justify-between items-center">
-							<span class="text-sm font-semibold text-black">You will receive:</span>
-							<span class="font-extrabold text-primary text-lg">{formatCurrency((getSelectedAmount() || unclaimedPayout) - estimatedGas)}</span>
-						</div>
-					</div>
-				</div>
-				
-				{#if claimModalMode === 'reinvest'}
-					<div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-						<div class="text-sm text-blue-800">
-							<span class="font-semibold">🔄 Auto-Reinvest Mode:</span> After claiming, you'll be redirected to the assets page to reinvest your earnings.
-						</div>
-					</div>
-				{/if}
-				
-				<div class="text-center text-sm text-black opacity-70">
-					Please sign the transaction in your wallet to proceed with the claim.
-				</div>
-			</div>
-			
-			<div class="flex gap-3">
-				<SecondaryButton 
-					on:click={() => showClaimModal = false}
-					fullWidth
-				>
-					Cancel
-				</SecondaryButton>
-				<PrimaryButton 
-					on:click={confirmClaim}
-					disabled={claiming}
-					fullWidth
-				>
-					{claiming ? 'Processing...' : 'Sign & Claim'}
-				</PrimaryButton>
-			</div>
-		</div>
-	</div>
-{/if}
-
+<style>
+</style>

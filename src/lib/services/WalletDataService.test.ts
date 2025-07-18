@@ -4,23 +4,24 @@
  */
 
 import { walletDataService } from "./WalletDataService";
+import { formatCurrency, formatPercentage } from "$lib/utils/formatters";
 
 // Example 1: Get total invested amount
 console.log("=== Total Investment ===");
 const totalInvested = walletDataService.getTotalInvested();
 console.log(
-  `Total Invested: ${walletDataService.formatCurrency(totalInvested)}`,
+  `Total Invested: ${formatCurrency(totalInvested)}`,
 );
 
 // Example 2: Get total payouts earned
 console.log("\n=== Total Payouts ===");
 const totalEarned = walletDataService.getTotalPayoutsEarned();
-console.log(`Total Earned: ${walletDataService.formatCurrency(totalEarned)}`);
+console.log(`Total Earned: ${formatCurrency(totalEarned)}`);
 
 // Example 3: Get unclaimed payouts
 console.log("\n=== Unclaimed Payouts ===");
 const unclaimed = walletDataService.getUnclaimedPayouts();
-console.log(`Unclaimed Amount: ${walletDataService.formatCurrency(unclaimed)}`);
+console.log(`Unclaimed Amount: ${formatCurrency(unclaimed)}`);
 
 // Example 4: Get holdings by asset with payout info
 console.log("\n=== Holdings by Asset ===");
@@ -28,14 +29,14 @@ const holdings = walletDataService.getHoldingsByAsset();
 holdings.forEach((holding) => {
   console.log(`\nAsset: ${holding.assetName}`);
   console.log(
-    `  Invested: ${walletDataService.formatCurrency(holding.totalInvested)}`,
+    `  Invested: ${formatCurrency(holding.totalInvested)}`,
   );
   console.log(
-    `  Earned: ${walletDataService.formatCurrency(holding.totalEarned)}`,
+    `  Earned: ${formatCurrency(holding.totalEarned)}`,
   );
-  console.log(`  ROI: ${walletDataService.formatPercentage(holding.roi)}`);
+  console.log(`  ROI: ${formatPercentage(holding.roi)}`);
   console.log(
-    `  Unclaimed: ${walletDataService.formatCurrency(holding.unclaimedAmount)}`,
+    `  Unclaimed: ${formatCurrency(holding.unclaimedAmount)}`,
   );
 });
 
@@ -44,7 +45,7 @@ console.log("\n=== Monthly Payout History ===");
 const monthlyPayouts = walletDataService.getMonthlyPayoutHistory();
 monthlyPayouts.forEach((payout) => {
   console.log(
-    `${payout.month}: ${walletDataService.formatCurrency(payout.totalPayout)}`,
+    `${payout.month}: ${formatCurrency(payout.totalPayout)}`,
   );
 });
 
@@ -53,7 +54,7 @@ console.log("\n=== Token Allocation ===");
 const allocation = walletDataService.getTokenAllocation();
 allocation.forEach((token) => {
   console.log(
-    `${token.tokenSymbol}: ${token.tokensOwned} tokens (${walletDataService.formatPercentage(token.percentageOfPortfolio)} of portfolio)`,
+    `${token.tokenSymbol}: ${token.tokensOwned} tokens (${formatPercentage(token.percentageOfPortfolio)} of portfolio)`,
   );
 });
 
@@ -61,20 +62,20 @@ allocation.forEach((token) => {
 console.log("\n=== Wallet Metrics ===");
 const metrics = walletDataService.getWalletMetrics();
 console.log(
-  `Total Portfolio Value: ${walletDataService.formatCurrency(metrics.totalValue)}`,
+  `Total Portfolio Value: ${formatCurrency(metrics.totalValue)}`,
 );
 console.log(
-  `Total ROI: ${walletDataService.formatPercentage(metrics.totalROI)}`,
+  `Total ROI: ${formatPercentage(metrics.totalROI)}`,
 );
 console.log(
-  `Average Monthly Income: ${walletDataService.formatCurrency(metrics.averageMonthlyIncome)}`,
+  `Average Monthly Income: ${formatCurrency(metrics.averageMonthlyIncome)}`,
 );
 console.log(
   `Portfolio Diversity Score: ${metrics.portfolioDiversity.toFixed(2)}`,
 );
 if (metrics.nextExpectedPayout) {
   console.log(
-    `Next Expected Payout: ${walletDataService.formatCurrency(metrics.nextExpectedPayout.estimatedAmount)} on ${metrics.nextExpectedPayout.estimatedDate}`,
+    `Next Expected Payout: ${formatCurrency(metrics.nextExpectedPayout.estimatedAmount)} on ${metrics.nextExpectedPayout.estimatedDate}`,
   );
 }
 
@@ -84,11 +85,11 @@ const unclaimedByAsset = walletDataService.getUnclaimedPayoutsByAsset();
 unclaimedByAsset.forEach((asset) => {
   console.log(`\n${asset.assetName}:`);
   console.log(
-    `  Total Unclaimed: ${walletDataService.formatCurrency(asset.totalUnclaimed)}`,
+    `  Total Unclaimed: ${formatCurrency(asset.totalUnclaimed)}`,
   );
   asset.unclaimedPayouts.forEach((payout) => {
     console.log(
-      `  - ${payout.month}: ${walletDataService.formatCurrency(payout.amount)}`,
+      `  - ${payout.month}: ${formatCurrency(payout.amount)}`,
     );
   });
 });
@@ -98,12 +99,12 @@ console.log("\n=== Asset Performance Comparison ===");
 const performance = walletDataService.getAssetPerformanceComparison();
 performance.forEach((asset, index) => {
   console.log(`${index + 1}. ${asset.assetName}`);
-  console.log(`   ROI: ${walletDataService.formatPercentage(asset.roi)}`);
+  console.log(`   ROI: ${formatPercentage(asset.roi)}`);
   console.log(
-    `   Total Earned: ${walletDataService.formatCurrency(asset.totalEarned)}`,
+    `   Total Earned: ${formatCurrency(asset.totalEarned)}`,
   );
   console.log(
-    `   Avg Monthly: ${walletDataService.formatCurrency(asset.averageMonthlyPayout)}`,
+    `   Avg Monthly: ${formatCurrency(asset.averageMonthlyPayout)}`,
   );
 });
 
@@ -111,7 +112,7 @@ performance.forEach((asset, index) => {
 console.log("\n=== Estimated Annual Income ===");
 const annualIncome = walletDataService.getEstimatedAnnualIncome();
 console.log(
-  `Estimated Annual Income: ${walletDataService.formatCurrency(annualIncome)}`,
+  `Estimated Annual Income: ${formatCurrency(annualIncome)}`,
 );
 
 // Example 11: Get payout frequency analysis
@@ -129,11 +130,11 @@ console.log("\n=== Detailed Monthly Payouts ===");
 const detailedPayouts = walletDataService.getDetailedMonthlyPayouts();
 detailedPayouts.slice(-3).forEach((month) => {
   console.log(
-    `\n${month.month}: ${walletDataService.formatCurrency(month.totalPayout)}`,
+    `\n${month.month}: ${formatCurrency(month.totalPayout)}`,
   );
   month.assetBreakdown.forEach((asset) => {
     console.log(
-      `  - ${asset.assetName}: ${walletDataService.formatCurrency(asset.amount)} (${asset.status})`,
+      `  - ${asset.assetName}: ${formatCurrency(asset.amount)} (${asset.status})`,
     );
   });
 });

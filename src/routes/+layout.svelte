@@ -85,7 +85,9 @@
 		<nav>
 			<div class={mobileNavContainerClasses}>
 				<a href="/" class={logoClasses} on:click={closeMobileMenu}>
-					<img src="/assets/logo.svg" alt="Albion Logo" class={logoImageClasses} />
+					<div class="overflow-hidden">
+						<img src="/assets/logo.svg" alt="Albion Logo" class={logoImageClasses} style="margin-left: -0.3rem" />
+					</div>
 				</a>
 				
 				<!-- Mobile menu button -->
@@ -155,7 +157,9 @@
 		<div class="max-w-6xl mx-auto px-8 pt-12 pb-4">
 			<div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr_1fr_1.5fr] md:gap-12 gap-8 mb-8">
 				<div>
-					<img src="/assets/footer.svg" alt="Albion" class="h-10 mb-4" />
+					<div class="overflow-hidden mb-4">
+						<img src="/assets/footer.svg" alt="Albion" class="h-10" style="margin-left: -0.18rem" />
+					</div>
 					<p class="text-black leading-relaxed">Tokenized oil field investments</p>
 				</div>
 				<div>

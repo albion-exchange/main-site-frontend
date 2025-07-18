@@ -40,11 +40,11 @@ export function calculateTokenReturns(
   const { projections, oilPriceAssumption } = plannedProduction;
   const sharePercentage = token.sharePercentage / 100; // Convert to decimal
 
-  // Convert from wei to tokens (divide by 10^decimals)
-  const maxSupply =
-    parseFloat(token.supply.maxSupply) / Math.pow(10, token.decimals);
-  const mintedSupply =
-    parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
+  // Use converted supply numbers if available, otherwise convert from BigInt strings
+  const maxSupply = token.supplyNumbers?.maxSupply || 
+    Number(BigInt(token.supply.maxSupply) / BigInt(10 ** token.decimals));
+  const mintedSupply = token.supplyNumbers?.mintedSupply || 
+    Number(BigInt(token.supply.mintedSupply) / BigInt(10 ** token.decimals));
 
   // Calculate total production and revenue over the asset life
   let totalProduction = 0;
@@ -89,11 +89,16 @@ export function calculateTokenReturns(
 
   const bonusReturn = mintedReturn - baseReturn;
 
-  // Calculate implied barrels per token (skip step 3, use minted tokens)
-  const impliedBarrelsPerToken = totalProduction / mintedSupply;
+  // Calculate implied barrels per $1 token
+  // This represents how many barrels of oil each $1 investment in the token represents
+  // Formula: (Total barrels * share percentage) / (minted supply * $1 token price)
+  // Since tokens are priced at $1, this simplifies to total barrels share / minted supply
+  const impliedBarrelsPerToken = (totalProduction * sharePercentage) / mintedSupply;
 
-  // Calculate breakeven oil price
-  const breakEvenOilPrice = 1 / impliedBarrelsPerToken;
+  // Calculate breakeven oil price (price needed to recover $1 per token)
+  // This is the oil price where total revenue equals total token investment
+  // Formula: (minted supply * $1) / (total barrels * share percentage)
+  const breakEvenOilPrice = mintedSupply / (totalProduction * sharePercentage);
 
   return {
     baseReturn: Math.max(0, baseReturn),

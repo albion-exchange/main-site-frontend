@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import { useConfigService } from '$lib/services';
 	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	
@@ -15,9 +15,14 @@
 	let isSubmitting = false;
 	let submitStatus: 'idle' | 'success' | 'error' = 'idle';
 	let companyInfo: any = {};
+	const configService = useConfigService();
 	
 	onMount(() => {
-		companyInfo = dataStoreService.getCompanyInfo();
+		try {
+			companyInfo = configService.getCompanyConfig();
+		} catch (error) {
+			console.error('Failed to load company info:', error);
+		}
 	});
 
 	async function handleSubmit() {

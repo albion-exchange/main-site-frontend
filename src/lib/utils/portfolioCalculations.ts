@@ -4,7 +4,7 @@
  */
 
 import type { Asset, Token } from "$lib/types/uiTypes";
-import dataStoreService from "$lib/services/DataStoreService";
+import { useAssetService } from "$lib/services";
 
 export interface PortfolioHolding {
   assetId: string;

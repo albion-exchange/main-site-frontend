@@ -130,6 +130,13 @@
   }
 }
 
+/* Hide borders specifically for sections only */
+@layer utilities {
+  .section-no-border {
+    border-color: transparent !important;
+  }
+}
+
 /* Slide Animations */
 @keyframes slide-in-right {
   from {
