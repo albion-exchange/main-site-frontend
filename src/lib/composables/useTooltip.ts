@@ -18,6 +18,8 @@ export function useTooltip() {
     visible: '',
     timer: null
   });
+
+  const showTooltip = writable('');
   
   let currentTimer: ReturnType<typeof setTimeout> | null = null;
   
@@ -37,6 +39,7 @@ export function useTooltip() {
         ...s,
         visible: tooltipId
       }));
+      showTooltip.set(tooltipId);
       currentTimer = null;
     }, delay);
   }
@@ -56,6 +59,7 @@ export function useTooltip() {
       ...s,
       visible: ''
     }));
+    showTooltip.set('');
   }
   
   /**
@@ -81,12 +85,29 @@ export function useTooltip() {
     }
   }
   
+  /**
+   * Show tooltip with delay (convenience function)
+   */
+  function showTooltipWithDelay(tooltipId: string, delay: number = 500): void {
+    show(tooltipId, delay);
+  }
+
+  /**
+   * Hide tooltip (convenience function)
+   */
+  function hideTooltip(): void {
+    hide();
+  }
+
   return {
     state: { subscribe: state.subscribe },
+    showTooltip,
     show,
     hide,
     toggle,
-    isVisible
+    isVisible,
+    showTooltipWithDelay,
+    hideTooltip
   };
 }
 

@@ -8,6 +8,8 @@
 	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, StatsCard, MetricDisplay, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard } from '$lib/components/ui';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
 	import { formatCurrency } from '$lib/utils/formatters';
+	import { dateUtils } from '$lib/utils/dateHelpers';
+	import { arrayUtils } from '$lib/utils/arrayHelpers';
 
 	let totalEarned = 0;
 	let totalClaimed = 0;
@@ -209,7 +211,7 @@
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = `claim-history-${new Date().toISOString().split('T')[0]}.csv`;
+		a.download = `claim-history-${dateUtils.filenameDateString()}.csv`;
 		a.click();
 		URL.revokeObjectURL(url);
 	}
@@ -470,8 +472,9 @@
 					value={(() => {
 						const claimTxs = walletDataService.getAllTransactions().filter(tx => tx.type === 'claim');
 						if (claimTxs.length === 0) return 'N/A';
-						const lastClaim = claimTxs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
-						const daysSince = Math.floor((Date.now() - new Date(lastClaim.timestamp).getTime()) / (1000 * 60 * 60 * 24));
+						const lastClaim = arrayUtils.latest(claimTxs, tx => tx.timestamp);
+						if (!lastClaim) return 'N/A';
+						const daysSince = dateUtils.daysBetween(lastClaim.timestamp, new Date());
 						return Math.max(0, daysSince).toString();
 					})()}
 					subtitle="Since last withdrawal"
@@ -677,16 +680,4 @@
 />
 
 <style>
-	@keyframes spin {
-		from {
-			transform: rotate(0deg);
-		}
-		to {
-			transform: rotate(360deg);
-		}
-	}
-	
-	.animate-spin {
-		animation: spin 1s linear infinite;
-	}
 </style>

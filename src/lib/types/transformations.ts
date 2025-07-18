@@ -22,10 +22,10 @@ import { ProductionStatus as MetaboardProductionStatus } from './MetaboardTypes'
 import type { 
   Asset as UIAsset, 
   Token as UIToken,
-  AssetTerms as UIAssetTerms,
   AssetLocation as UIAssetLocation
 } from './uiTypes';
 import type { ISODateOnlyString, ISODateTimeString } from './sharedTypes';
+import { formatCurrency, formatNumber } from '../utils/formatters';
 
 /**
  * Core domain types - pure data representation
@@ -52,6 +52,12 @@ export namespace Core {
     depth: number; // Meters as number
     fieldType: string;
     estimatedLifeMonths: number;
+    firstOil?: string;
+    expectedEndDate?: string;
+    crudeBenchmark?: string;
+    license?: string;
+    infrastructure?: string;
+    environmental?: string;
   }
 
   export interface AssetPricing {
@@ -123,6 +129,12 @@ export namespace Display {
     depth: string; // "3,200m"
     fieldType: string;
     estimatedLife: string; // "5+ years"
+    firstOil?: string;
+    expectedEndDate?: string;
+    crudeBenchmark?: string;
+    license?: string;
+    infrastructure?: string;
+    environmental?: string;
   }
 
   export interface AssetPricing {
@@ -185,11 +197,17 @@ export class TypeTransformations {
         technical: {
           depth: data.technical.depth,
           fieldType: data.technical.fieldType,
-          estimatedLifeMonths: data.technical.estimatedLifeMonths
+          estimatedLifeMonths: data.technical.estimatedLifeMonths,
+          firstOil: data.technical.firstOil,
+          expectedEndDate: data.technical.expectedEndDate,
+          crudeBenchmark: data.technical.crudeBenchmark,
+          license: data.technical.license,
+          infrastructure: data.technical.infrastructure,
+          environmental: data.technical.environmental
         },
         pricing: {
-          benchmarkPremium: data.technical.pricing.benchmarkPremium,
-          transportCosts: data.technical.pricing.transportCosts
+          benchmarkPremium: data.technical.pricing?.benchmarkPremium || 0,
+          transportCosts: data.technical.pricing?.transportCosts || 0
         },
         location: {
           state: data.location.state,
@@ -236,11 +254,28 @@ export class TypeTransformations {
       };
     },
 
-    tokenSupply(supply: { maxSupply: string; mintedSupply: string; availableSupply: string }, decimals: number): Core.Token['supply'] {
+    tokenSupply(supply: { maxSupply: string; mintedSupply: string }, decimals: number): Core.Token['supply'] {
       return {
         maxSupply: BigInt(supply.maxSupply),
         mintedSupply: BigInt(supply.mintedSupply),
-        availableSupply: BigInt(supply.availableSupply)
+        availableSupply: BigInt(supply.maxSupply) - BigInt(supply.mintedSupply)
+      };
+    },
+
+    tokenMetadata(data: TokenMetadata): Core.Token {
+      return {
+        contractAddress: data.contractAddress,
+        symbol: data.symbol,
+        assetId: data.assetId,
+        assetName: data.asset.assetName,
+        sharePercentage: data.sharePercentage,
+        pricePerToken: 0, // TokenMetadata doesn't have pricePerToken
+        decimals: data.decimals,
+        supply: {
+        maxSupply: BigInt(data.supply.maxSupply),
+        mintedSupply: BigInt(data.supply.mintedSupply),
+        availableSupply: BigInt(data.supply.maxSupply) - BigInt(data.supply.mintedSupply)
+      }
       };
     }
   };
@@ -257,7 +292,7 @@ export class TypeTransformations {
           state: asset.location.state,
           country: asset.location.country,
           waterDepth: asset.location.waterDepth !== null 
-            ? `${asset.location.waterDepth.toLocaleString()}m` 
+            ? `${formatNumber(asset.location.waterDepth)}m` 
             : 'Onshore',
           displayName: `${asset.location.state}, ${asset.location.country}`
         },
@@ -267,9 +302,15 @@ export class TypeTransformations {
           paymentFrequency: `Monthly within ${asset.terms.paymentFrequencyDays} days`
         },
         technical: {
-          depth: `${asset.technical.depth.toLocaleString()}m`,
+          depth: `${formatNumber(asset.technical.depth)}m`,
           fieldType: asset.technical.fieldType,
-          estimatedLife: `${Math.ceil(asset.technical.estimatedLifeMonths / 12)}+ years`
+          estimatedLife: `${Math.ceil(asset.technical.estimatedLifeMonths / 12)}+ years`,
+          firstOil: asset.technical.firstOil || '',
+          expectedEndDate: asset.technical.expectedEndDate || 'TBD',
+          crudeBenchmark: asset.technical.crudeBenchmark || '',
+          license: asset.technical.license || '',
+          infrastructure: asset.technical.infrastructure || '',
+          environmental: asset.technical.environmental || ''
         },
         pricing: {
           benchmarkPremium: asset.pricing.benchmarkPremium < 0
@@ -287,7 +328,7 @@ export class TypeTransformations {
           status: asset.production.status,
           statusDisplay: asset.production.status.charAt(0).toUpperCase() + asset.production.status.slice(1),
           expectedRemainingProduction: asset.production.expectedRemainingProduction !== null
-            ? `${(asset.production.expectedRemainingProduction / 1000).toFixed(0)}k BOE`
+            ? `${(asset.production.expectedRemainingProduction / 1000).toFixed(1)}k boe`
             : 'TBD',
           expectedEndDate: asset.production.expectedEndDate
             ? this.formatEndDate(asset.production.expectedEndDate)
@@ -300,9 +341,9 @@ export class TypeTransformations {
     monthlyReport(report: Core.MonthlyReport): Display.DisplayMonthlyReport {
       return {
         month: this.formatYearMonth(report.month),
-        production: `${report.production.toLocaleString()} BOE`,
-        revenue: `$${report.revenue.toLocaleString()}`,
-        netIncome: `$${report.netIncome.toLocaleString()}`
+        production: `${formatNumber(report.production)} BOE`,
+        revenue: formatCurrency(report.revenue, { minimumFractionDigits: 0, maximumFractionDigits: 0 }),
+        netIncome: formatCurrency(report.netIncome, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
       };
     },
 
@@ -347,7 +388,7 @@ export class TypeTransformations {
     return {
       id: asset.id,
       name: asset.name,
-      description: '', // Will be set by service layer
+      description: '', // Set in assetToUI when called with AssetData
       location: {
         state: asset.location.state,
         country: asset.location.country,
@@ -357,10 +398,10 @@ export class TypeTransformations {
         },
         waterDepth: display.location.waterDepth
       } as UIAssetLocation,
-      coverImage: '', // Will be set by service layer
+      coverImage: '', // Set in assetToUI when called with AssetData
       images: [], // Legacy field
       galleryImages: [],
-      terms: display.terms as UIAssetTerms,
+      terms: display.terms,
       operator: {
         name: asset.operator.name,
         experience: display.operator.experience
@@ -368,7 +409,7 @@ export class TypeTransformations {
       production: {
         status: asset.production.status,
         expectedRemainingProduction: display.production.expectedRemainingProduction,
-        current: '', // Will be set by service layer
+        current: '', // Set in assetToUI from latest monthly report
         units: {
           production: 'BOE (Barrels of Oil Equivalent)',
           revenue: 'USD'
@@ -384,8 +425,8 @@ export class TypeTransformations {
         production: report.production,
         revenue: report.revenue,
         netIncome: report.netIncome,
-        expenses: 0, // Will be set by service layer
-        payoutPerToken: 0 // Will be set by service layer
+        expenses: 0, // Not available in current data
+        payoutPerToken: 0 // Calculated separately by TokenService
       })),
       operationalMetrics: {
         uptime: {
@@ -400,7 +441,7 @@ export class TypeTransformations {
         },
         hseMetrics: {
           incidentFreeDays: 0,
-          lastIncidentDate: new Date().toISOString() as any,
+          lastIncidentDate: new Date().toISOString(),
           safetyRating: 'Unknown'
         }
       },
@@ -412,16 +453,155 @@ export class TypeTransformations {
         depth: display.technical.depth,
         fieldType: asset.technical.fieldType,
         estimatedLife: display.technical.estimatedLife,
-        firstOil: '', // Will be set by service layer
-        expectedEndDate: display.production.expectedEndDate,
-        crudeBenchmark: '', // Will be set by service layer
-        license: '', // Will be set by service layer
-        infrastructure: '', // Will be set by service layer
-        environmental: '', // Will be set by service layer
+        firstOil: display.technical.firstOil || '',
+        expectedEndDate: display.technical.expectedEndDate || '',
+        crudeBenchmark: display.technical.crudeBenchmark || '',
+        license: display.technical.license || '',
+        infrastructure: display.technical.infrastructure || '',
+        environmental: display.technical.environmental || '',
         pricing: {
           benchmarkPremium: display.pricing.benchmarkPremium,
           transportCosts: display.pricing.transportCosts
         }
+      }
+    };
+  }
+
+  /**
+   * Convenience method: Transform AssetData directly to UI Asset
+   */
+  static assetToUI(assetData: AssetData, assetId?: string, monthlyData?: any[]): UIAsset {
+    const coreAsset = this.apiToCore.assetData(assetData);
+    const fullCoreAsset: Core.Asset = {
+      id: assetId || assetData.assetName?.toLowerCase().replace(/\s+/g, '-') || 'unknown-asset',
+      name: assetData.assetName || 'Unknown Asset',
+      location: coreAsset.location!,
+      terms: coreAsset.terms!,
+      technical: coreAsset.technical!,
+      pricing: coreAsset.pricing!,
+      operator: coreAsset.operator!,
+      production: {
+        status: this.apiToCore.productionStatus(assetData.production.status),
+        expectedRemainingProduction: null, // Set below from planned production
+        expectedEndDate: null // Set from technical.expectedEndDate
+      },
+      monthlyReports: [] // Populated below from productionHistory
+    };
+    const uiAsset = this.coreToUI(fullCoreAsset);
+    // Add the missing fields from assetData
+    uiAsset.description = assetData.description || '';
+    uiAsset.coverImage = assetData.coverImage || '';
+    uiAsset.galleryImages = assetData.galleryImages || [];
+    
+    // Map monthly reports from monthlyData parameter (which contains actual payout data from tokens)
+    if (monthlyData && monthlyData.length > 0) {
+      uiAsset.monthlyReports = monthlyData.map(data => {
+        const report = {
+          month: data.month,
+          production: data.assetData.production,
+          revenue: data.assetData.revenue,
+          expenses: data.assetData.expenses || 0,
+          netIncome: data.assetData.netIncome,
+          payoutPerToken: data.tokenPayout?.payoutPerToken || 0
+        };
+        return report;
+      });
+    }
+    // No fallback to productionHistory - monthlyReports should only contain payment data
+    
+    // Set productionHistory for the production tab
+    if (assetData.productionHistory && assetData.productionHistory.length > 0) {
+      uiAsset.productionHistory = assetData.productionHistory.map(record => ({
+        month: record.month,
+        production: record.production || 0
+      }));
+    }
+    
+    // Calculate expected remaining production from planned production
+    if (assetData.plannedProduction?.projections) {
+      const totalPlannedProduction = assetData.plannedProduction.projections.reduce(
+        (sum, proj) => sum + proj.production, 
+        0
+      );
+      uiAsset.production.expectedRemainingProduction = totalPlannedProduction ? 
+        `${(totalPlannedProduction / 1000).toFixed(1)}k boe` : 
+        'TBD';
+    }
+    
+    // Set current production from latest monthly report
+    if (uiAsset.monthlyReports && uiAsset.monthlyReports.length > 0) {
+      const latestReport = uiAsset.monthlyReports[uiAsset.monthlyReports.length - 1];
+      uiAsset.production.current = `${latestReport.production.toFixed(0)} BOE/month`;
+    }
+    
+    // Set planned production data
+    if (assetData.plannedProduction) {
+      uiAsset.plannedProduction = assetData.plannedProduction;
+    }
+    
+    // Set operational metrics from actual data
+    if (assetData.operationalMetrics) {
+      uiAsset.operationalMetrics = {
+        uptime: {
+          percentage: assetData.operationalMetrics.uptime?.percentage || 0,
+          period: assetData.operationalMetrics.uptime?.period || 'N/A',
+          unit: 'percentage'
+        },
+        dailyProduction: {
+          current: assetData.operationalMetrics.dailyProduction?.current || 0,
+          target: assetData.operationalMetrics.dailyProduction?.target || 0,
+          unit: 'BOE/day'
+        },
+        hseMetrics: {
+          incidentFreeDays: assetData.operationalMetrics.hseMetrics?.incidentFreeDays || 0,
+          lastIncidentDate: assetData.operationalMetrics.hseMetrics?.lastIncidentDate || new Date().toISOString(),
+          safetyRating: assetData.operationalMetrics.hseMetrics?.safetyRating || 'Unknown'
+        }
+      };
+    }
+    
+    return uiAsset;
+  }
+
+  /**
+   * Convenience method: Transform TokenMetadata directly to UI Token
+   */
+  static tokenToUI(tokenData: TokenMetadata): UIToken {
+    return {
+      contractAddress: tokenData.contractAddress,
+      name: tokenData.releaseName || tokenData.asset.assetName, // Use releaseName or fall back to asset.assetName
+      symbol: tokenData.symbol,
+      decimals: tokenData.decimals,
+      tokenType: "royalty", // Default type, can be enhanced later
+      assetId: tokenData.assetId,
+      isActive: true,
+      supply: {
+        maxSupply: tokenData.supply.maxSupply,
+        mintedSupply: tokenData.supply.mintedSupply
+      },
+      // Add converted supply values for calculations
+      supplyNumbers: {
+        maxSupply: Number(BigInt(tokenData.supply.maxSupply) / BigInt(10 ** tokenData.decimals)),
+        mintedSupply: Number(BigInt(tokenData.supply.mintedSupply) / BigInt(10 ** tokenData.decimals))
+      },
+      holders: [], // Will be populated by service layer
+      payoutHistory: tokenData.monthlyData?.map(data => ({
+        month: data.month,
+        date: data.tokenPayout.date.split('T')[0] as any, // Convert to YYYY-MM-DD format
+        totalPayout: data.tokenPayout.totalPayout,
+        payoutPerToken: data.tokenPayout.payoutPerToken,
+        oilPrice: data.realisedPrice.oilPrice,
+        gasPrice: data.realisedPrice.gasPrice,
+        productionVolume: data.assetData.production,
+        txHash: data.tokenPayout.txHash
+      })) || [],
+      sharePercentage: tokenData.sharePercentage,
+      firstPaymentDate: tokenData.firstPaymentDate,
+      metadata: {
+        description: `Token representing ${tokenData.sharePercentage}% ownership in ${tokenData.asset.assetName}`,
+        image: '', // Will be set by service layer
+        external_url: '', // Will be set by service layer
+        attributes: []
       }
     };
   }

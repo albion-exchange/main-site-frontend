@@ -5,6 +5,7 @@
 
 import type { Asset, Token } from '$lib/types/uiTypes';
 import dataStoreService from '$lib/services/DataStoreService';
+import { formatCurrency, formatNumber } from '$lib/utils/formatters';
 
 export interface ExportOptions {
   filename?: string;
@@ -157,9 +158,9 @@ export function useDataExport() {
     
     const data = [
       ['Asset Name', asset.name],
-      ['Total Production (bbl)', metrics.totalProduction?.toLocaleString() || 'N/A'],
-      ['Total Revenue (USD)', metrics.totalRevenue ? `$${metrics.totalRevenue.toLocaleString()}` : 'N/A'],
-      ['Avg Monthly Revenue (USD)', metrics.avgMonthlyRevenue ? `$${metrics.avgMonthlyRevenue.toLocaleString()}` : 'N/A'],
+      ['Total Production (bbl)', metrics.totalProduction ? formatNumber(metrics.totalProduction) : 'N/A'],
+      ['Total Revenue (USD)', metrics.totalRevenue ? formatCurrency(metrics.totalRevenue, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A'],
+['Avg Monthly Revenue (USD)', metrics.avgMonthlyRevenue ? formatCurrency(metrics.avgMonthlyRevenue, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A'],
       ['Profit Margin (%)', metrics.profitMargin ? `${metrics.profitMargin.toFixed(2)}%` : 'N/A'],
       ['Report Count', asset.monthlyReports?.length.toString() || '0']
     ];

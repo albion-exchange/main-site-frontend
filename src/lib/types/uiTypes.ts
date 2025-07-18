@@ -12,6 +12,7 @@ import type {
   ISODateOnlyString,
   ISOYearMonthString,
 } from "./sharedTypes";
+import type { Display } from "./transformations";
 
 // AssetLocation extends the shared Location type with optional waterDepth
 export interface AssetLocation extends Omit<Location, "waterDepth"> {
@@ -50,12 +51,8 @@ export interface AssetProduction {
   };
 }
 
-export interface AssetTerms {
-  interestType: string;
-  amount: string;
-  amountTooltip?: string;
-  paymentFrequency: string;
-}
+// AssetTerms moved to transformations.ts to avoid duplication
+// Use Display.AssetTerms from transformations for UI components
 
 export interface MonthlyReport {
   month: string; // YYYY-MM format
@@ -86,14 +83,18 @@ export interface PlannedProduction {
 export interface OperationalMetrics {
   dailyProduction: {
     current: number;
+    target?: number;
     unit: string;
   };
   uptime: {
     percentage: number;
     period: string;
+    unit?: string;
   };
   hseMetrics: {
     incidentFreeDays: number;
+    lastIncidentDate?: string;
+    safetyRating?: string;
   };
 }
 
@@ -106,17 +107,28 @@ export interface Asset {
   description: string;
   coverImage: string;
   images: GalleryImage[];
+  galleryImages?: GalleryImage[]; // Optional for compatibility
   location: AssetLocation;
   operator: AssetOperator;
   technical: AssetTechnical;
   production: AssetProduction;
-  assetTerms: AssetTerms;
-  tokenContracts: string[]; // Array of contract addresses
+  assetTerms?: Display.AssetTerms;
+  terms?: Display.AssetTerms; // Alias for assetTerms
+  pricing?: {
+    benchmarkPremium: string;
+    transportCosts: string;
+  };
+  geology?: {
+    depth: string;
+    type: string;
+    estimatedLife: string;
+  };
+  tokenContracts?: string[]; // Array of contract addresses
   monthlyReports: MonthlyReport[];
   productionHistory?: ProductionHistoryRecord[]; // Historical production data without financial details
   plannedProduction?: PlannedProduction;
   operationalMetrics?: OperationalMetrics;
-  metadata: Metadata;
+  metadata?: Metadata;
 }
 
 /**
@@ -162,11 +174,22 @@ export interface Token {
   assetId: string; // Links to Asset.id
   isActive: boolean;
   supply: TokenSupply;
+  supplyNumbers?: {
+    maxSupply: number;
+    mintedSupply: number;
+  };
   holders: TokenHolder[];
   payoutHistory: TokenPayoutRecord[];
   sharePercentage?: number; // Percentage of asset ownership (for royalty tokens)
   firstPaymentDate?: string; // YYYY-MM format or "Month YYYY" format
-  metadata: Metadata;
+  metadata?: Metadata | {
+    description?: string;
+    image?: string;
+    external_url?: string;
+    attributes?: any[];
+    createdAt?: string;
+    updatedAt?: string;
+  };
 }
 
 /**
@@ -283,12 +306,7 @@ export interface AssetTemplate {
       transportCosts: string;
     };
   };
-  assetTerms: {
-    interestType: string;
-    amount: string;
-    amountTooltip?: string;
-    paymentFrequency: string;
-  };
+  assetTerms: Display.AssetTerms;
   production: {
     current: string;
     status: "funding" | "producing" | "completed";

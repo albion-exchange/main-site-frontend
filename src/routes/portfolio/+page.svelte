@@ -32,7 +32,6 @@
 		const assetPayout = assetPayouts.find(p => p.assetId === holding.id);
 		
 		if (!assetPayout || !assetPayout.monthlyPayouts || assetPayout.monthlyPayouts.length === 0) {
-			console.warn(`No payout data found for asset ${holding.id}`);
 			return [];
 		}
 		
@@ -45,7 +44,6 @@
 			}))
 			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 		
-		// If no real data, return empty array instead of fake data
 		return chartData;
 	}
 
@@ -69,6 +67,7 @@
 			// Get holdings with asset info
 			const assetPayouts = walletDataService.getHoldingsByAsset();
 			const allAssets = dataStoreService.getAllAssets();
+			const allTokens = dataStoreService.getAllTokens();
 			
 			// Count active assets
 			activeAssetsCount = assetPayouts.length;
@@ -92,28 +91,40 @@
 				// Calculate unrecovered capital
 				const unrecoveredCapital = Math.max(0, holding.totalInvested - holding.totalEarned);
 				
-				// Calculate asset depletion = production so far / total expected production
+				// Calculate asset depletion = production so far / (production so far + expected remaining production)
 				let assetDepletion = 0;
 				
-				// Calculate cumulative production so far
+				// Calculate cumulative production from token data, not asset production history
 				let cumulativeProduction = 0;
-				if (asset.monthlyReports && asset.monthlyReports.length > 0) {
+				
+				// Find tokens for this asset and sum their monthlyData production
+				const assetTokens = allTokens.filter(token => token.assetId === asset.id);
+				
+				if (assetTokens.length > 0) {
+					// Use the first token's payout history as they should all have the same production data
+					const token = assetTokens[0];
+					if (token.payoutHistory && token.payoutHistory.length > 0) {
+						cumulativeProduction = token.payoutHistory.reduce((sum, payout) => sum + (payout.productionVolume || 0), 0);
+					}
+				}
+				
+				// Fallback to asset monthlyReports if no token data
+				if (cumulativeProduction === 0 && asset.monthlyReports && asset.monthlyReports.length > 0) {
 					cumulativeProduction = asset.monthlyReports.reduce((sum, report) => sum + (report.production || 0), 0);
 				}
 				
-				// Get total expected production (sum of planned production)
-				let totalExpectedProduction = cumulativeProduction; // Start with what's already produced
-				
-				if (asset.plannedProduction?.projections && asset.plannedProduction.projections.length > 0) {
-					// Add remaining planned production
-					const remainingPlannedProduction = asset.plannedProduction.projections.reduce(
-						(sum, projection) => sum + (projection.production || 0), 
-						0
-					);
-					totalExpectedProduction = cumulativeProduction + remainingPlannedProduction;
+				// Parse expected remaining production from string format (e.g., "250k BOE" -> 250000)
+				let expectedRemainingProduction = 0;
+				if (asset.production?.expectedRemainingProduction && asset.production.expectedRemainingProduction !== 'TBD') {
+					const match = asset.production.expectedRemainingProduction.match(/^([\d.]+)k\s*boe$/i);
+					if (match) {
+						expectedRemainingProduction = parseFloat(match[1]) * 1000;
+					}
 				}
 				
 				// Calculate depletion percentage
+				// Depletion = (production so far) / (production so far + expected remaining production)
+				const totalExpectedProduction = cumulativeProduction + expectedRemainingProduction;
 				if (totalExpectedProduction > 0 && cumulativeProduction > 0) {
 					assetDepletion = (cumulativeProduction / totalExpectedProduction) * 100;
 				}
@@ -329,8 +340,8 @@
 											<!-- Tokens -->
 											<div class="pr-6 flex flex-col">
 												<div class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-4 h-10 flex items-start">Tokens</div>
-												<div class="text-xl font-extrabold text-black mb-3">{holding.tokensOwned.toLocaleString()}</div>
-												<div class="text-sm text-black opacity-70">${Math.round(holding.totalInvested).toLocaleString()}</div>
+															<div class="text-xl font-extrabold text-black mb-3">{formatNumber(holding.tokensOwned)}</div>
+			<div class="text-sm text-black opacity-70">{formatCurrency(Math.round(holding.totalInvested), { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
 											</div>
 
 											<!-- Payouts to Date -->

@@ -99,19 +99,26 @@ export function formatDate(
 /**
  * Formats a number with thousand separators
  * @param value - Number to format
- * @param decimals - Number of decimal places (default: 0)
+ * @param options - Formatting options
  * @returns Formatted number string (e.g., "1,234.56")
- * 
- * @deprecated Use value.toLocaleString() for simple number formatting.
- * This function is kept for backward compatibility but prefer the native method.
  */
 export function formatNumber(
   value: number,
-  decimals: number = 0
+  options: {
+    decimals?: number;
+    minimumFractionDigits?: number;
+    maximumFractionDigits?: number;
+  } = {}
 ): string {
+  const { 
+    decimals,
+    minimumFractionDigits = decimals ?? 0,
+    maximumFractionDigits = decimals ?? 0
+  } = options;
+  
   return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
+    minimumFractionDigits,
+    maximumFractionDigits
   }).format(value);
 }
 
