@@ -386,19 +386,8 @@
 
 		<!-- Asset-by-Asset Claiming -->
 		<ContentSection background="white" padding="compact">
-			<div class="flex justify-between items-center mb-6">
+			<div class="mb-6">
 				<SectionTitle level="h2" size="section">Claim by Asset</SectionTitle>
-				<PrimaryButton
-					size="small"
-					on:click={() => handleClaimWithModal('claim')}
-					disabled={claiming || holdings.length === 0}
-				>
-					{#if claiming}
-						Claiming...
-					{:else}
-						Claim All {formatCurrency(unclaimedPayout)}
-					{/if}
-				</PrimaryButton>
 			</div>
 
 			<div class="space-y-4">

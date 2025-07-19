@@ -19,40 +19,39 @@
 		showBorder={true}
 	/>
 
-	<!-- Legal Navigation -->
-	<ContentSection background="gray" padding="compact" centered>
-		<div class="flex md:flex-row flex-col md:gap-4 gap-3 md:flex-wrap md:justify-center items-center">
-			<TabButton 
-				active={activeSection === 'terms'}
-				on:click={() => activeSection = 'terms'}
-			>
-				Terms of Service
-			</TabButton>
-			<TabButton 
-				active={activeSection === 'privacy'}
-				on:click={() => activeSection = 'privacy'}
-			>
-				Privacy Policy
-			</TabButton>
-			<TabButton 
-				active={activeSection === 'disclosures'}
-				on:click={() => activeSection = 'disclosures'}
-			>
-				Investment Disclosures
-			</TabButton>
-			<TabButton 
-				active={activeSection === 'compliance'}
-				on:click={() => activeSection = 'compliance'}
-			>
-				Compliance
-			</TabButton>
-		</div>
-	</ContentSection>
+	<!-- Legal Tabs -->
+	<ContentSection background="white" padding="compact">
+		<div class="bg-white border border-light-gray mb-8">
+			<div class="flex flex-wrap border-b border-light-gray">
+				<TabButton 
+					active={activeSection === 'terms'}
+					on:click={() => activeSection = 'terms'}
+				>
+					Terms of Service
+				</TabButton>
+				<TabButton 
+					active={activeSection === 'privacy'}
+					on:click={() => activeSection = 'privacy'}
+				>
+					Privacy Policy
+				</TabButton>
+				<TabButton 
+					active={activeSection === 'disclosures'}
+					on:click={() => activeSection = 'disclosures'}
+				>
+					Investment Disclosures
+				</TabButton>
+				<TabButton 
+					active={activeSection === 'compliance'}
+					on:click={() => activeSection = 'compliance'}
+				>
+					Compliance
+				</TabButton>
+			</div>
 
-	<!-- Legal Content -->
-	<ContentSection background="white" padding="standard">
-		{#if activeSection === 'terms'}
-			<div class="bg-white md:p-12 p-8">
+			<!-- Tab Content -->
+			<div class="p-8">
+			{#if activeSection === 'terms'}
 				<SectionTitle level="h2" size="section">Terms of Service</SectionTitle>
 				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
@@ -78,9 +77,7 @@
 					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">7. Termination</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">We may terminate or suspend your account at any time for violation of these terms or applicable laws. You may close your account at any time subject to existing investment commitments.</p>
 				</div>
-			</div>
-		{:else if activeSection === 'privacy'}
-			<div class="bg-white md:p-12 p-8">
+			{:else if activeSection === 'privacy'}
 				<SectionTitle level="h2" size="section">Privacy Policy</SectionTitle>
 				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
@@ -109,9 +106,7 @@
 					<h3>8. Contact Information</h3>
 					<p>For privacy-related questions, contact our Data Protection Officer at privacy@albion.com.</p>
 				</div>
-			</div>
-		{:else if activeSection === 'disclosures'}
-			<div class="bg-white md:p-12 p-8">
+			{:else if activeSection === 'disclosures'}
 				<SectionTitle level="h2" size="section">Investment Disclosures</SectionTitle>
 				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
@@ -146,9 +141,7 @@
 					<h3>6. Professional Advice</h3>
 					<p>Consider seeking independent financial, legal, and tax advice before making any investment decision.</p>
 				</div>
-			</div>
-		{:else if activeSection === 'compliance'}
-			<div class="bg-white md:p-12 p-8">
+			{:else if activeSection === 'compliance'}
 				<SectionTitle level="h2" size="section">Regulatory Compliance</SectionTitle>
 				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
@@ -183,8 +176,9 @@
 					<h3>8. Investor Protection</h3>
 					<p>We maintain appropriate investor protection measures including segregated client funds, professional indemnity insurance, and independent custody arrangements where applicable.</p>
 				</div>
+			{/if}
 			</div>
-		{/if}
+		</div>
 	</ContentSection>
 
 	<!-- Contact Section -->

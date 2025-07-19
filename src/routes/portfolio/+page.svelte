@@ -272,7 +272,7 @@
 	</HeroSection>
 
 	<!-- Portfolio Tabs -->
-	<ContentSection background="white" padding="compact" maxWidth={false}>
+	<ContentSection background="white" padding="compact">
 		<div class="bg-white border border-light-gray mb-8">
 			<div class="flex flex-wrap border-b border-light-gray">
 				<TabButton

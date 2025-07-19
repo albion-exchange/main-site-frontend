@@ -95,37 +95,39 @@
 				</div>
 			</div>
 
-			<div class="grid md:grid-cols-3 grid-cols-1 gap-8 mb-8">
-				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4">
-					<Metric
-						value={asset?.production?.current || '0'}
-						label="Current Production"
-						size="large"
-					/>
-				</div>
-				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4">
-					<Metric
-						value={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.netIncome 
-							? formatCurrency(asset.monthlyReports[asset.monthlyReports.length - 1].netIncome)
-							: '$0'}
-						label="Last Monthly Revenue"
-						note={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.month 
-							? formatEndDate(asset.monthlyReports[asset.monthlyReports.length - 1].month + '-01')
-							: 'N/A'}
-						size="large"
-					/>
-				</div>
-				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4 cursor-pointer transition-all duration-200 rounded border-2 border-light-gray bg-white shadow-sm hover:bg-light-gray hover:-translate-y-1 hover:border-primary hover:shadow-card-hover focus:outline-none focus:border-primary focus:bg-light-gray focus:shadow-card-hover" 
-					 on:click={onTokenSectionClick} 
-					 on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTokenSectionClick?.(); } }} 
-					 role="button" 
-					 tabindex="0">
-					<Metric
-						value={tokenCount.toString()}
-						label="Available Tokens"
-						note="👆 Click to view tokens"
-						size="large"
-					/>
+			<div class="bg-white border border-light-gray rounded-lg p-8 mb-8">
+				<div class="grid md:grid-cols-3 grid-cols-1 gap-8">
+					<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4">
+						<Metric
+							value={asset?.production?.current || '0'}
+							label="Current Production"
+							size="large"
+						/>
+					</div>
+					<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4">
+						<Metric
+							value={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.netIncome 
+								? formatCurrency(asset.monthlyReports[asset.monthlyReports.length - 1].netIncome)
+								: '$0'}
+							label="Last Monthly Revenue"
+							note={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.month 
+								? formatEndDate(asset.monthlyReports[asset.monthlyReports.length - 1].month + '-01')
+								: 'N/A'}
+							size="large"
+						/>
+					</div>
+					<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4 cursor-pointer transition-all duration-200 rounded border-2 border-primary bg-light-gray hover:bg-white hover:-translate-y-1 hover:border-secondary hover:shadow-card-hover focus:outline-none focus:border-secondary focus:bg-white focus:shadow-card-hover" 
+						 on:click={onTokenSectionClick} 
+						 on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTokenSectionClick?.(); } }} 
+						 role="button" 
+						 tabindex="0">
+						<Metric
+							value={tokenCount.toString()}
+							label="Available Tokens"
+							note="👆 Click to view tokens"
+							size="large"
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
