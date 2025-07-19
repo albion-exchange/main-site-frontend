@@ -8,7 +8,7 @@
 /* Heading Hierarchy */
 .typography-display {
   font-family: 'Figtree', sans-serif;
-  font-size: 2.5rem; /* 40px */
+  font-size: 2rem; /* 32px - Mobile first */
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -16,7 +16,7 @@
 
 .typography-h1 {
   font-family: 'Figtree', sans-serif;
-  font-size: 2.25rem; /* 36px */
+  font-size: 1.75rem; /* 28px - Mobile first */
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.01em;
@@ -24,35 +24,35 @@
 
 .typography-h2 {
   font-family: 'Figtree', sans-serif;
-  font-size: 1.75rem; /* 28px */
+  font-size: 1.5rem; /* 24px - Mobile first */
   font-weight: 700;
   line-height: 1.25;
 }
 
 .typography-h3 {
   font-family: 'Figtree', sans-serif;
-  font-size: 1.5rem; /* 24px */
+  font-size: 1.25rem; /* 20px - Mobile first */
   font-weight: 700;
   line-height: 1.3;
 }
 
 .typography-h4 {
   font-family: 'Figtree', sans-serif;
-  font-size: 1.25rem; /* 20px */
+  font-size: 1.125rem; /* 18px - Mobile first */
   font-weight: 600;
   line-height: 1.4;
 }
 
 .typography-h5 {
   font-family: 'Figtree', sans-serif;
-  font-size: 1.125rem; /* 18px */
+  font-size: 1rem; /* 16px - Mobile first */
   font-weight: 600;
   line-height: 1.4;
 }
 
 .typography-h6 {
   font-family: 'Figtree', sans-serif;
-  font-size: 1rem; /* 16px */
+  font-size: 0.875rem; /* 14px - Mobile first */
   font-weight: 600;
   line-height: 1.5;
 }
@@ -60,21 +60,21 @@
 /* Body Text */
 .typography-body-large {
   font-family: 'Figtree', sans-serif;
-  font-size: 1.125rem; /* 18px */
+  font-size: 1rem; /* 16px - Mobile first */
   font-weight: 400;
   line-height: 1.6;
 }
 
 .typography-body {
   font-family: 'Figtree', sans-serif;
-  font-size: 1rem; /* 16px */
+  font-size: 0.875rem; /* 14px - Mobile first */
   font-weight: 400;
   line-height: 1.6;
 }
 
 .typography-body-small {
   font-family: 'Figtree', sans-serif;
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.8125rem; /* 13px - Mobile first */
   font-weight: 400;
   line-height: 1.5;
 }
@@ -111,7 +111,7 @@
 
 .typography-stat-large {
   font-family: 'Figtree', sans-serif;
-  font-size: 2.5rem; /* 40px */
+  font-size: 2rem; /* 32px - Mobile first */
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -119,7 +119,7 @@
 
 .typography-stat-xl {
   font-family: 'Figtree', sans-serif;
-  font-size: 3rem; /* 48px */
+  font-size: 2.5rem; /* 40px - Mobile first */
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -137,7 +137,7 @@
 
 .typography-metric-label {
   font-family: 'Figtree', sans-serif;
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.8125rem; /* 13px - Mobile first */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -147,13 +147,123 @@
 
 .typography-metric-value {
   font-family: 'Figtree', sans-serif;
-  font-size: 1.25rem; /* 20px */
+  font-size: 1.125rem; /* 18px - Mobile first */
   font-weight: 800;
   color: black;
 }
 
-/* Responsive Typography */
+/* Responsive Typography - Mobile first approach */
+@media (min-width: 480px) {
+  .typography-display {
+    font-size: 2.25rem; /* 36px */
+  }
+  
+  .typography-h1 {
+    font-size: 2rem; /* 32px */
+  }
+  
+  .typography-h2 {
+    font-size: 1.625rem; /* 26px */
+  }
+  
+  .typography-h3 {
+    font-size: 1.375rem; /* 22px */
+  }
+  
+  .typography-body-large {
+    font-size: 1.0625rem; /* 17px */
+  }
+  
+  .typography-body {
+    font-size: 0.9375rem; /* 15px */
+  }
+  
+  .typography-stat-large {
+    font-size: 2.25rem; /* 36px */
+  }
+  
+  .typography-stat-xl {
+    font-size: 2.75rem; /* 44px */
+  }
+  
+  .typography-metric-label {
+    font-size: 0.875rem; /* 14px */
+  }
+  
+  .typography-metric-value {
+    font-size: 1.1875rem; /* 19px */
+  }
+}
+
+@media (min-width: 640px) {
+  .typography-display {
+    font-size: 2.5rem; /* 40px */
+  }
+  
+  .typography-h1 {
+    font-size: 2.25rem; /* 36px */
+  }
+  
+  .typography-h2 {
+    font-size: 1.75rem; /* 28px */
+  }
+  
+  .typography-h3 {
+    font-size: 1.5rem; /* 24px */
+  }
+  
+  .typography-h4 {
+    font-size: 1.25rem; /* 20px */
+  }
+  
+  .typography-h5 {
+    font-size: 1.125rem; /* 18px */
+  }
+  
+  .typography-h6 {
+    font-size: 1rem; /* 16px */
+  }
+  
+  .typography-body-large {
+    font-size: 1.125rem; /* 18px */
+  }
+  
+  .typography-body {
+    font-size: 1rem; /* 16px */
+  }
+  
+  .typography-body-small {
+    font-size: 0.875rem; /* 14px */
+  }
+  
+  .typography-stat-large {
+    font-size: 2.5rem; /* 40px */
+  }
+  
+  .typography-stat-xl {
+    font-size: 3rem; /* 48px */
+  }
+  
+  .typography-metric-value {
+    font-size: 1.25rem; /* 20px */
+  }
+}
+
 @media (min-width: 768px) {
+  .typography-display {
+    font-size: 3rem; /* 48px */
+  }
+  
+  .typography-h1 {
+    font-size: 2.5rem; /* 40px */
+  }
+  
+  .typography-h2 {
+    font-size: 2rem; /* 32px */
+  }
+}
+
+@media (min-width: 1024px) {
   .typography-display {
     font-size: 4rem; /* 64px */
   }
