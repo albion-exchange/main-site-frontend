@@ -40,7 +40,7 @@
 	$: canProceed = () => {
 		return agreedToTerms && 
 			   investmentAmount > 0 && 
-			   investmentAmount <= (supply?.availableSupply || 0) && 
+			   investmentAmount <= (supply?.available || 0) && 
 			   !purchasing &&
 			   !isSoldOut();
 	};
@@ -73,7 +73,7 @@
 	}
 
 	function isSoldOut(): boolean {
-		return supply ? supply.availableSupply <= 0 : false;
+		return supply ? supply.available <= 0 : false;
 	}
 
 
@@ -260,7 +260,7 @@
 								type="number" 
 								bind:value={investmentAmount}
 								min={1}
-								max={supply?.availableSupply || 999999}
+								max={supply?.available || 999999}
 								class={amountInputClasses}
 								disabled={isSoldOut()}
 							/>
@@ -268,10 +268,10 @@
 								{#if isSoldOut()}
 									<span class={soldOutClasses}>Sold Out</span>
 								{:else}
-									<span>Available: {(supply?.availableSupply || 0).toLocaleString()} tokens</span>
+									<span>Available: {(supply?.available || 0).toLocaleString()} tokens</span>
 								{/if}
 							</div>
-							{#if !isSoldOut() && supply?.availableSupply && investmentAmount > supply.availableSupply}
+							{#if !isSoldOut() && supply?.available && investmentAmount > supply.available}
 								<div class={warningNoteClasses}>
 									Investment amount exceeds available supply.
 								</div>

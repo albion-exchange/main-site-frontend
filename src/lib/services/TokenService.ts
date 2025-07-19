@@ -194,7 +194,6 @@ class TokenService {
   getTokenSupply(tokenAddress: string): {
     total: number;
     available: number;
-    availableSupply: number;
     sold: number;
     percentageSold: number;
   } | null {
@@ -215,7 +214,6 @@ class TokenService {
     return {
       total,
       available,
-      availableSupply: available, // Add this for backward compatibility
       sold,
       percentageSold
     };
