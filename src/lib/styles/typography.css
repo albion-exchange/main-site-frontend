@@ -8,7 +8,7 @@
 /* Heading Hierarchy */
 .typography-display {
   font-family: 'Figtree', sans-serif;
-  font-size: 3rem; /* 48px */
+  font-size: 2.5rem; /* 40px */
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -16,7 +16,7 @@
 
 .typography-h1 {
   font-family: 'Figtree', sans-serif;
-  font-size: 2.5rem; /* 40px */
+  font-size: 2.25rem; /* 36px */
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.01em;
@@ -24,7 +24,7 @@
 
 .typography-h2 {
   font-family: 'Figtree', sans-serif;
-  font-size: 2rem; /* 32px */
+  font-size: 1.75rem; /* 28px */
   font-weight: 700;
   line-height: 1.25;
 }
