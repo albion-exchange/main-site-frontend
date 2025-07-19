@@ -4,11 +4,11 @@
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/components';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
-	import MetricDisplay from '$lib/components/components/MetricDisplay.svelte';
+
 	import TabButton from '$lib/components/components/TabButton.svelte';
 	import { PageLayout, ContentSection } from '$lib/components/layout';
 	import { getImageUrl } from '$lib/utils/imagePath';
-	import { formatCurrency } from '$lib/utils/formatters';
+	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
 	import { 
 		useAssetDetailData,
 		useDataExport, 
@@ -82,17 +82,7 @@
 		flippedCards = new Set(flippedCards); // Trigger reactivity
 	}
 
-	function formatEndDate(dateStr: string): string {
-		if (!dateStr || dateStr === 'undefined') return 'TBD';
-		const parts = dateStr.split('-');
-		if (parts.length < 2) return 'TBD';
-		const [year, month] = parts;
-		const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-						 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		const monthIndex = parseInt(month) - 1;
-		if (monthIndex < 0 || monthIndex >= 12) return 'TBD';
-		return `${monthNames[monthIndex]} ${year}`;
-	}
+
 
 	function exportProductionData() {
 		if (assetData) {
@@ -201,7 +191,7 @@
 		/>
 
 	<!-- Tabs Navigation and Content -->
-		<ContentSection background="white" padding="compact" maxWidth={false}>
+		<ContentSection background="white" padding="compact">
 			<div class="bg-white border border-light-gray mb-8" id="asset-details-tabs">
 			<div class="flex flex-wrap border-b border-light-gray">
 				<TabButton
@@ -524,10 +514,9 @@
 		</ContentSection>
 
 		<!-- Available Tokens Section -->
-		<ContentSection background="white" padding="none">
-			<div class="max-w-6xl mx-auto px-8">
-			<div class="bg-white border border-light-gray section-no-border">
-				<div class="py-12">
+		<ContentSection background="white" padding="compact">
+			<div class="bg-white border border-light-gray section-no-border" id="token-section">
+				<div class="py-6">
 					<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 					{#each assetTokens as token}
@@ -754,7 +743,6 @@
 				</div>
 				</div>
 			</div>
-		</div>
 		</ContentSection>
 
 		<!-- Token Purchase Widget -->

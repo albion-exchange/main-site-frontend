@@ -5,8 +5,8 @@
 	import type { Asset } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/patterns/WalletModal.svelte';
-	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, StatsCard, MetricDisplay, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard } from '$lib/components/components';
-	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard } from '$lib/components/components';
+	import { PageLayout, HeroSection, ContentSection, FullWidthSection, StatsSection } from '$lib/components/layout';
 	import { formatCurrency } from '$lib/utils/formatters';
 	import { dateUtils } from '$lib/utils/dateHelpers';
 	import { arrayUtils } from '$lib/utils/arrayHelpers';
@@ -20,7 +20,7 @@
 	let loading = true;
 	let claiming = false;
 	let claimSuccess = false;
-	let selectedAssets: string[] = [];
+
 	let claimMethod = 'wallet';
 	let showWalletModal = false;
 	let estimatedGas = 0;
@@ -31,6 +31,7 @@
 	const itemsPerPage = 20;
 	let showClaimModal = false;
 	let claimModalMode: 'claim' | 'reinvest' = 'claim';
+	let claimAssets: string[] = [];
 
 	function loadClaimsData() {
 		try {
@@ -129,26 +130,8 @@
 		});
 	}
 
-	function handleAssetSelect(assetId: string) {
-		if (selectedAssets.includes(assetId)) {
-			selectedAssets = selectedAssets.filter(id => id !== assetId);
-		} else {
-			selectedAssets = [...selectedAssets, assetId];
-		}
-	}
-
-	function handleSelectAll() {
-		if (selectedAssets.length === holdings.length) {
-			selectedAssets = [];
-		} else {
-			selectedAssets = holdings.map(holding => holding.id);
-		}
-	}
-
-	function getSelectedAmount(): number {
-		return holdings
-			.filter(holding => selectedAssets.includes(holding.id))
-			.reduce((sum, holding) => sum + holding.unclaimedAmount, 0);
+	function handleClaimSingle(assetId: string) {
+		handleClaimWithModal('claim', [assetId]);
 	}
 
 	async function handleClaim() {
@@ -159,11 +142,20 @@
 			// Simulate claim transaction
 			await new Promise(resolve => setTimeout(resolve, 2000));
 			
-			const claimedAmount = getSelectedAmount() || unclaimedPayout;
+			// Calculate claimed amount from selected assets
+			let claimedAmount = 0;
+			if (claimAssets.length > 0) {
+				claimedAmount = holdings
+					.filter(holding => claimAssets.includes(holding.id))
+					.reduce((sum, holding) => sum + holding.unclaimedAmount, 0);
+			} else {
+				claimedAmount = unclaimedPayout;
+			}
+			
 			totalClaimed += claimedAmount;
 			unclaimedPayout = Math.max(0, unclaimedPayout - claimedAmount);
 			
-			selectedAssets = [];
+			claimAssets = [];
 			claimSuccess = true;
 			
 			// Reset success message after 3 seconds
@@ -219,9 +211,16 @@
 		URL.revokeObjectURL(url);
 	}
 	
-	async function handleClaimWithModal(mode: 'claim' | 'reinvest' = 'claim') {
+	async function handleClaimWithModal(mode: 'claim' | 'reinvest' = 'claim', assetIds?: string[]) {
 		claimModalMode = mode;
 		showClaimModal = true;
+		// Store which assets to claim
+		if (assetIds) {
+			claimAssets = assetIds;
+		} else {
+			// Claim all assets
+			claimAssets = [];
+		}
 	}
 	
 	async function confirmClaim() {
@@ -277,52 +276,53 @@
 		subtitle="Claim your investment earnings and track your payout history."
 		showBorder={true}
 		showButtons={false}
-		className="py-12"
-	>
-		<!-- Platform Stats -->
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto mt-2 px-8">
-			{#if loading}
-				<StatsCard
-					title="Total Earned"
-					value="--"
-					subtitle="Loading..."
-					size="large"
-				/>
-				<StatsCard
-					title="Total Claimed"
-					value="--"
-					subtitle="Loading..."
-					size="large"
-				/>
-				<StatsCard
-					title="Available to Claim"
-					value="--"
-					subtitle="Loading..."
-					size="large"
-				/>
-			{:else}
-				<StatsCard
-					title="Total Earned"
-					value={formatCurrency(totalEarned)}
-					subtitle="All time earnings"
-					size="large"
-				/>
-				<StatsCard
-					title="Total Claimed"
-					value={formatCurrency(totalClaimed)}
-					subtitle="Successfully withdrawn"
-					size="large"
-				/>
-				<StatsCard
-					title="Available to Claim"
-					value={formatCurrency(unclaimedPayout)}
-					subtitle="Ready for withdrawal"
-					valueColor="primary"
-					size="large"
-				/>
-			{/if}
+	></HeroSection>
+
+	<!-- Platform Stats -->
+	<ContentSection background="white" padding="compact">
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+		{#if loading}
+			<StatsCard
+				title="Total Earned"
+				value="--"
+				subtitle="Loading..."
+				size="large"
+			/>
+			<StatsCard
+				title="Total Claimed"
+				value="--"
+				subtitle="Loading..."
+				size="large"
+			/>
+			<StatsCard
+				title="Available to Claim"
+				value="--"
+				subtitle="Loading..."
+				size="large"
+			/>
+		{:else}
+			<StatsCard
+				title="Total Earned"
+				value={formatCurrency(totalEarned)}
+				subtitle="All time earnings"
+				size="large"
+			/>
+			<StatsCard
+				title="Total Claimed"
+				value={formatCurrency(totalClaimed)}
+				subtitle="Successfully withdrawn"
+				size="large"
+			/>
+			<StatsCard
+				title="Available to Claim"
+				value={formatCurrency(unclaimedPayout)}
+				subtitle="Ready for withdrawal"
+				valueColor="primary"
+				size="large"
+			/>
+		{/if}
 		</div>
-	</HeroSection>
+	</ContentSection>
 
 	{#if !loading}
 		<!-- Success Message -->
@@ -385,46 +385,17 @@
 		</FullWidthSection>
 
 		<!-- Asset-by-Asset Claiming -->
-		<ContentSection background="white" padding="compact" maxWidth={false}>
-			<div class="max-w-6xl mx-auto px-8">
-			<div class="flex justify-between items-center mb-6">
+		<ContentSection background="white" padding="compact">
+			<div class="mb-6">
 				<SectionTitle level="h2" size="section">Claim by Asset</SectionTitle>
-				<div class="flex gap-4">
-					<SecondaryButton
-						size="small"
-						on:click={handleSelectAll}
-					>
-						{selectedAssets.length === holdings.length ? 'Deselect All' : 'Select All'}
-					</SecondaryButton>
-					{#if selectedAssets.length > 0}
-						<PrimaryButton
-							size="small"
-							on:click={() => handleClaimWithModal('claim')}
-							disabled={claiming}
-						>
-							{#if claiming}
-								Claiming...
-							{:else}
-								Claim Selected {formatCurrency(getSelectedAmount())}
-							{/if}
-						</PrimaryButton>
-					{/if}
-				</div>
 			</div>
 
 			<div class="space-y-4">
 				{#each holdings as holding}
-					<div class="{selectedAssets.includes(holding.id) ? 'ring-2 ring-primary rounded-lg' : ''}">
-						<Card hoverable showBorder>
-							<CardContent paddingClass="p-6">
+					<Card hoverable showBorder>
+						<CardContent paddingClass="p-6">
 							<div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
 								<div class="flex items-center gap-4">
-									<input 
-										type="checkbox" 
-										class="w-4 h-4"
-										checked={selectedAssets.includes(holding.id)}
-										on:change={() => handleAssetSelect(holding.id)}
-									/>
 									<div>
 										<div class="font-extrabold text-black text-sm">{holding.name}</div>
 										<div class="text-xs text-black opacity-70">{holding.location}</div>
@@ -448,14 +419,12 @@
 									<div class="text-xs text-black opacity-60 mt-1">Last payout: {holding.lastPayout ? formatDate(holding.lastPayout) : 'Never'}</div>
 								</div>
 								<div class="text-center">
-									<SecondaryButton size="small" on:click={() => handleAssetSelect(holding.id)}>Claim</SecondaryButton>
+									<SecondaryButton size="small" on:click={() => handleClaimSingle(holding.id)}>Claim</SecondaryButton>
 								</div>
 							</div>
 						</CardContent>
 					</Card>
-					</div>
 				{/each}
-			</div>
 			</div>
 		</ContentSection>
 
@@ -501,8 +470,7 @@
 		</FullWidthSection>
 
 		<!-- Claim History -->
-		<ContentSection background="white" padding="compact" maxWidth={false}>
-			<div class="max-w-6xl mx-auto px-8">
+		<ContentSection background="white" padding="compact">
 			<div class="flex justify-between items-center mb-6">
 				<SectionTitle level="h2" size="section">Claim History</SectionTitle>
 				<SecondaryButton size="small" on:click={() => exportClaimHistory()}>📊 Export History</SecondaryButton>
@@ -581,7 +549,6 @@
 					<span class="w-8 h-8 text-sm text-black border border-light-gray rounded bg-light-gray flex items-center justify-center">1</span>
 				</div>
 			{/if}
-			</div>
 		</ContentSection>
 	{/if}
 </PageLayout>

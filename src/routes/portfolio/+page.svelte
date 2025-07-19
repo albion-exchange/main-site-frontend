@@ -5,7 +5,7 @@
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/patterns/WalletModal.svelte';
-	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, TabNavigation, MetricDisplay, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart } from '$lib/components/components';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, TabNavigation, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
 	import { formatCurrency, formatPercentage, formatNumber } from '$lib/utils/formatters';
 	import { useTooltip, useCardFlip } from '$lib/composables';
@@ -272,7 +272,7 @@
 	</HeroSection>
 
 	<!-- Portfolio Tabs -->
-	<ContentSection background="white" padding="compact" maxWidth={false}>
+	<ContentSection background="white" padding="compact">
 		<div class="bg-white border border-light-gray mb-8">
 			<div class="flex flex-wrap border-b border-light-gray">
 				<TabButton

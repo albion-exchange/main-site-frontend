@@ -1,24 +1,14 @@
 <script lang="ts">
 	import type { Asset } from '$lib/types/uiTypes';
 	import { getImageUrl } from '$lib/utils/imagePath';
-	import { formatCurrency } from '$lib/utils/formatters';
-	import MetricDisplay from '$lib/components/components/MetricDisplay.svelte';
+	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
+	import { StatsCard } from '$lib/components/components';
 
 	export let asset: Asset;
 	export let tokenCount: number = 0;
 	export let onTokenSectionClick: (() => void) | undefined = undefined;
 
-	function formatEndDate(dateStr: string): string {
-		if (!dateStr || dateStr === 'undefined') return 'TBD';
-		const parts = dateStr.split('-');
-		if (parts.length < 2) return 'TBD';
-		const [year, month] = parts;
-		const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-						 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		const monthIndex = parseInt(month) - 1;
-		if (monthIndex < 0 || monthIndex >= 12) return 'TBD';
-		return `${monthNames[monthIndex]} ${year}`;
-	}
+
 
 	function getAssetImage(assetData: Asset | null): string {
 		return assetData?.coverImage || '/images/eur-wr-cover.jpg';
@@ -50,9 +40,9 @@
 					</div>
 					<div class="flex-1">
 						<div class="flex justify-between items-start gap-4 mb-4">
-							<h1 class="text-4xl md:text-5xl font-extrabold text-black uppercase tracking-tight m-0">{asset?.name}</h1>
+							<h1 class="typography-display text-black uppercase tracking-tight m-0">{asset?.name}</h1>
 							<div class="flex flex-col items-end gap-2 flex-shrink-0">
-								<div class="text-xs font-medium text-black uppercase tracking-wider">Share this investment:</div>
+								<div class="typography-label text-black">Share this investment:</div>
 								<div class="flex gap-2">
 									<button class="flex items-center justify-center w-8 h-8 bg-white border border-light-gray text-black cursor-pointer transition-all duration-200 rounded hover:bg-light-gray hover:border-secondary hover:text-secondary" title="Share asset on Twitter" aria-label="Share asset on Twitter" on:click={() => window.open(`https://twitter.com/intent/tweet?text=Check out this energy investment opportunity: ${asset?.name} on @Albion&url=${encodeURIComponent(window.location.href)}`, '_blank')}>
 										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -95,35 +85,35 @@
 				</div>
 			</div>
 
-			<div class="grid md:grid-cols-3 grid-cols-1 gap-8 mb-8">
-				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4">
-					<MetricDisplay
-						value={asset?.production?.current || '0'}
-						label="Current Production"
-						size="large"
-					/>
-				</div>
-				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4">
-					<MetricDisplay
-						value={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.netIncome 
-							? formatCurrency(asset.monthlyReports[asset.monthlyReports.length - 1].netIncome)
-							: '$0'}
-						label="Last Monthly Revenue"
-						note={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.month 
-							? formatEndDate(asset.monthlyReports[asset.monthlyReports.length - 1].month + '-01')
-							: 'N/A'}
-						size="large"
-					/>
-				</div>
-				<div class="text-center md:pr-8 pr-0 md:border-r border-r-0 md:border-b-0 border-b border-light-gray md:last:border-r-0 last:border-b-0 md:last:pr-0 last:pb-0 md:pb-0 pb-4 cursor-pointer transition-all duration-200 rounded border-2 border-light-gray bg-white shadow-sm hover:bg-light-gray hover:-translate-y-1 hover:border-primary hover:shadow-card-hover focus:outline-none focus:border-primary focus:bg-light-gray focus:shadow-card-hover" 
-					 on:click={onTokenSectionClick} 
-					 on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTokenSectionClick?.(); } }} 
-					 role="button" 
-					 tabindex="0">
-					<MetricDisplay
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center mb-8">
+				<StatsCard
+					title="Current Production"
+					value={asset?.production?.current || '0'}
+					subtitle="BOE/day"
+					size="large"
+				/>
+				<StatsCard
+					title="Last Monthly Revenue"
+					value={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.netIncome 
+						? formatCurrency(asset.monthlyReports[asset.monthlyReports.length - 1].netIncome)
+						: '$0'}
+					subtitle={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.month 
+						? formatEndDate(asset.monthlyReports[asset.monthlyReports.length - 1].month + '-01')
+						: 'N/A'}
+					size="large"
+					valueColor="primary"
+				/>
+				<div 
+					class="cursor-pointer transition-all duration-200 rounded hover:-translate-y-1 hover:shadow-lg" 
+					on:click={onTokenSectionClick} 
+					on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTokenSectionClick?.(); } }} 
+					role="button" 
+					tabindex="0"
+				>
+					<StatsCard
+						title="Available Tokens"
 						value={tokenCount.toString()}
-						label="Available Tokens"
-						note="👆 Click to view tokens"
+						subtitle="👆 Click to view tokens"
 						size="large"
 					/>
 				</div>

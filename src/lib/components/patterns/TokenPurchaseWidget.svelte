@@ -34,15 +34,13 @@
 
 	$: order = {
 		investment: investmentAmount,
-		platformFee: investmentAmount * configService.getPlatformFee(),
-		totalCost: investmentAmount + (investmentAmount * configService.getPlatformFee()),
 		tokens: investmentAmount // 1:1 ratio for simplicity
 	};
 
 	$: canProceed = () => {
 		return agreedToTerms && 
 			   investmentAmount > 0 && 
-			   investmentAmount <= (supply?.availableSupply || 0) && 
+			   investmentAmount <= (supply?.available || 0) && 
 			   !purchasing &&
 			   !isSoldOut();
 	};
@@ -75,7 +73,7 @@
 	}
 
 	function isSoldOut(): boolean {
-		return supply ? supply.availableSupply <= 0 : false;
+		return supply ? supply.available <= 0 : false;
 	}
 
 
@@ -160,7 +158,7 @@
 	$: detailValueClasses = 'text-lg font-bold text-secondary';
 	$: formSectionClasses = 'flex flex-col gap-2';
 	$: formLabelClasses = 'font-medium text-black text-sm';
-	$: amountInputClasses = 'p-4 border-2 border-light-gray text-lg transition-colors duration-200 focus:outline-none focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed';
+	$: amountInputClasses = 'p-4 border-2 border-light-gray text-lg text-left transition-colors duration-200 focus:outline-none focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed';
 	$: availableTokensClasses = 'mt-2 text-sm text-secondary font-medium';
 	$: soldOutClasses = 'text-red-600';
 	$: warningNoteClasses = 'text-sm text-orange-600 bg-orange-50 p-2 mt-2';
@@ -262,7 +260,7 @@
 								type="number" 
 								bind:value={investmentAmount}
 								min={1}
-								max={supply?.availableSupply || 999999}
+								max={supply?.available || 999999}
 								class={amountInputClasses}
 								disabled={isSoldOut()}
 							/>
@@ -270,10 +268,10 @@
 								{#if isSoldOut()}
 									<span class={soldOutClasses}>Sold Out</span>
 								{:else}
-									<span>Available: {(supply?.availableSupply || 0).toLocaleString()} tokens</span>
+									<span>Available: {(supply?.available || 0).toLocaleString()} tokens</span>
 								{/if}
 							</div>
-							{#if !isSoldOut() && supply?.availableSupply && investmentAmount > supply.availableSupply}
+							{#if !isSoldOut() && supply?.available && investmentAmount > supply.available}
 								<div class={warningNoteClasses}>
 									Investment amount exceeds available supply.
 								</div>
@@ -282,20 +280,9 @@
 
 						<!-- Order Summary -->
 						<div class={orderSummaryClasses}>
-							<h4 class={orderSummaryTitleClasses}>Order Summary</h4>
-							<div class={summaryDetailsClasses}>
-								<div class={summaryRowClasses}>
-									<span>Investment Amount</span>
-									<span>{formatCurrency(investmentAmount, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-								</div>
-								<div class={summaryRowClasses}>
-									<span>Platform Fee <span class={strikethroughClasses}>(0.5%)</span></span>
-									<span class={freeTextClasses}>FREE</span>
-								</div>
-								<div class={summaryTotalClasses}>
-									<span>Total Cost</span>
-									<span>{formatCurrency(order.totalCost, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-								</div>
+							<h4 class={orderSummaryTitleClasses}>Investment Amount</h4>
+							<div class="text-center">
+								<span class="text-2xl font-extrabold text-black">{formatCurrency(investmentAmount, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
 							</div>
 						</div>
 

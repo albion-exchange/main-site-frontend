@@ -60,7 +60,7 @@
 	$: footerContainerClasses = 'max-w-6xl mx-auto px-8 pt-12 pb-4';
 	$: footerContentClasses = 'grid grid-cols-1 lg:grid-cols-[2fr_1fr_1fr_1.5fr] gap-12 mb-8';
 	$: footerLogoClasses = 'h-10 mb-4';
-	$: footerSectionH4Classes = 'text-base font-extrabold mb-4 text-black';
+	$: footerSectionH4Classes = 'typography-h6 mb-4 text-black';
 	$: footerSectionPClasses = 'text-black leading-relaxed';
 	$: footerSectionUlClasses = 'list-none p-0';
 	$: footerSectionLiClasses = 'mb-2';
@@ -163,7 +163,7 @@
 					<p class="text-black leading-relaxed">Tokenized oil field investments</p>
 				</div>
 				<div>
-					<h4 class="text-base font-extrabold mb-4 text-black">Platform</h4>
+					<h4 class={footerSectionH4Classes}>Platform</h4>
 					<ul class="list-none p-0">
 						<li class="mb-2"><a href="/assets" class="text-black no-underline transition-colors duration-200 hover:text-primary">Browse Assets</a></li>
 						<li class="mb-2"><a href="/portfolio" class="text-black no-underline transition-colors duration-200 hover:text-primary">Portfolio</a></li>
@@ -171,7 +171,7 @@
 					</ul>
 				</div>
 				<div>
-					<h4 class="text-base font-extrabold mb-4 text-black">Company</h4>
+					<h4 class={footerSectionH4Classes}>Company</h4>
 					<ul class="list-none p-0">
 						<li class="mb-2"><a href="/about" class="text-black no-underline transition-colors duration-200 hover:text-primary">About</a></li>
 						<li class="mb-2"><a href="/contact" class="text-black no-underline transition-colors duration-200 hover:text-primary">Contact</a></li>
@@ -179,7 +179,7 @@
 					</ul>
 				</div>
 				<div>
-					<h4 class="text-base font-extrabold mb-4 text-black">Stay Connected</h4>
+					<h4 class={footerSectionH4Classes}>Stay Connected</h4>
 					<p class="text-black leading-relaxed">Follow Albion for the latest updates on energy investments and platform news</p>
 					<div class="flex lg:gap-4 gap-3 mt-4 lg:justify-start justify-center">
 						<a href="https://twitter.com/albion" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-black text-black no-underline transition-colors duration-200 hover:border-[#1da1f2] hover:text-[#1da1f2]" aria-label="Follow Albion on Twitter">

@@ -32,7 +32,7 @@
 	$: backdropClasses = 'fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-4';
 	$: modalClasses = 'bg-white border-2 border-black w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl';
 	$: headerClasses = 'flex justify-between items-center px-8 py-6 border-b border-light-gray';
-	$: titleClasses = 'text-2xl font-extrabold text-black uppercase tracking-wide';
+	$: titleClasses = 'typography-h2 text-black uppercase tracking-wide';
 	$: closeClasses = 'bg-transparent border-none text-3xl text-black cursor-pointer w-10 h-10 flex items-center justify-center hover:text-primary transition-colors duration-200';
 	$: bodyClasses = 'p-8';
 	$: footerClasses = 'px-8 py-6 border-t border-light-gray';
