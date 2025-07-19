@@ -59,16 +59,19 @@ export function formatCurrency(
  * @returns Formatted date string (e.g., "Jan 2024")
  */
 export function formatEndDate(dateStr: string): string {
-  if (!dateStr) return 'TBD';
+  if (!dateStr || dateStr === 'undefined') return 'TBD';
   
-  const [year, month] = dateStr.split('-');
+  const parts = dateStr.split('-');
+  if (parts.length < 2) return 'TBD';
+  
+  const [year, month] = parts;
   const monthNames = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
   
   const monthIndex = parseInt(month) - 1;
-  if (monthIndex < 0 || monthIndex > 11) return 'Invalid Date';
+  if (monthIndex < 0 || monthIndex >= 12) return 'TBD';
   
   return `${monthNames[monthIndex]} ${year}`;
 }
