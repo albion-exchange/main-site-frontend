@@ -17,8 +17,6 @@ export { default as FormField } from "./FormField.svelte";
 export { default as GridContainer } from "./GridContainer.svelte";
 export { default as IconCard } from "./IconCard.svelte";
 export { default as Label } from "./Label.svelte";
-
-export { default as Metric } from "./Metric.svelte";
 export { default as Modal } from "./Modal.svelte";
 export { default as PageHeader } from "./PageHeader.svelte";
 export { default as PieChart } from "./PieChart.svelte";

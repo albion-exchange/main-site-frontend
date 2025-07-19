@@ -8,7 +8,7 @@
 	import TabButton from '$lib/components/components/TabButton.svelte';
 	import { PageLayout, ContentSection } from '$lib/components/layout';
 	import { getImageUrl } from '$lib/utils/imagePath';
-	import { formatCurrency } from '$lib/utils/formatters';
+	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
 	import { 
 		useAssetDetailData,
 		useDataExport, 
@@ -82,17 +82,7 @@
 		flippedCards = new Set(flippedCards); // Trigger reactivity
 	}
 
-	function formatEndDate(dateStr: string): string {
-		if (!dateStr || dateStr === 'undefined') return 'TBD';
-		const parts = dateStr.split('-');
-		if (parts.length < 2) return 'TBD';
-		const [year, month] = parts;
-		const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-						 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		const monthIndex = parseInt(month) - 1;
-		if (monthIndex < 0 || monthIndex >= 12) return 'TBD';
-		return `${monthNames[monthIndex]} ${year}`;
-	}
+
 
 	function exportProductionData() {
 		if (assetData) {

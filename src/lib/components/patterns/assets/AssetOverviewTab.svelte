@@ -1,23 +1,14 @@
 <script lang="ts">
 	import type { Asset } from '$lib/types/uiTypes';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
+	import { formatEndDate } from '$lib/utils/formatters';
 	import { useTooltip } from '$lib/composables';
 
 	export let asset: Asset;
 
 	const { showTooltipWithDelay, hideTooltip, showTooltip } = useTooltip();
 
-	function formatEndDate(dateStr: string): string {
-		if (!dateStr || dateStr === 'undefined') return 'TBD';
-		const parts = dateStr.split('-');
-		if (parts.length < 2) return 'TBD';
-		const [year, month] = parts;
-		const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-						 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		const monthIndex = parseInt(month) - 1;
-		if (monthIndex < 0 || monthIndex >= 12) return 'TBD';
-		return `${monthNames[monthIndex]} ${year}`;
-	}
+
 
 	function formatPricing(benchmarkPremium: string): string {
 		if (benchmarkPremium.startsWith('-')) {
