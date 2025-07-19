@@ -101,7 +101,7 @@
 				// Calculate cumulative production from token data, not asset production history
 				let cumulativeProduction = 0;
 				
-				// Find tokens for this asset and sum their monthlyData production
+				// Find tokens for this asset and sum their payoutHistory production
 				const assetTokens = allTokens.filter(token => token.assetId === asset.id);
 				
 				if (assetTokens.length > 0) {

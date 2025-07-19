@@ -11,85 +11,46 @@
     "maxSupply": "199999999999999970000000",
     "mintedSupply": "175000000000000000000000"
   },
-  "monthlyData": [
+  "payoutData": [
     {
       "month": "2025-06",
-      "assetData": {
-        "production": 310.5,
-        "revenue": 21735,
-        "expenses": 0,
-        "netIncome": 21735
-      },
       "tokenPayout": {
         "date": "2025-06-15T00:00:00.000Z",
         "totalPayout": 2608.2,
         "payoutPerToken": 0.0149,
         "txHash": "0xffffffffffffffffffffffffe3f69f84bc1bbe85"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     },
     {
       "month": "2025-05",
-      "assetData": {
-        "production": 325.2,
-        "revenue": 22764,
-        "expenses": 0,
-        "netIncome": 22764
-      },
       "tokenPayout": {
         "date": "2025-05-15T00:00:00.000Z",
         "totalPayout": 2731.7,
         "payoutPerToken": 0.01561,
         "txHash": "0x00000000000000000000000073743d2ec162a90f"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     },
     {
       "month": "2025-04",
-      "assetData": {
-        "production": 298.7,
-        "revenue": 20909,
-        "expenses": 0,
-        "netIncome": 20909
-      },
       "tokenPayout": {
         "date": "2025-04-15T00:00:00.000Z",
         "totalPayout": 2509.1,
         "payoutPerToken": 0.01434,
         "txHash": "0xffffffffffffffffffffffffe926257321c820a5"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     },
     {
       "month": "2025-03",
-      "assetData": {
-        "production": 315.8,
-        "revenue": 22106,
-        "expenses": 0,
-        "netIncome": 22106
-      },
       "tokenPayout": {
         "date": "2025-03-15T00:00:00.000Z",
         "totalPayout": 2652.7,
         "payoutPerToken": 0.01516,
         "txHash": "0x000000000000000000000000246327b97a60bbd4"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     }
   ],
   "asset": {
+    "assetName": "Wressle-1 Royalty Stream",
     "description": "Onshore conventional oil field located in the North Sea Sector 7B with proven reserves and established infrastructure.",
     "location": {
       "state": "East Midlands",
@@ -99,7 +60,7 @@
         "lat": 53.2,
         "lng": 0.2
       },
-      "waterDepth": "0m"
+      "waterDepth": 0
     },
     "operator": {
       "name": "Egdon Resources",
@@ -269,7 +230,102 @@
         }
       ]
     },
-    "productionHistory": [
+    "operationalMetrics": {
+      "uptime": {
+        "percentage": 99.8,
+        "unit": "percent",
+        "period": "last_30_days"
+      },
+      "dailyProduction": {
+        "current": 304,
+        "target": 310,
+        "unit": "boe"
+      },
+      "hseMetrics": {
+        "incidentFreeDays": 407,
+        "lastIncidentDate": "2023-12-15T00:00:00.000Z",
+        "safetyRating": "Excellent"
+      }
+    },
+    "coverImage": "/images/eur-wr-cover.jpg",
+    "galleryImages": [
+      {
+        "title": "Wellhead Infrastructure",
+        "url": "/images/eur-wr-wellhead-1.jpg",
+        "caption": "Primary wellhead and safety equipment at the Wressle production site"
+      },
+      {
+        "title": "Production Equipment",
+        "url": "/images/eur-wr-wellhead-2.jpg",
+        "caption": "Secondary production equipment and monitoring systems"
+      },
+      {
+        "title": "Site Overview",
+        "url": "/images/eur-wr-site-overview.jpg",
+        "caption": "Aerial view of the entire Wressle production facility"
+      },
+      {
+        "title": "Processing Infrastructure",
+        "url": "/images/eur-wr-infrastructure.jpg",
+        "caption": "Oil processing and storage infrastructure on site"
+      }
+    ],
+    "documents": [],
+    "receiptsData": [
+      {
+        "month": "2025-06",
+        "assetData": {
+          "production": 310.5,
+          "revenue": 21735,
+          "expenses": 0,
+          "netIncome": 21735
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-05",
+        "assetData": {
+          "production": 325.2,
+          "revenue": 22764,
+          "expenses": 0,
+          "netIncome": 22764
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-04",
+        "assetData": {
+          "production": 298.7,
+          "revenue": 20909,
+          "expenses": 0,
+          "netIncome": 20909
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-03",
+        "assetData": {
+          "production": 315.8,
+          "revenue": 22106,
+          "expenses": 0,
+          "netIncome": 22106
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      }
+    ],
+    "historicalProduction": [
       {
         "month": "2022-03",
         "production": 1056.24
@@ -402,49 +458,7 @@
         "month": "2024-11",
         "production": 435.78
       }
-    ],
-    "operationalMetrics": {
-      "uptime": {
-        "percentage": 99.8,
-        "unit": "percent",
-        "period": "last_30_days"
-      },
-      "dailyProduction": {
-        "current": 304,
-        "target": 310,
-        "unit": "boe"
-      },
-      "hseMetrics": {
-        "incidentFreeDays": 407,
-        "lastIncidentDate": "2023-12-15T00:00:00.000Z",
-        "safetyRating": "Excellent"
-      }
-    },
-    "assetName": "Wressle-1 Royalty Stream",
-    "coverImage": "/images/eur-wr-cover.jpg",
-    "galleryImages": [
-      {
-        "title": "Wellhead Infrastructure",
-        "url": "/images/eur-wr-wellhead-1.jpg",
-        "caption": "Primary wellhead and safety equipment at the Wressle production site"
-      },
-      {
-        "title": "Production Equipment",
-        "url": "/images/eur-wr-wellhead-2.jpg",
-        "caption": "Secondary production equipment and monitoring systems"
-      },
-      {
-        "title": "Site Overview",
-        "url": "/images/eur-wr-site-overview.jpg",
-        "caption": "Aerial view of the entire Wressle production facility"
-      },
-      {
-        "title": "Processing Infrastructure",
-        "url": "/images/eur-wr-infrastructure.jpg",
-        "caption": "Oil processing and storage infrastructure on site"
-      }
-    ],
-    "documents": []
+    ]
   },
   "metadata": {
     "createdAt": "2024-05-10T14:20:00.000Z",

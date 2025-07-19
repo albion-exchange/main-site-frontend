@@ -16,7 +16,8 @@
 import type { 
   AssetData, 
   TokenMetadata, 
-  MonthlyData
+  PayoutData,
+  ReceiptsData
 } from './MetaboardTypes';
 import { ProductionStatus as MetaboardProductionStatus } from './MetaboardTypes';
 import type { 
@@ -245,7 +246,7 @@ export class TypeTransformations {
       }
     },
 
-    monthlyData(data: MonthlyData): Core.MonthlyReport {
+    receiptsData(data: ReceiptsData): Core.MonthlyReport {
       return {
         month: new Date(data.month + '-01'),
         production: data.assetData.production,
@@ -470,7 +471,7 @@ export class TypeTransformations {
   /**
    * Convenience method: Transform AssetData directly to UI Asset
    */
-  static assetToUI(assetData: AssetData, assetId?: string, monthlyData?: any[]): UIAsset {
+  static assetToUI(assetData: AssetData, assetId?: string, receiptsData?: any[]): UIAsset {
     const coreAsset = this.apiToCore.assetData(assetData);
     const fullCoreAsset: Core.Asset = {
       id: assetId || assetData.assetName?.toLowerCase().replace(/\s+/g, '-') || 'unknown-asset',
@@ -485,7 +486,7 @@ export class TypeTransformations {
         expectedRemainingProduction: null, // Set below from planned production
         expectedEndDate: null // Set from technical.expectedEndDate
       },
-      monthlyReports: [] // Populated below from productionHistory
+      monthlyReports: [] // Populated below from receiptsData
     };
     const uiAsset = this.coreToUI(fullCoreAsset);
     // Add the missing fields from assetData
@@ -493,9 +494,9 @@ export class TypeTransformations {
     uiAsset.coverImage = assetData.coverImage || '';
     uiAsset.galleryImages = assetData.galleryImages || [];
     
-    // Map monthly reports from monthlyData parameter (which contains actual payout data from tokens)
-    if (monthlyData && monthlyData.length > 0) {
-      uiAsset.monthlyReports = monthlyData.map(data => {
+    // Map monthly reports from receiptsData parameter (which contains actual payout data from tokens)
+    if (receiptsData && receiptsData.length > 0) {
+      uiAsset.monthlyReports = receiptsData.map(data => {
         const report = {
           month: data.month,
           production: data.assetData.production,
@@ -510,8 +511,8 @@ export class TypeTransformations {
     // No fallback to productionHistory - monthlyReports should only contain payment data
     
     // Set productionHistory for the production tab
-    if (assetData.productionHistory && assetData.productionHistory.length > 0) {
-      uiAsset.productionHistory = assetData.productionHistory.map(record => ({
+    if (assetData.historicalProduction && assetData.historicalProduction.length > 0) {
+      uiAsset.productionHistory = assetData.historicalProduction.map(record => ({
         month: record.month,
         production: record.production || 0
       }));
@@ -585,16 +586,20 @@ export class TypeTransformations {
         mintedSupply: Number(BigInt(tokenData.supply.mintedSupply) / BigInt(10 ** tokenData.decimals))
       },
       holders: [], // Will be populated by service layer
-      payoutHistory: tokenData.monthlyData?.map(data => ({
-        month: data.month,
-        date: data.tokenPayout.date.split('T')[0] as any, // Convert to YYYY-MM-DD format
-        totalPayout: data.tokenPayout.totalPayout,
-        payoutPerToken: data.tokenPayout.payoutPerToken,
-        oilPrice: data.realisedPrice.oilPrice,
-        gasPrice: data.realisedPrice.gasPrice,
-        productionVolume: data.assetData.production,
-        txHash: data.tokenPayout.txHash
-      })) || [],
+      payoutHistory: tokenData.payoutData?.map(payout => {
+        // Find corresponding receipts data for oil/gas prices and production volume
+        const receipts = tokenData.asset.receiptsData?.find(r => r.month === payout.month);
+        return {
+          month: payout.month,
+          date: payout.tokenPayout.date.split('T')[0] as any, // Convert to YYYY-MM-DD format
+          totalPayout: payout.tokenPayout.totalPayout,
+          payoutPerToken: payout.tokenPayout.payoutPerToken,
+          oilPrice: receipts?.realisedPrice.oilPrice || 0,
+          gasPrice: receipts?.realisedPrice.gasPrice || 0,
+          productionVolume: receipts?.assetData.production || 0,
+          txHash: payout.tokenPayout.txHash
+        };
+      }) || [],
       sharePercentage: tokenData.sharePercentage,
       firstPaymentDate: tokenData.firstPaymentDate,
       metadata: {
