@@ -158,7 +158,7 @@
 	$: detailValueClasses = 'text-lg font-bold text-secondary';
 	$: formSectionClasses = 'flex flex-col gap-2';
 	$: formLabelClasses = 'font-medium text-black text-sm';
-	$: amountInputClasses = 'p-4 border-2 border-light-gray text-lg transition-colors duration-200 focus:outline-none focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed';
+	$: amountInputClasses = 'p-4 border-2 border-light-gray text-lg text-left transition-colors duration-200 focus:outline-none focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed';
 	$: availableTokensClasses = 'mt-2 text-sm text-secondary font-medium';
 	$: soldOutClasses = 'text-red-600';
 	$: warningNoteClasses = 'text-sm text-orange-600 bg-orange-50 p-2 mt-2';
