@@ -4,7 +4,7 @@
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/components';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
-	import MetricDisplay from '$lib/components/components/MetricDisplay.svelte';
+
 	import TabButton from '$lib/components/components/TabButton.svelte';
 	import { PageLayout, ContentSection } from '$lib/components/layout';
 	import { getImageUrl } from '$lib/utils/imagePath';
@@ -201,7 +201,7 @@
 		/>
 
 	<!-- Tabs Navigation and Content -->
-		<ContentSection background="white" padding="compact" maxWidth={false}>
+		<ContentSection background="white" padding="compact">
 			<div class="bg-white border border-light-gray mb-8" id="asset-details-tabs">
 			<div class="flex flex-wrap border-b border-light-gray">
 				<TabButton
@@ -524,10 +524,9 @@
 		</ContentSection>
 
 		<!-- Available Tokens Section -->
-		<ContentSection background="white" padding="none">
-			<div class="max-w-6xl mx-auto px-8">
+		<ContentSection background="white" padding="compact">
 			<div class="bg-white border border-light-gray section-no-border">
-				<div class="py-12">
+				<div class="py-6">
 					<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 					{#each assetTokens as token}
@@ -754,7 +753,6 @@
 				</div>
 				</div>
 			</div>
-		</div>
 		</ContentSection>
 
 		<!-- Token Purchase Widget -->

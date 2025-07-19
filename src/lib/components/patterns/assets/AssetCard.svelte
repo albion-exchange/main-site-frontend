@@ -78,12 +78,12 @@
 	$: operatorClasses = 'flex flex-col items-end text-right';
 	$: operatorLabelClasses = 'text-sm text-gray-500 font-medium mb-1 font-figtree';
 	$: operatorNameClasses = 'text-base text-black font-extrabold font-figtree';
-	$: assetNameClasses = 'text-lg font-extrabold text-black m-0 mb-2 min-h-[3.125rem] leading-tight text-left font-figtree';
+	$: assetNameClasses = 'typography-h5 text-black m-0 mb-2 min-h-[3.125rem] leading-tight text-left';
 	$: assetLocationClasses = 'text-gray-500 text-base m-0 text-left font-figtree';
 	$: assetDescriptionClasses = 'text-gray-700 text-base leading-relaxed m-0 mb-6 line-clamp-3 min-h-[4.5rem] font-figtree';
 	$: viewDetailsSectionClasses = 'mt-6 mb-6';
 	$: tokensSectionClasses = 'my-6';
-	$: tokensTitleClasses = 'text-lg font-extrabold text-black m-0 mb-4 font-figtree';
+	$: tokensTitleClasses = 'typography-h5 text-black m-0 mb-4';
 	$: tokensListClasses = 'flex flex-col gap-3';
 	$: tokensListScrollableClasses = 'flex flex-col gap-3 max-h-[13rem] overflow-y-auto pr-2';
 	$: tokenButtonClasses = 'flex justify-between items-center w-full p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-light-gray border border-light-gray hover:shadow-sm hover:-translate-y-0.5';

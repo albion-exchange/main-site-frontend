@@ -110,7 +110,7 @@
 	$: overlayClasses = `fixed inset-0 bg-black/50 flex z-[1000] overflow-y-auto p-4 box-border ${centered ? 'items-center justify-center' : 'items-start justify-center pt-8'}`;
 	$: modalClasses = `bg-white border-2 border-black w-full overflow-y-auto relative flex flex-col animate-modal-slide ${sizeClasses[size]} max-h-[${maxHeight}]`;
 	$: headerClasses = 'flex justify-between items-center px-8 py-6 border-b border-light-gray flex-shrink-0';
-	$: titleClasses = 'text-xl font-extrabold text-black m-0 uppercase tracking-wide';
+	$: titleClasses = 'typography-h3 text-black m-0 uppercase tracking-wide';
 	$: closeClasses = 'bg-transparent border-none text-2xl text-black cursor-pointer p-0 w-8 h-8 flex items-center justify-center transition-opacity duration-200 rounded hover:opacity-70 hover:bg-light-gray focus:outline-primary focus:outline-2 focus:outline-offset-2';
 	$: contentClasses = 'p-8 flex-1 overflow-y-auto min-h-0';
 	$: footerClasses = 'px-8 py-4 pb-6 border-t border-light-gray flex-shrink-0 flex gap-4 justify-end items-center';
