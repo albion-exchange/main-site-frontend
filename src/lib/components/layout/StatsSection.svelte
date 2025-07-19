@@ -31,7 +31,7 @@
 <section class={sectionClasses}>
 	<div class="max-w-6xl mx-auto px-8">
 		{#if showTitle && title}
-			<h2 class="text-2xl md:text-3xl font-extrabold text-black mb-6 font-figtree text-center">{title}</h2>
+			<h2 class="typography-h2 text-black mb-6 text-center">{title}</h2>
 		{/if}
 		<div class="grid {gridCols} gap-8 text-center">
 			<slot />

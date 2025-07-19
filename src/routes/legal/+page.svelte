@@ -57,25 +57,25 @@
 				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
 				<div class="space-y-4">
-					<SectionTitle level="h3" size="legal">1. Acceptance of Terms</SectionTitle>
+					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">1. Acceptance of Terms</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">By accessing and using the Albion platform, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use our services.</p>
 					
-					<SectionTitle level="h3" size="legal">2. Platform Description</SectionTitle>
+					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">2. Platform Description</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">Albion provides a blockchain-based platform for investing in tokenized oil & gas assets. Our platform enables users to purchase royalty tokens representing fractional ownership in energy production revenue.</p>
 					
-					<SectionTitle level="h3" size="legal">3. User Eligibility</SectionTitle>
+					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">3. User Eligibility</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">You must be at least 18 years old and legally capable of entering into binding contracts. You must also comply with all applicable laws and regulations in your jurisdiction.</p>
 					
-					<SectionTitle level="h3" size="legal">4. Account Registration</SectionTitle>
+					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">4. Account Registration</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">To use our platform, you must create an account and complete our Know Your Customer (KYC) verification process. You are responsible for maintaining the security of your account credentials.</p>
 					
-					<SectionTitle level="h3" size="legal">5. Investment Terms</SectionTitle>
+					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">5. Investment Terms</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">All investments are subject to specific terms outlined in the respective token offering documents. Past performance does not guarantee future results. Investments may lose value.</p>
 					
-					<SectionTitle level="h3" size="legal">6. Limitation of Liability</SectionTitle>
+					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">6. Limitation of Liability</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">Albion's liability is limited to the maximum extent permitted by law. We are not liable for investment losses, market volatility, or technical issues beyond our control.</p>
 					
-					<SectionTitle level="h3" size="legal">7. Termination</SectionTitle>
+					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">7. Termination</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">We may terminate or suspend your account at any time for violation of these terms or applicable laws. You may close your account at any time subject to existing investment commitments.</p>
 				</div>
 			</div>

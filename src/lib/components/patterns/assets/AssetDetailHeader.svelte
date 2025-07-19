@@ -50,9 +50,9 @@
 					</div>
 					<div class="flex-1">
 						<div class="flex justify-between items-start gap-4 mb-4">
-							<h1 class="text-4xl md:text-5xl font-extrabold text-black uppercase tracking-tight m-0">{asset?.name}</h1>
+							<h1 class="typography-display text-black uppercase tracking-tight m-0">{asset?.name}</h1>
 							<div class="flex flex-col items-end gap-2 flex-shrink-0">
-								<div class="text-xs font-medium text-black uppercase tracking-wider">Share this investment:</div>
+								<div class="typography-label text-black">Share this investment:</div>
 								<div class="flex gap-2">
 									<button class="flex items-center justify-center w-8 h-8 bg-white border border-light-gray text-black cursor-pointer transition-all duration-200 rounded hover:bg-light-gray hover:border-secondary hover:text-secondary" title="Share asset on Twitter" aria-label="Share asset on Twitter" on:click={() => window.open(`https://twitter.com/intent/tweet?text=Check out this energy investment opportunity: ${asset?.name} on @Albion&url=${encodeURIComponent(window.location.href)}`, '_blank')}>
 										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">

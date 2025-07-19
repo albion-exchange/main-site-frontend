@@ -73,7 +73,7 @@
 				<form on:submit|preventDefault={handleSubmit}>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 						<div class="flex flex-col">
-							<label for="name" class="text-xs font-bold text-black uppercase tracking-wider mb-2">Full Name</label>
+							<label for="name" class="typography-field-label mb-2">Full Name</label>
 							<input 
 								id="name"
 								type="text" 
@@ -85,7 +85,7 @@
 						</div>
 						
 						<div class="flex flex-col">
-							<label for="email" class="text-xs font-bold text-black uppercase tracking-wider mb-2">Email Address</label>
+							<label for="email" class="typography-field-label mb-2">Email Address</label>
 							<input 
 								id="email"
 								type="email" 
@@ -99,7 +99,7 @@
 					
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 						<div class="flex flex-col">
-							<label for="company" class="text-xs font-bold text-black uppercase tracking-wider mb-2">Company (Optional)</label>
+							<label for="company" class="typography-field-label mb-2">Company (Optional)</label>
 							<input 
 								id="company"
 								type="text" 
@@ -110,7 +110,7 @@
 						</div>
 						
 						<div class="flex flex-col">
-							<label for="subject" class="text-xs font-bold text-black uppercase tracking-wider mb-2">Subject</label>
+							<label for="subject" class="typography-field-label mb-2">Subject</label>
 							<select id="subject" bind:value={formData.subject} required class="px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black transition-colors duration-200 focus:outline-none focus:border-black">
 								<option value="">Select a topic</option>
 								<option value="investment">Investment Inquiry</option>
@@ -123,7 +123,7 @@
 					</div>
 					
 					<div class="flex flex-col mb-6">
-						<label for="message" class="text-xs font-bold text-black uppercase tracking-wider mb-2">Message</label>
+						<label for="message" class="typography-field-label mb-2">Message</label>
 						<textarea 
 							id="message"
 							bind:value={formData.message}
