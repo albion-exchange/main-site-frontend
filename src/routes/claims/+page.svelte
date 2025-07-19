@@ -6,7 +6,7 @@
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/patterns/WalletModal.svelte';
 	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, StatsCard, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard } from '$lib/components/components';
-	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
+	import { PageLayout, HeroSection, ContentSection, FullWidthSection, StatsSection } from '$lib/components/layout';
 	import { formatCurrency } from '$lib/utils/formatters';
 	import { dateUtils } from '$lib/utils/dateHelpers';
 	import { arrayUtils } from '$lib/utils/arrayHelpers';
@@ -276,52 +276,53 @@
 		subtitle="Claim your investment earnings and track your payout history."
 		showBorder={true}
 		showButtons={false}
-		className="py-12"
-	>
-		<!-- Platform Stats -->
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto mt-2 px-8">
-			{#if loading}
-				<StatsCard
-					title="Total Earned"
-					value="--"
-					subtitle="Loading..."
-					size="large"
-				/>
-				<StatsCard
-					title="Total Claimed"
-					value="--"
-					subtitle="Loading..."
-					size="large"
-				/>
-				<StatsCard
-					title="Available to Claim"
-					value="--"
-					subtitle="Loading..."
-					size="large"
-				/>
-			{:else}
-				<StatsCard
-					title="Total Earned"
-					value={formatCurrency(totalEarned)}
-					subtitle="All time earnings"
-					size="large"
-				/>
-				<StatsCard
-					title="Total Claimed"
-					value={formatCurrency(totalClaimed)}
-					subtitle="Successfully withdrawn"
-					size="large"
-				/>
-				<StatsCard
-					title="Available to Claim"
-					value={formatCurrency(unclaimedPayout)}
-					subtitle="Ready for withdrawal"
-					valueColor="primary"
-					size="large"
-				/>
-			{/if}
+	></HeroSection>
+
+	<!-- Platform Stats -->
+	<ContentSection background="white" padding="compact">
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+		{#if loading}
+			<StatsCard
+				title="Total Earned"
+				value="--"
+				subtitle="Loading..."
+				size="large"
+			/>
+			<StatsCard
+				title="Total Claimed"
+				value="--"
+				subtitle="Loading..."
+				size="large"
+			/>
+			<StatsCard
+				title="Available to Claim"
+				value="--"
+				subtitle="Loading..."
+				size="large"
+			/>
+		{:else}
+			<StatsCard
+				title="Total Earned"
+				value={formatCurrency(totalEarned)}
+				subtitle="All time earnings"
+				size="large"
+			/>
+			<StatsCard
+				title="Total Claimed"
+				value={formatCurrency(totalClaimed)}
+				subtitle="Successfully withdrawn"
+				size="large"
+			/>
+			<StatsCard
+				title="Available to Claim"
+				value={formatCurrency(unclaimedPayout)}
+				subtitle="Ready for withdrawal"
+				valueColor="primary"
+				size="large"
+			/>
+		{/if}
 		</div>
-	</HeroSection>
+	</ContentSection>
 
 	{#if !loading}
 		<!-- Success Message -->
@@ -384,8 +385,7 @@
 		</FullWidthSection>
 
 		<!-- Asset-by-Asset Claiming -->
-		<ContentSection background="white" padding="compact" maxWidth={false}>
-			<div class="max-w-6xl mx-auto px-8">
+		<ContentSection background="white" padding="compact">
 			<div class="flex justify-between items-center mb-6">
 				<SectionTitle level="h2" size="section">Claim by Asset</SectionTitle>
 				<PrimaryButton
@@ -437,7 +437,6 @@
 					</Card>
 				{/each}
 			</div>
-			</div>
 		</ContentSection>
 
 		<!-- Payout Statistics -->
@@ -482,8 +481,7 @@
 		</FullWidthSection>
 
 		<!-- Claim History -->
-		<ContentSection background="white" padding="compact" maxWidth={false}>
-			<div class="max-w-6xl mx-auto px-8">
+		<ContentSection background="white" padding="compact">
 			<div class="flex justify-between items-center mb-6">
 				<SectionTitle level="h2" size="section">Claim History</SectionTitle>
 				<SecondaryButton size="small" on:click={() => exportClaimHistory()}>📊 Export History</SecondaryButton>
@@ -562,7 +560,6 @@
 					<span class="w-8 h-8 text-sm text-black border border-light-gray rounded bg-light-gray flex items-center justify-center">1</span>
 				</div>
 			{/if}
-			</div>
 		</ContentSection>
 	{/if}
 </PageLayout>

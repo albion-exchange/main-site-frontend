@@ -7,7 +7,7 @@
 	import { PrimaryButton, SecondaryButton, StatsCard, ButtonGroup } from '$lib/components/components';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
 	import GridContainer from '$lib/components/components/GridContainer.svelte';
-	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
+	import { PageLayout, HeroSection, ContentSection, StatsSection } from '$lib/components/layout';
 	import marketData from '$lib/data/marketData.json';
 
 	// Composables
@@ -59,59 +59,59 @@
 		showBorder={true}
 		showButtons={false}
 	>
-		<!-- Platform Stats -->
-		<div class="max-w-6xl mx-auto px-8 mb-12">
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-			{#if stats.loading}
-				<StatsCard
-					title="Total Invested"
-					value="--"
-					subtitle="Loading..."
-					size="large"
-				/>
-				<StatsCard
-					title="Assets"
-					value="--"
-					subtitle="Loading..."
-					size="large"
-				/>
-				<StatsCard
-					title="Active Investors"
-					value="--"
-					subtitle="Loading..."
-					size="large"
-				/>
-			{:else}
-				<StatsCard
-					title="Total Invested"
-					value={formatted.totalInvested}
-					subtitle="this month"
-					trend={formatted.growthTrend}
-					size="large"
-					valueColor="primary"
-				/>
-				<StatsCard
-					title="Assets"
-					value={formatted.totalAssets}
-					subtitle={formatted.regionsText}
-					size="large"
-				/>
-				<StatsCard
-					title="Active Investors"
-					value={formatted.activeInvestors}
-					subtitle="Token holders"
-					size="large"
-				/>
-			{/if}
-			</div>
-		</div>
-
-		<!-- Buttons Below Stats -->
+		<!-- Buttons Below Hero -->
 		<ButtonGroup centered direction="horizontal">
 			<PrimaryButton href="/assets">Explore Investments</PrimaryButton>
 			<SecondaryButton href="/about">Learn How It Works</SecondaryButton>
 		</ButtonGroup>
 	</HeroSection>
+
+	<!-- Platform Stats -->
+	<ContentSection background="white" padding="compact">
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+		{#if stats.loading}
+			<StatsCard
+				title="Total Invested"
+				value="--"
+				subtitle="Loading..."
+				size="large"
+			/>
+			<StatsCard
+				title="Assets"
+				value="--"
+				subtitle="Loading..."
+				size="large"
+			/>
+			<StatsCard
+				title="Active Investors"
+				value="--"
+				subtitle="Loading..."
+				size="large"
+			/>
+		{:else}
+			<StatsCard
+				title="Total Invested"
+				value={formatted.totalInvested}
+				subtitle="this month"
+				trend={formatted.growthTrend}
+				size="large"
+				valueColor="primary"
+			/>
+			<StatsCard
+				title="Assets"
+				value={formatted.totalAssets}
+				subtitle={formatted.regionsText}
+				size="large"
+			/>
+			<StatsCard
+				title="Active Investors"
+				value={formatted.activeInvestors}
+				subtitle="Token holders"
+				size="large"
+			/>
+		{/if}
+		</div>
+	</ContentSection>
 
 	<!-- Featured Tokens Carousel -->
 	<ContentSection background="white" padding="standard" centered>
@@ -120,9 +120,8 @@
 	</ContentSection>
 
 	<!-- How It Works -->
-	<ContentSection background="gray" padding="none" centered>
-		<div class="max-w-6xl mx-auto px-8 py-16">
-			<SectionTitle level="h2" size="section" center className="mb-4 md:mb-6">How It Works</SectionTitle>
+	<ContentSection background="gray" padding="standard" centered>
+		<SectionTitle level="h2" size="section" center className="mb-4 md:mb-6">How It Works</SectionTitle>
 			
 			<GridContainer columns={3} gap="large">
 			<div class="text-center">
@@ -143,7 +142,6 @@
 				<p class="text-sm text-black">Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
 			</div>
 			</GridContainer>
-		</div>
 	</ContentSection>
 
 	<!-- Trust Indicators -->
@@ -202,9 +200,8 @@
 	</ContentSection>
 
 	<!-- Market Insights -->
-	<ContentSection background="secondary" padding="none" centered className="hidden md:block">
-		<div class="max-w-6xl mx-auto px-8 py-16">
-			<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+	<ContentSection background="secondary" padding="standard" centered className="hidden md:block">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 			<div class="space-y-6">
 				<h3 class="text-3xl font-extrabold mb-6 text-white">Market Indicators</h3>
 				<div class="flex flex-col gap-4">
@@ -227,7 +224,6 @@
 				<h4 class="text-2xl font-extrabold mb-4 text-white">Start Investing Today</h4>
 				<p class="mb-8 opacity-90">Join {formatted.activeInvestors} investors earning from energy assets</p>
 				<SecondaryButton href="/assets">Get Started Now</SecondaryButton>
-			</div>
 			</div>
 		</div>
 	</ContentSection>

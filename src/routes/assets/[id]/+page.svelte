@@ -524,10 +524,9 @@
 		</ContentSection>
 
 		<!-- Available Tokens Section -->
-		<ContentSection background="white" padding="none">
-			<div class="max-w-6xl mx-auto px-8">
+		<ContentSection background="white" padding="compact">
 			<div class="bg-white border border-light-gray section-no-border">
-				<div class="py-12">
+				<div class="py-6">
 					<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 					{#each assetTokens as token}
@@ -754,7 +753,6 @@
 				</div>
 				</div>
 			</div>
-		</div>
 		</ContentSection>
 
 		<!-- Token Purchase Widget -->
