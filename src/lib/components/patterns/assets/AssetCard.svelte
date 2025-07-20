@@ -69,8 +69,8 @@
 	$: headerClasses = 'mb-4';
 	$: headerMainClasses = 'flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4';
 	$: nameLocationClasses = 'flex-1';
-	$: operatorClasses = 'flex flex-col items-start sm:items-end text-left sm:text-right';
-	$: operatorLabelClasses = 'text-xs sm:text-sm text-gray-500 font-medium mb-1 font-figtree';
+	$: operatorClasses = 'flex flex-row sm:flex-col items-center sm:items-end text-left sm:text-right gap-1 sm:gap-0';
+	$: operatorLabelClasses = 'text-xs sm:text-sm text-gray-500 font-medium mb-0 sm:mb-1 font-figtree';
 	$: operatorNameClasses = 'text-sm sm:text-base text-black font-extrabold font-figtree';
 	$: assetNameClasses = 'text-base sm:text-lg lg:text-xl font-extrabold text-black m-0 mb-2 leading-tight text-left font-figtree';
 	$: assetLocationClasses = 'text-gray-500 text-sm sm:text-base m-0 text-left font-figtree';
@@ -102,10 +102,36 @@
 </script>
 
 <Card hoverable clickable heightClass="h-full flex flex-col" on:click={() => window.location.href = `/assets/${asset.id}`}>
-	<CardImage src={asset.coverImage} alt={asset.name} zoomOnHover />
+	<!-- Desktop: Regular image -->
+	<div class="hidden sm:block">
+		<CardImage src={asset.coverImage} alt={asset.name} zoomOnHover />
+	</div>
 	
+	<!-- Mobile: Image with overlay -->
+	<div class="sm:hidden relative">
+		<div class="relative overflow-hidden">
+			<img 
+				src={asset.coverImage} 
+				alt={asset.name} 
+				class="w-full h-48 object-cover opacity-70"
+			/>
+			<!-- White overlay gradient -->
+			<div class="absolute inset-0 bg-gradient-to-t from-white/80 via-white/40 to-white/20"></div>
+			<!-- Content overlay -->
+			<div class="absolute bottom-0 left-0 right-0 p-4">
+				<h3 class="text-lg font-extrabold text-black mb-1 drop-shadow-sm">{asset.name}</h3>
+				<p class="text-sm text-gray-700 mb-2 drop-shadow-sm">{asset.location.state}, {asset.location.country}</p>
+				<div class="flex items-center gap-2">
+					<span class="text-xs text-gray-600 drop-shadow-sm">Operator:</span>
+					<span class="text-sm font-bold text-black drop-shadow-sm">{asset.operator.name}</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<CardContent paddingClass="p-4 sm:p-6 lg:p-8 flex-1 flex flex-col">
-		<header class={headerClasses}>
+		<!-- Desktop header -->
+		<header class="{headerClasses} hidden sm:block">
 			<div class={headerMainClasses}>
 				<div class={nameLocationClasses}>
 					<h3 class={assetNameClasses}>{asset.name}</h3>
@@ -182,27 +208,43 @@
 						class={tokenButtonClasses} 
 						on:click|stopPropagation={() => handleBuyTokens()}
 					>
-						<div class={tokenButtonLeftClasses}>
-							<div class="flex justify-between items-center w-full gap-2">
-								<span class={tokenSymbolClasses}>{token.symbol}</span>
-								<span class="text-xs font-extrabold text-white bg-secondary px-2 py-1 tracking-wider rounded whitespace-nowrap hidden sm:inline">{token.sharePercentage ? `${token.sharePercentage}%` : shareOfAsset} of Asset</span>
+						<!-- Desktop: Full token info -->
+						<div class="hidden sm:flex w-full justify-between items-center">
+							<div class={tokenButtonLeftClasses}>
+								<div class="flex justify-between items-center w-full gap-2">
+									<span class={tokenSymbolClasses}>{token.symbol}</span>
+									<span class="text-xs font-extrabold text-white bg-secondary px-2 py-1 tracking-wider rounded whitespace-nowrap">{token.sharePercentage ? `${token.sharePercentage}%` : shareOfAsset} of Asset</span>
+								</div>
+								<span class={tokenNameClasses}>{token.name}</span>
+								<span class={tokenPaymentDateClasses}>First payment: {firstPaymentMonth}</span>
 							</div>
-							<span class={tokenNameClasses}>{token.name}</span>
-							<span class={tokenPaymentDateClasses}>First payment: {firstPaymentMonth}</span>
+							<div class={tokenButtonRightClasses}>
+								<div class={returnsDisplayClasses}>
+									<div class={returnItemClasses}>
+										<span class={returnLabelClasses}>Base</span>
+										<span class={returnValueClasses}>{baseReturn}%</span>
+									</div>
+									<div class={returnDividerClasses}>+</div>
+									<div class={returnItemClasses}>
+										<span class={returnLabelClasses}>Bonus</span>
+										<span class={returnValueClasses}>{bonusReturn}%</span>
+									</div>
+								</div>
+								<span class={buyCtaClasses}>Buy →</span>
+							</div>
 						</div>
-						<div class={tokenButtonRightClasses}>
-							<div class={returnsDisplayClasses}>
-								<div class={returnItemClasses}>
-									<span class={returnLabelClasses}>Base</span>
-									<span class={returnValueClasses}>{baseReturn}%</span>
-								</div>
-								<div class={returnDividerClasses}>+</div>
-								<div class={returnItemClasses}>
-									<span class={returnLabelClasses}>Bonus</span>
-									<span class={returnValueClasses}>{bonusReturn}%</span>
-								</div>
+						
+						<!-- Mobile: Simplified token info -->
+						<div class="sm:hidden flex justify-between items-center w-full">
+							<div class="flex-1">
+								<span class={tokenSymbolClasses}>{token.symbol}</span>
 							</div>
-							<span class={buyCtaClasses}>Buy →</span>
+							<div class="flex items-center gap-3">
+								<div class="text-center">
+									<span class="text-sm font-extrabold text-primary">{baseReturn}% + {bonusReturn}%</span>
+								</div>
+								<span class={buyCtaClasses}>Buy →</span>
+							</div>
 						</div>
 					</button>
 				{/each}

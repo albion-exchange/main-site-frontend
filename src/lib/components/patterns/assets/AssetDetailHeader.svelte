@@ -84,36 +84,33 @@
 				</div>
 			</div>
 
-			<!-- Simplified stats for mobile -->
-			<div class="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 text-center mb-6 lg:mb-8">
-				<StatsCard
-					title="Current Production"
-					value={asset?.production?.current || '0'}
-					subtitle="BOE/day"
-					size="large"
-				/>
-				<StatsCard
-					title="Last Revenue"
-					value={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.netIncome 
-						? formatCurrency(asset.monthlyReports[asset.monthlyReports.length - 1].netIncome)
-						: '$0'}
-					subtitle={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.month 
-						? asset.monthlyReports[asset.monthlyReports.length - 1].month
-						: 'No data'}
-					size="large"
-				/>
-				<!-- Third stat only on larger screens -->
-				<div class="hidden lg:block">
-					<StatsCard
-						title="Available Tokens"
-						value={tokenCount.toString()}
-						subtitle="Token releases"
-						size="large"
-						clickable={!!onTokenSectionClick}
-						on:click={onTokenSectionClick}
-					/>
-				</div>
-			</div>
+					<!-- Mobile: Compact inline stats -->
+		<div class="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-8 text-center mb-6 lg:mb-8">
+			<StatsCard
+				title="Current Production"
+				value={asset?.production?.current || '0'}
+				subtitle="BOE/day"
+				size="small"
+			/>
+			<StatsCard
+				title="Last Revenue"
+				value={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.netIncome 
+					? formatCurrency(asset.monthlyReports[asset.monthlyReports.length - 1].netIncome)
+					: '$0'}
+				subtitle={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.month 
+					? asset.monthlyReports[asset.monthlyReports.length - 1].month
+					: 'No data'}
+				size="small"
+			/>
+			<StatsCard
+				title="Available Tokens"
+				value={tokenCount.toString()}
+				subtitle="Token releases"
+				size="small"
+				clickable={!!onTokenSectionClick}
+				on:click={onTokenSectionClick}
+			/>
 		</div>
 	</div>
+</div>
 </div>

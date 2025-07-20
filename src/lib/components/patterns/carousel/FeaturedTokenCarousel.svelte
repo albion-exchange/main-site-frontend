@@ -307,39 +307,60 @@
 									<div class={tokenContractClasses}>{item.token.contractAddress}</div>
 								</div>
 
-								<div class={tokenStatsClasses}>
-									<div class={statItemClasses}>
-										<div class={statLabelClasses}>Total Supply</div>
-										<div class={statValueClasses}>
-											{formatSupply(item.token.supply.maxSupply, item.token.decimals)}
-										</div>
-									</div>
-									
-									<div class={statItemClasses}>
-										<div class={statLabelClasses}>Available Supply</div>
-										<div class={statValueClasses}>
-											{formatSupply(getAvailableSupplyBigInt(item.token).toString(), item.token.decimals)}
-										</div>
-									</div>
-									<div class={statItemClasses}>
-										<div class={statLabelClasses}>Base Returns</div>
-										<div class={statValueClasses + ' text-primary'}>{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</div>
-									</div>
-									
-									<div class={statItemClasses}>
-										<div class={statLabelClasses}>Bonus Returns</div>
-										<div class={statValueClasses + ' text-primary'}>+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
-									</div>
-								</div>
+												<div class={tokenStatsClasses}>
+					<!-- Desktop: Show all stats -->
+					<div class="hidden sm:contents">
+						<div class={statItemClasses}>
+							<div class={statLabelClasses}>Total Supply</div>
+							<div class={statValueClasses}>
+							{formatSupply(item.token.supply.maxSupply, item.token.decimals)}
+							</div>
+						</div>
 
-								<div class={tokenActionsClasses}>
-									<PrimaryButton on:click={() => handleBuyTokens(item.token.contractAddress)}>
-										Buy Tokens
-									</PrimaryButton>
-									<SecondaryButton href="/assets/{item.asset.id}">
-										View Asset
-									</SecondaryButton>
-								</div>
+						<div class={statItemClasses}>
+							<div class={statLabelClasses}>Available Supply</div>
+							<div class={statValueClasses}>
+							{formatSupply(getAvailableSupplyBigInt(item.token).toString(), item.token.decimals)}
+							</div>
+						</div>
+						<div class={statItemClasses}>
+							<div class={statLabelClasses}>Base Returns</div>
+							<div class={statValueClasses + ' text-primary'}>{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</div>
+						</div>
+
+						<div class={statItemClasses}>
+							<div class={statLabelClasses}>Bonus Returns</div>
+							<div class={statValueClasses + ' text-primary'}>+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
+						</div>
+					</div>
+					
+					<!-- Mobile: Hide Total Supply, combine returns -->
+					<div class="sm:hidden">
+						<div class={statItemClasses}>
+							<div class={statLabelClasses}>Available Supply</div>
+							<div class={statValueClasses}>
+							{formatSupply(getAvailableSupplyBigInt(item.token).toString(), item.token.decimals)}
+							</div>
+						</div>
+						<div class={statItemClasses}>
+							<div class={statLabelClasses}>Est. Return</div>
+							<div class={statValueClasses + ' text-primary'}>
+								{calculatedReturns?.baseReturn !== undefined && calculatedReturns?.bonusReturn !== undefined 
+									? `${Math.round(calculatedReturns.baseReturn)}% + ${Math.round(calculatedReturns.bonusReturn)}%`
+									: 'TBD'}
+							</div>
+						</div>
+					</div>
+				</div>
+
+												<div class={tokenActionsClasses + " sm:flex-col flex-row gap-2 sm:gap-4"}>
+					<PrimaryButton on:click={() => handleBuyTokens(item.token.contractAddress)}>
+						Buy Tokens
+					</PrimaryButton>
+					<SecondaryButton href="/assets/{item.asset.id}">
+						View Asset
+					</SecondaryButton>
+				</div>
 							</div>
 
 							<!-- Asset Section -->
@@ -356,30 +377,42 @@
 									</div>
 								{/if}
 
-								<div class={assetHeaderClasses}>
-									<div class="flex items-center gap-2 mb-2">
-										<div class={getStatusIndicatorClasses(item.asset.production.status)}></div>
-										<span class={statusTextClasses}>{item.asset.production.status.toUpperCase()}</span>
-									</div>
-									<h3 class={assetNameClasses}>{item.asset.name}</h3>
-									<div class={assetLocationClasses}>
-										{item.asset.location.state}, {item.asset.location.country}
-									</div>
-								</div>
+												<!-- Desktop: Full asset info -->
+				<div class="hidden sm:block">
+					<div class={assetHeaderClasses}>
+						<div class="flex items-center gap-2 mb-2">
+							<div class={getStatusIndicatorClasses(item.asset.production.status)}></div>
+							<span class={statusTextClasses}>{item.asset.production.status.toUpperCase()}</span>
+						</div>
+						<h3 class={assetNameClasses}>{item.asset.name}</h3>
+						<div class={assetLocationClasses}>
+							{item.asset.location.state}, {item.asset.location.country}
+						</div>
+					</div>
 
-								<div class={assetStatsClasses}>
-									<div class={statItemClasses}>
-										<div class={statLabelClasses}>Remaining Production</div>
-										<div class={statValueClasses}>{item.asset.production?.expectedRemainingProduction || 'TBD'}</div>
-									</div>
-								</div>
+					<div class={assetStatsClasses}>
+						<div class={statItemClasses}>
+							<div class={statLabelClasses}>Remaining Production</div>
+							<div class={statValueClasses}>{item.asset.production?.expectedRemainingProduction || 'TBD'}</div>
+						</div>
+					</div>
 
-								<div class={assetMetaClasses}>
-									<div class={assetMetaItemClasses}>
-										<span class={assetMetaLabelClasses}>Operator:</span>
-										<span class={assetMetaValueClasses}>{item.asset.operator.name}</span>
-									</div>
-								</div>
+					<div class={assetMetaClasses}>
+						<div class={assetMetaItemClasses}>
+							<span class={assetMetaLabelClasses}>Operator:</span>
+							<span class={assetMetaValueClasses}>{item.asset.operator.name}</span>
+						</div>
+					</div>
+				</div>
+				
+				<!-- Mobile: Simplified asset info -->
+				<div class="sm:hidden">
+					<h3 class={assetNameClasses}>{item.asset.name}</h3>
+					<div class="text-sm text-black opacity-70">
+						<span class="font-medium">Remaining Production:</span> 
+						<span>{item.asset.production?.expectedRemainingProduction || 'TBD'}</span>
+					</div>
+				</div>
 							</div>
 						</div>
 					</div>
