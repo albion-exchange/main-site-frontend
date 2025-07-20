@@ -180,63 +180,53 @@
 
 	$: currentItem = featuredTokensWithAssets[currentIndex];
 	
-	// Enhanced Tailwind class mappings with better mobile responsiveness
+	// Enhanced Tailwind class mappings with better mobile responsiveness - FIXED
 	$: containerClasses = 'relative w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8';
-	$: loadingStateClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center p-12 lg:p-16 text-black bg-white border border-light-gray';
-	$: errorStateClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center p-12 lg:p-16 text-black bg-white border border-light-gray';
-	$: emptyStateClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center p-12 lg:p-16 text-black bg-white border border-light-gray';
+	$: loadingStateClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center p-8 lg:p-16 text-black bg-white border border-light-gray rounded-lg';
+	$: errorStateClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center p-8 lg:p-16 text-black bg-white border border-light-gray rounded-lg';
+	$: emptyStateClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center p-8 lg:p-16 text-black bg-white border border-light-gray rounded-lg';
 	$: spinnerClasses = 'w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mb-4';
-	$: retryButtonClasses = 'mt-4 px-6 py-3 bg-primary text-white border-none cursor-pointer font-semibold transition-colors duration-200 hover:bg-secondary touch-target';
-	$: carouselWrapperClasses = 'relative overflow-hidden shadow-carousel outline-none focus:shadow-carousel focus:ring-4 focus:ring-primary/50 touch-pan-y mobile-scroll';
-	$: carouselTrackClasses = 'flex w-full transition-transform duration-500 sm:duration-700 ease-in-out will-change-transform';
-	$: carouselSlideClasses = 'flex-shrink-0 w-full relative transition-all duration-500 sm:duration-700 ease-in-out';
-	$: activeSlideClasses = 'opacity-100 scale-100';
-	$: inactiveSlideClasses = 'opacity-70 scale-95';
-	$: bannerCardClasses = 'grid grid-cols-1 lg:grid-cols-2 min-h-80 sm:min-h-96 bg-white border border-light-gray transition-all duration-300 ease-in-out lg:hover:transform lg:hover:-translate-y-1 lg:hover:shadow-action-hover animate-fade-in mobile-card-shadow';
-	$: tokenSectionClasses = 'p-4 sm:p-6 lg:p-12 bg-white border-b lg:border-b-0 lg:border-r border-light-gray flex flex-col justify-between';
-	$: assetSectionClasses = 'p-4 sm:p-6 lg:p-12 bg-light-gray flex flex-col justify-between';
-	$: tokenHeaderClasses = 'mb-4 sm:mb-6';
-	$: tokenNameClasses = 'typography-h2 text-black tracking-wider mb-2 sm:mb-3 leading-tight text-left';
-	$: tokenContractClasses = 'text-sm sm:text-base font-medium text-secondary break-all leading-relaxed py-1 opacity-80 tracking-tight font-figtree text-left';
-	$: assetHeaderClasses = 'mb-4 sm:mb-6';
+	$: retryButtonClasses = 'mt-4 px-6 py-3 bg-primary text-white border-none cursor-pointer font-semibold transition-colors duration-200 hover:bg-secondary touch-target rounded';
+	$: carouselWrapperClasses = 'relative overflow-hidden rounded-lg outline-none focus:ring-4 focus:ring-primary/50 touch-pan-y';
+	$: carouselTrackClasses = 'flex w-full transition-transform duration-500 ease-in-out will-change-transform';
+	$: carouselSlideClasses = 'flex-shrink-0 w-full relative';
+	$: activeSlideClasses = 'opacity-100';
+	$: inactiveSlideClasses = 'opacity-100';
+	$: bannerCardClasses = 'grid grid-cols-1 lg:grid-cols-2 bg-white border border-light-gray overflow-hidden';
+	$: tokenSectionClasses = 'p-4 sm:p-6 lg:p-8 bg-white border-b lg:border-b-0 lg:border-r border-light-gray flex flex-col justify-between min-h-[300px] sm:min-h-[350px] lg:min-h-[400px]';
+	$: assetSectionClasses = 'p-4 sm:p-6 lg:p-8 bg-light-gray flex flex-col justify-between min-h-[300px] sm:min-h-[350px] lg:min-h-[400px]';
+	$: tokenHeaderClasses = 'mb-3 sm:mb-4 lg:mb-6';
+	$: tokenNameClasses = 'text-lg sm:text-xl lg:text-2xl font-bold text-black tracking-wider mb-2 leading-tight text-left';
+	$: tokenContractClasses = 'text-xs sm:text-sm font-medium text-secondary break-all leading-relaxed py-1 opacity-80 tracking-tight font-figtree text-left';
+	$: assetHeaderClasses = 'mb-3 sm:mb-4 lg:mb-6';
 	$: assetStatusClasses = 'flex items-center gap-2 mb-2';
 	$: statusIndicatorClasses = 'w-2 h-2 bg-secondary rounded-full';
-	$: statusIndicatorProducingClasses = 'w-2 h-2 bg-green-500 rounded-full animate-pulse-status';
+	$: statusIndicatorProducingClasses = 'w-2 h-2 bg-green-500 rounded-full animate-pulse';
 	$: statusIndicatorFundingClasses = 'w-2 h-2 bg-yellow-500 rounded-full';
 	$: statusIndicatorCompletedClasses = 'w-2 h-2 bg-secondary rounded-full';
-	$: statusTextClasses = 'text-xs sm:text-sm font-medium text-black font-figtree';
-	$: assetNameClasses = 'typography-h2 text-black mb-2 leading-tight text-left';
-	$: assetLocationClasses = 'text-base sm:text-lg text-black leading-relaxed font-figtree text-left';
-	$: assetDescriptionClasses = 'text-sm sm:text-base text-black leading-relaxed mb-6 sm:mb-8 font-figtree';
-	$: tokenStatsClasses = 'grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8';
-	$: assetStatsClasses = 'grid grid-cols-1 gap-3 sm:gap-4 mb-6 sm:mb-8';
+	$: statusTextClasses = 'text-xs sm:text-sm font-medium text-black font-figtree uppercase tracking-wide';
+	$: assetNameClasses = 'text-lg sm:text-xl lg:text-2xl font-bold text-black mb-2 leading-tight text-left';
+	$: assetLocationClasses = 'text-sm sm:text-base text-black leading-relaxed font-figtree text-left opacity-80';
+	$: assetDescriptionClasses = 'text-sm text-black leading-relaxed mb-4 sm:mb-6 font-figtree hidden lg:block';
+	$: tokenStatsClasses = 'grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 lg:mb-8';
+	$: assetStatsClasses = 'grid grid-cols-1 gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 lg:mb-8';
 	$: statItemClasses = 'text-left';
-	$: statLabelClasses = 'text-xs sm:text-sm font-medium text-gray-500 mb-1 font-figtree';
-	$: statValueClasses = 'typography-h3 text-black';
-	$: tokenActionsClasses = 'flex flex-col sm:flex-row gap-3 sm:gap-4';
-	$: assetMetaClasses = 'flex flex-col gap-2';
+	$: statLabelClasses = 'text-xs font-medium text-gray-500 mb-1 font-figtree uppercase tracking-wide';
+	$: statValueClasses = 'text-sm sm:text-base lg:text-lg font-bold text-black';
+	$: tokenActionsClasses = 'flex flex-col gap-2 sm:gap-3 mt-auto';
+	$: assetMetaClasses = 'flex flex-col gap-2 mt-auto';
 	$: assetMetaItemClasses = 'flex gap-2';
-	$: assetMetaLabelClasses = 'text-xs sm:text-sm font-medium text-gray-500 font-figtree';
-	$: assetMetaValueClasses = 'text-xs sm:text-sm text-black opacity-70 font-figtree';
-	$: navButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 bg-black/70 text-white border-none text-xl sm:text-2xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target';
-	$: prevButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 bg-black/70 text-white border-none text-xl sm:text-2xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target left-[-3rem] sm:left-[-4rem]';
-	$: nextButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 bg-black/70 text-white border-none text-xl sm:text-2xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target right-[-3rem] sm:right-[-4rem]';
-	$: indicatorsClasses = 'absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
-	$: indicatorClasses = 'w-3 h-3 border-none bg-white/50 cursor-pointer transition-all duration-200 hover:bg-white/80 touch-target';
-	$: indicatorActiveClasses = 'w-3 h-3 border-none bg-white cursor-pointer transition-all duration-200 scale-125 shadow-lg touch-target';
+	$: assetMetaLabelClasses = 'text-xs font-medium text-gray-500 font-figtree';
+	$: assetMetaValueClasses = 'text-xs text-black opacity-70 font-figtree';
 	
-	// Responsive classes using Tailwind
-	$: mobileTokenSectionClasses = 'p-6 lg:p-12 bg-white border-b md:border-b-0 md:border-r border-light-gray flex flex-col justify-between';
-	$: mobileAssetSectionClasses = 'p-6 lg:p-12 bg-light-gray flex flex-col justify-between';
-	$: mobileTokenStatsClasses = 'grid grid-cols-2 gap-4 mb-8';
-	$: mobileNavButtonClasses = 'md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg';
-	$: mobilePrevButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:left-[-4rem] left-[-3rem]';
-	$: mobileNextButtonClasses = 'absolute top-1/2 transform -translate-y-1/2 md:w-12 md:h-12 w-10 h-10 bg-black/70 text-white border-none md:text-xl text-lg cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg md:right-[-4rem] right-[-3rem]';
-	$: mobileIndicatorsClasses = 'absolute md:bottom-6 bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
-	$: mobileContainerClasses = 'relative w-full max-w-6xl mx-auto px-8';
-	$: mobileBannerCardClasses = 'grid grid-cols-1 md:grid-cols-2 min-h-96 bg-white border border-light-gray transition-all duration-300 ease-in-out md:hover:transform md:hover:-translate-y-1 md:hover:shadow-action-hover animate-fade-in';
-	$: mobileCarouselSlideClasses = 'flex-shrink-0 w-full relative transition-all duration-700 ease-in-out sm:opacity-100 sm:scale-100';
-	$: mobileCarouselTrackClasses = 'flex w-full sm:transition-transform sm:duration-500 transition-transform duration-700 ease-in-out will-change-transform';
+	// Navigation controls - hidden on mobile, shown on desktop
+	$: navButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target items-center justify-center rounded-full';
+	$: prevButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target left-[-4rem] items-center justify-center rounded-full';
+	$: nextButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target right-[-4rem] items-center justify-center rounded-full';
+	$: indicatorsClasses = 'absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
+	$: indicatorClasses = 'w-3 h-3 border-none bg-white/50 cursor-pointer transition-all duration-200 hover:bg-white/80 touch-target rounded-full';
+	$: indicatorActiveClasses = 'w-3 h-3 border-none bg-white cursor-pointer transition-all duration-200 scale-125 shadow-lg touch-target rounded-full';
+
 	
 	// Get status-specific classes
 	function getStatusIndicatorClasses(status: string) {
@@ -253,7 +243,7 @@
 	}
 </script>
 
-<div class={mobileContainerClasses} bind:this={carouselContainer}>
+<div class={containerClasses} bind:this={carouselContainer}>
 	{#if loading}
 		<div class={loadingStateClasses}>
 			<div class={spinnerClasses}></div>
@@ -272,7 +262,7 @@
 		<!-- Navigation Controls (outside carousel wrapper) -->
 		{#if featuredTokensWithAssets.length > 1}
 			<button 
-				class={mobilePrevButtonClasses} 
+				class={prevButtonClasses} 
 				on:click={prevSlide}
 				aria-label="Previous token"
 			>
@@ -280,7 +270,7 @@
 			</button>
 			
 			<button 
-				class={mobileNextButtonClasses} 
+				class={nextButtonClasses} 
 				on:click={nextSlide}
 				aria-label="Next token"
 			>
@@ -301,15 +291,15 @@
 		>
 			<!-- Carousel track -->
 			<div 
-				class={mobileCarouselTrackClasses}
+				class={carouselTrackClasses}
 				style="transform: translateX(-{currentIndex * 100}%)"
 			>
 				{#each featuredTokensWithAssets as item, index}
 					{@const calculatedReturns = tokenService.getTokenReturns(item.token.contractAddress)}
-					<div class="{mobileCarouselSlideClasses} {index === currentIndex ? activeSlideClasses : inactiveSlideClasses}">
-						<div class={mobileBannerCardClasses}>
+					<div class="{carouselSlideClasses} {index === currentIndex ? activeSlideClasses : inactiveSlideClasses}">
+						<div class={bannerCardClasses}>
 							<!-- Token Section -->
-							<div class={mobileTokenSectionClasses}>
+							<div class={tokenSectionClasses}>
 								<div class={tokenHeaderClasses}>
 									<div class="mb-3">
 										<h3 class={tokenNameClasses}>{item.token.name}</h3>
@@ -317,7 +307,7 @@
 									<div class={tokenContractClasses}>{item.token.contractAddress}</div>
 								</div>
 
-								<div class={mobileTokenStatsClasses}>
+								<div class={tokenStatsClasses}>
 									<div class={statItemClasses}>
 										<div class={statLabelClasses}>Total Supply</div>
 										<div class={statValueClasses}>
@@ -332,13 +322,13 @@
 										</div>
 									</div>
 									<div class={statItemClasses}>
-										<div class={statLabelClasses}>Estimated Base Returns</div>
-										<div class="text-xl font-extrabold text-primary">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</div>
+										<div class={statLabelClasses}>Base Returns</div>
+										<div class={statValueClasses + ' text-primary'}>{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</div>
 									</div>
 									
 									<div class={statItemClasses}>
-										<div class={statLabelClasses}>Estimated Bonus Returns</div>
-										<div class="text-xl font-extrabold text-primary">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
+										<div class={statLabelClasses}>Bonus Returns</div>
+										<div class={statValueClasses + ' text-primary'}>+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
 									</div>
 								</div>
 
@@ -353,14 +343,14 @@
 							</div>
 
 							<!-- Asset Section -->
-							<div class={mobileAssetSectionClasses}>
+							<div class={assetSectionClasses}>
 								<!-- Cover Image at the top -->
 								{#if item.asset.coverImage}
-									<div class="mb-6 -mx-6 lg:-mx-12 -mt-6 lg:-mt-12">
+									<div class="mb-4 lg:mb-6 -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 sm:-mt-6 lg:-mt-8">
 										<img 
 											src={item.asset.coverImage} 
 											alt={item.asset.name}
-											class="w-full h-48 object-cover"
+											class="w-full h-32 sm:h-40 lg:h-48 object-cover"
 											loading="lazy"
 										/>
 									</div>
@@ -379,7 +369,7 @@
 
 								<div class={assetStatsClasses}>
 									<div class={statItemClasses}>
-										<div class={statLabelClasses}>Expected Remaining Production</div>
+										<div class={statLabelClasses}>Remaining Production</div>
 										<div class={statValueClasses}>{item.asset.production?.expectedRemainingProduction || 'TBD'}</div>
 									</div>
 								</div>
@@ -398,7 +388,7 @@
 
 			<!-- Indicators (remain inside carousel wrapper) -->
 			{#if featuredTokensWithAssets.length > 1}
-				<div class={mobileIndicatorsClasses}>
+				<div class={indicatorsClasses}>
 					{#each featuredTokensWithAssets as _, index}
 						<button 
 							class="{index === currentIndex ? indicatorActiveClasses : indicatorClasses}"

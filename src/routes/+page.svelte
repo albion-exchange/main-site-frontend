@@ -62,13 +62,13 @@
 		<!-- Buttons Below Hero -->
 		<div class="flex flex-col sm:flex-row gap-4 justify-center mt-6 sm:mt-8">
 			<PrimaryButton href="/assets">Explore Investments</PrimaryButton>
-			<SecondaryButton href="/about">Learn How It Works</SecondaryButton>
+			<SecondaryButton href="/about" className="hidden sm:inline-flex">Learn How It Works</SecondaryButton>
 		</div>
 	</HeroSection>
 
-	<!-- Platform Stats -->
+	<!-- Platform Stats - Simplified for mobile -->
 	<ContentSection background="white" padding="compact">
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 text-center">
+		<div class="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 text-center">
 		{#if stats.loading}
 			<StatsCard
 				title="Total Invested"
@@ -82,12 +82,14 @@
 				subtitle="Loading..."
 				size="large"
 			/>
-			<StatsCard
-				title="Active Investors"
-				value="--"
-				subtitle="Loading..."
-				size="large"
-			/>
+			<div class="hidden lg:block">
+				<StatsCard
+					title="Active Investors"
+					value="--"
+					subtitle="Loading..."
+					size="large"
+				/>
+			</div>
 		{:else}
 			<StatsCard
 				title="Total Invested"
@@ -103,12 +105,14 @@
 				subtitle={formatted.regionsText}
 				size="large"
 			/>
-			<StatsCard
-				title="Active Investors"
-				value={formatted.activeInvestors}
-				subtitle="Token holders"
-				size="large"
-			/>
+			<div class="hidden lg:block">
+				<StatsCard
+					title="Active Investors"
+					value={formatted.activeInvestors}
+					subtitle="Token holders"
+					size="large"
+				/>
+			</div>
 		{/if}
 		</div>
 	</ContentSection>
@@ -119,8 +123,17 @@
 		<FeaturedTokenCarousel autoPlay={true} autoPlayInterval={6000} on:buyTokens={handleBuyTokensFromCarousel} />
 	</ContentSection>
 
-	<!-- How It Works -->
-	<ContentSection background="gray" padding="standard" centered>
+	<!-- Mobile CTA Section -->
+	<ContentSection background="gray" padding="compact" centered className="block sm:hidden">
+		<div class="text-center">
+			<SectionTitle level="h2" size="section" className="mb-4">Ready to Start?</SectionTitle>
+			<p class="text-sm text-black mb-6">Browse available oil & gas investments and start earning from energy assets.</p>
+			<PrimaryButton href="/assets" className="w-full">View All Investments</PrimaryButton>
+		</div>
+	</ContentSection>
+
+	<!-- How It Works - Simplified for mobile -->
+	<ContentSection background="gray" padding="standard" centered className="hidden sm:block">
 		<SectionTitle level="h2" size="section" center className="mb-6 lg:mb-8">How It Works</SectionTitle>
 			
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
@@ -144,8 +157,8 @@
 		</div>
 	</ContentSection>
 
-	<!-- Trust Indicators -->
-	<ContentSection background="white" padding="standard" centered>
+	<!-- Trust Indicators - Hidden on mobile -->
+	<ContentSection background="white" padding="standard" centered className="hidden lg:block">
 		<SectionTitle level="h2" size="section" center className="mb-6 lg:mb-8">Why Choose Albion</SectionTitle>
 		<div class="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
 			<div class="flex flex-col items-center text-center">
@@ -199,8 +212,8 @@
 		</div>
 	</ContentSection>
 
-	<!-- Market Insights - Now shown on mobile with compact design -->
-	<ContentSection background="secondary" padding="standard" centered>
+	<!-- Market Insights - Hidden on mobile -->
+	<ContentSection background="secondary" padding="standard" centered className="hidden lg:block">
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
 			<div class="space-y-4 lg:space-y-6">
 				<h3 class="text-2xl lg:text-3xl font-extrabold mb-4 lg:mb-6 text-white">Market Indicators</h3>

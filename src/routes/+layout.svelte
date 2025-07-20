@@ -49,12 +49,12 @@
 	$: navLinkActiveClasses = 'text-primary after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary';
 	$: navActionsClasses = 'flex items-center gap-4';
 	$: walletIconClasses = 'text-base';
-	$: mobileNavClasses = 'md:hidden fixed top-16 sm:top-20 lg:top-24 left-0 right-0 bg-white border-b border-light-gray z-[100] transform -translate-y-full transition-transform duration-300 ease-out mobile-scroll';
+	$: mobileNavClasses = 'md:hidden fixed top-16 sm:top-20 lg:top-24 left-0 right-0 bg-white border-b border-light-gray z-[99] transform -translate-y-full transition-transform duration-300 ease-out shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto';
 	$: mobileNavOpenClasses = 'transform translate-y-0';
 	$: mobileNavLinksClasses = 'flex flex-col p-0 gap-0';
 	$: mobileNavLinkClasses = 'text-black no-underline font-medium py-4 px-4 sm:px-6 border-b border-light-gray transition-colors duration-200 last:border-b-0 hover:text-primary hover:bg-light-gray touch-target text-base';
 	$: mobileNavLinkActiveClasses = 'text-primary bg-light-gray';
-	$: mobileNavActionsClasses = 'p-4 sm:p-6 border-t border-light-gray';
+	$: mobileNavActionsClasses = 'p-4 sm:p-6 border-t border-light-gray bg-light-gray';
 	$: mainContentClasses = 'flex-1';
 	$: footerClasses = 'bg-light-gray mt-8 sm:mt-12 lg:mt-16';
 	$: footerContainerClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 lg:pt-12 pb-4';
@@ -165,7 +165,7 @@
 						<li class={footerSectionLiClasses}><a href="/claims" class={footerSectionLinkClasses}>Claim Payouts</a></li>
 					</ul>
 				</div>
-				<div>
+				<div class="hidden sm:block">
 					<h4 class={footerSectionH4Classes}>Company</h4>
 					<ul class={footerSectionUlClasses}>
 						<li class={footerSectionLiClasses}><a href="/about" class={footerSectionLinkClasses}>About</a></li>
@@ -173,7 +173,7 @@
 						<li class={footerSectionLiClasses}><a href="/legal" class={footerSectionLinkClasses}>Legal</a></li>
 					</ul>
 				</div>
-				<div>
+				<div class="hidden lg:block">
 					<h4 class={footerSectionH4Classes}>Stay Connected</h4>
 					<p class={footerSectionPClasses}>Follow Albion for the latest updates on energy investments and platform news</p>
 					<div class={footerSocialButtonsClasses}>
