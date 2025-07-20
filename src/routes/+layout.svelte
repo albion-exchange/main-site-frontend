@@ -85,12 +85,7 @@
 					</div>
 				</a>
 				
-				<!-- Mobile menu button -->
-				<button class={mobileMenuButtonClasses} on:click={toggleMobileMenu} aria-label="Toggle menu">
-					<span class="{hamburgerClasses} {mobileMenuOpen ? hamburgerOpenClasses : ''} before:content-[''] before:absolute before:w-6 before:h-0.5 before:bg-black before:transition-all before:duration-300 before:ease-out before:-top-2 after:content-[''] after:absolute after:w-6 after:h-0.5 after:bg-black after:transition-all after:duration-300 after:ease-out after:top-2 {mobileMenuOpen ? 'before:rotate-45 before:top-0 after:-rotate-45 after:top-0' : ''}"></span>
-				</button>
-				
-				<!-- Desktop navigation -->
+				<!-- Desktop navigation - centered -->
 				<div class="{navLinksClasses} {desktopNavClasses}">
 					<a href="/" class="{navLinkClasses} {currentPath === '/' ? navLinkActiveClasses : ''}">Home</a>
 					<a href="/assets" class="{navLinkClasses} {currentPath.startsWith('/assets') ? navLinkActiveClasses : ''}">Invest</a>
@@ -98,21 +93,30 @@
 					<a href="/claims" class="{navLinkClasses} {currentPath === '/claims' ? navLinkActiveClasses : ''}">Claims</a>
 				</div>
 				
-				<div class="{navActionsClasses} {desktopNavClasses}">
-					<SecondaryButton 
-						on:click={connectWallet}
-						disabled={$walletStore.isConnecting}
-					>
-						{#if $walletStore.isConnecting}
-							Connecting...
-						{:else if $walletStore.isConnected}
-							<span class={walletIconClasses}>🔗</span>
-							{formatAddress($walletStore.address)}
-						{:else}
-							<span class={walletIconClasses}>🔌</span>
-							Connect Wallet
-						{/if}
-					</SecondaryButton>
+				<!-- Right side: Desktop wallet button + Mobile menu button -->
+				<div class="flex items-center gap-4">
+					<!-- Desktop wallet button -->
+					<div class="{navActionsClasses} {desktopNavClasses}">
+						<SecondaryButton 
+							on:click={connectWallet}
+							disabled={$walletStore.isConnecting}
+						>
+							{#if $walletStore.isConnecting}
+								Connecting...
+							{:else if $walletStore.isConnected}
+								<span class={walletIconClasses}>🔗</span>
+								{formatAddress($walletStore.address)}
+							{:else}
+								<span class={walletIconClasses}>🔌</span>
+								Connect Wallet
+							{/if}
+						</SecondaryButton>
+					</div>
+					
+					<!-- Mobile menu button -->
+					<button class={mobileMenuButtonClasses} on:click={toggleMobileMenu} aria-label="Toggle menu">
+						<span class="{hamburgerClasses} {mobileMenuOpen ? hamburgerOpenClasses : ''} before:content-[''] before:absolute before:w-6 before:h-0.5 before:bg-black before:transition-all before:duration-300 before:ease-out before:-top-2 after:content-[''] after:absolute after:w-6 after:h-0.5 after:bg-black after:transition-all after:duration-300 after:ease-out after:top-2 {mobileMenuOpen ? 'before:rotate-45 before:top-0 after:-rotate-45 after:top-0' : ''}"></span>
+					</button>
 				</div>
 			</div>
 			

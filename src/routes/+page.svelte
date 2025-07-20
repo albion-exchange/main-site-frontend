@@ -66,9 +66,9 @@
 		</div>
 	</HeroSection>
 
-	<!-- Platform Stats - Simplified for mobile -->
+	<!-- Platform Stats - 3 columns on all viewports -->
 	<ContentSection background="white" padding="compact">
-		<div class="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 text-center">
+		<div class="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-8 text-center">
 		{#if stats.loading}
 			<StatsCard
 				title="Total Invested"
@@ -82,37 +82,33 @@
 				subtitle="Loading..."
 				size="large"
 			/>
-			<div class="hidden lg:block">
-				<StatsCard
-					title="Active Investors"
-					value="--"
-					subtitle="Loading..."
-					size="large"
-				/>
-			</div>
+			<StatsCard
+				title="Active Investors"
+				value="--"
+				subtitle="Loading..."
+				size="small"
+			/>
 		{:else}
 			<StatsCard
 				title="Total Invested"
 				value={formatted.totalInvested}
 				subtitle="this month"
 				trend={formatted.growthTrend}
-				size="large"
+				size="small"
 				valueColor="primary"
 			/>
 			<StatsCard
 				title="Assets"
 				value={formatted.totalAssets}
 				subtitle={formatted.regionsText}
-				size="large"
+				size="small"
 			/>
-			<div class="hidden lg:block">
-				<StatsCard
-					title="Active Investors"
-					value={formatted.activeInvestors}
-					subtitle="Token holders"
-					size="large"
-				/>
-			</div>
+			<StatsCard
+				title="Active Investors"
+				value={formatted.activeInvestors}
+				subtitle="Token holders"
+				size="small"
+			/>
 		{/if}
 		</div>
 	</ContentSection>

@@ -226,8 +226,8 @@
 		showButtons={false}
 		className="py-12"
 	>
-		<!-- Platform Stats - Simplified for mobile -->
-		<div class="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 text-center max-w-6xl mx-auto mt-6">
+		<!-- Platform Stats - 3 columns on all viewports -->
+		<div class="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-8 text-center max-w-6xl mx-auto mt-6">
 			{#if loading}
 				<StatsCard
 					title="Portfolio Value"
@@ -241,36 +241,32 @@
 					subtitle="Loading..."
 					size="large"
 				/>
-				<div class="hidden lg:block">
-					<StatsCard
-						title="Active Assets"
-						value="--"
-						subtitle="Loading..."
-						size="large"
-					/>
-				</div>
+				<StatsCard
+					title="Active Assets"
+					value="--"
+					subtitle="Loading..."
+					size="small"
+				/>
 			{:else}
 				<StatsCard
 					title="Portfolio Value"
 					value={formatCurrency(totalInvested)}
 					subtitle="Total invested"
-					size="large"
+					size="small"
 				/>
 				<StatsCard
 					title="Total Earned"
 					value={formatCurrency(totalPayoutsEarned)}
 					subtitle="All payouts"
 					valueColor="primary"
-					size="large"
+					size="small"
 				/>
-				<div class="hidden lg:block">
-					<StatsCard
-						title="Active Assets"
-						value={activeAssetsCount.toString()}
-						subtitle="In portfolio"
-						size="large"
-					/>
-				</div>
+				<StatsCard
+					title="Active Assets"
+					value={activeAssetsCount.toString()}
+					subtitle="In portfolio"
+					size="small"
+				/>
 			{/if}
 		</div>
 	</HeroSection>
