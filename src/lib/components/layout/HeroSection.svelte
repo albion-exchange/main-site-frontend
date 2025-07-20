@@ -7,7 +7,7 @@
 	export let showButtons = false;
 	export let className = '';
 	
-	$: sectionClasses = `${className || 'py-24'} text-center bg-white ${showBorder ? 'border-b border-light-gray' : ''}`;
+	$: sectionClasses = `${className || 'py-16 md:py-24'} text-center bg-white ${showBorder ? 'border-b border-light-gray' : ''}`;
 </script>
 
 <section class={sectionClasses}>

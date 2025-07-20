@@ -120,7 +120,7 @@
 	</ContentSection>
 
 	<!-- How It Works -->
-	<ContentSection background="gray" padding="standard" centered>
+	<ContentSection background="gray" padding="standard" centered className="hidden sm:block">
 		<SectionTitle level="h2" size="section" center className="mb-4 md:mb-6">How It Works</SectionTitle>
 			
 			<GridContainer columns={3} gap="large">
@@ -145,7 +145,7 @@
 	</ContentSection>
 
 	<!-- Trust Indicators -->
-	<ContentSection background="white" padding="standard" centered>
+	<ContentSection background="white" padding="standard" centered className="hidden sm:block">
 		<SectionTitle level="h2" size="section" center className="mb-4 md:mb-6">Why Choose Albion</SectionTitle>
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
 			<div class="flex flex-col items-center text-center">

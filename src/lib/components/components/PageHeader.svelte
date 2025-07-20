@@ -20,7 +20,7 @@
 <header class={containerClasses}>
 	<SectionTitle level="h1" size="page" center={centered}>{title}</SectionTitle>
 	{#if subtitle}
-		<p class="text-lg md:text-xl leading-relaxed text-black mt-4 font-figtree {centered ? 'mx-auto' : ''}">
+		<p class="text-base md:text-lg leading-relaxed text-black mt-4 font-figtree {centered ? 'mx-auto' : ''}">
 			{subtitle}
 		</p>
 	{/if}
