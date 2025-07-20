@@ -231,7 +231,7 @@
 				{#if activeTab === 'overview'}
 					<AssetOverviewTab asset={assetData} />
 				{:else if activeTab === 'production'}
-					{@const productionReports = assetData?.productionHistory || assetData?.monthlyReports || []}
+					{@const productionReports = assetData?.historicalProduction || assetData?.monthlyReports || []}
 					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map((r: any) => r.production)) : 100}
 					<div class="flex-1 flex flex-col">
 						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">

@@ -150,8 +150,8 @@ export function usePortfolioData() {
 			}
     
     // Add production from historical data (older months without payouts)
-    			if (asset.productionHistory) {
-				cumulativeProduction += arrayUtils.sum(asset.productionHistory, record => record.production);
+    			    if (asset.historicalProduction) {
+      cumulativeProduction += arrayUtils.sum(asset.historicalProduction, record => record.production);
 			}
     
     // Get total reserves (estimated remaining + cumulative)
