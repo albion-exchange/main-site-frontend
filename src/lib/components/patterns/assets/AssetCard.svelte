@@ -10,6 +10,41 @@
 	const dispatch = createEventDispatcher();
 	const tokenService = useTokenService();
 	
+	// Scroll state management for token list
+	let scrollContainer: HTMLDivElement;
+	let canScrollUp = false;
+	let canScrollDown = false;
+	
+	function checkScrollPosition() {
+		if (!scrollContainer) return;
+		
+		const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+		
+		// Check if we can scroll up (not at top)
+		canScrollUp = scrollTop > 0;
+		
+		// Check if we can scroll down (not at bottom)
+		// Adding a small threshold (2px) to account for rounding errors
+		canScrollDown = scrollTop + clientHeight < scrollHeight - 2;
+	}
+	
+	function handleScroll() {
+		checkScrollPosition();
+	}
+	
+	onMount(() => {
+		// Initial check after a small delay to ensure DOM is ready
+		setTimeout(checkScrollPosition, 100);
+	});
+	
+	// Re-check scroll position when available tokens change
+	$: if (scrollContainer && hasAvailableTokens) {
+		// Use requestAnimationFrame to ensure DOM is updated
+		requestAnimationFrame(() => {
+			checkScrollPosition();
+		});
+	}
+	
 	// Use asset data directly from the data store
 	$: latestReport = asset.monthlyReports[asset.monthlyReports.length - 1] || null;
 
@@ -30,7 +65,7 @@
 		dispatch('buyTokens', { assetId: asset.id });
 	}
 	
-	// Mobile-optimized class mappings
+	// Mobile-responsive class mappings
 	$: headerClasses = 'mb-4';
 	$: headerMainClasses = 'flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4';
 	$: nameLocationClasses = 'flex-1';
@@ -44,7 +79,25 @@
 	$: highlightStatClasses = 'flex flex-col items-center text-center';
 	$: highlightValueClasses = 'text-lg sm:text-xl lg:text-2xl font-extrabold text-secondary mb-1 font-figtree';
 	$: highlightLabelClasses = 'text-xs lg:text-sm text-gray-500 font-medium font-figtree';
-	$: viewDetailsSectionClasses = 'mt-4 lg:mt-6';
+	$: viewDetailsSectionClasses = 'mt-4 lg:mt-6 mb-4 lg:mb-6';
+	
+	// Token section classes - responsive
+	$: tokensSectionClasses = 'mb-4 lg:mb-6';
+	$: tokensTitleClasses = 'text-base lg:text-lg font-extrabold text-black m-0 mb-3 lg:mb-4 font-figtree';
+	$: tokensListClasses = 'flex flex-col gap-2 lg:gap-3';
+	$: tokensListScrollableClasses = 'flex flex-col gap-2 lg:gap-3 max-h-[10rem] lg:max-h-[13rem] overflow-y-auto pr-1 lg:pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400';
+	$: tokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 lg:p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-light-gray border border-light-gray hover:shadow-sm hover:-translate-y-0.5 gap-2 sm:gap-0';
+	$: tokenButtonLeftClasses = 'flex flex-col gap-1 flex-1';
+	$: tokenButtonRightClasses = 'flex flex-row sm:flex-col w-full sm:w-auto justify-between sm:justify-end items-center sm:items-end gap-2';
+	$: tokenSymbolClasses = 'font-extrabold text-sm lg:text-base text-black font-figtree';
+	$: tokenNameClasses = 'text-xs lg:text-sm text-gray-500 leading-tight font-figtree';
+	$: tokenPaymentDateClasses = 'text-xs text-secondary font-medium mt-1 hidden lg:block';
+	$: returnsDisplayClasses = 'flex items-center gap-1 lg:gap-2';
+	$: returnItemClasses = 'flex flex-col items-center text-center';
+	$: returnLabelClasses = 'text-[0.6rem] lg:text-xs text-gray-500 font-medium';
+	$: returnValueClasses = 'text-sm lg:text-lg text-primary font-extrabold font-figtree';
+	$: returnDividerClasses = 'text-xs lg:text-sm text-gray-500 font-medium mx-1';
+	$: buyCtaClasses = 'text-sm lg:text-base font-extrabold text-black font-figtree';
 
 </script>
 
@@ -65,7 +118,7 @@
 			</div>
 		</header>
 		
-		<!-- Simplified Key Stats -->
+		<!-- Key Stats -->
 		<div class={highlightedStatsClasses}>
 			<div class={highlightStatClasses}>
 				<span class={highlightValueClasses}>{asset.production?.expectedRemainingProduction || 'TBD'}</span>
@@ -84,15 +137,92 @@
 			</div>
 		</div>
 		
-		<!-- Simplified description -->
+		<!-- Description -->
 		<p class={assetDescriptionClasses}>{asset.description}</p>
 		
-		<!-- Action button - simplified messaging -->
-		<div class={viewDetailsSectionClasses + ' mt-auto'}>
+		<!-- View Details Button -->
+		<div class={viewDetailsSectionClasses}>
 			<PrimaryButton href="/assets/{asset.id}" fullWidth on:click={(e) => e.stopPropagation()}>
-				{hasAvailableTokens ? 'View & Buy Tokens' : 'View Details'}
+				{hasAvailableTokens ? 'View Details' : 'View Details'}
 			</PrimaryButton>
 		</div>
+
+		<!-- Available Tokens Section - Mobile Responsive -->
+		{#if hasAvailableTokens}
+		{@const availableTokens = assetTokens.filter(token => {
+			const supply = tokenService.getTokenSupply(token.contractAddress);
+			return supply && supply.available > 0;
+		})}
+		<div class={tokensSectionClasses}>
+			<h4 class={tokensTitleClasses}>Available Tokens</h4>
+			<div class="flex flex-col">
+				{#if availableTokens.length > 2 && canScrollUp}
+					<!-- Top scroll indicator - hidden on mobile -->
+					<button 
+						class="hidden lg:flex w-full py-1 items-center justify-center hover:bg-gray-50 transition-colors"
+						on:click|stopPropagation={() => scrollContainer.scrollBy({ top: -100, behavior: 'smooth' })}
+						aria-label="Scroll up to see more tokens"
+					>
+						<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+						</svg>
+					</button>
+				{/if}
+				
+				<div 
+					bind:this={scrollContainer}
+					on:scroll={handleScroll}
+					class="{availableTokens.length > 2 ? tokensListScrollableClasses : tokensListClasses}">
+					{#each availableTokens as token}
+					{@const calculatedReturns = tokenService.getTokenReturns(token.contractAddress)}
+					{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) : 0}
+					{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) : 0}
+					{@const firstPaymentMonth = token.firstPaymentDate || 'TBD'}
+					<button 
+						class={tokenButtonClasses} 
+						on:click|stopPropagation={() => handleBuyTokens()}
+					>
+						<div class={tokenButtonLeftClasses}>
+							<div class="flex justify-between items-center w-full gap-2">
+								<span class={tokenSymbolClasses}>{token.symbol}</span>
+								<span class="text-xs font-extrabold text-white bg-secondary px-2 py-1 tracking-wider rounded whitespace-nowrap hidden sm:inline">{token.sharePercentage ? `${token.sharePercentage}%` : shareOfAsset} of Asset</span>
+							</div>
+							<span class={tokenNameClasses}>{token.name}</span>
+							<span class={tokenPaymentDateClasses}>First payment: {firstPaymentMonth}</span>
+						</div>
+						<div class={tokenButtonRightClasses}>
+							<div class={returnsDisplayClasses}>
+								<div class={returnItemClasses}>
+									<span class={returnLabelClasses}>Base</span>
+									<span class={returnValueClasses}>{baseReturn}%</span>
+								</div>
+								<div class={returnDividerClasses}>+</div>
+								<div class={returnItemClasses}>
+									<span class={returnLabelClasses}>Bonus</span>
+									<span class={returnValueClasses}>{bonusReturn}%</span>
+								</div>
+							</div>
+							<span class={buyCtaClasses}>Buy →</span>
+						</div>
+					</button>
+				{/each}
+				</div>
+				
+				{#if availableTokens.length > 2 && canScrollDown}
+					<!-- Bottom scroll indicator - hidden on mobile -->
+					<button 
+						class="hidden lg:flex w-full py-1 items-center justify-center hover:bg-gray-50 transition-colors"
+						on:click|stopPropagation={() => scrollContainer.scrollBy({ top: 100, behavior: 'smooth' })}
+						aria-label="Scroll down to see more tokens"
+					>
+						<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+						</svg>
+					</button>
+				{/if}
+			</div>
+		</div>
+		{/if}
 	</CardContent>
 </Card>
 
