@@ -31,3 +31,4 @@ export { default as TabButton } from "./TabButton.svelte";
 export { default as TableRow } from "./TableRow.svelte";
 export { default as TabNavigation } from "./TabNavigation.svelte";
 export { default as TextBlock } from "./TextBlock.svelte";
+export { default as Collapsible } from "./Collapsible.svelte";

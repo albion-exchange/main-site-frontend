@@ -5,7 +5,7 @@
 	import type { Asset } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/patterns/WalletModal.svelte';
-	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard } from '$lib/components/components';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard, Collapsible } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection, StatsSection } from '$lib/components/layout';
 	import { formatCurrency } from '$lib/utils/formatters';
 	import { dateUtils } from '$lib/utils/dateHelpers';
@@ -384,8 +384,8 @@
 			</div>
 		</FullWidthSection>
 
-		<!-- Asset-by-Asset Claiming -->
-		<ContentSection background="white" padding="compact">
+		<!-- Asset-by-Asset Claiming (desktop & tablet) -->
+		<ContentSection background="white" padding="compact" className="hidden sm:block">
 			<div class="mb-6">
 				<SectionTitle level="h2" size="section">Claim by Asset</SectionTitle>
 			</div>
@@ -424,6 +424,31 @@
 							</div>
 						</CardContent>
 					</Card>
+				{/each}
+			</div>
+		</ContentSection>
+
+		<!-- Mobile Collapsible Asset Claims -->
+		<ContentSection background="white" padding="compact" className="sm:hidden">
+			<div class="space-y-4">
+				{#each holdings as holding}
+					<Collapsible title={`Claim ${holding.name}`}> 
+						<div class="flex flex-col gap-3">
+							<div class="flex justify-between items-center text-sm">
+								<span class="font-semibold">Unclaimed:</span>
+								<span class="font-extrabold text-primary">{formatCurrency(holding.unclaimedAmount)}</span>
+							</div>
+							<div class="flex justify-between items-center text-xs text-black opacity-70">
+								<span>Last payout:</span>
+								<span>{holding.lastPayout ? formatDate(holding.lastPayout) : 'Never'}</span>
+							</div>
+							<div class="mt-3">
+								<SecondaryButton size="small" fullWidth on:click={() => handleClaimSingle(holding.id)}>
+									Claim {formatCurrency(holding.unclaimedAmount)}
+								</SecondaryButton>
+							</div>
+						</div>
+					</Collapsible>
 				{/each}
 			</div>
 		</ContentSection>

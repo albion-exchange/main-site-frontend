@@ -5,7 +5,7 @@
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/patterns/WalletModal.svelte';
-	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, TabNavigation, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart } from '$lib/components/components';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, TabNavigation, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart, Collapsible } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
 	import { formatCurrency, formatPercentage, formatNumber } from '$lib/utils/formatters';
 	import { useTooltip, useCardFlip } from '$lib/composables';
@@ -299,7 +299,7 @@
 				{#if activeTab === 'overview'}
 					<SectionTitle level="h3" size="subsection" className="mb-6">My Holdings</SectionTitle>
 					
-					<div class="space-y-3">
+					<div class="space-y-3 hidden sm:block">
 						{#if loading}
 							<div class="text-center py-12 text-black opacity-70">Loading portfolio holdings...</div>
 						{:else}
@@ -478,6 +478,32 @@
 								</div>
 							{/each}
 						{/if}
+					</div>
+					<!-- Mobile collapsible holdings list -->
+					<div class="space-y-3 sm:hidden">
+						{#each holdings as holding}
+							<Collapsible title={holding.tokenSymbol + ' - ' + holding.name}>
+								<div class="flex flex-col gap-3 text-sm">
+									<div class="flex justify-between">
+										<span class="font-semibold">Tokens</span>
+										<span class="font-extrabold">{formatNumber(holding.tokensOwned)}</span>
+									</div>
+									<div class="flex justify-between">
+										<span class="font-semibold">Payouts To Date</span>
+										<span class="font-extrabold text-primary">{formatCurrency(holding.totalPayoutsEarned)}</span>
+									</div>
+									<div class="flex justify-between">
+										<span class="font-semibold">Capital Returned</span>
+										<span class="font-extrabold">{formatPercentage(holding.capitalReturned / 100)}</span>
+									</div>
+									<div class="mt-2">
+										<SecondaryButton size="small" fullWidth on:click={() => toggleCardFlip(holding.id)}>
+											View Charts
+										</SecondaryButton>
+									</div>
+								</div>
+							</Collapsible>
+						{/each}
 					</div>
 			{:else if activeTab === 'performance'}
 					{@const allTransactions = walletDataService.getAllTransactions()}
