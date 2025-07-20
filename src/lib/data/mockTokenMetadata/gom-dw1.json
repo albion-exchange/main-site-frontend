@@ -11,85 +11,46 @@
     "maxSupply": "7900000000000000000000000",
     "mintedSupply": "3475000000000000000000000"
   },
-  "monthlyData": [
+  "payoutData": [
     {
       "month": "2025-06",
-      "assetData": {
-        "production": 3339.9,
-        "revenue": 233793,
-        "expenses": 0,
-        "netIncome": 233793
-      },
       "tokenPayout": {
         "date": "2025-06-15T00:00:00.000Z",
         "totalPayout": 187034.4,
         "payoutPerToken": 0.05382,
         "txHash": "0xffffffffffffffffffffffffaae10e0b867ea547"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     },
     {
       "month": "2025-05",
-      "assetData": {
-        "production": 3578.4,
-        "revenue": 250488,
-        "expenses": 0,
-        "netIncome": 250488
-      },
       "tokenPayout": {
         "date": "2025-05-15T00:00:00.000Z",
         "totalPayout": 200390.4,
         "payoutPerToken": 0.05767,
         "txHash": "0x00000000000000000000000048fe65b0e25d8d28"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     },
     {
       "month": "2025-04",
-      "assetData": {
-        "production": 3271.7,
-        "revenue": 229019,
-        "expenses": 0,
-        "netIncome": 229019
-      },
       "tokenPayout": {
         "date": "2025-04-15T00:00:00.000Z",
         "totalPayout": 183215.2,
         "payoutPerToken": 0.05272,
         "txHash": "0x0000000000000000000000003213a19c9bf0f95e"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     },
     {
       "month": "2025-03",
-      "assetData": {
-        "production": 3442.1,
-        "revenue": 240947,
-        "expenses": 0,
-        "netIncome": 240947
-      },
       "tokenPayout": {
         "date": "2025-03-15T00:00:00.000Z",
         "totalPayout": 192757.6,
         "payoutPerToken": 0.05547,
         "txHash": "0x000000000000000000000000254bfab614bc6e08"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     }
   ],
   "asset": {
+    "assetName": "Gulf of Mexico-4 Royalty Stream",
     "description": "Offshore deep-water oil development with state-of-the-art subsea production systems and enhanced recovery techniques.",
     "location": {
       "state": "Louisiana",
@@ -99,7 +60,7 @@
         "lat": 28.5,
         "lng": -89.2
       },
-      "waterDepth": "1,850m"
+      "waterDepth": 1850
     },
     "operator": {
       "name": "Deep Water Solutions Inc.",
@@ -269,7 +230,81 @@
         }
       ]
     },
-    "productionHistory": [
+    "operationalMetrics": {
+      "uptime": {
+        "percentage": 98.7,
+        "unit": "percent",
+        "period": "last_30_days"
+      },
+      "dailyProduction": {
+        "current": 4872,
+        "target": 4960,
+        "unit": "boe"
+      },
+      "hseMetrics": {
+        "incidentFreeDays": 765,
+        "lastIncidentDate": "2022-12-03T00:00:00.000Z",
+        "safetyRating": "Outstanding"
+      }
+    },
+    "documents": [],
+    "coverImage": "/images/gom-dw-cover.avif",
+    "galleryImages": [],
+    "receiptsData": [
+      {
+        "month": "2025-06",
+        "assetData": {
+          "production": 3339.9,
+          "revenue": 233793,
+          "expenses": 0,
+          "netIncome": 233793
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-05",
+        "assetData": {
+          "production": 3578.4,
+          "revenue": 250488,
+          "expenses": 0,
+          "netIncome": 250488
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-04",
+        "assetData": {
+          "production": 3271.7,
+          "revenue": 229019,
+          "expenses": 0,
+          "netIncome": 229019
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-03",
+        "assetData": {
+          "production": 3442.1,
+          "revenue": 240947,
+          "expenses": 0,
+          "netIncome": 240947
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      }
+    ],
+    "historicalProduction": [
       {
         "month": "2022-10",
         "production": 4224.96
@@ -374,28 +409,7 @@
         "month": "2024-11",
         "production": 2092.56
       }
-    ],
-    "operationalMetrics": {
-      "uptime": {
-        "percentage": 98.7,
-        "unit": "percent",
-        "period": "last_30_days"
-      },
-      "dailyProduction": {
-        "current": 4872,
-        "target": 4960,
-        "unit": "boe"
-      },
-      "hseMetrics": {
-        "incidentFreeDays": 765,
-        "lastIncidentDate": "2022-12-03T00:00:00.000Z",
-        "safetyRating": "Outstanding"
-      }
-    },
-    "assetName": "Gulf of Mexico-4 Royalty Stream",
-    "documents": [],
-    "coverImage": "/images/gom-dw-cover.avif",
-    "galleryImages": []
+    ]
   },
   "metadata": {
     "createdAt": "2022-10-15T10:00:00.000Z",

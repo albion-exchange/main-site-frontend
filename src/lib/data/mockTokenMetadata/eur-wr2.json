@@ -11,85 +11,46 @@
     "maxSupply": "154999999999999970000000",
     "mintedSupply": "128000000000000000000000"
   },
-  "monthlyData": [
+  "payoutData": [
     {
       "month": "2025-06",
-      "assetData": {
-        "production": 310.5,
-        "revenue": 21735,
-        "expenses": 0,
-        "netIncome": 21735
-      },
       "tokenPayout": {
         "date": "2025-06-15T00:00:00.000Z",
         "totalPayout": 4347,
         "payoutPerToken": 0.03396,
         "txHash": "0xffffffffffffffffffffffff8164edcb70bbebae"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     },
     {
       "month": "2025-05",
-      "assetData": {
-        "production": 325.2,
-        "revenue": 22764,
-        "expenses": 0,
-        "netIncome": 22764
-      },
       "tokenPayout": {
         "date": "2025-05-15T00:00:00.000Z",
         "totalPayout": 4552.8,
         "payoutPerToken": 0.03557,
         "txHash": "0xffffffffffffffffffffffffced74aeb4b022672"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     },
     {
       "month": "2025-04",
-      "assetData": {
-        "production": 298.7,
-        "revenue": 20909,
-        "expenses": 0,
-        "netIncome": 20909
-      },
       "tokenPayout": {
         "date": "2025-04-15T00:00:00.000Z",
-        "totalPayout": 4181.8,
+        "totalPayout": 4181.5,
         "payoutPerToken": 0.03267,
-        "txHash": "0xffffffffffffffffffffffffa4945e18bc813b57"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
+        "txHash": "0x000000000000000000000000ffbbfbf6ffc9ad8a"
       }
     },
     {
       "month": "2025-03",
-      "assetData": {
-        "production": 315.8,
-        "revenue": 22106,
-        "expenses": 0,
-        "netIncome": 22106
-      },
       "tokenPayout": {
         "date": "2025-03-15T00:00:00.000Z",
         "totalPayout": 4421.2,
         "payoutPerToken": 0.03454,
-        "txHash": "0xffffffffffffffffffffffffbe216dfc5fedde41"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
+        "txHash": "0x00000000000000000000000045af03b02f54b6f4"
       }
     }
   ],
   "asset": {
+    "assetName": "Wressle-1 Royalty Stream",
     "description": "Onshore conventional oil field located in the North Sea Sector 7B with proven reserves and established infrastructure.",
     "location": {
       "state": "East Midlands",
@@ -99,7 +60,7 @@
         "lat": 53.2,
         "lng": 0.2
       },
-      "waterDepth": "0m"
+      "waterDepth": 0
     },
     "operator": {
       "name": "Egdon Resources",
@@ -123,7 +84,7 @@
     },
     "assetTerms": {
       "interestType": "Royalty",
-      "amount": 4.5,
+      "amount": 3.75,
       "amountTooltip": "All numbers shown have already been adjusted for the royalty percentage and represent the net amounts payable to token holders",
       "paymentFrequencyDays": 30
     },
@@ -269,7 +230,7 @@
         }
       ]
     },
-    "productionHistory": [
+    "historicalProduction": [
       {
         "month": "2022-03",
         "production": 1056.24
@@ -403,6 +364,60 @@
         "production": 435.78
       }
     ],
+    "receiptsData": [
+      {
+        "month": "2025-06",
+        "assetData": {
+          "production": 310.5,
+          "revenue": 21735,
+          "expenses": 0,
+          "netIncome": 21735
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-05",
+        "assetData": {
+          "production": 325.2,
+          "revenue": 22764,
+          "expenses": 0,
+          "netIncome": 22764
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-04",
+        "assetData": {
+          "production": 298.7,
+          "revenue": 20909,
+          "expenses": 0,
+          "netIncome": 20909
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-03",
+        "assetData": {
+          "production": 315.8,
+          "revenue": 22106,
+          "expenses": 0,
+          "netIncome": 22106
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      }
+    ],
     "operationalMetrics": {
       "uptime": {
         "percentage": 99.8,
@@ -420,7 +435,6 @@
         "safetyRating": "Excellent"
       }
     },
-    "assetName": "Wressle-1 Royalty Stream",
     "documents": [],
     "coverImage": "/images/eur-wr-cover.jpg",
     "galleryImages": [
@@ -447,7 +461,7 @@
     ]
   },
   "metadata": {
-    "createdAt": "2024-03-15T11:30:00.000Z",
-    "updatedAt": "2024-12-01T18:00:00.000Z"
+    "createdAt": "2024-02-15T10:00:00.000Z",
+    "updatedAt": "2025-01-07T10:00:00.000Z"
   }
 }

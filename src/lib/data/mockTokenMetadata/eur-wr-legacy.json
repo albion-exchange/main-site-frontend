@@ -11,72 +11,43 @@
     "maxSupply": "100000000000000000000000",
     "mintedSupply": "100000000000000000000000"
   },
-  "monthlyData": [
+  "payoutData": [
     {
       "month": "2025-02",
-      "assetData": {
-        "production": 75,
-        "revenue": 6250,
-        "expenses": 0,
-        "netIncome": 6250
-      },
       "tokenPayout": {
         "date": "2025-02-15T00:00:00.000Z",
         "totalPayout": 15000,
         "payoutPerToken": 0.15,
         "txHash": "0xffffffffffffffffffffffffe791cdaa42d67780"
-      },
-      "realisedPrice": {
-        "oilPrice": 83.33,
-        "gasPrice": 0
       }
     },
     {
       "month": "2025-01",
-      "assetData": {
-        "production": 100,
-        "revenue": 8333,
-        "expenses": 0,
-        "netIncome": 8333
-      },
       "tokenPayout": {
         "date": "2025-01-15T00:00:00.000Z",
         "totalPayout": 20000,
         "payoutPerToken": 0.2,
         "txHash": "0xffffffffffffffffffffffffe791cdaa42d67779"
-      },
-      "realisedPrice": {
-        "oilPrice": 83.33,
-        "gasPrice": 0
       }
     },
     {
       "month": "2024-12",
-      "assetData": {
-        "production": 425,
-        "revenue": 35417,
-        "expenses": 0,
-        "netIncome": 35417
-      },
       "tokenPayout": {
         "date": "2024-12-15T00:00:00.000Z",
         "totalPayout": 85000,
         "payoutPerToken": 0.85,
         "txHash": "0xffffffffffffffffffffffffe791cdaa42d67778"
-      },
-      "realisedPrice": {
-        "oilPrice": 83.33,
-        "gasPrice": 0
       }
     }
   ],
   "asset": {
+    "assetName": "Wressle Legacy Production",
     "id": "europa-wressle-legacy",
     "name": "Wressle Legacy Production",
     "description": "A legacy well from the Wressle field that has now been decommissioned after successful production lifecycle",
     "location": {
-      "field": "Wressle",
       "state": "Yorkshire",
+      "county": "North Lincolnshire",
       "country": "UK",
       "coordinates": {
         "lat": 53.6568,
@@ -86,12 +57,19 @@
     },
     "operator": {
       "name": "Europa Oil & Gas",
-      "websiteUrl": "https://www.europaoil.com",
+      "website": "https://www.europaoil.com",
       "experienceYears": 15
     },
     "technical": {
+      "fieldType": "Conventional Oil",
       "depth": 1620,
+      "license": "PEDL180/PEDL182",
       "estimatedLifeMonths": 48,
+      "firstOil": "2023-01",
+      "infrastructure": "Existing pipeline connection",
+      "environmental": "Full environmental compliance",
+      "expectedEndDate": "2025-12",
+      "crudeBenchmark": "Brent",
       "geologicalFormation": "Ashover Grit & Wingfield Flags",
       "oilType": "Light Sweet Crude",
       "oilGravity": 39.5,
@@ -103,60 +81,101 @@
       }
     },
     "production": {
+      "current": "0 boe/day",
       "status": "decommissioned",
       "firstProduction": "2023-01-01",
       "expectedRemainingProduction": "0 mboe",
       "units": {
         "production": 1,
-        "revenue": "USD"
+        "revenue": 1
       }
     },
     "assetTerms": {
-      "contractType": "Net Revenue Interest",
+      "interestType": "Net Revenue Interest",
       "amount": 2.4,
-      "paymentFrequency": "Monthly",
+      "amountTooltip": "All numbers shown have already been adjusted for the royalty percentage and represent the net amounts payable to token holders",
       "paymentFrequencyDays": 45
     },
-    "productionHistory": [
-      {
-        "year": 2023,
-        "production": 4800,
-        "revenue": 384000,
-        "netIncome": 320000
-      },
-      {
-        "year": 2024,
-        "production": 3600,
-        "revenue": 288000,
-        "netIncome": 240000
-      },
-      {
-        "year": 2025,
-        "production": 600,
-        "revenue": 50000,
-        "netIncome": 41666
-      }
-    ],
     "plannedProduction": {
+      "oilPriceAssumption": 65,
+      "oilPriceAssumptionCurrency": "USD",
       "projections": []
     },
     "operationalMetrics": {
       "dailyProduction": {
         "current": 0,
-        "average": 0,
+        "target": 0,
         "unit": "bopd"
       },
       "uptime": {
         "percentage": 0,
+        "unit": "percent",
         "period": "last30days"
       },
       "hseMetrics": {
-        "incidentFreeDays": 1095
+        "incidentFreeDays": 1095,
+        "lastIncidentDate": "2022-01-01T00:00:00.000Z",
+        "safetyRating": "Excellent"
       }
     },
-    "assetName": "Wressle Legacy Production",
     "coverImage": "/images/eur-wr-cover.jpg",
-    "galleryImages": []
+    "galleryImages": [],
+    "documents": [],
+    "receiptsData": [
+      {
+        "month": "2025-02",
+        "assetData": {
+          "production": 75,
+          "revenue": 6250,
+          "expenses": 0,
+          "netIncome": 6250
+        },
+        "realisedPrice": {
+          "oilPrice": 83.33,
+          "gasPrice": 0
+        }
+      },
+      {
+        "month": "2025-01",
+        "assetData": {
+          "production": 100,
+          "revenue": 8333,
+          "expenses": 0,
+          "netIncome": 8333
+        },
+        "realisedPrice": {
+          "oilPrice": 83.33,
+          "gasPrice": 0
+        }
+      },
+      {
+        "month": "2024-12",
+        "assetData": {
+          "production": 425,
+          "revenue": 35417,
+          "expenses": 0,
+          "netIncome": 35417
+        },
+        "realisedPrice": {
+          "oilPrice": 83.33,
+          "gasPrice": 0
+        }
+      }
+    ],
+    "historicalProduction": [
+      {
+        "month": "2023-12",
+        "production": 400
+      },
+      {
+        "month": "2024-12",
+        "production": 300
+      },
+      {
+        "month": "2025-02",
+        "production": 50
+      }
+    ]
   },
   "metadata": {
     "createdAt": "2023-01-01T00:00:00.000Z",

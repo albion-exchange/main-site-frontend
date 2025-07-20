@@ -14,7 +14,8 @@ import type {
   WalletPayout,
   PayoutHistoryItem,
 } from "$lib/types/wallet";
-import { dataStoreService } from "$lib/services/DataStoreService";
+import assetService from "./AssetService";
+import tokenService from "./TokenService";
 import type { Asset, Token } from "$lib/types/uiTypes";
 
 // Import mock wallet data
@@ -28,10 +29,13 @@ interface SimpleWalletData {
 
 class WalletDataService {
   private rawData: SimpleWalletData;
+  private assetService = assetService;
+  private tokenService = tokenService;
 
   constructor() {
     // Initialize with mock data
     this.rawData = walletDataJson as SimpleWalletData;
+    // Initialize services
   }
 
   /**
@@ -67,6 +71,14 @@ class WalletDataService {
   }
 
   /**
+   * Get total claimed amount
+   */
+  getTotalClaimed(): number {
+    const claimTransactions = this.rawData.transactions.filter(tx => tx.type === 'claim');
+    return claimTransactions.reduce((sum, tx) => sum + tx.amount, 0);
+  }
+
+  /**
    * Calculate unclaimed payouts
    */
   getUnclaimedPayouts(): number {
@@ -91,9 +103,9 @@ class WalletDataService {
     this.rawData.transactions
       .filter((tx) => tx.type === "mint")
       .forEach((tx) => {
-        const token = dataStoreService.getTokenByAddress(tx.address);
+        const token = this.tokenService.getTokenByAddress(tx.address);
         if (token) {
-          const asset = dataStoreService.getAssetById(token.assetId);
+          const asset = this.assetService.getAssetById(token.assetId);
           if (
             asset &&
             (asset.production.status === "producing" ||
@@ -146,21 +158,43 @@ class WalletDataService {
 
     holdingsByAddress.forEach((data, contractAddress) => {
       // Get token and asset info
-      const token = dataStoreService.getTokenByAddress(contractAddress);
-      if (!token) return;
+      const token = this.tokenService.getTokenByAddress(contractAddress);
+      if (!token) {
+        console.warn(`Token not found for contract address: ${contractAddress}`);
+        return;
+      }
 
-      const asset = dataStoreService.getAssetById(token.assetId);
-      if (!asset) return;
+      const asset = this.assetService.getAssetById(token.assetId);
+      if (!asset) {
+        console.warn(`Asset not found for token assetId: ${token.assetId}`);
+        return;
+      }
 
       // Calculate investment amount
       const investmentAmount = data.transactions
         .filter((tx) => tx.type === "mint")
-        .reduce((sum, tx) => sum + tx.amountUSD, 0);
+        .reduce((sum, tx) => {
+          const amount = tx.amountUSD;
+          // Validate that amount is a valid number
+          if (typeof amount !== 'number' || isNaN(amount)) {
+            console.warn(`Invalid amountUSD for transaction ${tx.id || tx.txHash}: ${amount}`);
+            return sum;
+          }
+          return sum + amount;
+        }, 0);
 
       // Calculate token balance
       const tokenBalance = data.transactions
         .filter((tx) => tx.type === "mint")
-        .reduce((sum, tx) => sum + tx.amount, 0);
+        .reduce((sum, tx) => {
+          const amount = tx.amount;
+          // Validate that amount is a valid number
+          if (typeof amount !== 'number' || isNaN(amount)) {
+            console.warn(`Invalid amount for transaction ${tx.id || tx.txHash}: ${amount}`);
+            return sum;
+          }
+          return sum + amount;
+        }, 0);
 
       // Build payout history
       const payoutHistory = this.buildPayoutHistory(
@@ -169,11 +203,34 @@ class WalletDataService {
       );
 
       // Calculate payout summary
-      const totalEarned = data.payouts.reduce((sum, p) => sum + p.amount, 0);
+      const totalEarned = data.payouts.reduce((sum, p) => {
+        const amount = p.amount;
+        if (typeof amount !== 'number' || isNaN(amount)) {
+          console.warn(`Invalid payout amount for payout ${p.id}: ${amount}`);
+          return sum;
+        }
+        return sum + amount;
+      }, 0);
+      
       const claimedAmount = this.rawData.transactions
         .filter((tx) => tx.type === "claim" && tx.address === contractAddress)
-        .reduce((sum, tx) => sum + tx.amount, 0);
+        .reduce((sum, tx) => {
+          const amount = tx.amount;
+          if (typeof amount !== 'number' || isNaN(amount)) {
+            console.warn(`Invalid claim amount for transaction ${tx.id || tx.txHash}: ${amount}`);
+            return sum;
+          }
+          return sum + amount;
+        }, 0);
+      
       const unclaimedAmount = totalEarned - claimedAmount;
+
+      // Allow holdings with payouts even if no investment (could be airdrops, gifts, etc.)
+      if ((!investmentAmount || typeof investmentAmount !== 'number' || isNaN(investmentAmount) || investmentAmount <= 0) && 
+          (!totalEarned || totalEarned <= 0)) {
+        console.warn(`Skipping holding with no investment and no payouts for contract ${contractAddress}`);
+        return;
+      }
 
       // Get last claim date
       const lastClaim = this.rawData.transactions
@@ -320,6 +377,13 @@ class WalletDataService {
             100
           : 0;
 
+      // Find last claim transaction for this asset
+              const token = this.tokenService.getTokensByAssetId(holding.assetId)[0];
+      const contractAddress = token?.contractAddress;
+      const lastClaim = contractAddress ? this.rawData.transactions
+        .filter(tx => tx.type === 'claim' && tx.address === contractAddress)
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0] : null;
+
       return {
         assetId: holding.assetId,
         assetName: holding.assetName,
@@ -328,6 +392,7 @@ class WalletDataService {
         unclaimedAmount: holding.payoutsSummary.unclaimedAmount,
         lastPayoutAmount: lastPayout?.amount || 0,
         lastPayoutDate: lastPayout?.claimDate,
+        lastClaimDate: lastClaim?.timestamp,
         roi,
         monthlyPayouts,
       };
@@ -342,6 +407,16 @@ class WalletDataService {
     const payoutsByMonth = new Map<string, number>();
 
     this.rawData.payouts.forEach((payout) => {
+      // Validate payout data
+      if (!payout || typeof payout.amount !== 'number' || isNaN(payout.amount)) {
+        console.warn(`Invalid payout data:`, payout);
+        return;
+      }
+      if (!payout.month || typeof payout.month !== 'string') {
+        console.warn(`Invalid payout month:`, payout);
+        return;
+      }
+
       const current = payoutsByMonth.get(payout.month) || 0;
       payoutsByMonth.set(payout.month, current + payout.amount);
     });
@@ -349,6 +424,14 @@ class WalletDataService {
     // Convert to array and sort
     return Array.from(payoutsByMonth.entries())
       .map(([month, totalPayout]) => ({ month, totalPayout }))
+      .filter(({ month, totalPayout }) => {
+        // Final validation
+        return month && 
+               typeof month === 'string' && 
+               typeof totalPayout === 'number' && 
+               !isNaN(totalPayout) && 
+               totalPayout >= 0;
+      })
       .sort((a, b) => a.month.localeCompare(b.month));
   }
 
@@ -375,9 +458,9 @@ class WalletDataService {
       );
 
       const assetBreakdown = monthPayouts.map((payout) => {
-        const token = dataStoreService.getTokenByAddress(payout.address);
+        const token = this.tokenService.getTokenByAddress(payout.address);
         const asset = token
-          ? dataStoreService.getAssetById(token.assetId)
+          ? this.assetService.getAssetById(token.assetId)
           : null;
 
         // Check if claimed
@@ -414,24 +497,38 @@ class WalletDataService {
    */
   getTokenAllocation(): TokenAllocation[] {
     const holdings = this.computeHoldings();
-    const totalPortfolioValue = this.getTotalInvested();
-
-    return holdings.map((holding) => {
-      const percentageOfPortfolio =
-        totalPortfolioValue > 0
-          ? (holding.investmentAmount / totalPortfolioValue) * 100
-          : 0;
-
-      return {
-        tokenSymbol: holding.symbol,
-        assetId: holding.assetId,
-        assetName: holding.assetName,
-        tokensOwned: holding.formattedBalance,
-        percentageOfPortfolio,
-        currentValue: holding.investmentAmount, // In real implementation, would fetch current market value
-        totalEarned: holding.payoutsSummary.totalEarned,
-      };
+    
+    // Calculate total portfolio value from valid holdings only
+    const validHoldings = holdings.filter(holding => {
+      return holding.investmentAmount && 
+             typeof holding.investmentAmount === 'number' && 
+             !isNaN(holding.investmentAmount) && 
+             holding.investmentAmount > 0;
     });
+    
+    const totalPortfolioValue = validHoldings.reduce((sum, holding) => sum + holding.investmentAmount, 0);
+
+    return validHoldings
+      .map((holding) => {
+        const percentageOfPortfolio =
+          totalPortfolioValue > 0
+            ? (holding.investmentAmount / totalPortfolioValue) * 100
+            : 0;
+
+        // Ensure percentage is a valid number
+        const validPercentage = isNaN(percentageOfPortfolio) ? 0 : percentageOfPortfolio;
+
+        return {
+          tokenSymbol: holding.symbol,
+          assetId: holding.assetId,
+          assetName: holding.assetName,
+          tokensOwned: holding.formattedBalance,
+          percentageOfPortfolio: validPercentage,
+          currentValue: holding.investmentAmount, // In real implementation, would fetch current market value
+          totalEarned: holding.payoutsSummary.totalEarned,
+        };
+      })
+      .sort((a, b) => b.percentageOfPortfolio - a.percentageOfPortfolio); // Sort by percentage descending
   }
 
   /**
@@ -591,7 +688,7 @@ class WalletDataService {
   }
 
   /**
-   * Get holdings with asset details from DataStoreService
+   * Get holdings with asset details from focused services
    */
   getHoldingsWithAssetDetails(): Array<{
     holding: WalletHolding;
@@ -601,8 +698,8 @@ class WalletDataService {
     const holdings = this.computeHoldings();
 
     return holdings.map((holding) => {
-      const asset = dataStoreService.getAssetById(holding.assetId);
-      const token = dataStoreService.getTokenByAddress(holding.contractAddress);
+      const asset = this.assetService.getAssetById(holding.assetId);
+      const token = this.tokenService.getTokenByAddress(holding.contractAddress);
 
       return {
         holding,
@@ -674,28 +771,35 @@ class WalletDataService {
     };
   }
 
-  /**
-   * Format currency for display
-   */
-  formatCurrency(amount: number): string {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  }
+
 
   /**
-   * Format percentage for display
+   * Get claim history
    */
-  formatPercentage(value: number): string {
-    return new Intl.NumberFormat("en-US", {
-      style: "percent",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value / 100);
+  getClaimHistory(): Array<{
+    date: string;
+    amount: number;
+    asset: string;
+    txHash: string;
+    status: string;
+  }> {
+    const claimTransactions = this.rawData.transactions.filter(tx => tx.type === 'claim');
+    
+    return claimTransactions.map(tx => {
+              const token = this.tokenService.getTokenByAddress(tx.address);
+        const asset = token ? this.assetService.getAssetById(token.assetId) : null;
+      
+      return {
+        date: tx.timestamp,
+        amount: tx.amount,
+        asset: asset ? asset.name : 'Unknown Asset',
+        txHash: tx.txHash,
+        status: 'completed'
+      };
+    });
   }
+
+
 }
 
 // Export singleton instance

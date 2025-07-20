@@ -35,6 +35,7 @@ npm run preview      # Preview production build
 npm run check        # Run TypeScript and Svelte checks
 npm run lint         # Run ESLint
 npm run format       # Format code with Prettier
+npm run test        # Run unit tests with Vitest
 ```
 
 ## Tech Stack

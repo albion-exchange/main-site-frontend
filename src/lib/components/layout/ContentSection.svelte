@@ -12,14 +12,14 @@
 	};
 	
 	const paddingClasses = {
-		compact: 'py-8 px-4 md:py-12 md:px-8',
-		standard: 'py-16 px-8',
-		large: 'py-24 px-8',
+		compact: 'py-8 md:py-12',
+		standard: 'py-16',
+		large: 'py-24',
 		none: ''
 	};
 	
 	$: sectionClasses = `${backgroundClasses[background]} ${paddingClasses[padding]} ${className}`;
-	$: contentClasses = `${maxWidth ? 'max-w-6xl mx-auto' : ''} ${centered ? 'text-center' : ''}`;
+	$: contentClasses = `${maxWidth ? 'max-w-6xl mx-auto px-8' : ''} ${centered ? 'text-center' : ''}`;
 </script>
 
 <section class={sectionClasses}>

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import SectionTitle from '$lib/components/ui/SectionTitle.svelte';
-	import ControlButton from '$lib/components/ui/ControlButton.svelte';
+	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
+	import TabButton from '$lib/components/components/TabButton.svelte';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	
 	let activeSection = 'terms';
@@ -19,71 +19,65 @@
 		showBorder={true}
 	/>
 
-	<!-- Legal Navigation -->
-	<ContentSection background="gray" padding="compact" centered>
-		<div class="flex md:flex-row flex-col md:gap-4 gap-3 md:flex-wrap md:justify-center items-center">
-			<ControlButton 
-				active={activeSection === 'terms'}
-				on:click={() => activeSection = 'terms'}
-			>
-				Terms of Service
-			</ControlButton>
-			<ControlButton 
-				active={activeSection === 'privacy'}
-				on:click={() => activeSection = 'privacy'}
-			>
-				Privacy Policy
-			</ControlButton>
-			<ControlButton 
-				active={activeSection === 'disclosures'}
-				on:click={() => activeSection = 'disclosures'}
-			>
-				Investment Disclosures
-			</ControlButton>
-			<ControlButton 
-				active={activeSection === 'compliance'}
-				on:click={() => activeSection = 'compliance'}
-			>
-				Compliance
-			</ControlButton>
-		</div>
-	</ContentSection>
+	<!-- Legal Tabs -->
+	<ContentSection background="white" padding="compact">
+		<div class="bg-white border border-light-gray mb-8">
+			<div class="flex flex-wrap border-b border-light-gray">
+				<TabButton 
+					active={activeSection === 'terms'}
+					on:click={() => activeSection = 'terms'}
+				>
+					Terms of Service
+				</TabButton>
+				<TabButton 
+					active={activeSection === 'privacy'}
+					on:click={() => activeSection = 'privacy'}
+				>
+					Privacy Policy
+				</TabButton>
+				<TabButton 
+					active={activeSection === 'disclosures'}
+					on:click={() => activeSection = 'disclosures'}
+				>
+					Investment Disclosures
+				</TabButton>
+				<TabButton 
+					active={activeSection === 'compliance'}
+					on:click={() => activeSection = 'compliance'}
+				>
+					Compliance
+				</TabButton>
+			</div>
 
-	<!-- Legal Content -->
-	<ContentSection background="white" padding="standard">
-		{#if activeSection === 'terms'}
-			<div class="bg-white md:p-12 p-8">
+			<!-- Tab Content -->
+			<div class="p-8">
+			{#if activeSection === 'terms'}
 				<SectionTitle level="h2" size="section">Terms of Service</SectionTitle>
 				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
 				<div class="space-y-4">
-					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">1. Acceptance of Terms</h3>
+					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">1. Acceptance of Terms</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">By accessing and using the Albion platform, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use our services.</p>
 					
-					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">2. Platform Description</h3>
+					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">2. Platform Description</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">Albion provides a blockchain-based platform for investing in tokenized oil & gas assets. Our platform enables users to purchase royalty tokens representing fractional ownership in energy production revenue.</p>
 					
-					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">3. User Eligibility</h3>
+					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">3. User Eligibility</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">You must be at least 18 years old and legally capable of entering into binding contracts. You must also comply with all applicable laws and regulations in your jurisdiction.</p>
 					
-					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">4. Account Registration</h3>
+					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">4. Account Registration</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">To use our platform, you must create an account and complete our Know Your Customer (KYC) verification process. You are responsible for maintaining the security of your account credentials.</p>
 					
-					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">5. Investment Terms</h3>
+					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">5. Investment Terms</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">All investments are subject to specific terms outlined in the respective token offering documents. Past performance does not guarantee future results. Investments may lose value.</p>
 					
-					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">6. Platform Fees</h3>
-					<p class="leading-relaxed mb-4 text-black">Albion charges management fees and transaction fees as disclosed in the relevant offering materials. All fees are clearly outlined before investment.</p>
-					
-					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">7. Limitation of Liability</h3>
+					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">6. Limitation of Liability</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">Albion's liability is limited to the maximum extent permitted by law. We are not liable for investment losses, market volatility, or technical issues beyond our control.</p>
 					
-					<h3 class="text-xl font-extrabold text-black mt-8 mb-4">8. Termination</h3>
+					<SectionTitle level="h3" size="subsection" className="mt-8 mb-4">7. Termination</SectionTitle>
 					<p class="leading-relaxed mb-4 text-black">We may terminate or suspend your account at any time for violation of these terms or applicable laws. You may close your account at any time subject to existing investment commitments.</p>
 				</div>
-			</div>
-		{:else if activeSection === 'privacy'}
-			<div class="bg-white md:p-12 p-8">
+			{:else if activeSection === 'privacy'}
 				<SectionTitle level="h2" size="section">Privacy Policy</SectionTitle>
 				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
@@ -112,9 +106,7 @@
 					<h3>8. Contact Information</h3>
 					<p>For privacy-related questions, contact our Data Protection Officer at privacy@albion.com.</p>
 				</div>
-			</div>
-		{:else if activeSection === 'disclosures'}
-			<div class="bg-white md:p-12 p-8">
+			{:else if activeSection === 'disclosures'}
 				<SectionTitle level="h2" size="section">Investment Disclosures</SectionTitle>
 				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
@@ -149,9 +141,7 @@
 					<h3>6. Professional Advice</h3>
 					<p>Consider seeking independent financial, legal, and tax advice before making any investment decision.</p>
 				</div>
-			</div>
-		{:else if activeSection === 'compliance'}
-			<div class="bg-white md:p-12 p-8">
+			{:else if activeSection === 'compliance'}
 				<SectionTitle level="h2" size="section">Regulatory Compliance</SectionTitle>
 				<p class="text-black opacity-70 text-sm mb-8">Last updated: December 2024</p>
 				
@@ -186,8 +176,9 @@
 					<h3>8. Investor Protection</h3>
 					<p>We maintain appropriate investor protection measures including segregated client funds, professional indemnity insurance, and independent custody arrangements where applicable.</p>
 				</div>
+			{/if}
 			</div>
-		{/if}
+		</div>
 	</ContentSection>
 
 	<!-- Contact Section -->

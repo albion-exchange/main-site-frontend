@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import dataStoreService from '$lib/services/DataStoreService';
+	import { useAssetService, useTokenService } from '$lib/services';
 	import walletDataService from '$lib/services/WalletDataService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
-	import WalletModal from '$lib/components/WalletModal.svelte';
-	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, Metric, StatusBadge, TabNavigation, MetricDisplay, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart } from '$lib/components/ui';
+	import WalletModal from '$lib/components/patterns/WalletModal.svelte';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, TabNavigation, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
+	import { formatCurrency, formatPercentage, formatNumber } from '$lib/utils/formatters';
+	import { useTooltip, useCardFlip } from '$lib/composables';
 
 	let totalInvested = 0;
 	let totalPayoutsEarned = 0;
@@ -20,51 +22,21 @@
 	let loading = true;
 	let showWalletModal = false;
 	
-	// Tooltip state
-	let showTooltip = '';
-	let tooltipTimer: any = null;
+	// Use composables
+	const { show: showTooltipWithDelay, hide: hideTooltip, isVisible: isTooltipVisible } = useTooltip();
+	const { toggle: toggleCardFlip, flippedCards } = useCardFlip();
 	
-	// Card flip state
-	let flippedCards = new Set<string>();
-	
-	function showTooltipWithDelay(tooltipId: string) {
-		clearTimeout(tooltipTimer);
-		tooltipTimer = setTimeout(() => {
-			showTooltip = tooltipId;
-		}, 200);
-	}
-	
-	function hideTooltip() {
-		clearTimeout(tooltipTimer);
-		showTooltip = '';
-	}
-	
-	function toggleCardFlip(holdingId: string) {
-		if (flippedCards.has(holdingId)) {
-			flippedCards.delete(holdingId);
-		} else {
-			flippedCards.add(holdingId);
-		}
-		flippedCards = flippedCards; // Trigger reactivity
-	}
+	// Use services
+	const assetService = useAssetService();
+	const tokenService = useTokenService();
 	
 	function getPayoutChartData(holding: any): Array<{date: string; value: number}> {
-		// Always return sample data to ensure the chart displays
-		const sampleData = [
-			{ date: '2024-07-01', value: 350 },
-			{ date: '2024-08-01', value: 375 },
-			{ date: '2024-09-01', value: 395 },
-			{ date: '2024-10-01', value: 412 },
-			{ date: '2024-11-01', value: 428 },
-			{ date: '2024-12-01', value: 445 }
-		];
-		
 		// Get payout history for this specific asset
 		const assetPayouts = walletDataService.getHoldingsByAsset();
 		const assetPayout = assetPayouts.find(p => p.assetId === holding.id);
 		
 		if (!assetPayout || !assetPayout.monthlyPayouts || assetPayout.monthlyPayouts.length === 0) {
-			return sampleData;
+			return [];
 		}
 		
 		// Convert monthly payouts to chart data format
@@ -76,7 +48,7 @@
 			}))
 			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 		
-		return chartData.length > 0 ? chartData : sampleData;
+		return chartData;
 	}
 
 	onMount(async () => {
@@ -98,7 +70,8 @@
 			
 			// Get holdings with asset info
 			const assetPayouts = walletDataService.getHoldingsByAsset();
-			const allAssets = dataStoreService.getAllAssets();
+			const allAssets = assetService.getAllAssets();
+			const allTokens = tokenService.getAllTokens();
 			
 			// Count active assets
 			activeAssetsCount = assetPayouts.length;
@@ -122,29 +95,43 @@
 				// Calculate unrecovered capital
 				const unrecoveredCapital = Math.max(0, holding.totalInvested - holding.totalEarned);
 				
-				// Calculate asset depletion
-				// Get cumulative production from asset data
-				let cumulativeProduction = 0;
-				if (asset.monthlyReports) {
-					cumulativeProduction = asset.monthlyReports.reduce((sum, report) => sum + report.production, 0);
-				}
+				// Calculate asset depletion = production so far / (production so far + expected remaining production)
+				let assetDepletion = 0;
 				
-				// Get total reserves (estimated remaining + cumulative)
-				// Parse the expected remaining production string
-				let totalReserves = 0;
-				const remainingProdStr = asset.production.expectedRemainingProduction || 
-					dataStoreService.getCalculatedRemainingProduction(asset.id);
-				if (remainingProdStr && remainingProdStr !== 'TBD') {
-					const match = remainingProdStr.match(/[\d.]+/);
-					if (match) {
-						const remainingMboe = parseFloat(match[0]) * 1000; // Convert mboe to boe
-						totalReserves = cumulativeProduction + remainingMboe;
+				// Calculate cumulative production from token data, not asset production history
+				let cumulativeProduction = 0;
+				
+				// Find tokens for this asset and sum their payoutHistory production
+				const assetTokens = allTokens.filter(token => token.assetId === asset.id);
+				
+				if (assetTokens.length > 0) {
+					// Use the first token's payout history as they should all have the same production data
+					const token = assetTokens[0];
+					if (token.payoutHistory && token.payoutHistory.length > 0) {
+						cumulativeProduction = token.payoutHistory.reduce((sum, payout) => sum + (payout.productionVolume || 0), 0);
 					}
 				}
 				
-				const assetDepletion = totalReserves > 0 
-					? (cumulativeProduction / totalReserves) * 100 
-					: 0;
+				// Fallback to asset monthlyReports if no token data
+				if (cumulativeProduction === 0 && asset.monthlyReports && asset.monthlyReports.length > 0) {
+					cumulativeProduction = asset.monthlyReports.reduce((sum, report) => sum + (report.production || 0), 0);
+				}
+				
+				// Parse expected remaining production from string format (e.g., "250k BOE" -> 250000)
+				let expectedRemainingProduction = 0;
+				if (asset.production?.expectedRemainingProduction && asset.production.expectedRemainingProduction !== 'TBD') {
+					const match = asset.production.expectedRemainingProduction.match(/^([\d.]+)k\s*boe$/i);
+					if (match) {
+						expectedRemainingProduction = parseFloat(match[1]) * 1000;
+					}
+				}
+				
+				// Calculate depletion percentage
+				// Depletion = (production so far) / (production so far + expected remaining production)
+				const totalExpectedProduction = cumulativeProduction + expectedRemainingProduction;
+				if (totalExpectedProduction > 0 && cumulativeProduction > 0) {
+					assetDepletion = (cumulativeProduction / totalExpectedProduction) * 100;
+				}
 				
 				return {
 					id: holding.assetId,
@@ -178,24 +165,14 @@
 		}
 	}
 
-
-
-	function formatCurrency(amount: number): string {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD',
-			minimumFractionDigits: 2,
-			maximumFractionDigits: 2
-		}).format(amount);
-	}
-
-	function formatPercent(percent: number): string {
-		const sign = percent >= 0 ? '+' : '';
-		return `${sign}${percent.toFixed(1)}%`;
-	}
-
 	function getCurrentTime(): string {
 		return new Date().toLocaleTimeString();
+	}
+	
+	function formatDate(dateStr: string): string {
+		if (!dateStr) return 'Never';
+		const date = new Date(dateStr);
+		return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 	}
 	
 	async function handleWalletConnect() {
@@ -216,6 +193,10 @@
 			window.location.href = '/';
 		}
 	}
+
+	onDestroy(() => {
+		// Cleanup handled by composables
+	});
 </script>
 
 <svelte:head>
@@ -291,7 +272,7 @@
 	</HeroSection>
 
 	<!-- Portfolio Tabs -->
-	<ContentSection background="white" padding="compact" maxWidth={false}>
+	<ContentSection background="white" padding="compact">
 		<div class="bg-white border border-light-gray mb-8">
 			<div class="flex flex-wrap border-b border-light-gray">
 				<TabButton
@@ -323,12 +304,12 @@
 							<div class="text-center py-12 text-black opacity-70">Loading portfolio holdings...</div>
 						{:else}
 							{#each holdings as holding}
-								{@const isFlipped = flippedCards.has(holding.id)}
-								{@const payoutData = isFlipped ? getPayoutChartData(holding) : []}
+								{@const flipped = $flippedCards.has(holding.id)}
+								{@const payoutData = flipped ? getPayoutChartData(holding) : []}
 								<div class="mb-3" style="perspective: 1000px;">
-									<div class="relative w-full transition-transform duration-500 preserve-3d" style="transform: rotateY({isFlipped ? 180 : 0}deg); height: 360px;">
+									<div class="relative w-full transition-transform duration-500" style="transform-style: preserve-3d; transform: rotateY({flipped ? 180 : 0}deg); height: 360px;">
 										<!-- Front of card -->
-										<div class="absolute inset-0 w-full h-full backface-hidden">
+										<div class="absolute inset-0 w-full h-full" style="backface-visibility: hidden;">
 											<Card hoverable showBorder>
 											<CardContent paddingClass="p-9 h-full flex flex-col justify-between">
 												<div class="flex justify-between items-start mb-7">
@@ -363,8 +344,8 @@
 											<!-- Tokens -->
 											<div class="pr-6 flex flex-col">
 												<div class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-4 h-10 flex items-start">Tokens</div>
-												<div class="text-xl font-extrabold text-black mb-3">{holding.tokensOwned.toLocaleString()}</div>
-												<div class="text-sm text-black opacity-70">${Math.round(holding.totalInvested).toLocaleString()}</div>
+															<div class="text-xl font-extrabold text-black mb-3">{formatNumber(holding.tokensOwned)}</div>
+			<div class="text-sm text-black opacity-70">{formatCurrency(Math.round(holding.totalInvested), { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
 											</div>
 
 											<!-- Payouts to Date -->
@@ -384,9 +365,9 @@
 														role="button"
 														tabindex="0">ⓘ</span>
 												</div>
-												<div class="text-xl font-extrabold text-black mb-3">{holding.capitalReturned.toFixed(1)}%</div>
+												<div class="text-xl font-extrabold text-black mb-3">{formatPercentage(holding.capitalReturned / 100, { decimals: 1 })}</div>
 												<div class="text-sm text-black opacity-70">To Date</div>
-												{#if showTooltip === 'capital-returned-' + holding.id}
+												{#if isTooltipVisible('capital-returned-' + holding.id)}
 													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-3 rounded text-xs z-[1000] mb-[5px] w-48 text-left leading-relaxed">
 														The portion of your initial<br/>investment already recovered
 													</div>
@@ -407,7 +388,7 @@
 													{holding.assetDepletion > 0 ? `${holding.assetDepletion.toFixed(1)}%` : 'TBD'}
 												</div>
 												<div class="text-sm text-black opacity-70">To Date</div>
-												{#if showTooltip === 'depletion-' + holding.id}
+												{#if isTooltipVisible('depletion-' + holding.id)}
 													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-3 rounded text-xs z-[1000] mb-[5px] w-48 text-left leading-relaxed">
 														The portion of total expected<br/>oil and gas extracted so far
 													</div>
@@ -432,7 +413,7 @@
 										</div>
 										
 										<!-- Back of card -->
-										<div class="absolute inset-0 w-full h-full backface-hidden" style="transform: rotateY(180deg);">
+										<div class="absolute inset-0 w-full h-full" style="backface-visibility: hidden; transform: rotateY(180deg);">
 											<Card hoverable showBorder>
 												<CardContent paddingClass="p-8 h-full flex flex-col">
 												<div class="flex justify-between items-start mb-2">
@@ -444,11 +425,11 @@
 												
 												<div class="flex-1 flex gap-6">
 													{#if payoutData && payoutData.length > 0}
-														{@const cumulativeData = payoutData.reduce<Array<{label: string; value: number}>>((acc, d, i) => {
+														{@const cumulativeData = payoutData.reduce((acc: Array<{label: string; value: number}>, d, i) => {
 															const prevTotal = i > 0 ? acc[i-1].value : 0;
 															acc.push({ label: d.date, value: prevTotal + d.value });
 															return acc;
-														}, [])}
+														}, [] as Array<{label: string; value: number}>)}
 														<!-- Monthly Payouts Chart -->
 														<div class="flex-1">
 															<h5 class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-1">Monthly Payouts</h5>
@@ -498,7 +479,7 @@
 							{/each}
 						{/if}
 					</div>
-				{:else if activeTab === 'performance'}
+			{:else if activeTab === 'performance'}
 					{@const allTransactions = walletDataService.getAllTransactions()}
 					{@const capitalWalkData = (() => {
 						// Group transactions by month and calculate values
@@ -677,7 +658,7 @@
 								>
 									?
 								</div>
-								{#if showTooltip === 'external-capital'}
+								{#if isTooltipVisible('external-capital')}
 									<div class="absolute right-0 top-10 bg-black text-white p-4 rounded text-xs z-10 w-56">
 										Max cash you ever had to supply from outside, assuming payouts were available for reinvestment
 									</div>
@@ -701,7 +682,7 @@
 								>
 									?
 								</div>
-								{#if showTooltip === 'gross-deployed'}
+								{#if isTooltipVisible('gross-deployed')}
 									<div class="absolute right-0 top-10 bg-black text-white p-3 rounded text-xs z-10 w-48">
 										Total amount invested across all assets
 									</div>
@@ -725,7 +706,7 @@
 								>
 									?
 								</div>
-								{#if showTooltip === 'gross-payout'}
+								{#if isTooltipVisible('gross-payout')}
 									<div class="absolute right-0 top-10 bg-black text-white p-3 rounded text-xs z-10 w-48">
 										Total distributions received from all assets
 									</div>
@@ -751,7 +732,7 @@
 								>
 									?
 								</div>
-								{#if showTooltip === 'realised-profit'}
+								{#if isTooltipVisible('realised-profit')}
 									<div class="absolute right-0 top-10 bg-black text-white p-3 rounded text-xs z-10 w-48">
 										Your current profit/loss position accounting for all investments and payouts received
 									</div>
@@ -759,7 +740,7 @@
 							</div>
 						</div>
 					</div>
-				{:else if activeTab === 'allocation'}
+			{:else if activeTab === 'allocation'}
 					<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 						<div>
 							<SectionTitle level="h3" size="subsection" className="mb-6">Asset Allocation</SectionTitle>
@@ -774,8 +755,8 @@
 										width={280}
 										height={280}
 										showLabels={true}
-										showLegend={true}
-										animate={true}
+										showLegend={false}
+										animate={false}
 									/>
 								{:else}
 									<div class="text-center py-12 text-black opacity-70">
@@ -789,7 +770,7 @@
 							<SectionTitle level="h3" size="subsection" className="mb-6">Allocation Breakdown</SectionTitle>
 							<div class="space-y-4 mb-8">
 								{#each tokenAllocations as allocation}
-									{@const allocationAsset = dataStoreService.getAssetById(allocation.assetId)}
+									{@const allocationAsset = assetService.getAssetById(allocation.assetId)}
 									<div class="flex justify-between items-center pb-4 border-b border-light-gray last:border-b-0 last:pb-0">
 										<div class="flex items-center gap-3">
 											<div class="w-8 h-8 bg-light-gray rounded overflow-hidden flex items-center justify-center">
@@ -813,7 +794,7 @@
 							</div>
 						</div>
 					</div>
-				{/if}
+			{/if}
 			</div>
 		</div>
 	</ContentSection>
@@ -866,12 +847,5 @@
 />
 
 <style>
-	:global(.preserve-3d) {
-		transform-style: preserve-3d;
-	}
-	
-	:global(.backface-hidden) {
-		backface-visibility: hidden;
-	}
+	/* CSS classes removed - styles are now inline for better browser compatibility */
 </style>
-

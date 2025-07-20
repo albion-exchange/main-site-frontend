@@ -41,9 +41,19 @@ export interface TokenMetadata {
   sharePercentage: number;
   decimals: number;
   supply: TokenSupply;
-  monthlyData: MonthlyData[];
+  payoutData: PayoutData[];
   asset: AssetData;
   metadata: Metadata;
+}
+
+export interface PayoutData {
+  month: ISOYearMonthString; // Format: "YYYY-MM"
+  tokenPayout: {
+    date: ISODateTimeString; // ISO datetime string
+    totalPayout: number;
+    payoutPerToken: number;
+    txHash: string;
+  };
 }
 
 export interface Document {
@@ -54,26 +64,6 @@ export interface Document {
 
 // TokenSupply is imported from sharedTypes.ts
 
-export interface MonthlyData {
-  month: ISOYearMonthString; // Format: "YYYY-MM"
-  assetData: {
-    production: number;
-    revenue: number;
-    expenses: number;
-    netIncome: number;
-  };
-  tokenPayout: {
-    date: ISODateTimeString; // ISO datetime string
-    totalPayout: number;
-    payoutPerToken: number;
-    txHash: string;
-  };
-  realisedPrice: {
-    oilPrice: number;
-    gasPrice: number;
-  };
-}
-
 export interface AssetData {
   assetName: string;
   description: string;
@@ -83,11 +73,26 @@ export interface AssetData {
   assetTerms: AssetTerms;
   production: Production;
   plannedProduction: PlannedProduction;
-  productionHistory: ProductionHistoryRecord[];
+  historicalProduction: HistoricalProductionRecord[];
+  receiptsData: ReceiptsData[];
   operationalMetrics: OperationalMetrics;
   documents: Document[];
   coverImage: string;
   galleryImages: GalleryImage[];
+}
+
+export interface ReceiptsData {
+  month: ISOYearMonthString; // Format: "YYYY-MM"
+  assetData: {
+    production: number;
+    revenue: number;
+    expenses: number;
+    netIncome: number;
+  };
+  realisedPrice: {
+    oilPrice: number;
+    gasPrice: number;
+  };
 }
 
 export interface Operator {
@@ -139,7 +144,7 @@ export interface PlannedProductionProjection {
   production: number;
 }
 
-export interface ProductionHistoryRecord {
+export interface HistoricalProductionRecord {
   month: ISOYearMonthString; // Format: "YYYY-MM"
   production: number;
 }

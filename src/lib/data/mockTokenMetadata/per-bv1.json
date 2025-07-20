@@ -11,85 +11,46 @@
     "maxSupply": "3000000000000000000000000",
     "mintedSupply": "1731250000000000000000000"
   },
-  "monthlyData": [
+  "payoutData": [
     {
       "month": "2025-06",
-      "assetData": {
-        "production": 1894.2,
-        "revenue": 132594,
-        "expenses": 0,
-        "netIncome": 132594
-      },
       "tokenPayout": {
         "date": "2025-06-15T00:00:00.000Z",
         "totalPayout": 95467.7,
         "payoutPerToken": 0.05514,
         "txHash": "0xffffffffffffffffffffffffe39f432be71497cc"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     },
     {
       "month": "2025-05",
-      "assetData": {
-        "production": 2029.5,
-        "revenue": 142065,
-        "expenses": 0,
-        "netIncome": 142065
-      },
       "tokenPayout": {
         "date": "2025-05-15T00:00:00.000Z",
         "totalPayout": 102286.8,
         "payoutPerToken": 0.05908,
         "txHash": "0xffffffffffffffffffffffffbd40abda9db7a44a"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     },
     {
       "month": "2025-04",
-      "assetData": {
-        "production": 1855.6,
-        "revenue": 129892,
-        "expenses": 0,
-        "netIncome": 129892
-      },
       "tokenPayout": {
         "date": "2025-04-15T00:00:00.000Z",
         "totalPayout": 93522.2,
         "payoutPerToken": 0.05402,
         "txHash": "0x00000000000000000000000033cc0aae6221c10f"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     },
     {
       "month": "2025-03",
-      "assetData": {
-        "production": 1952.2,
-        "revenue": 136654,
-        "expenses": 0,
-        "netIncome": 136654
-      },
       "tokenPayout": {
         "date": "2025-03-15T00:00:00.000Z",
         "totalPayout": 98390.9,
         "payoutPerToken": 0.05683,
         "txHash": "0x00000000000000000000000066ea1a24c381c01a"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     }
   ],
   "asset": {
+    "assetName": "Permian Basin-3 Royalty Stream",
     "description": "Major unconventional oil development in the heart of the Permian Basin with cutting-edge fracking technology and exceptional reservoir quality.",
     "location": {
       "state": "Texas",
@@ -317,7 +278,81 @@
         }
       ]
     },
-    "productionHistory": [
+    "operationalMetrics": {
+      "uptime": {
+        "percentage": 97.3,
+        "unit": "percent",
+        "period": "last_30_days"
+      },
+      "dailyProduction": {
+        "current": 2748,
+        "target": 2820,
+        "unit": "boe"
+      },
+      "hseMetrics": {
+        "incidentFreeDays": 542,
+        "lastIncidentDate": "2023-07-08T00:00:00.000Z",
+        "safetyRating": "Excellent"
+      }
+    },
+    "documents": [],
+    "coverImage": "/images/per-bv-cover.jpg",
+    "galleryImages": [],
+    "receiptsData": [
+      {
+        "month": "2025-06",
+        "assetData": {
+          "production": 1894.2,
+          "revenue": 132594,
+          "expenses": 0,
+          "netIncome": 132594
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-05",
+        "assetData": {
+          "production": 2029.5,
+          "revenue": 142065,
+          "expenses": 0,
+          "netIncome": 142065
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-04",
+        "assetData": {
+          "production": 1855.6,
+          "revenue": 129892,
+          "expenses": 0,
+          "netIncome": 129892
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-03",
+        "assetData": {
+          "production": 1952.2,
+          "revenue": 136654,
+          "expenses": 0,
+          "netIncome": 136654
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      }
+    ],
+    "historicalProduction": [
       {
         "month": "2019-01",
         "production": 3168.72
@@ -598,28 +633,7 @@
         "month": "2024-11",
         "production": 1307.34
       }
-    ],
-    "operationalMetrics": {
-      "uptime": {
-        "percentage": 97.3,
-        "unit": "percent",
-        "period": "last_30_days"
-      },
-      "dailyProduction": {
-        "current": 2748,
-        "target": 2820,
-        "unit": "boe"
-      },
-      "hseMetrics": {
-        "incidentFreeDays": 542,
-        "lastIncidentDate": "2023-07-08T00:00:00.000Z",
-        "safetyRating": "Excellent"
-      }
-    },
-    "assetName": "Permian Basin-3 Royalty Stream",
-    "documents": [],
-    "coverImage": "/images/per-bv-cover.jpg",
-    "galleryImages": []
+    ]
   },
   "metadata": {
     "createdAt": "2019-01-15T10:00:00.000Z",

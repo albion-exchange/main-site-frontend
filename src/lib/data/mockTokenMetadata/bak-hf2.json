@@ -11,85 +11,46 @@
     "maxSupply": "770000000000000000000000",
     "mintedSupply": "356000000000000000000000"
   },
-  "monthlyData": [
+  "payoutData": [
     {
       "month": "2025-06",
-      "assetData": {
-        "production": 1112.8,
-        "revenue": 77896,
-        "expenses": 0,
-        "netIncome": 77896
-      },
       "tokenPayout": {
         "date": "2025-06-15T00:00:00.000Z",
         "totalPayout": 31158.4,
         "payoutPerToken": 0.08752,
         "txHash": "0x0000000000000000000000000a84d65a27d170a7"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     },
     {
       "month": "2025-05",
-      "assetData": {
-        "production": 1192.3,
-        "revenue": 83461,
-        "expenses": 0,
-        "netIncome": 83461
-      },
       "tokenPayout": {
         "date": "2025-05-15T00:00:00.000Z",
         "totalPayout": 33384.4,
         "payoutPerToken": 0.09378,
         "txHash": "0xffffffffffffffffffffffffaed39555d5e4f661"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     },
     {
       "month": "2025-04",
-      "assetData": {
-        "production": 1090.1,
-        "revenue": 76307,
-        "expenses": 0,
-        "netIncome": 76307
-      },
       "tokenPayout": {
         "date": "2025-04-15T00:00:00.000Z",
         "totalPayout": 30522.8,
         "payoutPerToken": 0.08574,
         "txHash": "0x000000000000000000000000581504950804a5d4"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     },
     {
       "month": "2025-03",
-      "assetData": {
-        "production": 1146.9,
-        "revenue": 80283,
-        "expenses": 0,
-        "netIncome": 80283
-      },
       "tokenPayout": {
         "date": "2025-03-15T00:00:00.000Z",
         "totalPayout": 32113.2,
         "payoutPerToken": 0.09021,
         "txHash": "0x0000000000000000000000004f15d965f77abe75"
-      },
-      "realisedPrice": {
-        "oilPrice": 70,
-        "gasPrice": 3.1
       }
     }
   ],
   "asset": {
+    "assetName": "Bakken Horizon-2 Royalty Stream",
     "description": "High-production shale oil development in the heart of the Bakken formation with advanced horizontal drilling technology and multiple producing wells.",
     "location": {
       "state": "North Dakota",
@@ -285,7 +246,81 @@
         }
       ]
     },
-    "productionHistory": [
+    "operationalMetrics": {
+      "uptime": {
+        "percentage": 94.5,
+        "unit": "percent",
+        "period": "last_30_days"
+      },
+      "dailyProduction": {
+        "current": 1216,
+        "target": 1280,
+        "unit": "boe"
+      },
+      "hseMetrics": {
+        "incidentFreeDays": 198,
+        "lastIncidentDate": "2024-05-22T00:00:00.000Z",
+        "safetyRating": "Good"
+      }
+    },
+    "documents": [],
+    "coverImage": "/images/bak-hf-cover.jpeg",
+    "galleryImages": [],
+    "receiptsData": [
+      {
+        "month": "2025-06",
+        "assetData": {
+          "production": 1112.8,
+          "revenue": 77896,
+          "expenses": 0,
+          "netIncome": 77896
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-05",
+        "assetData": {
+          "production": 1192.3,
+          "revenue": 83461,
+          "expenses": 0,
+          "netIncome": 83461
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-04",
+        "assetData": {
+          "production": 1090.1,
+          "revenue": 76307,
+          "expenses": 0,
+          "netIncome": 76307
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      },
+      {
+        "month": "2025-03",
+        "assetData": {
+          "production": 1146.9,
+          "revenue": 80283,
+          "expenses": 0,
+          "netIncome": 80283
+        },
+        "realisedPrice": {
+          "oilPrice": 70,
+          "gasPrice": 3.1
+        }
+      }
+    ],
+    "historicalProduction": [
       {
         "month": "2020-02",
         "production": 2112.48
@@ -518,28 +553,7 @@
         "month": "2024-11",
         "production": 1023.74
       }
-    ],
-    "operationalMetrics": {
-      "uptime": {
-        "percentage": 94.5,
-        "unit": "percent",
-        "period": "last_30_days"
-      },
-      "dailyProduction": {
-        "current": 1216,
-        "target": 1280,
-        "unit": "boe"
-      },
-      "hseMetrics": {
-        "incidentFreeDays": 198,
-        "lastIncidentDate": "2024-05-22T00:00:00.000Z",
-        "safetyRating": "Good"
-      }
-    },
-    "assetName": "Bakken Horizon-2 Royalty Stream",
-    "documents": [],
-    "coverImage": "/images/bak-hf-cover.jpeg",
-    "galleryImages": []
+    ]
   },
   "metadata": {
     "createdAt": "2024-03-15T11:30:00.000Z",
