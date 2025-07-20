@@ -8,16 +8,14 @@
 	export let tokenCount: number = 0;
 	export let onTokenSectionClick: (() => void) | undefined = undefined;
 
-
-
 	function getAssetImage(assetData: Asset | null): string {
 		return assetData?.coverImage || '/images/eur-wr-cover.jpg';
 	}
 </script>
 
 <!-- Breadcrumb -->
-<div class="max-w-6xl mx-auto px-8">
-	<nav class="mb-8 text-sm font-medium">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+	<nav class="mb-4 sm:mb-6 lg:mb-8 text-sm font-medium">
 		<a href="/assets" class="text-secondary no-underline hover:text-black">← Back to Assets</a>
 		<span class="mx-2 text-light-gray">/</span>
 		<span class="text-black font-semibold">{asset?.name || 'Asset Details'}</span>
@@ -25,12 +23,12 @@
 </div>
 
 <!-- Asset Header -->
-<div class="max-w-6xl mx-auto px-8">
-	<div class="bg-white border border-light-gray section-no-border mb-8">
-		<div class="py-12">
-			<div class="mb-12">
-				<div class="flex md:items-start items-center md:flex-row flex-col md:gap-8 gap-4 mb-8">
-					<div class="w-16 h-16 rounded-lg overflow-hidden border border-light-gray">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+	<div class="bg-white border border-light-gray section-no-border mb-6 lg:mb-8">
+		<div class="py-6 sm:py-8 lg:py-12">
+			<div class="mb-6 sm:mb-8 lg:mb-12">
+				<div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-8 mb-6 lg:mb-8">
+					<div class="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-lg overflow-hidden border border-light-gray flex-shrink-0">
 						<img 
 							src={getImageUrl(getAssetImage(asset))} 
 							alt={asset?.name || 'Asset'}
@@ -39,10 +37,11 @@
 						/>
 					</div>
 					<div class="flex-1">
-						<div class="flex justify-between items-start gap-4 mb-4">
-							<h1 class="typography-display text-black uppercase tracking-tight m-0">{asset?.name}</h1>
-							<div class="flex flex-col items-end gap-2 flex-shrink-0">
-								<div class="typography-label text-black">Share this investment:</div>
+						<div class="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-start lg:gap-4 mb-4">
+							<h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-black uppercase tracking-tight m-0 leading-tight">{asset?.name}</h1>
+							<!-- Sharing buttons - hidden on mobile -->
+							<div class="hidden lg:flex lg:flex-col lg:items-end lg:gap-2 lg:flex-shrink-0">
+								<div class="text-xs font-semibold text-black uppercase tracking-wide">Share this investment:</div>
 								<div class="flex gap-2">
 									<button class="flex items-center justify-center w-8 h-8 bg-white border border-light-gray text-black cursor-pointer transition-all duration-200 rounded hover:bg-light-gray hover:border-secondary hover:text-secondary" title="Share asset on Twitter" aria-label="Share asset on Twitter" on:click={() => window.open(`https://twitter.com/intent/tweet?text=Check out this energy investment opportunity: ${asset?.name} on @Albion&url=${encodeURIComponent(window.location.href)}`, '_blank')}>
 										<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -73,19 +72,20 @@
 								</div>
 							</div>
 						</div>
-						<div class="flex items-center gap-4 mb-2">
+						<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 mb-2">
 							<span class="text-secondary font-medium text-sm">📍 {asset?.location?.state}, {asset?.location?.country}</span>
 						</div>
 						<div class="text-black opacity-70 text-sm">
 							<span>Operated by {asset?.operator?.name}</span>
-							<span>•</span>
-							<span>License {asset?.technical?.license}</span>
+							<span class="hidden sm:inline">•</span>
+							<span class="block sm:inline">License {asset?.technical?.license}</span>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center mb-8">
+			<!-- Simplified stats for mobile -->
+			<div class="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 text-center mb-6 lg:mb-8">
 				<StatsCard
 					title="Current Production"
 					value={asset?.production?.current || '0'}
@@ -93,28 +93,24 @@
 					size="large"
 				/>
 				<StatsCard
-					title="Last Monthly Revenue"
+					title="Last Revenue"
 					value={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.netIncome 
 						? formatCurrency(asset.monthlyReports[asset.monthlyReports.length - 1].netIncome)
 						: '$0'}
 					subtitle={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.month 
-						? formatEndDate(asset.monthlyReports[asset.monthlyReports.length - 1].month + '-01')
-						: 'N/A'}
+						? asset.monthlyReports[asset.monthlyReports.length - 1].month
+						: 'No data'}
 					size="large"
-					valueColor="primary"
 				/>
-				<div 
-					class="cursor-pointer transition-all duration-200 rounded hover:-translate-y-1 hover:shadow-lg" 
-					on:click={onTokenSectionClick} 
-					on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTokenSectionClick?.(); } }} 
-					role="button" 
-					tabindex="0"
-				>
+				<!-- Third stat only on larger screens -->
+				<div class="hidden lg:block">
 					<StatsCard
 						title="Available Tokens"
 						value={tokenCount.toString()}
-						subtitle="👆 Click to view tokens"
+						subtitle="Token releases"
 						size="large"
+						clickable={!!onTokenSectionClick}
+						on:click={onTokenSectionClick}
 					/>
 				</div>
 			</div>

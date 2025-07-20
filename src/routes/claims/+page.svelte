@@ -5,7 +5,7 @@
 	import type { Asset } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/patterns/WalletModal.svelte';
-	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard } from '$lib/components/components';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard, CollapsibleSection } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection, StatsSection } from '$lib/components/layout';
 	import { formatCurrency } from '$lib/utils/formatters';
 	import { dateUtils } from '$lib/utils/dateHelpers';
@@ -107,22 +107,11 @@
 			showWalletModal = true;
 			return;
 		}
-		
+
 		loadClaimsData();
 	});
-
+	
 	function formatDate(dateString: string): string {
-		// Handle YYYY-MM format
-		if (dateString && dateString.match(/^\d{4}-\d{2}$/)) {
-			const [year, month] = dateString.split('-');
-			const date = new Date(parseInt(year), parseInt(month) - 1, 1);
-			return date.toLocaleDateString('en-US', {
-				year: 'numeric',
-				month: 'short'
-			});
-		}
-		
-		// Handle full date format
 		return new Date(dateString).toLocaleDateString('en-US', {
 			year: 'numeric',
 			month: 'short',
@@ -130,524 +119,328 @@
 		});
 	}
 
-	function handleClaimSingle(assetId: string) {
-		handleClaimWithModal('claim', [assetId]);
-	}
-
-	async function handleClaim() {
-		claiming = true;
-		claimSuccess = false;
-		
-		try {
-			// Simulate claim transaction
-			await new Promise(resolve => setTimeout(resolve, 2000));
-			
-			// Calculate claimed amount from selected assets
-			let claimedAmount = 0;
-			if (claimAssets.length > 0) {
-				claimedAmount = holdings
-					.filter(holding => claimAssets.includes(holding.id))
-					.reduce((sum, holding) => sum + holding.unclaimedAmount, 0);
-			} else {
-				claimedAmount = unclaimedPayout;
-			}
-			
-			totalClaimed += claimedAmount;
-			unclaimedPayout = Math.max(0, unclaimedPayout - claimedAmount);
-			
-			claimAssets = [];
-			claimSuccess = true;
-			
-			// Reset success message after 3 seconds
-			setTimeout(() => {
-				claimSuccess = false;
-			}, 3000);
-			
-		} catch (error) {
-			console.error('Claim error:', error);
-		} finally {
-			claiming = false;
-		}
+	async function connectWallet() {
+		showWalletModal = true;
 	}
 
 	async function handleWalletConnect() {
 		await walletActions.connect();
 		showWalletModal = false;
-		
-		// Reload the page content now that wallet is connected
-		if ($walletStore.isConnected) {
-			loading = true;
+		loadClaimsData();
+	}
+
+	// Claim functions
+	async function claimAllPayouts() {
+		claiming = true;
+		try {
+			// Simulate claiming process
+			await new Promise(resolve => setTimeout(resolve, 2000));
+			
+			// Add claim transactions to wallet data
+			holdings.forEach(holding => {
+				if (holding.unclaimedAmount > 0) {
+					walletDataService.addTransaction({
+						type: 'claim',
+						address: holding.id, // Using asset ID as address for now
+						amount: holding.unclaimedAmount,
+						txHash: `0x${Math.random().toString(16).substr(2, 64)}`, // Generate fake hash
+						timestamp: new Date().toISOString()
+					});
+				}
+			});
+			
+			claimSuccess = true;
+			
+			// Reload data to reflect changes
 			loadClaimsData();
+			
+			setTimeout(() => {
+				claimSuccess = false;
+			}, 3000);
+		} catch (error) {
+			console.error('Claim failed:', error);
+		} finally {
+			claiming = false;
 		}
 	}
 
-	function handleWalletModalClose() {
-		showWalletModal = false;
-		// Redirect to home if wallet not connected
-		if (!$walletStore.isConnected) {
-			window.location.href = '/';
+	async function handleClaimSingle(assetId: string) {
+		claiming = true;
+		try {
+			const holding = holdings.find(h => h.id === assetId);
+			if (!holding || holding.unclaimedAmount <= 0) return;
+			
+			// Simulate claiming process
+			await new Promise(resolve => setTimeout(resolve, 1500));
+			
+			// Add claim transaction
+			walletDataService.addTransaction({
+				type: 'claim',
+				address: assetId,
+				amount: holding.unclaimedAmount,
+				txHash: `0x${Math.random().toString(16).substr(2, 64)}`,
+				timestamp: new Date().toISOString()
+			});
+			
+			claimSuccess = true;
+			loadClaimsData();
+			
+			setTimeout(() => {
+				claimSuccess = false;
+			}, 3000);
+		} catch (error) {
+			console.error('Individual claim failed:', error);
+		} finally {
+			claiming = false;
 		}
 	}
-	
+
 	function exportClaimHistory() {
-		if (claimHistory.length === 0) return;
-		
+		// Create CSV content
+		const headers = ['Date', 'Asset', 'Amount', 'Transaction Hash'];
 		const csvContent = [
-			['Date', 'Asset', 'Amount', 'Transaction Hash'],
+			headers.join(','),
 			...claimHistory.map(claim => [
 				formatDate(claim.date),
-				claim.asset,
-				claim.amount.toString(),
+				`"${claim.asset}"`,
+				claim.amount,
 				claim.txHash
-			])
-		].map(row => row.join(',')).join('\n');
+			].join(','))
+		].join('\n');
 		
+		// Download CSV
 		const blob = new Blob([csvContent], { type: 'text/csv' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `claim-history-${dateUtils.filenameDateString()}.csv`;
-		a.click();
-		URL.revokeObjectURL(url);
+		const url = window.URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = 'albion-claim-history.csv';
+		link.click();
+		window.URL.revokeObjectURL(url);
 	}
-	
-	async function handleClaimWithModal(mode: 'claim' | 'reinvest' = 'claim', assetIds?: string[]) {
-		claimModalMode = mode;
-		showClaimModal = true;
-		// Store which assets to claim
-		if (assetIds) {
-			claimAssets = assetIds;
-		} else {
-			// Claim all assets
-			claimAssets = [];
-		}
-	}
-	
-	async function confirmClaim() {
-		showClaimModal = false;
-		await handleClaim();
-		if (claimModalMode === 'reinvest' && claimSuccess) {
-			setTimeout(() => {
-				window.location.href = '/assets';
-			}, 2000);
-		}
-	}
-
-
-
-	// Calculate selected amount
-	$: selectedAmount = holdings
-		.filter(h => selectedAssets.includes(h.id))
-		.reduce((sum, h) => sum + h.unclaimedAmount, 0);
-
-	// Calculate total pages for pagination
-	$: totalPages = Math.ceil(claimHistory.length / itemsPerPage);
-
-	// Get current page of claim history
-	$: paginatedClaimHistory = claimHistory.slice(
-		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage
-	);
-
 </script>
 
 <svelte:head>
-	<title>Claim Payouts - Albion</title>
-	<meta name="description" content="Claim your oil & gas investment payouts and track earnings history" />
+	<title>Claims - Albion</title>
+	<meta name="description" content="Claim your energy asset payouts and view your payout history." />
 </svelte:head>
 
-{#if !$walletStore.isConnected && !showWalletModal}
-	<PageLayout variant="constrained">
-		<ContentSection background="white" padding="large" centered>
-			<div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
-				<SectionTitle level="h1" size="page" center>Wallet Connection Required</SectionTitle>
-				<p class="text-lg text-black opacity-80 mb-8 max-w-md">Please connect your wallet to view and claim your payouts.</p>
-				<PrimaryButton on:click={() => showWalletModal = true}>
-					Connect Wallet
-				</PrimaryButton>
+<PageLayout>
+	{#if !$walletStore.isConnected}
+		<!-- Wallet Connection Required -->
+		<HeroSection 
+			title="Connect Your Wallet"
+			subtitle="Connect your wallet to view and claim your energy asset payouts"
+			showBorder={false}
+		>
+			<div class="text-center mt-8">
+				<PrimaryButton on:click={connectWallet}>Connect Wallet</PrimaryButton>
+			</div>
+		</HeroSection>
+	{:else if loading}
+		<!-- Loading State -->
+		<ContentSection background="white" padding="standard" centered>
+			<div class="text-center">
+				<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mx-auto mb-4"></div>
+				<p>Loading your claims data...</p>
 			</div>
 		</ContentSection>
-	</PageLayout>
-{:else if $walletStore.isConnected}
-<PageLayout variant="default">
-	<!-- Hero Section -->
-	<HeroSection 
-		title="Claim Payouts"
-		subtitle="Claim your investment earnings and track your payout history."
-		showBorder={true}
-		showButtons={false}
-	></HeroSection>
+	{:else}
+		<!-- Header -->
+		<HeroSection 
+			title="Claims & Payouts"
+			subtitle="Claim your energy asset payouts and track your earnings"
+			showBorder={false}
+		>
+			<!-- Main Stats - Simplified for mobile -->
+			<div class="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 mt-8 max-w-4xl mx-auto">
+				<StatsCard
+					title="Available to Claim"
+					value={formatCurrency(unclaimedPayout)}
+					subtitle="Ready now"
+					size="large"
+					valueColor="primary"
+				/>
+				<StatsCard
+					title="Total Earned"
+					value={formatCurrency(totalEarned)}
+					subtitle="All time"
+					size="large"
+				/>
+				<!-- Third stat only on larger screens -->
+				<div class="hidden lg:block">
+					<StatsCard
+						title="Total Claimed"
+						value={formatCurrency(totalClaimed)}
+						subtitle="Withdrawn"
+						size="large"
+					/>
+				</div>
+			</div>
 
-	<!-- Platform Stats -->
-	<ContentSection background="white" padding="compact">
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-		{#if loading}
-			<StatsCard
-				title="Total Earned"
-				value="--"
-				subtitle="Loading..."
-				size="large"
-			/>
-			<StatsCard
-				title="Total Claimed"
-				value="--"
-				subtitle="Loading..."
-				size="large"
-			/>
-			<StatsCard
-				title="Available to Claim"
-				value="--"
-				subtitle="Loading..."
-				size="large"
-			/>
-		{:else}
-			<StatsCard
-				title="Total Earned"
-				value={formatCurrency(totalEarned)}
-				subtitle="All time earnings"
-				size="large"
-			/>
-			<StatsCard
-				title="Total Claimed"
-				value={formatCurrency(totalClaimed)}
-				subtitle="Successfully withdrawn"
-				size="large"
-			/>
-			<StatsCard
-				title="Available to Claim"
-				value={formatCurrency(unclaimedPayout)}
-				subtitle="Ready for withdrawal"
-				valueColor="primary"
-				size="large"
-			/>
-		{/if}
-		</div>
-	</ContentSection>
+			<!-- Claim Action -->
+			{#if unclaimedPayout > 0}
+				<div class="text-center mt-6 lg:mt-8">
+					<PrimaryButton 
+						on:click={claimAllPayouts} 
+						disabled={claiming}
+						className="px-8 py-4"
+					>
+						{claiming ? 'Processing...' : `Claim ${formatCurrency(unclaimedPayout)}`}
+					</PrimaryButton>
+					<p class="text-sm text-gray-600 mt-2">Estimated gas fee: ${estimatedGas.toFixed(2)}</p>
+				</div>
+			{/if}
 
-	{#if !loading}
-		<!-- Success Message -->
-		{#if claimSuccess}
-			<ContentSection background="white" padding="compact">
-				<div class="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-					<div class="text-green-600 font-extrabold text-lg mb-2">✅ Claim Successful!</div>
-					<p class="text-green-800">Your payouts have been successfully transferred to your wallet.</p>
+			{#if claimSuccess}
+				<div class="text-center mt-4 p-4 bg-green-100 text-green-800 rounded-lg max-w-md mx-auto">
+					✅ Claim successful! Tokens have been sent to your wallet.
+				</div>
+			{/if}
+		</HeroSection>
+
+		<!-- Available Claims by Asset -->
+		{#if holdings.length > 0}
+			<ContentSection background="white" padding="standard">
+				<SectionTitle level="h2" size="section" className="mb-6">Claims by Asset</SectionTitle>
+				
+				<div class="grid grid-cols-1 gap-4 lg:gap-6">
+					{#each holdings as holding}
+						<Card>
+							<CardContent paddingClass="p-4 lg:p-6">
+								<div class="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-5 gap-4 items-center">
+									<div class="sm:col-span-2">
+										<div class="font-extrabold text-black text-sm lg:text-base">{holding.name}</div>
+										<div class="text-xs lg:text-sm text-black opacity-70">{holding.location}</div>
+									</div>
+									<div class="text-center sm:text-left lg:text-center">
+										<StatusBadge 
+											status={holding.status}
+											size="small"
+											showIcon={true}
+										/>
+									</div>
+									<div class="text-center">
+										<div class="text-lg lg:text-xl font-extrabold text-primary mb-1">{formatCurrency(holding.unclaimedAmount)}</div>
+										<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Available</div>
+									</div>
+									<div class="text-center">
+										<SecondaryButton 
+											size="small" 
+											on:click={() => handleClaimSingle(holding.id)}
+											disabled={claiming || holding.unclaimedAmount <= 0}
+											fullWidth
+										>
+											{holding.unclaimedAmount > 0 ? 'Claim' : 'No Claims'}
+										</SecondaryButton>
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+					{/each}
 				</div>
 			</ContentSection>
 		{/if}
 
-		<!-- Quick Claim Section -->
-		<FullWidthSection background="gray" padding="standard">
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div class="md:pl-16">
-					<SectionTitle level="h2" size="section" className="mb-6">Quick Claim All</SectionTitle>
-					<div class="flex items-center gap-3 mb-6">
-						<span class="text-2xl font-extrabold text-primary">{formatCurrency(unclaimedPayout)}</span>
-						<span class="text-2xl font-extrabold text-primary">available</span>
-					</div>
-					<div class="space-y-2 text-lg">
-						<div class="flex gap-2">
-							<span class="text-black opacity-70 font-semibold">Estimated Gas:</span>
-							<span class="font-extrabold">{formatCurrency(estimatedGas)}</span>
-						</div>
-						<div class="flex gap-2">
-							<span class="text-black opacity-70 font-semibold">Net Amount:</span>
-							<span class="font-extrabold text-primary">{formatCurrency(unclaimedPayout - estimatedGas)}</span>
-						</div>
-					</div>
+		<!-- Expandable Statistics Section - Hidden on mobile by default -->
+		<ContentSection background="gray" padding="standard">
+			<CollapsibleSection title="Detailed Statistics" isOpenByDefault={false} alwaysOpenOnDesktop={true}>
+				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+					<StatsCard
+						title="Total Payouts"
+						value={walletDataService.getMonthlyPayoutHistory().length.toString()}
+						subtitle="This year"
+						size="medium"
+					/>
+					<StatsCard
+						title="Days Since Last Claim"
+						value={(() => {
+							const claimTxs = walletDataService.getAllTransactions().filter(tx => tx.type === 'claim');
+							if (claimTxs.length === 0) return 'N/A';
+							const lastClaim = arrayUtils.latest(claimTxs, tx => tx.timestamp);
+							if (!lastClaim) return 'N/A';
+							const daysSince = dateUtils.daysBetween(lastClaim.timestamp, new Date());
+							return Math.max(0, daysSince).toString();
+						})()}
+						subtitle="Since last withdrawal"
+						size="medium"
+					/>
+					<StatsCard
+						title="Number of Claims"
+						value={claimHistory.length.toString()}
+						subtitle="Lifetime total"
+						size="medium"
+					/>
+					<StatsCard
+						title="Average Claim Size"
+						value={claimHistory.length > 0 ? formatCurrency(totalClaimed / claimHistory.length) : '$0'}
+						subtitle="Per transaction"
+						valueColor="primary"
+						size="medium"
+					/>
 				</div>
-				<div class="flex items-center justify-center">
-					<div class="flex gap-4">
-						<div class="text-lg">
-							<PrimaryButton
-								on:click={() => handleClaimWithModal('claim')}
-								disabled={claiming || unclaimedPayout <= 0}
-								size="large"
-							>
-								{#if claiming}
-									Claiming...
-								{:else}
-									Claim All {formatCurrency(unclaimedPayout)}
-								{/if}
-							</PrimaryButton>
-						</div>
-						<div class="text-lg">
-							<SecondaryButton 
-								on:click={() => handleClaimWithModal('reinvest')} 
-								disabled={claiming || unclaimedPayout <= 0}
-								size="large"
-							>
-								Claim & Reinvest
-							</SecondaryButton>
-						</div>
-					</div>
-				</div>
-			</div>
-		</FullWidthSection>
-
-		<!-- Asset-by-Asset Claiming -->
-		<ContentSection background="white" padding="compact">
-			<div class="mb-6">
-				<SectionTitle level="h2" size="section">Claim by Asset</SectionTitle>
-			</div>
-
-			<div class="space-y-4">
-				{#each holdings as holding}
-					<Card hoverable showBorder>
-						<CardContent paddingClass="p-6">
-							<div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
-								<div class="flex items-center gap-4">
-									<div>
-										<div class="font-extrabold text-black text-sm">{holding.name}</div>
-										<div class="text-xs text-black opacity-70">{holding.location}</div>
-									</div>
-								</div>
-								<div class="text-center">
-									<StatusBadge 
-										status={holding.status}
-										size="small"
-										showIcon={true}
-									/>
-								</div>
-								<div class="text-center">
-									<div class="text-lg font-extrabold text-primary mb-1">{formatCurrency(holding.unclaimedAmount)}</div>
-									<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Unclaimed</div>
-									<div class="text-xs text-black opacity-60 mt-1">Last claimed: {holding.lastClaimDate ? formatDate(holding.lastClaimDate) : 'Never'}</div>
-								</div>
-								<div class="text-center">
-									<div class="text-lg font-extrabold text-black mb-1">{formatCurrency(holding.totalEarned)}</div>
-									<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Total Earned</div>
-									<div class="text-xs text-black opacity-60 mt-1">Last payout: {holding.lastPayout ? formatDate(holding.lastPayout) : 'Never'}</div>
-								</div>
-								<div class="text-center">
-									<SecondaryButton size="small" on:click={() => handleClaimSingle(holding.id)}>Claim</SecondaryButton>
-								</div>
-							</div>
-						</CardContent>
-					</Card>
-				{/each}
-			</div>
+			</CollapsibleSection>
 		</ContentSection>
 
-		<!-- Payout Statistics -->
-		<FullWidthSection background="gray" padding="standard">
-			<div class="text-center">
-				<SectionTitle level="h2" size="section" center className="mb-8">Payout Statistics</SectionTitle>
-				<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-				<StatsCard
-					title="Total Payouts"
-					value={walletDataService.getMonthlyPayoutHistory().length.toString()}
-					subtitle="This year"
-					size="medium"
-				/>
-				<StatsCard
-					title="Days Since Last Claim"
-					value={(() => {
-						const claimTxs = walletDataService.getAllTransactions().filter(tx => tx.type === 'claim');
-						if (claimTxs.length === 0) return 'N/A';
-						const lastClaim = arrayUtils.latest(claimTxs, tx => tx.timestamp);
-						if (!lastClaim) return 'N/A';
-						const daysSince = dateUtils.daysBetween(lastClaim.timestamp, new Date());
-						return Math.max(0, daysSince).toString();
-					})()}
-					subtitle="Since last withdrawal"
-					size="medium"
-				/>
-				<StatsCard
-					title="Number of Claims"
-					value={claimHistory.length.toString()}
-					subtitle="Lifetime total"
-					size="medium"
-				/>
-				<StatsCard
-					title="Average Claim Size"
-					value={claimHistory.length > 0 ? formatCurrency(totalClaimed / claimHistory.length) : '$0'}
-					subtitle="Per transaction"
-					valueColor="primary"
-					size="medium"
-				/>
+		<!-- Expandable Claim History Section -->
+		<ContentSection background="white" padding="standard">
+			<CollapsibleSection title="Claim History" isOpenByDefault={false} alwaysOpenOnDesktop={true}>
+				<div class="flex justify-between items-center mb-6">
+					<div class="text-sm text-gray-600">{claimHistory.length} total claims</div>
+					<SecondaryButton size="small" on:click={() => exportClaimHistory()}>📊 Export</SecondaryButton>
 				</div>
-			</div>
-		</FullWidthSection>
-
-		<!-- Claim History -->
-		<ContentSection background="white" padding="compact">
-			<div class="flex justify-between items-center mb-6">
-				<SectionTitle level="h2" size="section">Claim History</SectionTitle>
-				<SecondaryButton size="small" on:click={() => exportClaimHistory()}>📊 Export History</SecondaryButton>
-			</div>
-			
-			<div class="bg-white border border-light-gray overflow-hidden">
-				<table class="w-full">
-					<thead>
-						<tr class="bg-light-gray border-b border-light-gray">
-							<th class="text-left p-4 text-xs text-black uppercase tracking-wide font-bold">Date</th>
-							<th class="text-left p-4 text-xs text-black uppercase tracking-wide font-bold">Asset</th>
-							<th class="text-left p-4 text-xs text-black uppercase tracking-wide font-bold">Amount</th>
-							<th class="text-center p-4 text-xs text-black uppercase tracking-wide font-bold">Transaction</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each claimHistory.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) as claim}
-							<tr class="border-b border-light-gray hover:bg-light-gray transition-colors">
-								<td class="p-4 text-sm text-black">{formatDate(claim.date)}</td>
-								<td class="p-4 text-sm text-black">{claim.asset}</td>
-								<td class="p-4 text-sm text-black">{formatCurrency(claim.amount)}</td>
-								<td class="p-4 text-center">
-									<a 
-										href="https://basescan.org/tx/{claim.txHash}" 
-										target="_blank" 
-										rel="noopener noreferrer"
-										class="text-xs text-black opacity-70 font-mono hover:text-secondary transition-colors inline-flex items-center gap-1"
-									>
-										{claim.txHash.slice(0, 12)}...{claim.txHash.slice(-8)}
-										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-											<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-											<polyline points="15 3 21 3 21 9"></polyline>
-											<line x1="10" y1="14" x2="21" y2="3"></line>
-										</svg>
-									</a>
-								</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			</div>
-			
-			<!-- Pagination -->
-			{#if claimHistory.length > itemsPerPage}
-				<div class="flex justify-center items-center gap-4 mt-6">
-					<button 
-						class="px-3 py-1 text-sm text-black border border-light-gray rounded hover:bg-light-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-						disabled={currentPage === 1}
-						on:click={() => currentPage -= 1}
-					>
-						Previous
-					</button>
-					
-					<div class="flex gap-2">
-						{#each Array(Math.ceil(claimHistory.length / itemsPerPage)) as _, i}
-							<button 
-								class="w-8 h-8 text-sm text-black border border-light-gray rounded hover:bg-light-gray transition-colors {currentPage === i + 1 ? 'bg-light-gray' : ''}"
-								on:click={() => currentPage = i + 1}
-							>
-								{i + 1}
-							</button>
-						{/each}
+				
+				{#if claimHistory.length > 0}
+					<div class="bg-white border border-light-gray overflow-hidden rounded-lg">
+						<div class="overflow-x-auto">
+							<table class="w-full">
+								<thead>
+									<tr class="bg-light-gray border-b border-light-gray">
+										<th class="text-left p-3 lg:p-4 text-xs text-black uppercase tracking-wide font-bold">Date</th>
+										<th class="text-left p-3 lg:p-4 text-xs text-black uppercase tracking-wide font-bold">Asset</th>
+										<th class="text-left p-3 lg:p-4 text-xs text-black uppercase tracking-wide font-bold">Amount</th>
+										<th class="text-center p-3 lg:p-4 text-xs text-black uppercase tracking-wide font-bold hidden sm:table-cell">Transaction</th>
+									</tr>
+								</thead>
+								<tbody>
+									{#each claimHistory.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) as claim}
+										<tr class="border-b border-light-gray hover:bg-light-gray transition-colors">
+											<td class="p-3 lg:p-4 text-sm text-black">{formatDate(claim.date)}</td>
+											<td class="p-3 lg:p-4 text-sm text-black">{claim.asset}</td>
+											<td class="p-3 lg:p-4 text-sm text-black font-semibold">{formatCurrency(claim.amount)}</td>
+											<td class="p-3 lg:p-4 text-center hidden sm:table-cell">
+												<a 
+													href="https://basescan.org/tx/{claim.txHash}" 
+													target="_blank" 
+													rel="noopener noreferrer"
+													class="text-xs text-secondary hover:text-black transition-colors inline-flex items-center gap-1 font-mono"
+												>
+													{claim.txHash.slice(0, 10)}...
+													<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+														<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+														<polyline points="15,3 21,3 21,9"/>
+														<line x1="10" y1="14" x2="21" y2="3"/>
+													</svg>
+												</a>
+											</td>
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						</div>
 					</div>
-					
-					<button 
-						class="px-3 py-1 text-sm text-black border border-light-gray rounded hover:bg-light-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-						disabled={currentPage === Math.ceil(claimHistory.length / itemsPerPage)}
-						on:click={() => currentPage += 1}
-					>
-						Next
-					</button>
-				</div>
-			{:else}
-				<div class="flex justify-center items-center gap-2 mt-6">
-					<span class="text-sm text-black">Page</span>
-					<span class="w-8 h-8 text-sm text-black border border-light-gray rounded bg-light-gray flex items-center justify-center">1</span>
-				</div>
-			{/if}
+				{:else}
+					<div class="text-center py-8 text-gray-500">
+						<p>No claim history yet. Your first claims will appear here.</p>
+					</div>
+				{/if}
+			</CollapsibleSection>
 		</ContentSection>
 	{/if}
 </PageLayout>
 
-<!-- Claim Modal -->
-{#if showClaimModal}
-	<div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-		<div class="bg-white max-w-md w-full p-8 relative rounded-lg">
-			<button 
-				class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-light-gray text-black rounded-full hover:bg-secondary hover:text-white transition-all duration-200"
-				on:click={() => showClaimModal = false}
-				aria-label="Close modal"
-			>
-				<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-					<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-				</svg>
-			</button>
-			
-			<h2 class="text-2xl font-extrabold text-black mb-6 uppercase tracking-tight">
-				{claimModalMode === 'claim' ? 'Confirm Claim' : 'Reinvest Payouts'}
-			</h2>
-			
-			<div class="mb-6">
-				<div class="bg-light-gray p-4 rounded mb-4">
-					<div class="flex justify-between mb-2">
-						<span class="text-black opacity-70">Selected Payouts:</span>
-						<span class="font-semibold text-black">{formatCurrency(selectedAmount)}</span>
-					</div>
-					<div class="flex justify-between mb-2">
-						<span class="text-black opacity-70">Gas Fees:</span>
-						<span class="font-semibold text-black">-{formatCurrency(estimatedGas)}</span>
-					</div>
-					<div class="border-t border-gray-300 pt-2 mt-2">
-						<div class="flex justify-between">
-							<span class="font-semibold text-black">
-								{claimModalMode === 'claim' ? 'You Will Receive:' : 'Available to Reinvest:'}
-							</span>
-							<span class="text-xl font-extrabold text-primary">
-								{formatCurrency(selectedAmount - estimatedGas)}
-							</span>
-						</div>
-					</div>
-				</div>
-				
-				{#if claimModalMode === 'claim'}
-					<p class="text-sm text-black opacity-70">
-						Funds will be sent to your connected wallet address. Transaction may take a few minutes to complete.
-					</p>
-				{:else}
-					<p class="text-sm text-black opacity-70 mb-4">
-						Choose assets to reinvest your payouts into:
-					</p>
-					<div class="space-y-2 max-h-48 overflow-y-auto">
-						<label class="flex items-center p-3 bg-light-gray rounded hover:bg-gray-200 cursor-pointer">
-							<input type="radio" name="reinvest" class="mr-3" />
-							<div>
-								<div class="font-semibold text-black">EUR WR-1 Well</div>
-								<div class="text-sm text-black opacity-70">Current yield: 2.8%</div>
-							</div>
-						</label>
-						<label class="flex items-center p-3 bg-light-gray rounded hover:bg-gray-200 cursor-pointer">
-							<input type="radio" name="reinvest" class="mr-3" />
-							<div>
-								<div class="font-semibold text-black">BLK PAD-2 Well</div>
-								<div class="text-sm text-black opacity-70">Current yield: 3.1%</div>
-							</div>
-						</label>
-					</div>
-				{/if}
-			</div>
-			
-			<div class="flex gap-4">
-				<PrimaryButton 
-					on:click={confirmClaim} 
-					disabled={claiming}
-					fullWidth={true}
-				>
-					{claiming ? 'Processing...' : claimModalMode === 'claim' ? 'Confirm Claim' : 'Confirm Reinvestment'}
-				</PrimaryButton>
-				<SecondaryButton 
-					on:click={() => showClaimModal = false}
-					disabled={claiming}
-					fullWidth={true}
-				>
-					Cancel
-				</SecondaryButton>
-			</div>
-		</div>
-	</div>
-{/if}
-{/if}
-
 <!-- Wallet Modal -->
-<WalletModal
-	bind:isOpen={showWalletModal}
-	isConnecting={$walletStore.isConnecting}
+<WalletModal 
+	isOpen={showWalletModal}
 	on:connect={handleWalletConnect}
-	on:close={handleWalletModalClose}
+	on:close={() => showWalletModal = false}
 />
-
-<style>
-</style>

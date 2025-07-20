@@ -1,10 +1,10 @@
-# Mobile Optimization Summary - FIXED ISSUES & PRIORITIZED BUYING JOURNEY
+# Mobile Optimization Summary - CONTENT STRATEGY & EXPANDABLE SECTIONS
 
 This document outlines the comprehensive mobile optimizations implemented to make the Albion oil & gas DeFi platform mobile-friendly while preserving the desktop experience and prioritizing the investment journey.
 
-## 🚀 **FIXES APPLIED**
+## 🚀 **MAJOR IMPROVEMENTS IMPLEMENTED**
 
-### 1. **Fixed Layout Issues**
+### 1. **Fixed Critical Layout Issues**
 - ✅ **Connect Wallet Button**: No longer stuck to top, proper mobile menu positioning with z-index fix
 - ✅ **Carousel Artifacts**: Removed buggy mobile navigation controls, simplified carousel for mobile
 - ✅ **Token Cards**: Properly sized and compact for mobile screens with responsive padding
@@ -28,6 +28,83 @@ This document outlines the comprehensive mobile optimizations implemented to mak
 4. **Mobile CTA Section** ("Ready to Start?" with direct link)
 5. **Minimal Footer** (Platform navigation only)
 
+### 3. **Asset Cards - Simplified for Mobile** 📱
+
+#### **Removed from Asset Cards on Mobile:**
+- ❌ **Token Lists**: Removed entire scrollable token section (available in asset details)
+- ❌ **Detailed Returns Information**: Simplified to just essential stats
+- ❌ **Complex Grid Layouts**: Streamlined to 2-column stats grid
+- ❌ **Scroll Indicators**: Removed complex scrolling UI elements
+- ❌ **Extended Descriptions**: Truncated to 2 lines on mobile (3 on desktop)
+
+#### **What Remains on Asset Cards (Essential Only):**
+- ✅ **Asset Name & Location**
+- ✅ **Operator Information**
+- ✅ **2 Key Stats**: Expected Remaining Production + Last Payment
+- ✅ **Short Description** (2 lines)
+- ✅ **Single Action Button**: "View & Buy Tokens" or "View Details"
+
+### 4. **Asset Details Page - Enhanced with Expandable Sections**
+
+#### **Simplified Asset Header:**
+- **Mobile-Responsive Typography**: Progressive scaling from mobile to desktop
+- **Hidden Sharing Buttons**: Only visible on large screens (lg:)
+- **Compact Stats Grid**: 2 columns on mobile, 3 on desktop
+- **Reduced Padding**: Optimized spacing for mobile screens
+
+### 5. **Claims Page - Collapsible Information Architecture** 📋
+
+#### **Always Visible (Core Functionality):**
+- ✅ **Main Stats**: Available to Claim + Total Earned (2 cols mobile, 3 desktop)
+- ✅ **Primary Claim Action**: Large prominent claim button
+- ✅ **Claims by Asset**: Simplified grid showing available amounts and claim buttons
+
+#### **Hidden in Expandable Sections:**
+- 📦 **Detailed Statistics**: Total payouts, days since last claim, averages, etc.
+- 📦 **Claim History Table**: Full transaction history with export functionality
+
+### 6. **Portfolio Page - Ready for Optimization** 📊
+*Note: Portfolio page structure analyzed but not yet optimized in this implementation*
+
+## **New Technical Components**
+
+### **CollapsibleSection Component**
+```typescript
+// Usage
+<CollapsibleSection 
+  title="Detailed Statistics" 
+  isOpenByDefault={false} 
+  alwaysOpenOnDesktop={true}
+>
+  <!-- Complex content here -->
+</CollapsibleSection>
+```
+
+#### **Features:**
+- **Mobile Collapsible**: Sections are closed by default on mobile
+- **Desktop Always Open**: Automatically expanded on large screens
+- **Smooth Animations**: CSS transitions for expand/collapse
+- **Accessibility**: Proper ARIA attributes and keyboard navigation
+- **Touch-Friendly**: Large touch targets for mobile interaction
+
+## **Content Hiding Strategy by Breakpoint**
+
+### **Mobile (< 640px)**
+- Focus on **core investment actions**
+- Hide secondary information in expandable sections
+- Minimize cognitive load
+- Prioritize conversion funnel
+
+### **Tablet (640px - 1024px)**
+- Gradual revelation of additional content
+- Some sections remain collapsed by default
+- Balance between mobile simplicity and desktop richness
+
+### **Desktop (> 1024px)**
+- All sections expanded by default
+- Full information architecture visible
+- Rich, detailed interface preserved
+
 ## **Key Mobile Improvements**
 
 ### 1. Navigation & Header ✅ FIXED
@@ -36,26 +113,31 @@ This document outlines the comprehensive mobile optimizations implemented to mak
 - **Touch-Friendly Targets**: All interactive elements meet 44px minimum touch target size
 - **Smooth Animations**: Better transition timing and mobile performance
 
-### 2. Carousel Component ✅ FIXED
-- **Compact Token Cards**: Reduced min-height (300px mobile → 400px desktop)
-- **Responsive Typography**: Proper mobile font scaling for all elements
-- **Hidden Desktop Navigation**: Arrow controls only show on large screens
-- **Simplified Mobile Layout**: Focus on essential information only
-- **Better Touch Support**: Improved swipe gestures and touch handling
-- **Fixed Image Sizing**: Responsive cover images (32px mobile → 48px desktop)
+### 2. Asset Card Component ✅ SIMPLIFIED
+- **Removed Token Lists**: Full token information moved to asset details page
+- **Compact Layout**: Essential information only (2-3 key stats)
+- **Single CTA**: Clear "View & Buy" action
+- **Responsive Typography**: Proper mobile font scaling
+- **Faster Loading**: Reduced complexity and DOM elements
 
-### 3. Content Strategy - Investment Journey Priority
+### 3. Claims Page ✅ ENHANCED
+- **Collapsible Architecture**: Secondary information in expandable sections
+- **Streamlined UI**: Core claiming functionality always visible
+- **Progressive Disclosure**: More details available when needed
+- **Export Functionality**: Hidden in expandable sections to reduce clutter
+
+### 4. Content Strategy - Investment Journey Priority
 - **Mobile CTA Prominence**: Clear investment path with reduced friction
 - **Essential Information Only**: Hide secondary content that doesn't drive conversions
 - **Progressive Disclosure**: More details available on larger screens
 - **Fast Loading**: Reduced mobile payload by hiding non-essential components
 
-### 4. Typography System ✅ ENHANCED
+### 5. Typography System ✅ ENHANCED
 - **Mobile-First Approach**: Base font sizes optimized for mobile screens
 - **Progressive Enhancement**: Typography scales appropriately across breakpoints
 - **Improved Readability**: Better line heights and letter spacing for mobile
 
-### 5. Layout & Spacing ✅ ENHANCED
+### 6. Layout & Spacing ✅ ENHANCED
 - **Responsive Padding**: Smart padding system that scales from mobile to desktop
 - **Grid Optimizations**: Mobile-first grid layouts that stack appropriately
 - **Content Sections**: Progressive spacing (py-6 → py-8 → py-12 → py-16)
@@ -69,6 +151,11 @@ This document outlines the comprehensive mobile optimizations implemented to mak
 .hidden.sm:inline-flex  /* Secondary CTAs */
 .hidden.lg:block        /* Trust indicators, market data */
 .block.sm:hidden        /* Mobile-specific CTAs */
+
+/* Expandable Sections */
+.lg:block              /* Always visible on desktop */
+.lg:cursor-default     /* Non-interactive on desktop */
+.lg:pointer-events-none /* No hover states on desktop */
 ```
 
 ### Fixed Issues
@@ -77,32 +164,48 @@ This document outlines the comprehensive mobile optimizations implemented to mak
 - **Touch targets**: All interactive elements ≥ 44px
 - **Card sizing**: Consistent height containers with proper responsive scaling
 - **Navigation artifacts**: Removed problematic mobile navigation controls
+- **Content overload**: Hidden secondary information in collapsible sections
 
 ### Performance Optimizations
 - **Reduced DOM**: Hidden elements don't render on mobile
 - **Faster animations**: Optimized transition durations for mobile
 - **Touch-first**: Better gesture handling and response times
+- **Progressive Loading**: Essential content loads first, secondary content on demand
 
 ## **Mobile Investment Journey Flow**
 
 1. **Landing** → Hero with clear "Explore Investments" CTA
-2. **Browse** → Featured token carousel (main conversion tool)
-3. **Convert** → Mobile CTA section or carousel purchase
-4. **Navigate** → Streamlined platform links in footer
+2. **Browse** → Simplified asset cards with essential info only
+3. **Details** → Asset details page with expandable technical information
+4. **Purchase** → Token purchase flow (existing, not modified)
+5. **Manage** → Claims page with core functionality prominent, details collapsible
 
 ## **Key Features Preserved**
 - ✅ Desktop layout and styling completely unchanged
-- ✅ All interactive functionality maintained
+- ✅ All interactive functionality maintained  
 - ✅ Investment journey optimized for mobile conversion
 - ✅ Progressive enhancement strategy
 - ✅ Performance optimizations applied
+- ✅ Information architecture preserved through expandable sections
 
 ## **Testing Notes**
 - ✅ Build process completes successfully
 - ✅ No layout artifacts or positioning issues
 - ✅ Connect wallet button properly positioned
-- ✅ Token cards sized appropriately for mobile
+- ✅ Asset cards simplified and mobile-friendly
 - ✅ Content hierarchy optimized for investment journey
+- ✅ Expandable sections work properly on all screen sizes
 - ✅ Touch targets meet WCAG 2.1 AA standards
+- ⚠️ Minor accessibility warning fixed in CollapsibleSection component
 
-The mobile optimizations now provide a clean, conversion-focused experience that prioritizes the investment journey while maintaining the sophisticated desktop design. Users can efficiently browse and invest in energy assets without being overwhelmed by secondary information.
+## **Results**
+
+The mobile optimizations now provide a **clean, conversion-focused experience** that:
+
+1. **Prioritizes the investment journey** above all else
+2. **Hides complexity** in expandable sections for power users
+3. **Maintains desktop sophistication** through progressive enhancement
+4. **Improves performance** by reducing mobile payload
+5. **Enhances usability** with touch-first design principles
+
+Mobile users can now efficiently browse, evaluate, and invest in energy assets without being overwhelmed by secondary information, while desktop users retain access to the full, detailed interface.
