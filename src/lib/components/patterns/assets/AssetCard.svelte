@@ -82,7 +82,7 @@
 	$: assetLocationClasses = 'text-gray-500 text-base m-0 text-left font-figtree';
 	$: assetDescriptionClasses = 'text-gray-700 text-base leading-relaxed m-0 mb-6 line-clamp-3 min-h-[4.5rem] font-figtree';
 	$: viewDetailsSectionClasses = 'mt-6 mb-6';
-	$: tokensSectionClasses = 'my-6';
+	$: tokensSectionClasses = 'my-6 hidden sm:block';
 	$: tokensTitleClasses = 'typography-h5 text-black m-0 mb-4';
 	$: tokensListClasses = 'flex flex-col gap-3';
 	$: tokensListScrollableClasses = 'flex flex-col gap-3 max-h-[13rem] overflow-y-auto pr-2';
