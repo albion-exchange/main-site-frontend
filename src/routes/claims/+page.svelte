@@ -424,15 +424,41 @@
 											</td>
 										</tr>
 									{/each}
-								</tbody>
-							</table>
+															</tbody>
+						</table>
+					</div>
+					
+					<!-- Pagination Controls -->
+					{#if claimHistory.length > itemsPerPage}
+						{@const totalPages = Math.ceil(claimHistory.length / itemsPerPage)}
+						<div class="flex justify-center items-center gap-2 mt-4">
+							<button 
+								class="px-3 py-1 text-sm border border-light-gray rounded disabled:opacity-50"
+								disabled={currentPage === 1}
+								on:click={() => currentPage = Math.max(1, currentPage - 1)}
+							>
+								Previous
+							</button>
+							
+							<span class="text-sm text-gray-600">
+								{currentPage} of {totalPages}
+							</span>
+							
+							<button 
+								class="px-3 py-1 text-sm border border-light-gray rounded disabled:opacity-50"
+								disabled={currentPage === totalPages}
+								on:click={() => currentPage = Math.min(totalPages, currentPage + 1)}
+							>
+								Next
+							</button>
 						</div>
-					</div>
-				{:else}
-					<div class="text-center py-8 text-gray-500">
-						<p>No claim history yet. Your first claims will appear here.</p>
-					</div>
-				{/if}
+					{/if}
+				</div>
+			{:else}
+				<div class="text-center py-8 text-gray-500">
+					<p>No claim history yet. Your first claims will appear here.</p>
+				</div>
+			{/if}
 			</CollapsibleSection>
 		</ContentSection>
 	{/if}

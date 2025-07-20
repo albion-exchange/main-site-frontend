@@ -27,15 +27,16 @@
 	<div class="bg-white border border-light-gray section-no-border mb-6 lg:mb-8">
 		<div class="py-6 sm:py-8 lg:py-12">
 			<div class="mb-6 sm:mb-8 lg:mb-12">
-				<div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-8 mb-6 lg:mb-8">
-					<div class="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-lg overflow-hidden border border-light-gray flex-shrink-0">
-						<img 
-							src={getImageUrl(getAssetImage(asset))} 
-							alt={asset?.name || 'Asset'}
-							loading="lazy"
-							class="w-full h-full object-cover"
-						/>
-					</div>
+							<div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-8 mb-6 lg:mb-8">
+				<!-- Thumbnail - hidden on mobile -->
+				<div class="hidden sm:block w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-lg overflow-hidden border border-light-gray flex-shrink-0">
+					<img 
+						src={getImageUrl(getAssetImage(asset))} 
+						alt={asset?.name || 'Asset'}
+						loading="lazy"
+						class="w-full h-full object-cover"
+					/>
+				</div>
 					<div class="flex-1">
 						<div class="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-start lg:gap-4 mb-4">
 							<h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-black uppercase tracking-tight m-0 leading-tight">{asset?.name}</h1>
@@ -88,8 +89,8 @@
 		<div class="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-8 text-center mb-6 lg:mb-8">
 			<StatsCard
 				title="Current Production"
-				value={asset?.production?.current || '0'}
-				subtitle="BOE/day"
+				value={asset?.production?.current ? asset.production.current.replace(' BOE/month', '') : '0'}
+				subtitle="BOE/month"
 				size="small"
 			/>
 			<StatsCard

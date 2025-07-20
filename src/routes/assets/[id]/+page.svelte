@@ -769,31 +769,7 @@
 																					</div>
 							</div>
 							
-							<!-- Mobile: Collapsible Key Stats -->
-							<div class="sm:hidden p-4">
-								<CollapsibleSection title="Key Stats" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
-									<div class="space-y-3">
-										<div class="flex justify-between items-center">
-											<span class="text-sm font-medium text-black opacity-70">Minted Supply</span>
-											<span class="text-sm font-bold text-black">{token.supplyNumbers?.mintedSupply?.toLocaleString() || supply?.sold?.toLocaleString() || '0'}</span>
-										</div>
-										<div class="flex justify-between items-center">
-											<span class="text-sm font-medium text-black opacity-70">Max Supply</span>
-											<span class="text-sm font-bold text-black">{token.supplyNumbers?.maxSupply?.toLocaleString() || supply?.total?.toLocaleString() || '0'}</span>
-										</div>
-										<div class="flex justify-between items-center">
-											<span class="text-sm font-medium text-black opacity-70">Implied Barrels/Token</span>
-											<span class="text-sm font-bold text-black">{calculatedReturns?.impliedBarrelsPerToken?.toFixed(6) || '0.000000'}</span>
-										</div>
-										<div class="flex justify-between items-center">
-											<span class="text-sm font-medium text-black opacity-70">Breakeven Oil Price</span>
-											<span class="text-sm font-bold text-black">${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
-										</div>
-									</div>
-								</CollapsibleSection>
-							</div>
-
-							<div class="p-8 pt-0">
+													<div class="p-8 pt-0">
 								<div class="grid grid-cols-2 gap-3">
 												{#if hasAvailableSupply}
 													<PrimaryButton fullWidth on:click={(e) => { e.stopPropagation(); handleBuyTokens(token.contractAddress); }}>

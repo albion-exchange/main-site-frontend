@@ -31,7 +31,7 @@ export function formatCurrency(
   } = {}
 ): string {
   const { 
-    minimumFractionDigits = 2, 
+    minimumFractionDigits = (amount % 1 === 0 ? 0 : 2), 
     maximumFractionDigits = 2,
     compact = false 
   } = options;

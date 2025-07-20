@@ -345,10 +345,10 @@
 									</div>
 								</div>
 								
-								<div class="flex gap-2">
-									<SecondaryButton size="small" href="/claims" fullWidth>Claims</SecondaryButton>
-									<SecondaryButton size="small" href="/assets/{holding.assetId}" fullWidth>Details</SecondaryButton>
-								</div>
+															<div class="flex gap-2">
+								<SecondaryButton size="small" href="/claims" fullWidth>Claims</SecondaryButton>
+								<SecondaryButton size="small" href="/assets/{holding.assetId}#returns-chart" fullWidth>History</SecondaryButton>
+							</div>
 							</CardContent>
 						</Card>
 					{/each}
@@ -366,22 +366,34 @@
 						return txDate >= monthsAgo;
 					})}
 					
-					<div class="grid grid-cols-2 gap-4 mb-6">
-						<StatsCard
-							title="3M Performance"
-							value={recentPerformance.length > 0 ? `+${((recentPerformance.reduce((sum, tx) => sum + (tx.type === 'payout' ? tx.amount : 0), 0) / totalInvested) * 100).toFixed(1)}%` : '0%'}
-							subtitle="Last 3 months"
-							size="medium"
-							valueColor="primary"
-						/>
-						<StatsCard
-							title="Total ROI"
-							value={totalInvested > 0 ? `+${((totalPayoutsEarned / totalInvested) * 100).toFixed(1)}%` : '0%'}
-							subtitle="All time"
-							size="medium"
-							valueColor="primary"
-						/>
-					</div>
+									<div class="grid grid-cols-2 gap-4 mb-6">
+					<StatsCard
+						title="Portfolio Value"
+						value={formatCurrency(totalInvested)}
+						subtitle="Total invested"
+						size="medium"
+					/>
+					<StatsCard
+						title="Total Earned"
+						value={formatCurrency(totalPayoutsEarned)}
+						subtitle="All payouts"
+						size="medium"
+						valueColor="primary"
+					/>
+					<StatsCard
+						title="Active Assets"
+						value={activeAssetsCount.toString()}
+						subtitle="In portfolio"
+						size="medium"
+					/>
+					<StatsCard
+						title="Unclaimed"
+						value={formatCurrency(unclaimedPayout)}
+						subtitle="Available to claim"
+						size="medium"
+						valueColor="primary"
+					/>
+				</div>
 					
 					<p class="text-sm text-gray-600">Detailed performance charts and analysis available on desktop.</p>
 				</CollapsibleSection>
