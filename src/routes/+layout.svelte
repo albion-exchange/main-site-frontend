@@ -96,7 +96,8 @@
 				<!-- Right side: Desktop wallet button + Mobile menu button -->
 				<div class="flex items-center gap-4">
 									<!-- Desktop wallet button - small -->
-				<div class="{navActionsClasses} {desktopNavClasses}">
+				<!-- Show wallet button only on large (lg) viewports and above to avoid covering the logo on tablets/mobile -->
+				<div class="{navActionsClasses} hidden lg:flex">
 					<button 
 						class="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-light-gray rounded hover:bg-light-gray hover:border-secondary transition-all duration-200"
 						on:click={connectWallet}
