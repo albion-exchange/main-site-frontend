@@ -223,7 +223,7 @@
 	$: navButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target items-center justify-center rounded-full';
 	$: prevButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target left-[-4rem] items-center justify-center rounded-full';
 	$: nextButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target right-[-4rem] items-center justify-center rounded-full';
-	$: indicatorsClasses = 'absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
+	$: indicatorsClasses = 'absolute bottom-4 left-1/2 transform -translate-x-1/2 gap-2 z-10 hidden';
 	$: indicatorClasses = 'w-3 h-3 border-none bg-white/50 cursor-pointer transition-all duration-200 hover:bg-white/80 touch-target rounded-full';
 	$: indicatorActiveClasses = 'w-3 h-3 border-none bg-white cursor-pointer transition-all duration-200 scale-125 shadow-lg touch-target rounded-full';
 

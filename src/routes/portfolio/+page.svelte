@@ -308,47 +308,112 @@
 				{#if loading}
 					<div class="text-center py-8 text-black opacity-70">Loading portfolio holdings...</div>
 				{:else}
-					{#each holdings as holding}
+										{#each holdings as holding}
+						{@const chartData = getPayoutChartData(holding)}
 						<Card hoverable showBorder>
-							<CardContent paddingClass="p-4 sm:p-6">
-								<div class="flex items-start gap-3 mb-4">
-									<div class="w-12 h-12 bg-light-gray rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
-										{#if holding.asset?.coverImage}
-											<img src={holding.asset.coverImage} alt={holding.name} class="w-full h-full object-cover" />
-										{:else}
-											<div class="text-xl opacity-50">🛢️</div>
-										{/if}
-									</div>
-									<div class="flex-1">
-										<h4 class="font-extrabold text-black text-base mb-1">{holding.tokenSymbol}</h4>
-										<div class="text-sm text-black opacity-70 mb-1">{holding.name}</div>
-										<StatusBadge
-											status={holding.status}
-											variant={holding.status === 'producing' ? 'available' : 'default'}
-											size="small"
-										/>
-									</div>
-									<div class="text-right">
-										<div class="text-lg font-extrabold text-primary">{formatCurrency(holding.totalPayoutsEarned)}</div>
-										<div class="text-xs text-black opacity-70">Total Earned</div>
+							<CardContent paddingClass="p-0">
+								<div class="relative h-full overflow-hidden" style="perspective: 1000px;">
+									<!-- Front of card -->
+									<div class="transition-transform duration-700 ease-in-out transform-style-preserve-3d {flippedCards.has(holding.id) ? 'rotate-y-180' : ''} h-full">
+										<div class="absolute inset-0 backface-hidden p-4 sm:p-6">
+											<div class="flex items-start gap-3 mb-4">
+												<div class="w-12 h-12 bg-light-gray rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
+													{#if holding.asset?.coverImage}
+														<img src={holding.asset.coverImage} alt={holding.name} class="w-full h-full object-cover" />
+													{:else}
+														<div class="text-xl opacity-50">🛢️</div>
+													{/if}
+												</div>
+												<div class="flex-1">
+													<h4 class="font-extrabold text-black text-base mb-1">{holding.tokenSymbol}</h4>
+													<div class="text-sm text-black opacity-70 mb-1">{holding.name}</div>
+													<StatusBadge
+														status={holding.status}
+														variant={holding.status === 'producing' ? 'available' : 'default'}
+														size="small"
+													/>
+												</div>
+												<div class="text-right">
+													<div class="text-lg font-extrabold text-primary">{formatCurrency(holding.totalPayoutsEarned)}</div>
+													<div class="text-xs text-black opacity-70">Total Earned</div>
+												</div>
+											</div>
+											
+											<div class="grid grid-cols-2 gap-4 mb-4">
+												<div>
+													<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-1">Tokens</div>
+													<div class="text-sm font-extrabold text-black">{formatNumber(holding.tokensOwned)}</div>
+												</div>
+												<div>
+													<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-1">Invested</div>
+													<div class="text-sm font-extrabold text-black">{formatCurrency(holding.totalInvested)}</div>
+												</div>
+											</div>
+											
+											<div class="flex gap-2">
+												<SecondaryButton size="small" href="/claims" fullWidth>Claims</SecondaryButton>
+												<SecondaryButton 
+													size="small" 
+													fullWidth
+													on:click={(e) => {
+														// On mobile, flip the card to show history
+														if (window.innerWidth < 1024) {
+															e.preventDefault();
+															toggleCardFlip(holding.id);
+														} else {
+															// On desktop, navigate to asset details
+															window.location.href = `/assets/${holding.assetId}#returns-chart`;
+														}
+													}}
+												>
+													History
+												</SecondaryButton>
+											</div>
+										</div>
+										
+										<!-- Back of card - Payout History Chart -->
+										<div class="absolute inset-0 backface-hidden rotate-y-180 p-4 sm:p-6 flex flex-col">
+											<div class="flex justify-between items-center mb-4">
+												<h4 class="font-extrabold text-black text-base">Cumulative Payouts</h4>
+												<SecondaryButton 
+													size="small"
+													on:click={() => toggleCardFlip(holding.id)}
+												>
+													← Back
+												</SecondaryButton>
+											</div>
+											
+											{#if chartData.length > 0}
+												<div class="flex-1 min-h-0">
+													<Chart
+														data={chartData.map((point, index) => ({
+															label: point.date,
+															value: chartData.slice(0, index + 1).reduce((sum, p) => sum + p.value, 0)
+														}))}
+														width={300}
+														height={200}
+														valuePrefix="$"
+														barColor="#08bccc"
+														animate={false}
+														showGrid={true}
+													/>
+												</div>
+												<div class="mt-4 text-center">
+													<div class="text-lg font-extrabold text-primary">{formatCurrency(holding.totalPayoutsEarned)}</div>
+													<div class="text-xs text-black opacity-70">Total Earned to Date</div>
+												</div>
+											{:else}
+												<div class="flex-1 flex items-center justify-center text-center">
+													<div>
+														<div class="text-4xl mb-2">📊</div>
+														<p class="text-sm text-black opacity-70">No payout history yet</p>
+														<p class="text-xs text-black opacity-50">Charts will appear after first payments</p>
+													</div>
+												</div>
+											{/if}
+										</div>
 									</div>
 								</div>
-								
-								<div class="grid grid-cols-2 gap-4 mb-4">
-									<div>
-										<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-1">Tokens</div>
-										<div class="text-sm font-extrabold text-black">{formatNumber(holding.tokensOwned)}</div>
-									</div>
-									<div>
-										<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-1">Invested</div>
-										<div class="text-sm font-extrabold text-black">{formatCurrency(holding.totalInvested)}</div>
-									</div>
-								</div>
-								
-															<div class="flex gap-2">
-								<SecondaryButton size="small" href="/claims" fullWidth>Claims</SecondaryButton>
-								<SecondaryButton size="small" href="/assets/{holding.assetId}#returns-chart" fullWidth>History</SecondaryButton>
-							</div>
 							</CardContent>
 						</Card>
 					{/each}

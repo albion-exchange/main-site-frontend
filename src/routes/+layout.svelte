@@ -36,7 +36,7 @@
 	
 	// Enhanced Tailwind class mappings with better mobile responsiveness
 	$: appClasses = 'min-h-screen flex flex-col';
-	$: headerClasses = 'border-b border-light-gray bg-white sticky top-0 z-[100]';
+	$: headerClasses = 'border-b border-light-gray bg-white relative z-[100]';
 	$: navContainerClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 sm:h-20 lg:h-24';
 	$: logoClasses = 'flex items-center gap-1';
 	$: logoImageClasses = 'h-12 sm:h-14 lg:h-16 w-auto';
