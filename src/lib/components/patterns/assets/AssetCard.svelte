@@ -105,7 +105,7 @@
 	$: mobileHighlightValueClasses = 'text-xl md:text-2xl font-extrabold text-secondary mb-1 font-figtree';
 	$: mobileHighlightLabelClasses = 'text-xs md:text-sm text-gray-500 font-medium font-figtree';
 	$: mobileAssetNameClasses = 'text-base md:text-lg font-extrabold text-black m-0 mb-2 min-h-[2.75rem] md:min-h-[3.125rem] leading-tight text-left font-figtree';
-	$: mobileAssetDescriptionClasses = 'text-gray-700 text-sm md:text-base leading-relaxed m-0 mb-4 md:mb-6 line-clamp-3 h-[4rem] md:h-[4.5rem] font-figtree';
+	$: mobileAssetDescriptionClasses = 'hidden sm:block text-gray-700 text-sm md:text-base leading-relaxed m-0 mb-4 md:mb-6 line-clamp-3 h-[4rem] md:h-[4.5rem] font-figtree';
 	$: mobileTokensTitleClasses = 'text-base md:text-lg font-extrabold text-black m-0 mb-4 font-figtree';
 	$: mobileTokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 md:p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-light-gray border border-light-gray hover:shadow-sm hover:-translate-y-0.5 gap-3 sm:gap-0';
 	$: mobileTokenButtonRightClasses = 'flex flex-row sm:flex-col w-full sm:w-auto justify-between sm:justify-end items-center sm:items-end gap-2';
@@ -118,7 +118,7 @@
 	$: mobileReturnLabelClasses = 'text-[0.55rem] md:text-xs text-gray-500 font-medium';
 	$: mobileBuyCtaClasses = 'text-sm md:text-base font-extrabold text-black font-figtree';
 	$: smallMobileHeaderMainClasses = 'flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4';
-	$: smallMobileOperatorClasses = 'flex flex-col items-start sm:items-end text-left sm:text-right';
+	$: smallMobileOperatorClasses = 'hidden sm:flex flex-col items-end text-right';
 
 </script>
 
