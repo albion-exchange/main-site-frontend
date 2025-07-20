@@ -227,7 +227,7 @@
 		className="py-12"
 	>
 		<!-- Platform Stats -->
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto mt-6">
+		<div class="grid grid-cols-3 gap-4 sm:gap-6 text-center max-w-6xl mx-auto mt-6">
 			{#if loading}
 				<StatsCard
 					title="Current Token Holdings"
@@ -274,7 +274,7 @@
 	<!-- Portfolio Tabs -->
 	<ContentSection background="white" padding="compact">
 		<div class="bg-white border border-light-gray mb-8">
-			<div class="flex flex-wrap border-b border-light-gray">
+			<div class="hidden sm:flex flex-wrap border-b border-light-gray">
 				<TabButton
 					active={activeTab === 'overview'}
 					on:click={() => activeTab = 'overview'}

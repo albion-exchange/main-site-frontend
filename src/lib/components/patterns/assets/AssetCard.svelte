@@ -109,7 +109,7 @@
 	$: mobileTokensTitleClasses = 'text-base md:text-lg font-extrabold text-black m-0 mb-4 font-figtree';
 	$: mobileTokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 md:p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-light-gray border border-light-gray hover:shadow-sm hover:-translate-y-0.5 gap-3 sm:gap-0';
 	$: mobileTokenButtonRightClasses = 'flex flex-row sm:flex-col w-full sm:w-auto justify-between sm:justify-end items-center sm:items-end gap-2';
-	$: mobileTokenSymbolClasses = 'font-extrabold text-sm md:text-base text-black font-figtree';
+	$: mobileTokenSymbolClasses = 'hidden sm:block font-extrabold text-sm md:text-base text-black font-figtree';
 	$: mobileTokenNameClasses = 'text-xs md:text-sm text-gray-500 leading-tight font-figtree';
 	$: mobileTokenPaymentDateClasses = 'text-[0.65rem] md:text-xs text-secondary font-medium mt-1';
 	$: mobileReturnsDisplayClasses = 'flex items-center gap-1 md:gap-2';
@@ -118,7 +118,7 @@
 	$: mobileReturnLabelClasses = 'text-[0.55rem] md:text-xs text-gray-500 font-medium';
 	$: mobileBuyCtaClasses = 'text-sm md:text-base font-extrabold text-black font-figtree';
 	$: smallMobileHeaderMainClasses = 'flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4';
-	$: smallMobileOperatorClasses = 'hidden sm:flex flex-col items-end text-right';
+	$: smallMobileOperatorClasses = 'flex flex-row items-center gap-1 text-left sm:text-right';
 
 </script>
 
@@ -205,7 +205,7 @@
 							<div class={tokenButtonLeftClasses}>
 								<div class="flex justify-between items-center w-full gap-2">
 									<span class={mobileTokenSymbolClasses}>{token.symbol}</span>
-									<span class="text-xs font-extrabold text-white bg-secondary px-2 py-1 tracking-wider rounded whitespace-nowrap">{token.sharePercentage ? `${token.sharePercentage}%` : shareOfAsset} of Asset</span>
+									<span class="hidden sm:inline-flex text-xs font-extrabold text-white bg-secondary px-2 py-1 tracking-wider rounded whitespace-nowrap">{token.sharePercentage ? `${token.sharePercentage}%` : shareOfAsset} of Asset</span>
 								</div>
 								<span class={mobileTokenNameClasses}>{token.name}</span>
 								<span class={mobileTokenPaymentDateClasses}>First payment: {firstPaymentMonth}</span>
@@ -213,13 +213,8 @@
 							<div class={mobileTokenButtonRightClasses}>
 								<div class={mobileReturnsDisplayClasses}>
 									<div class={returnItemClasses}>
-										<span class={mobileReturnLabelClasses}>Est. Base</span>
-										<span class={mobileReturnValueClasses}>{baseReturn}%</span>
-									</div>
-									<div class={returnDividerClasses}>+</div>
-									<div class={returnItemClasses}>
-										<span class={mobileReturnLabelClasses}>Est. Bonus</span>
-										<span class={mobileReturnValueBonusClasses}>{bonusReturn}%</span>
+										<span class={mobileReturnLabelClasses}>Est. Base + Bonus</span>
+										<span class={mobileReturnValueClasses}>{baseReturn}% + {bonusReturn}%</span>
 									</div>
 								</div>
 								<span class={mobileBuyCtaClasses}>Buy Now →</span>

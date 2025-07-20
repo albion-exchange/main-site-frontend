@@ -11,9 +11,9 @@
 	export let valueColor: 'default' | 'primary' | 'secondary' = 'default';
 	
 	const sizeClasses = {
-		small: 'p-4',
-		medium: 'p-6', 
-		large: 'p-8'
+		small: 'p-3 md:p-4',
+		medium: 'p-4 md:p-6',
+		large: 'p-4 md:p-8'
 	};
 	
 	const valueSizeClasses = {

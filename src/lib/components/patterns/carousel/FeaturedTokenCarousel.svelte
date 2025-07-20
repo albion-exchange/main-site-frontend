@@ -318,7 +318,7 @@
 								</div>
 
 								<div class={mobileTokenStatsClasses}>
-									<div class={statItemClasses}>
+									<div class="hidden sm:block {statItemClasses}">
 										<div class={statLabelClasses}>Total Supply</div>
 										<div class={statValueClasses}>
 											{formatSupply(item.token.supply.maxSupply, item.token.decimals)}
@@ -331,14 +331,10 @@
 											{formatSupply(getAvailableSupplyBigInt(item.token).toString(), item.token.decimals)}
 										</div>
 									</div>
+									<!-- Combined returns for mobile -->
 									<div class={statItemClasses}>
-										<div class={statLabelClasses}>Estimated Base Returns</div>
-										<div class="text-xl font-extrabold text-primary">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</div>
-									</div>
-									
-									<div class={statItemClasses}>
-										<div class={statLabelClasses}>Estimated Bonus Returns</div>
-										<div class="text-xl font-extrabold text-primary">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
+										<div class={statLabelClasses}>Est. Return</div>
+										<div class="text-xl font-extrabold text-primary">{calculatedReturns ? Math.round(calculatedReturns.baseReturn) + '% + ' + Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
 									</div>
 								</div>
 
@@ -367,12 +363,12 @@
 								{/if}
 
 								<div class={assetHeaderClasses}>
-									<div class="flex items-center gap-2 mb-2">
+									<div class="hidden sm:flex items-center gap-2 mb-2">
 										<div class={getStatusIndicatorClasses(item.asset.production.status)}></div>
 										<span class={statusTextClasses}>{item.asset.production.status.toUpperCase()}</span>
 									</div>
 									<h3 class={assetNameClasses}>{item.asset.name}</h3>
-									<div class={assetLocationClasses}>
+									<div class="hidden sm:block {assetLocationClasses}">
 										{item.asset.location.state}, {item.asset.location.country}
 									</div>
 								</div>
@@ -384,7 +380,7 @@
 									</div>
 								</div>
 
-								<div class={assetMetaClasses}>
+								<div class="hidden sm:block {assetMetaClasses}">
 									<div class={assetMetaItemClasses}>
 										<span class={assetMetaLabelClasses}>Operator:</span>
 										<span class={assetMetaValueClasses}>{item.asset.operator.name}</span>
