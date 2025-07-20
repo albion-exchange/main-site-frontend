@@ -76,19 +76,19 @@
 	>
 		{#if loading}
 			<!-- Loading State -->
-			<div class="text-center mt-8">
-				<p class="text-base text-black leading-relaxed">Loading assets...</p>
+			<div class="text-center mt-6 sm:mt-8">
+				<p class="text-sm sm:text-base text-black leading-relaxed">Loading assets...</p>
 			</div>
 		{:else}
 			<!-- Assets Grid -->
-			<div class="mt-24">
+			<div class="mt-12 sm:mt-16 lg:mt-24">
 				{#if filteredAssets.length === 0 && !showSoldOutAssets}
 					<!-- No Available Assets -->
 					<Card>
 						<CardContent>
-							<div class="text-center">
+							<div class="text-center py-8">
 								<SectionTitle level="h3" size="card">No Available Assets</SectionTitle>
-								<p class="text-base text-black leading-relaxed mt-4">All assets are currently sold out.</p>
+								<p class="text-sm sm:text-base text-black leading-relaxed mt-4">All assets are currently sold out.</p>
 							</div>
 						</CardContent>
 					</Card>
@@ -96,15 +96,15 @@
 					<!-- No Assets Found -->
 					<Card>
 						<CardContent>
-							<div class="text-center">
+							<div class="text-center py-8">
 								<SectionTitle level="h3" size="card">No Assets Found</SectionTitle>
-								<p class="text-base text-black leading-relaxed mt-4">Try adjusting your search criteria or filters to find assets.</p>
+								<p class="text-sm sm:text-base text-black leading-relaxed mt-4">Try adjusting your search criteria or filters to find assets.</p>
 							</div>
 						</CardContent>
 					</Card>
 				{:else}
 					<!-- Assets Grid -->
-					<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+					<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 items-stretch">
 						{#each filteredAssets as asset}
 							<AssetCard {asset} on:buyTokens={handleBuyTokens} />
 						{/each}
@@ -117,13 +117,13 @@
 	<!-- View Sold Out Assets Toggle -->
 	{#if !loading && filteredAssets.length > 0}
 		{#if soldOutCount > 0 && !showSoldOutAssets}
-			<div class="text-center mt-12">
+			<div class="text-center mt-8 sm:mt-12">
 				<SecondaryButton on:click={() => showSoldOutAssets = true}>
 					View Sold Out Assets ({soldOutCount})
 				</SecondaryButton>
 			</div>
 		{:else if showSoldOutAssets && soldOutCount > 0}
-			<div class="text-center mt-12">
+			<div class="text-center mt-8 sm:mt-12">
 				<SecondaryButton on:click={() => showSoldOutAssets = false}>
 					Hide Sold Out Assets
 				</SecondaryButton>
@@ -131,7 +131,6 @@
 		{/if}
 	{/if}
 </PageLayout>
-
 
 <!-- Token Purchase Widget -->
 <TokenPurchaseWidget 

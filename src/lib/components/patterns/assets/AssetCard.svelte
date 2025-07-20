@@ -10,7 +10,7 @@
 	const dispatch = createEventDispatcher();
 	const tokenService = useTokenService();
 	
-	// Scroll state management
+	// Scroll state management for token list
 	let scrollContainer: HTMLDivElement;
 	let canScrollUp = false;
 	let canScrollDown = false;
@@ -44,7 +44,7 @@
 			checkScrollPosition();
 		});
 	}
-
+	
 	// Use asset data directly from the data store
 	$: latestReport = asset.monthlyReports[asset.monthlyReports.length - 1] || null;
 
@@ -60,191 +60,200 @@
 
 	// Extract token data with fallbacks
 	$: shareOfAsset = primaryToken?.sharePercentage ? `${primaryToken.sharePercentage}%` : 'TBD';
-
-
 	
 	function handleBuyTokens() {
 		dispatch('buyTokens', { assetId: asset.id });
 	}
 	
-	// Tailwind class mappings
-	$: highlightedStatsClasses = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-4 p-4 bg-white rounded-lg';
-	$: highlightStatClasses = 'flex flex-col items-center text-center';
-	$: highlightValueClasses = 'text-2xl font-extrabold text-secondary mb-1 font-figtree';
-	$: highlightLabelClasses = 'text-sm text-gray-500 font-medium font-figtree';
+	// Mobile-responsive class mappings
 	$: headerClasses = 'mb-4';
-	$: headerMainClasses = 'flex justify-between items-start gap-4';
+	$: headerMainClasses = 'flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4';
 	$: nameLocationClasses = 'flex-1';
-	$: operatorClasses = 'flex flex-col items-end text-right';
-	$: operatorLabelClasses = 'text-sm text-gray-500 font-medium mb-1 font-figtree';
-	$: operatorNameClasses = 'text-base text-black font-extrabold font-figtree';
-	$: assetNameClasses = 'typography-h5 text-black m-0 mb-2 min-h-[3.125rem] leading-tight text-left';
-	$: assetLocationClasses = 'text-gray-500 text-base m-0 text-left font-figtree';
-	$: assetDescriptionClasses = 'text-gray-700 text-base leading-relaxed m-0 mb-6 line-clamp-3 min-h-[4.5rem] font-figtree';
-	$: viewDetailsSectionClasses = 'mt-6 mb-6';
-	$: tokensSectionClasses = 'my-6';
-	$: tokensTitleClasses = 'typography-h5 text-black m-0 mb-4';
-	$: tokensListClasses = 'flex flex-col gap-3';
-	$: tokensListScrollableClasses = 'flex flex-col gap-3 max-h-[13rem] overflow-y-auto pr-2';
-	$: tokenButtonClasses = 'flex justify-between items-center w-full p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-light-gray border border-light-gray hover:shadow-sm hover:-translate-y-0.5';
-	$: tokenButtonLeftClasses = 'flex flex-col gap-1';
-	$: tokenButtonRightClasses = 'flex flex-col items-end gap-2';
-	$: tokenSymbolClasses = 'font-extrabold text-base text-black font-figtree';
-	$: tokenNameClasses = 'text-sm text-gray-500 leading-tight font-figtree';
-	$: tokenPaymentDateClasses = 'text-xs text-secondary font-medium mt-1';
-	$: returnsDisplayClasses = 'flex items-center gap-2';
-	$: returnItemClasses = 'flex flex-col items-center text-center';
-	$: returnLabelClasses = 'text-xs text-gray-500 font-medium';
-	$: returnValueClasses = 'text-lg text-primary font-extrabold font-figtree';
-	$: returnValueBonusClasses = 'text-lg text-primary font-extrabold font-figtree';
-	$: returnDividerClasses = 'text-sm text-gray-500 font-medium mx-1';
-	$: buyCtaClasses = 'text-base font-extrabold text-black font-figtree';
+	$: operatorClasses = 'flex flex-row sm:flex-col items-center sm:items-end text-left sm:text-right gap-1 sm:gap-0';
+	$: operatorLabelClasses = 'text-xs sm:text-sm text-gray-500 font-medium mb-0 sm:mb-1 font-figtree';
+	$: operatorNameClasses = 'text-sm sm:text-base text-black font-extrabold font-figtree';
+	$: assetNameClasses = 'text-base sm:text-lg lg:text-xl font-extrabold text-black m-0 mb-2 leading-tight text-left font-figtree';
+	$: assetLocationClasses = 'text-gray-500 text-sm sm:text-base m-0 text-left font-figtree';
+	$: assetDescriptionClasses = 'text-gray-700 text-sm leading-relaxed m-0 mb-4 line-clamp-2 font-figtree lg:line-clamp-3 lg:text-base lg:mb-6';
+	$: highlightedStatsClasses = 'grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4 my-3 lg:my-4 p-3 lg:p-4 bg-white rounded-lg';
+	$: highlightStatClasses = 'flex flex-col items-center text-center';
+	$: highlightValueClasses = 'text-lg sm:text-xl lg:text-2xl font-extrabold text-secondary mb-1 font-figtree';
+	$: highlightLabelClasses = 'text-xs lg:text-sm text-gray-500 font-medium font-figtree';
+	$: viewDetailsSectionClasses = 'mt-4 lg:mt-6 mb-4 lg:mb-6';
 	
-	// Mobile responsive classes using Tailwind
-	$: mobileHighlightedStatsClasses = 'grid grid-cols-3 gap-1 md:gap-3 my-3 md:my-4 p-3 md:p-4 bg-white rounded-lg';
-	$: mobileHighlightValueClasses = 'text-xl md:text-2xl font-extrabold text-secondary mb-1 font-figtree';
-	$: mobileHighlightLabelClasses = 'text-xs md:text-sm text-gray-500 font-medium font-figtree';
-	$: mobileAssetNameClasses = 'text-base md:text-lg font-extrabold text-black m-0 mb-2 min-h-[2.75rem] md:min-h-[3.125rem] leading-tight text-left font-figtree';
-	$: mobileAssetDescriptionClasses = 'text-gray-700 text-sm md:text-base leading-relaxed m-0 mb-4 md:mb-6 line-clamp-3 h-[4rem] md:h-[4.5rem] font-figtree';
-	$: mobileTokensTitleClasses = 'text-base md:text-lg font-extrabold text-black m-0 mb-4 font-figtree';
-	$: mobileTokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 md:p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-light-gray border border-light-gray hover:shadow-sm hover:-translate-y-0.5 gap-3 sm:gap-0';
-	$: mobileTokenButtonRightClasses = 'flex flex-row sm:flex-col w-full sm:w-auto justify-between sm:justify-end items-center sm:items-end gap-2';
-	$: mobileTokenSymbolClasses = 'font-extrabold text-sm md:text-base text-black font-figtree';
-	$: mobileTokenNameClasses = 'text-xs md:text-sm text-gray-500 leading-tight font-figtree';
-	$: mobileTokenPaymentDateClasses = 'text-[0.65rem] md:text-xs text-secondary font-medium mt-1';
-	$: mobileReturnsDisplayClasses = 'flex items-center gap-1 md:gap-2';
-	$: mobileReturnValueClasses = 'text-sm md:text-lg text-primary font-extrabold font-figtree';
-	$: mobileReturnValueBonusClasses = 'text-sm md:text-lg text-primary font-extrabold font-figtree';
-	$: mobileReturnLabelClasses = 'text-[0.55rem] md:text-xs text-gray-500 font-medium';
-	$: mobileBuyCtaClasses = 'text-sm md:text-base font-extrabold text-black font-figtree';
-	$: smallMobileHeaderMainClasses = 'flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4';
-	$: smallMobileOperatorClasses = 'flex flex-col items-start sm:items-end text-left sm:text-right';
+	// Token section classes - responsive
+	$: tokensSectionClasses = 'mb-4 lg:mb-6';
+	$: tokensTitleClasses = 'text-base lg:text-lg font-extrabold text-black m-0 mb-3 lg:mb-4 font-figtree';
+	$: tokensListClasses = 'flex flex-col gap-2 lg:gap-3';
+	$: tokensListScrollableClasses = 'flex flex-col gap-2 lg:gap-3 max-h-[10rem] lg:max-h-[13rem] overflow-y-auto pr-1 lg:pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400';
+	$: tokenButtonClasses = 'flex flex-col sm:flex-row justify-between items-start sm:items-center w-full p-3 lg:p-4 bg-white rounded-none cursor-pointer transition-all duration-200 text-left relative hover:bg-light-gray border border-light-gray hover:shadow-sm hover:-translate-y-0.5 gap-2 sm:gap-0';
+	$: tokenButtonLeftClasses = 'flex flex-col gap-1 flex-1';
+	$: tokenButtonRightClasses = 'flex flex-row sm:flex-col w-full sm:w-auto justify-between sm:justify-end items-center sm:items-end gap-2';
+	$: tokenSymbolClasses = 'font-extrabold text-sm lg:text-base text-black font-figtree';
+	$: tokenNameClasses = 'text-xs lg:text-sm text-gray-500 leading-tight font-figtree';
+	$: tokenPaymentDateClasses = 'text-xs text-secondary font-medium mt-1 hidden lg:block';
+	$: returnsDisplayClasses = 'flex items-center gap-1 lg:gap-2';
+	$: returnItemClasses = 'flex flex-col items-center text-center';
+	$: returnLabelClasses = 'text-[0.6rem] lg:text-xs text-gray-500 font-medium';
+	$: returnValueClasses = 'text-sm lg:text-lg text-primary font-extrabold font-figtree';
+	$: returnDividerClasses = 'text-xs lg:text-sm text-gray-500 font-medium mx-1';
+	$: buyCtaClasses = 'text-sm lg:text-base font-extrabold text-black font-figtree';
 
 </script>
 
 <Card hoverable clickable heightClass="h-full flex flex-col" on:click={() => window.location.href = `/assets/${asset.id}`}>
-	<CardImage src={asset.coverImage} alt={asset.name} zoomOnHover />
-	
-	<CardContent paddingClass="p-8 flex-1 flex flex-col">
-		<header class={headerClasses}>
-			<div class={smallMobileHeaderMainClasses}>
-				<div class={nameLocationClasses}>
-					<h3 class={mobileAssetNameClasses}>{asset.name}</h3>
-					<p class={assetLocationClasses}>{asset.location.state}, {asset.location.country}</p>
-				</div>
-				<div class={smallMobileOperatorClasses}>
-					<span class={operatorLabelClasses}>Operator</span>
-					<span class={operatorNameClasses}>{asset.operator.name}</span>
+	<!-- Universal: Image with overlay for all viewports -->
+	<div class="relative">
+		<div class="relative overflow-hidden">
+			<img 
+				src={asset.coverImage} 
+				alt={asset.name} 
+				class="w-full h-48 sm:h-56 lg:h-64 object-cover opacity-75 hover:opacity-60 transition-opacity duration-300"
+			/>
+			<!-- Gradient overlay -->
+			<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
+			
+			<!-- Content overlay - responsive sizing -->
+			<div class="absolute bottom-0 left-0 right-0 p-4 lg:p-6">
+				<h3 class="text-lg sm:text-xl lg:text-2xl font-extrabold text-white mb-1 sm:mb-2 drop-shadow-lg">
+					{asset.name}
+				</h3>
+				<p class="text-sm sm:text-base text-white/90 mb-2 sm:mb-3 drop-shadow-md">
+					{asset.location.state}, {asset.location.country}
+				</p>
+				<div class="flex items-center gap-2">
+					<span class="text-xs sm:text-sm text-white/80 drop-shadow-md">Operator:</span>
+					<span class="text-sm sm:text-base font-bold text-white drop-shadow-md">
+						{asset.operator.name}
+					</span>
 				</div>
 			</div>
-		</header>
+		</div>
+	</div>
+
+	<CardContent paddingClass="p-4 sm:p-6 lg:p-8 flex-1 flex flex-col">
 		
-		<!-- Highlighted Big Stats -->
-		<div class={mobileHighlightedStatsClasses}>
+		<!-- Key Stats -->
+		<div class={highlightedStatsClasses}>
 			<div class={highlightStatClasses}>
-				<span class={mobileHighlightValueClasses}>{asset.production?.expectedRemainingProduction || 'TBD'}</span>
-				<span class={mobileHighlightLabelClasses}>Exp. Remaining</span>
-			</div>
-			<div class={highlightStatClasses}>
-				<span class={mobileHighlightValueClasses}>{formatEndDate(asset.technical.expectedEndDate)}</span>
-				<span class={mobileHighlightLabelClasses}>End Date</span>
+				<span class={highlightValueClasses}>{asset.production?.expectedRemainingProduction || 'TBD'}</span>
+				<span class={highlightLabelClasses}>Exp. Remaining</span>
 			</div>
 			{#if latestReport}
 				<div class={highlightStatClasses}>
-					<span class={mobileHighlightValueClasses}>{formatCurrency(latestReport.netIncome ?? 0, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-					<span class={mobileHighlightLabelClasses}>Last Payment</span>
+					<span class={highlightValueClasses}>{formatCurrency(latestReport.netIncome ?? 0, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+					<span class={highlightLabelClasses}>Last Payment</span>
 				</div>
 			{/if}
+			<!-- Third stat only on larger screens -->
+			<div class="hidden lg:flex lg:flex-col lg:items-center lg:text-center">
+				<span class={highlightValueClasses}>{formatEndDate(asset.technical.expectedEndDate)}</span>
+				<span class={highlightLabelClasses}>End Date</span>
+			</div>
 		</div>
 		
-		<p class={mobileAssetDescriptionClasses}>{asset.description}</p>
+		<!-- Description -->
+		<p class={assetDescriptionClasses}>{asset.description}</p>
 		
-		<div>
-			<!-- View Details Button -->
-			<div class={viewDetailsSectionClasses}>
-				<PrimaryButton href="/assets/{asset.id}" fullWidth on:click={(e) => e.stopPropagation()}>
-					{hasAvailableTokens ? 'View details and buy tokens' : 'View details'}
-				</PrimaryButton>
-			</div>
+		<!-- View Details Button -->
+		<div class={viewDetailsSectionClasses}>
+			<PrimaryButton href="/assets/{asset.id}" fullWidth on:click={(e) => e.stopPropagation()}>
+				{hasAvailableTokens ? 'View Details' : 'View Details'}
+			</PrimaryButton>
+		</div>
 
-			<!-- Available Tokens Section -->
-			{#if hasAvailableTokens}
-			{@const availableTokens = assetTokens.filter(token => {
-				const supply = tokenService.getTokenSupply(token.contractAddress);
-				return supply && supply.available > 0;
-			})}
-			<div class={tokensSectionClasses}>
-				<h4 class={mobileTokensTitleClasses}>Available Token Releases</h4>
-				<div class="flex flex-col">
-					{#if availableTokens.length > 2 && canScrollUp}
-						<!-- Top scroll indicator -->
-						<button 
-							class="w-full py-1 flex items-center justify-center hover:bg-gray-50 transition-colors"
-							on:click|stopPropagation={() => scrollContainer.scrollBy({ top: -100, behavior: 'smooth' })}
-							aria-label="Scroll up to see more tokens"
-						>
-							<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-							</svg>
-						</button>
-					{/if}
-					
-					<div 
-						bind:this={scrollContainer}
-						on:scroll={handleScroll}
-						class="{availableTokens.length > 2 ? tokensListScrollableClasses : tokensListClasses} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
-						{#each availableTokens as token}
-						{@const calculatedReturns = tokenService.getTokenReturns(token.contractAddress)}
-						{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) : 0}
-						{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) : 0}
-						{@const firstPaymentMonth = token.firstPaymentDate || 'TBD'}
-						<button 
-							class={mobileTokenButtonClasses} 
-							on:click|stopPropagation={() => handleBuyTokens()}
-						>
+		<!-- Available Tokens Section - Mobile Responsive -->
+		{#if hasAvailableTokens}
+		{@const availableTokens = assetTokens.filter(token => {
+			const supply = tokenService.getTokenSupply(token.contractAddress);
+			return supply && supply.available > 0;
+		})}
+		<div class={tokensSectionClasses}>
+			<h4 class={tokensTitleClasses}>Available Tokens</h4>
+			<div class="flex flex-col">
+				{#if availableTokens.length > 2 && canScrollUp}
+					<!-- Top scroll indicator - hidden on mobile -->
+					<button 
+						class="hidden lg:flex w-full py-1 items-center justify-center hover:bg-gray-50 transition-colors"
+						on:click|stopPropagation={() => scrollContainer.scrollBy({ top: -100, behavior: 'smooth' })}
+						aria-label="Scroll up to see more tokens"
+					>
+						<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+						</svg>
+					</button>
+				{/if}
+				
+				<div 
+					bind:this={scrollContainer}
+					on:scroll={handleScroll}
+					class="{availableTokens.length > 2 ? tokensListScrollableClasses : tokensListClasses}">
+					{#each availableTokens as token}
+					{@const calculatedReturns = tokenService.getTokenReturns(token.contractAddress)}
+					{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) : 0}
+					{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) : 0}
+					{@const firstPaymentMonth = token.firstPaymentDate || 'TBD'}
+					<button 
+						class={tokenButtonClasses} 
+						on:click|stopPropagation={() => handleBuyTokens()}
+					>
+						<!-- Desktop: Full token info -->
+						<div class="hidden sm:flex w-full justify-between items-center">
 							<div class={tokenButtonLeftClasses}>
 								<div class="flex justify-between items-center w-full gap-2">
-									<span class={mobileTokenSymbolClasses}>{token.symbol}</span>
+									<span class={tokenSymbolClasses}>{token.symbol}</span>
 									<span class="text-xs font-extrabold text-white bg-secondary px-2 py-1 tracking-wider rounded whitespace-nowrap">{token.sharePercentage ? `${token.sharePercentage}%` : shareOfAsset} of Asset</span>
 								</div>
-								<span class={mobileTokenNameClasses}>{token.name}</span>
-								<span class={mobileTokenPaymentDateClasses}>First payment: {firstPaymentMonth}</span>
+								<span class={tokenNameClasses}>{token.name}</span>
+								<span class={tokenPaymentDateClasses}>First payment: {firstPaymentMonth}</span>
 							</div>
-							<div class={mobileTokenButtonRightClasses}>
-								<div class={mobileReturnsDisplayClasses}>
+							<div class={tokenButtonRightClasses}>
+								<div class={returnsDisplayClasses}>
 									<div class={returnItemClasses}>
-										<span class={mobileReturnLabelClasses}>Est. Base</span>
-										<span class={mobileReturnValueClasses}>{baseReturn}%</span>
+										<span class={returnLabelClasses}>Base</span>
+										<span class={returnValueClasses}>{baseReturn}%</span>
 									</div>
 									<div class={returnDividerClasses}>+</div>
 									<div class={returnItemClasses}>
-										<span class={mobileReturnLabelClasses}>Est. Bonus</span>
-										<span class={mobileReturnValueBonusClasses}>{bonusReturn}%</span>
+										<span class={returnLabelClasses}>Bonus</span>
+										<span class={returnValueClasses}>{bonusReturn}%</span>
 									</div>
 								</div>
-								<span class={mobileBuyCtaClasses}>Buy Now →</span>
+								<span class={buyCtaClasses}>Buy →</span>
 							</div>
-						</button>
-					{/each}
-					</div>
-					
-					{#if availableTokens.length > 2 && canScrollDown}
-						<!-- Bottom scroll indicator -->
-						<button 
-							class="w-full py-1 flex items-center justify-center hover:bg-gray-50 transition-colors"
-							on:click|stopPropagation={() => scrollContainer.scrollBy({ top: 100, behavior: 'smooth' })}
-							aria-label="Scroll down to see more tokens"
-						>
-							<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-							</svg>
-						</button>
-					{/if}
+						</div>
+						
+						<!-- Mobile: Simplified token info -->
+						<div class="sm:hidden flex justify-between items-center w-full">
+							<div class="flex-1">
+								<span class={tokenSymbolClasses}>{token.symbol}</span>
+							</div>
+							<div class="flex items-center gap-3">
+								<div class="text-center">
+									<span class="text-sm font-extrabold text-primary">{baseReturn}% + {bonusReturn}%</span>
+								</div>
+								<span class={buyCtaClasses}>Buy →</span>
+							</div>
+						</div>
+					</button>
+				{/each}
 				</div>
+				
+				{#if availableTokens.length > 2 && canScrollDown}
+					<!-- Bottom scroll indicator - hidden on mobile -->
+					<button 
+						class="hidden lg:flex w-full py-1 items-center justify-center hover:bg-gray-50 transition-colors"
+						on:click|stopPropagation={() => scrollContainer.scrollBy({ top: 100, behavior: 'smooth' })}
+						aria-label="Scroll down to see more tokens"
+					>
+						<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+						</svg>
+					</button>
+				{/if}
 			</div>
-		{/if}
 		</div>
-		
+		{/if}
 	</CardContent>
 </Card>
 

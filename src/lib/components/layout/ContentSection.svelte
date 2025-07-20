@@ -12,14 +12,14 @@
 	};
 	
 	const paddingClasses = {
-		compact: 'py-8 md:py-12',
-		standard: 'py-16',
-		large: 'py-24',
+		compact: 'py-6 sm:py-8 lg:py-12',
+		standard: 'py-8 sm:py-12 lg:py-16',
+		large: 'py-12 sm:py-16 lg:py-24',
 		none: ''
 	};
 	
 	$: sectionClasses = `${backgroundClasses[background]} ${paddingClasses[padding]} ${className}`;
-	$: contentClasses = `${maxWidth ? 'max-w-6xl mx-auto px-8' : ''} ${centered ? 'text-center' : ''}`;
+	$: contentClasses = `${maxWidth ? 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8' : ''} ${centered ? 'text-center' : ''}`;
 </script>
 
 <section class={sectionClasses}>

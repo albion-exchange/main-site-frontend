@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { useTokenService, useConfigService } from '$lib/services';
 	import type { Asset, Token } from '$lib/types/uiTypes';
-	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart } from '$lib/components/components';
+	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart, CollapsibleSection } from '$lib/components/components';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
 
 	import TabButton from '$lib/components/components/TabButton.svelte';
@@ -190,41 +190,173 @@
 			onTokenSectionClick={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })}
 		/>
 
-	<!-- Tabs Navigation and Content -->
-		<ContentSection background="white" padding="compact">
-			<div class="bg-white border border-light-gray mb-8" id="asset-details-tabs">
-			<div class="flex flex-wrap border-b border-light-gray">
-				<TabButton
-					active={activeTab === 'overview'}
-					on:click={() => activeTab = 'overview'}
-				>
-					Overview
-				</TabButton>
-				<TabButton
-					active={activeTab === 'production'}
-					on:click={() => activeTab = 'production'}
-				>
-					Production Data
-				</TabButton>
-				<TabButton
-					active={activeTab === 'payments'}
-					on:click={() => activeTab = 'payments'}
-				>
-					Past Payments
-				</TabButton>
-				<TabButton
-					active={activeTab === 'gallery'}
-					on:click={() => activeTab = 'gallery'}
-				>
-					Gallery
-				</TabButton>
-				<TabButton
-					active={activeTab === 'documents'}
-					on:click={() => activeTab = 'documents'}
-				>
-					Documents
-				</TabButton>
-			</div>
+		<!-- Asset Details Content -->
+        <ContentSection background="white" padding="standard">
+        	<!-- Mobile: Collapsible sections -->
+        	<div class="lg:hidden space-y-4">
+        		<!-- Overview is always shown first on mobile -->
+        		<div>
+        			<h3 class="text-lg font-bold text-black mb-4">Overview</h3>
+        			<AssetOverviewTab asset={assetData} />
+        		</div>
+        		
+        		<!-- Other sections in collapsible format -->
+        		<CollapsibleSection title="Production Data" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
+        			{@const productionReports = assetData?.productionHistory || assetData?.monthlyReports || []}
+					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map((r: any) => r.production)) : 100}
+					<div class="flex-1 flex flex-col">
+						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">
+							<div class="bg-white border border-light-gray p-6 md:col-span-3">
+								<div class="flex justify-between items-center mb-6">
+									<h4 class="text-lg font-extrabold text-black mb-0">Production History</h4>
+									<SecondaryButton on:click={exportProductionData}>
+										📊 Export Data
+									</SecondaryButton>
+								</div>
+								{#if productionReports.length > 0}
+									<Chart
+										data={productionReports.map(report => ({
+											label: report.month,
+											value: report.production
+										}))}
+										width={800}
+										height={300}
+										barColor="#08bccc"
+										valuePrefix=""
+										valueSuffix=" BOE"
+										animate={true}
+										showGrid={true}
+									/>
+								{:else}
+									<div class="flex flex-col items-center justify-center h-32 text-black opacity-70">
+										<div class="text-4xl mb-2">📊</div>
+										<p>No production data available</p>
+									</div>
+								{/if}
+							</div>
+							<div class="bg-white border border-light-gray p-6">
+								<div class="text-center">
+									<div class="text-2xl font-extrabold text-black mb-2">{assetData?.hseMetrics?.daysWithoutIncident || 0}</div>
+									<div class="text-base font-medium text-black opacity-70">Days Since Last HSE Incident</div>
+								</div>
+							</div>
+						</div>
+					</div>
+        		</CollapsibleSection>
+        		
+        		<CollapsibleSection title="Past Payments" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
+        			{@const monthlyReports = assetData?.monthlyReports || []}
+					{@const maxRevenue = monthlyReports.length > 0 ? Math.max(...monthlyReports.map(r => r.netIncome ?? 0)) : 1500}
+					<div class="space-y-4">
+						{#if monthlyReports.length > 0}
+							<div class="bg-white border border-light-gray p-4">
+								<h4 class="text-base font-bold text-black mb-4">Revenue History</h4>
+								<div class="space-y-2">
+									{#each monthlyReports.slice(-6) as report}
+										<div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+											<div class="text-sm text-black">{report.month}</div>
+											<div class="text-sm font-semibold text-primary">{formatCurrency(report.netIncome || 0)}</div>
+										</div>
+									{/each}
+								</div>
+							</div>
+						{:else}
+							<div class="text-center py-8 text-black opacity-70">
+								<div class="text-4xl mb-2">💰</div>
+								<p>No payment history available</p>
+							</div>
+						{/if}
+					</div>
+        		</CollapsibleSection>
+        		
+        		<CollapsibleSection title="Gallery" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
+        			<div class="grid grid-cols-2 gap-4">
+						{#if assetData?.galleryImages && assetData.galleryImages.length > 0}
+							{#each assetData.galleryImages.slice(0, 4) as image}
+								<div
+								   class="bg-white border border-light-gray overflow-hidden group cursor-pointer"
+								   on:click={() => window.open(getImageUrl(image.url), '_blank')}
+								   on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(getImageUrl(image.url), '_blank'); } }}
+								   role="button"
+								   tabindex="0"
+								>
+									<img 
+										src={getImageUrl(image.url)} 
+										alt={image.caption || 'Asset gallery image'} 
+										class="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+									/>
+								</div>
+							{/each}
+						{:else}
+							<div class="col-span-2 text-center py-8 text-black opacity-70">
+								<div class="text-4xl mb-2">🖼️</div>
+								<p>No gallery images available</p>
+							</div>
+						{/if}
+					</div>
+        		</CollapsibleSection>
+        		
+        		<CollapsibleSection title="Documents" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
+        			<div class="space-y-3">
+						<div class="bg-white border border-light-gray p-4">
+							<div class="flex items-center gap-3">
+								<div class="text-xl">📄</div>
+								<div class="flex-1">
+									<div class="font-semibold text-black text-sm">Asset Purchase Agreement</div>
+									<div class="text-xs text-black opacity-70">Legal documentation</div>
+								</div>
+								<SecondaryButton size="small">View</SecondaryButton>
+							</div>
+						</div>
+						<div class="bg-white border border-light-gray p-4">
+							<div class="flex items-center gap-3">
+								<div class="text-xl">📊</div>
+								<div class="flex-1">
+									<div class="font-semibold text-black text-sm">Financial Reports</div>
+									<div class="text-xs text-black opacity-70">Performance data</div>
+								</div>
+								<SecondaryButton size="small">View</SecondaryButton>
+							</div>
+						</div>
+					</div>
+        		</CollapsibleSection>
+        	</div>
+        	
+        	<!-- Desktop: Traditional tabs -->
+        	<div class="hidden lg:block">
+                <div class="bg-white border border-light-gray mb-8" id="asset-details-tabs">
+                <div class="flex flex-wrap border-b border-light-gray">
+                        <TabButton
+                                active={activeTab === 'overview'}
+                                on:click={() => activeTab = 'overview'}
+                        >
+                                Overview
+                        </TabButton>
+                        <TabButton
+                                active={activeTab === 'production'}
+                                on:click={() => activeTab = 'production'}
+                        >
+                                Production Data
+                        </TabButton>
+                        <TabButton
+                                active={activeTab === 'payments'}
+                                on:click={() => activeTab = 'payments'}
+                        >
+                                Past Payments
+                        </TabButton>
+                        <TabButton
+                                active={activeTab === 'gallery'}
+                                on:click={() => activeTab = 'gallery'}
+                        >
+                                Gallery
+                        </TabButton>
+                        <TabButton
+                                active={activeTab === 'documents'}
+                                on:click={() => activeTab = 'documents'}
+                        >
+                                Documents
+                        </TabButton>
+                </div>
 
 			<!-- Tab Content -->
 			<div class="p-8 min-h-[500px] flex flex-col">
@@ -508,10 +640,11 @@
 							</div>
 						</div>
 					</div>
-				{/if}
+							{/if}
 			</div>
 			</div>
-		</ContentSection>
+		</div>
+	</ContentSection>
 
 		<!-- Available Tokens Section -->
 		<ContentSection background="white" padding="compact">
@@ -549,42 +682,43 @@
 												</div>
 											</div>
 								
-										<div class="p-8 pt-6 space-y-4">
-											<div class="flex justify-between items-start">
-												<span class="text-base font-medium text-black opacity-70 relative font-figtree">Minted Supply</span>
-												<span class="text-base font-extrabold text-black text-right font-figtree">{token.supplyNumbers?.mintedSupply?.toLocaleString() || supply?.sold?.toLocaleString() || '0'}</span>
-											</div>
-											<div class="flex justify-between items-start">
-												<span class="text-base font-medium text-black opacity-70 relative font-figtree">Max Supply</span>
-												<span class="text-base font-extrabold text-black text-right font-figtree">{token.supplyNumbers?.maxSupply?.toLocaleString() || supply?.total?.toLocaleString() || '0'}</span>
-											</div>
-											<div class="flex justify-between items-start relative">
-												<span class="text-base font-medium text-black opacity-70 relative font-figtree">
-													Implied Barrels/Token
-													<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100" 
-														on:mouseenter={() => showTooltipWithDelay('barrels')}
-														on:mouseleave={hideTooltip}
-														role="button"
-														tabindex="0">ⓘ</span>
-												</span>
-												<span class="text-base font-extrabold text-black text-right">{calculatedReturns?.impliedBarrelsPerToken?.toFixed(6) || '0.000000'}</span>
-												{#if showTooltip === 'barrels'}
-													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
-														Estimated barrels of oil equivalent per token based on reserves and token supply
-													</div>
-												{/if}
-											</div>
-											<div class="flex justify-between items-start relative">
-												<span class="text-base font-medium text-black opacity-70 relative font-figtree">
-													Breakeven Oil Price
-													<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
-														on:mouseenter={() => showTooltipWithDelay('breakeven')}
-														on:mouseleave={hideTooltip}
-														role="button"
-														tabindex="0">ⓘ</span>
-												</span>
-												<span class="text-base font-extrabold text-black text-right">${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
-												{#if showTooltip === 'breakeven'}
+																	<!-- Desktop: Always show stats -->
+							<div class="hidden sm:block p-8 pt-6 space-y-4">
+								<div class="flex justify-between items-start">
+									<span class="text-base font-medium text-black opacity-70 relative font-figtree">Minted Supply</span>
+									<span class="text-base font-extrabold text-black text-right font-figtree">{token.supplyNumbers?.mintedSupply?.toLocaleString() || supply?.sold?.toLocaleString() || '0'}</span>
+								</div>
+								<div class="flex justify-between items-start">
+									<span class="text-base font-medium text-black opacity-70 relative font-figtree">Max Supply</span>
+									<span class="text-base font-extrabold text-black text-right font-figtree">{token.supplyNumbers?.maxSupply?.toLocaleString() || supply?.total?.toLocaleString() || '0'}</span>
+								</div>
+								<div class="flex justify-between items-start relative">
+									<span class="text-base font-medium text-black opacity-70 relative font-figtree">
+										Implied Barrels/Token
+										<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
+											on:mouseenter={() => showTooltipWithDelay('barrels')}
+											on:mouseleave={hideTooltip}
+											role="button"
+											tabindex="0">ⓘ</span>
+									</span>
+									<span class="text-base font-extrabold text-black text-right">{calculatedReturns?.impliedBarrelsPerToken?.toFixed(6) || '0.000000'}</span>
+									{#if showTooltip === 'barrels'}
+										<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
+											Estimated barrels of oil equivalent per token based on reserves and token supply
+										</div>
+									{/if}
+								</div>
+								<div class="flex justify-between items-start relative">
+									<span class="text-base font-medium text-black opacity-70 relative font-figtree">
+										Breakeven Oil Price
+										<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
+											on:mouseenter={() => showTooltipWithDelay('breakeven')}
+											on:mouseleave={hideTooltip}
+											role="button"
+											tabindex="0">ⓘ</span>
+									</span>
+									<span class="text-base font-extrabold text-black text-right">${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
+									{#if showTooltip === 'breakeven'}
 													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
 														Oil price required to cover operational costs and maintain profitability
 													</div>
@@ -632,11 +766,11 @@
 													<span class="text-xl font-extrabold text-primary">{calculatedReturns ? Math.round(calculatedReturns.baseReturn + calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
 												</div>
 											</div>
-										</div>
-
-
-										<div class="p-8 pt-0">
-											<div class="grid grid-cols-2 gap-3">
+																					</div>
+							</div>
+							
+													<div class="p-8 pt-0">
+								<div class="grid grid-cols-2 gap-3">
 												{#if hasAvailableSupply}
 													<PrimaryButton fullWidth on:click={(e) => { e.stopPropagation(); handleBuyTokens(token.contractAddress); }}>
 														Buy Tokens
@@ -697,12 +831,10 @@
 											<div class="text-center py-8 text-black opacity-70">
 												<p class="text-sm">No distributions available yet.</p>
 												<p class="text-sm">First payout expected in {nextRelease?.whenRelease || 'Q1 2025'}.</p>
-											</div>
-										{/if}
-										</div>
-									</div>
-									</div>
-								</CardContent>
+																		</div>
+							{/if}
+						</div>
+					</CardContent>
 							</Card>
 						</div>
 					{/each}

@@ -60,15 +60,15 @@
 		showButtons={false}
 	>
 		<!-- Buttons Below Hero -->
-		<ButtonGroup centered direction="horizontal">
+		<div class="flex flex-col sm:flex-row gap-4 justify-center mt-6 sm:mt-8">
 			<PrimaryButton href="/assets">Explore Investments</PrimaryButton>
-			<SecondaryButton href="/about">Learn How It Works</SecondaryButton>
-		</ButtonGroup>
+			<SecondaryButton href="/about" className="hidden sm:inline-flex">Learn How It Works</SecondaryButton>
+		</div>
 	</HeroSection>
 
-	<!-- Platform Stats -->
+	<!-- Platform Stats - 3 columns on all viewports -->
 	<ContentSection background="white" padding="compact">
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+		<div class="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-8 text-center">
 		{#if stats.loading}
 			<StatsCard
 				title="Total Invested"
@@ -86,7 +86,7 @@
 				title="Active Investors"
 				value="--"
 				subtitle="Loading..."
-				size="large"
+				size="small"
 			/>
 		{:else}
 			<StatsCard
@@ -94,20 +94,20 @@
 				value={formatted.totalInvested}
 				subtitle="this month"
 				trend={formatted.growthTrend}
-				size="large"
+				size="small"
 				valueColor="primary"
 			/>
 			<StatsCard
 				title="Assets"
 				value={formatted.totalAssets}
 				subtitle={formatted.regionsText}
-				size="large"
+				size="small"
 			/>
 			<StatsCard
 				title="Active Investors"
 				value={formatted.activeInvestors}
 				subtitle="Token holders"
-				size="large"
+				size="small"
 			/>
 		{/if}
 		</div>
@@ -119,110 +119,119 @@
 		<FeaturedTokenCarousel autoPlay={true} autoPlayInterval={6000} on:buyTokens={handleBuyTokensFromCarousel} />
 	</ContentSection>
 
-	<!-- How It Works -->
-	<ContentSection background="gray" padding="standard" centered>
-		<SectionTitle level="h2" size="section" center className="mb-4 md:mb-6">How It Works</SectionTitle>
+	<!-- Mobile CTA Section -->
+	<ContentSection background="gray" padding="compact" centered className="block sm:hidden">
+		<div class="text-center">
+			<SectionTitle level="h2" size="section" className="mb-4">Ready to Start?</SectionTitle>
+			<p class="text-sm text-black mb-6">Browse available oil & gas investments and start earning from energy assets.</p>
+			<PrimaryButton href="/assets" className="w-full">View All Investments</PrimaryButton>
+		</div>
+	</ContentSection>
+
+	<!-- How It Works - Simplified for mobile -->
+	<ContentSection background="gray" padding="standard" centered className="hidden sm:block">
+		<SectionTitle level="h2" size="section" center className="mb-6 lg:mb-8">How It Works</SectionTitle>
 			
-			<GridContainer columns={3} gap="large">
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
 			<div class="text-center">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">1</div>
-				<SectionTitle level="h3" size="small">Browse Assets</SectionTitle>
-				<p class="text-sm text-black">Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
+				<SectionTitle level="h3" size="small" className="mb-4">Browse Assets</SectionTitle>
+				<p class="text-sm sm:text-base text-black">Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
 			</div>
 			
 			<div class="text-center">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">2</div>
-				<SectionTitle level="h3" size="small">Buy Tokens</SectionTitle>
-				<p class="text-sm text-black">Purchase royalty tokens using our smart payment system with automatic collateral management and instant settlement.</p>
+				<SectionTitle level="h3" size="small" className="mb-4">Buy Tokens</SectionTitle>
+				<p class="text-sm sm:text-base text-black">Purchase royalty tokens using our smart payment system with automatic collateral management and instant settlement.</p>
 			</div>
 			
-			<div class="text-center">
+			<div class="text-center sm:col-span-2 lg:col-span-1">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">3</div>
-				<SectionTitle level="h3" size="small">Earn Payout</SectionTitle>
-				<p class="text-sm text-black">Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
+				<SectionTitle level="h3" size="small" className="mb-4">Earn Payout</SectionTitle>
+				<p class="text-sm sm:text-base text-black">Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
 			</div>
-			</GridContainer>
+		</div>
 	</ContentSection>
 
-	<!-- Trust Indicators -->
-	<ContentSection background="white" padding="standard" centered>
-		<SectionTitle level="h2" size="section" center className="mb-4 md:mb-6">Why Choose Albion</SectionTitle>
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+	<!-- Trust Indicators - Hidden on mobile -->
+	<ContentSection background="white" padding="standard" centered className="hidden lg:block">
+		<SectionTitle level="h2" size="section" center className="mb-6 lg:mb-8">Why Choose Albion</SectionTitle>
+		<div class="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
 			<div class="flex flex-col items-center text-center">
-				<div class="mb-6 text-black flex items-center justify-center w-16 h-16 relative">
-					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-12 h-12 lg:w-16 lg:h-16 relative">
+					<svg width="32" height="32" class="lg:w-12 lg:h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M24 2L30 14H42L32 22L36 34L24 26L12 34L16 22L6 14H18L24 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
 						<circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="2"/>
 					</svg>
 				</div>
-				<SectionTitle level="h3" size="small" className="mb-2 text-sm md:text-base">SEC Compliant</SectionTitle>
+				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">SEC Compliant</SectionTitle>
 				<p class="text-xs text-black opacity-70">Full regulatory compliance</p>
 			</div>
 			
 			<div class="flex flex-col items-center text-center">
-				<div class="mb-6 text-black flex items-center justify-center w-16 h-16 relative">
-					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-12 h-12 lg:w-16 lg:h-16 relative">
+					<svg width="32" height="32" class="lg:w-12 lg:h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M20 28L28 20M20 28L16 32L20 28ZM28 20L32 16L28 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
 						<path d="M15 24C15 24 18 30 24 30C30 30 33 24 33 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 					</svg>
 				</div>
-				<SectionTitle level="h3" size="small" className="mb-2 text-sm md:text-base">Audited Assets</SectionTitle>
+				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Audited Assets</SectionTitle>
 				<p class="text-xs text-black opacity-70">Third-party verified</p>
 			</div>
 			
 			<div class="flex flex-col items-center text-center">
-				<div class="mb-6 text-black flex items-center justify-center w-16 h-16 relative">
-					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-12 h-12 lg:w-16 lg:h-16 relative">
+					<svg width="32" height="32" class="lg:w-12 lg:h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<rect x="8" y="12" width="32" height="28" stroke="currentColor" stroke-width="2"/>
 						<path d="M8 20H40" stroke="currentColor" stroke-width="2"/>
 						<path d="M16 8V12M32 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 						<path d="M16 28H24M16 32H32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 					</svg>
 				</div>
-				<SectionTitle level="h3" size="small" className="mb-2 text-sm md:text-base">Institutional Grade</SectionTitle>
+				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Institutional Grade</SectionTitle>
 				<p class="text-xs text-black opacity-70">Professional operators</p>
 			</div>
 			
 			<div class="flex flex-col items-center text-center">
-				<div class="mb-6 text-black flex items-center justify-center w-16 h-16 relative">
-					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-12 h-12 lg:w-16 lg:h-16 relative">
+					<svg width="32" height="32" class="lg:w-12 lg:h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
 						<path d="M24 24L32 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 						<circle cx="24" cy="24" r="3" fill="currentColor"/>
 						<path d="M12 28L16 24L20 26L28 20L36 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
 				</div>
-				<SectionTitle level="h3" size="small" className="mb-2 text-sm md:text-base">Transparent</SectionTitle>
+				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Transparent</SectionTitle>
 				<p class="text-xs text-black opacity-70">Real-time reporting</p>
 			</div>
 		</div>
 	</ContentSection>
 
-	<!-- Market Insights -->
-	<ContentSection background="secondary" padding="standard" centered className="hidden md:block">
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-			<div class="space-y-6">
-				<h3 class="text-3xl font-extrabold mb-6 text-white">Market Indicators</h3>
-				<div class="flex flex-col gap-4">
-					<div class="flex justify-between items-center font-semibold">
+	<!-- Market Insights - Hidden on mobile -->
+	<ContentSection background="secondary" padding="standard" centered className="hidden lg:block">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+			<div class="space-y-4 lg:space-y-6">
+				<h3 class="text-2xl lg:text-3xl font-extrabold mb-4 lg:mb-6 text-white">Market Indicators</h3>
+				<div class="flex flex-col gap-3 lg:gap-4">
+					<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
 						<span>WTI Crude Oil</span>
 						<span class="text-primary font-extrabold">${marketData.oilPrices.wti.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.wti.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.wti.change >= 0 ? '+' : ''}{marketData.oilPrices.wti.change}%</span></span>
 					</div>
-					<div class="flex justify-between items-center font-semibold">
+					<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
 						<span>Brent Crude</span>
 						<span class="text-primary font-extrabold">${marketData.oilPrices.brent.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.brent.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.brent.change >= 0 ? '+' : ''}{marketData.oilPrices.brent.change}%</span></span>
 					</div>
-					<div class="flex justify-between items-center font-semibold">
+					<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
 						<span>Natural Gas</span>
 						<span class="text-primary font-extrabold">${marketData.oilPrices.naturalGas.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.naturalGas.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.naturalGas.change >= 0 ? '+' : ''}{marketData.oilPrices.naturalGas.change}%</span></span>
 					</div>
 				</div>
 			</div>
 			
-			<div class="text-center p-12 bg-white/10 border border-white/20">
-				<h4 class="text-2xl font-extrabold mb-4 text-white">Start Investing Today</h4>
-				<p class="mb-8 opacity-90">Join {formatted.activeInvestors} investors earning from energy assets</p>
+			<div class="text-center p-8 lg:p-12 bg-white/10 border border-white/20">
+				<h4 class="text-xl lg:text-2xl font-extrabold mb-3 lg:mb-4 text-white">Start Investing Today</h4>
+				<p class="mb-6 lg:mb-8 opacity-90 text-sm lg:text-base">Join {formatted.activeInvestors} investors earning from energy assets</p>
 				<SecondaryButton href="/assets">Get Started Now</SecondaryButton>
 			</div>
 		</div>

@@ -5,6 +5,23 @@
 	export let data: Array<{label: string; value: number}> = [];
 	export let width: number = 950;
 	export let height: number = 400;
+	
+	// Responsive dimensions - will be calculated dynamically
+	let actualWidth: number;
+	let actualHeight: number;
+	let isMobile: boolean = false;
+	
+	// Calculate responsive dimensions
+	$: {
+		if (typeof window !== 'undefined') {
+			isMobile = window.innerWidth < 640;
+			actualWidth = isMobile ? Math.min(320, window.innerWidth - 32) : width;
+			actualHeight = isMobile ? 200 : height;
+		} else {
+			actualWidth = width;
+			actualHeight = height;
+		}
+	}
 	export let barColor: string = '#08bccc';
 	export let valuePrefix: string = '';
 	export let valueSuffix: string = '';
@@ -64,9 +81,12 @@
 		label: ''
 	};
 	
-	const padding = { top: 40, right: 20, bottom: 40, left: 60 };
-	const chartWidth = width - padding.left - padding.right;
-	const chartHeight = height - padding.top - padding.bottom;
+	// Responsive padding - smaller on mobile
+	$: padding = isMobile 
+		? { top: 20, right: 10, bottom: 30, left: 40 }
+		: { top: 40, right: 20, bottom: 40, left: 60 };
+	$: chartWidth = actualWidth - padding.left - padding.right;
+	$: chartHeight = actualHeight - padding.top - padding.bottom;
 	
 	// Function to round to nice numbers (1-2 significant figures)
 	function getNiceNumber(value: number): number {
@@ -140,10 +160,10 @@
 	});
 </script>
 
-<div class="relative">
-	<svg bind:this={svg} {width} {height} xmlns="http://www.w3.org/2000/svg">
+<div class="relative w-full overflow-x-auto">
+	<svg bind:this={svg} width={actualWidth} height={actualHeight} xmlns="http://www.w3.org/2000/svg" class="max-w-full">
 		<!-- Background -->
-		<rect width={width} height={height} fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
+		<rect width={actualWidth} height={actualHeight} fill="#ffffff" stroke="#f8f4f4" stroke-width="1"/>
 		
 		<!-- Grid lines -->
 		{#if showGrid}

@@ -5,7 +5,7 @@
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { walletStore, walletActions } from '$lib/stores/wallet';
 	import WalletModal from '$lib/components/patterns/WalletModal.svelte';
-	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, TabNavigation, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart } from '$lib/components/components';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, TabNavigation, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart, CollapsibleSection } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
 	import { formatCurrency, formatPercentage, formatNumber } from '$lib/utils/formatters';
 	import { useTooltip, useCardFlip } from '$lib/composables';
@@ -226,17 +226,17 @@
 		showButtons={false}
 		className="py-12"
 	>
-		<!-- Platform Stats -->
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto mt-6">
+		<!-- Platform Stats - 3 columns on all viewports -->
+		<div class="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-8 text-center max-w-6xl mx-auto mt-6">
 			{#if loading}
 				<StatsCard
-					title="Current Token Holdings"
+					title="Portfolio Value"
 					value="--"
 					subtitle="Loading..."
 					size="large"
 				/>
 				<StatsCard
-					title="Payouts Received To Date"
+					title="Total Earned"
 					value="--"
 					subtitle="Loading..."
 					size="large"
@@ -245,59 +245,186 @@
 					title="Active Assets"
 					value="--"
 					subtitle="Loading..."
-					size="large"
+					size="small"
 				/>
 			{:else}
 				<StatsCard
-					title="Current Token Holdings"
+					title="Portfolio Value"
 					value={formatCurrency(totalInvested)}
-					subtitle="Portfolio value"
-					size="large"
+					subtitle="Total invested"
+					size="small"
 				/>
 				<StatsCard
-					title="Payouts Received To Date"
+					title="Total Earned"
 					value={formatCurrency(totalPayoutsEarned)}
-					subtitle="Lifetime earnings"
+					subtitle="All payouts"
 					valueColor="primary"
-					size="large"
+					size="small"
 				/>
 				<StatsCard
 					title="Active Assets"
 					value={activeAssetsCount.toString()}
 					subtitle="In portfolio"
-					size="large"
+					size="small"
 				/>
 			{/if}
 		</div>
 	</HeroSection>
 
-	<!-- Portfolio Tabs -->
-	<ContentSection background="white" padding="compact">
-		<div class="bg-white border border-light-gray mb-8">
-			<div class="flex flex-wrap border-b border-light-gray">
-				<TabButton
-					active={activeTab === 'overview'}
-					on:click={() => activeTab = 'overview'}
-				>
-					Holdings
-				</TabButton>
-				<TabButton
-					active={activeTab === 'performance'}
-					on:click={() => activeTab = 'performance'}
-				>
-					Performance
-				</TabButton>
-				<TabButton
-					active={activeTab === 'allocation'}
-					on:click={() => activeTab = 'allocation'}
-				>
-					Allocation
-				</TabButton>
+	<!-- Portfolio Content -->
+	<ContentSection background="white" padding="standard">
+		<!-- Mobile: Always show overview, other tabs in expandable sections -->
+		<!-- Desktop: Traditional tabs -->
+		<div class="hidden lg:block">
+			<div class="bg-white border border-light-gray mb-8">
+				<div class="flex flex-wrap border-b border-light-gray">
+					<TabButton
+						active={activeTab === 'overview'}
+						on:click={() => activeTab = 'overview'}
+					>
+						Holdings
+					</TabButton>
+					<TabButton
+						active={activeTab === 'performance'}
+						on:click={() => activeTab = 'performance'}
+					>
+						Performance
+					</TabButton>
+					<TabButton
+						active={activeTab === 'allocation'}
+						on:click={() => activeTab = 'allocation'}
+					>
+						Allocation
+					</TabButton>
+				</div>
 			</div>
+		</div>
 
-			<div class="p-8">
-				{#if activeTab === 'overview'}
-					<SectionTitle level="h3" size="subsection" className="mb-6">My Holdings</SectionTitle>
+					<!-- Mobile: Always show overview -->
+		<div class="lg:hidden">
+			<SectionTitle level="h3" size="subsection" className="mb-6">My Holdings</SectionTitle>
+			
+			<div class="space-y-4">
+				{#if loading}
+					<div class="text-center py-8 text-black opacity-70">Loading portfolio holdings...</div>
+				{:else}
+					{#each holdings as holding}
+						<Card hoverable showBorder>
+							<CardContent paddingClass="p-4 sm:p-6">
+								<div class="flex items-start gap-3 mb-4">
+									<div class="w-12 h-12 bg-light-gray rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
+										{#if holding.asset?.coverImage}
+											<img src={holding.asset.coverImage} alt={holding.name} class="w-full h-full object-cover" />
+										{:else}
+											<div class="text-xl opacity-50">🛢️</div>
+										{/if}
+									</div>
+									<div class="flex-1">
+										<h4 class="font-extrabold text-black text-base mb-1">{holding.tokenSymbol}</h4>
+										<div class="text-sm text-black opacity-70 mb-1">{holding.name}</div>
+										<StatusBadge
+											status={holding.status}
+											variant={holding.status === 'producing' ? 'available' : 'default'}
+											size="small"
+										/>
+									</div>
+									<div class="text-right">
+										<div class="text-lg font-extrabold text-primary">{formatCurrency(holding.totalPayoutsEarned)}</div>
+										<div class="text-xs text-black opacity-70">Total Earned</div>
+									</div>
+								</div>
+								
+								<div class="grid grid-cols-2 gap-4 mb-4">
+									<div>
+										<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-1">Tokens</div>
+										<div class="text-sm font-extrabold text-black">{formatNumber(holding.tokensOwned)}</div>
+									</div>
+									<div>
+										<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-1">Invested</div>
+										<div class="text-sm font-extrabold text-black">{formatCurrency(holding.totalInvested)}</div>
+									</div>
+								</div>
+								
+															<div class="flex gap-2">
+								<SecondaryButton size="small" href="/claims" fullWidth>Claims</SecondaryButton>
+								<SecondaryButton size="small" href="/assets/{holding.assetId}#returns-chart" fullWidth>History</SecondaryButton>
+							</div>
+							</CardContent>
+						</Card>
+					{/each}
+				{/if}
+			</div>
+			
+			<!-- Mobile: Collapsible Performance Section -->
+			<div class="mt-8">
+				<CollapsibleSection title="Performance Analysis" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
+					{@const allTransactions = walletDataService.getAllTransactions()}
+					{@const recentPerformance = allTransactions.filter(tx => {
+						const txDate = new Date(tx.timestamp);
+						const monthsAgo = new Date();
+						monthsAgo.setMonth(monthsAgo.getMonth() - 3);
+						return txDate >= monthsAgo;
+					})}
+					
+									<div class="grid grid-cols-2 gap-4 mb-6">
+					<StatsCard
+						title="Portfolio Value"
+						value={formatCurrency(totalInvested)}
+						subtitle="Total invested"
+						size="medium"
+					/>
+					<StatsCard
+						title="Total Earned"
+						value={formatCurrency(totalPayoutsEarned)}
+						subtitle="All payouts"
+						size="medium"
+						valueColor="primary"
+					/>
+					<StatsCard
+						title="Active Assets"
+						value={activeAssetsCount.toString()}
+						subtitle="In portfolio"
+						size="medium"
+					/>
+					<StatsCard
+						title="Unclaimed"
+						value={formatCurrency(unclaimedPayout)}
+						subtitle="Available to claim"
+						size="medium"
+						valueColor="primary"
+					/>
+				</div>
+					
+					<p class="text-sm text-gray-600">Detailed performance charts and analysis available on desktop.</p>
+				</CollapsibleSection>
+			</div>
+			
+			<!-- Mobile: Collapsible Allocation Section -->
+			<div class="mt-4">
+				<CollapsibleSection title="Portfolio Allocation" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
+					<div class="space-y-3">
+						{#each holdings as holding}
+							{@const allocationPercentage = totalInvested > 0 ? (holding.totalInvested / totalInvested) * 100 : 0}
+							<div class="flex justify-between items-center p-3 bg-light-gray rounded">
+								<div>
+									<div class="font-semibold text-sm">{holding.tokenSymbol}</div>
+									<div class="text-xs text-gray-600">{holding.name}</div>
+								</div>
+								<div class="text-right">
+									<div class="font-bold text-sm">{allocationPercentage.toFixed(1)}%</div>
+									<div class="text-xs text-gray-600">{formatCurrency(holding.totalInvested)}</div>
+								</div>
+							</div>
+						{/each}
+					</div>
+				</CollapsibleSection>
+			</div>
+		</div>
+		
+		<!-- Desktop: Tab content -->
+		<div class="hidden lg:block p-8">
+			{#if activeTab === 'overview'}
+				<SectionTitle level="h3" size="subsection" className="mb-6">My Holdings</SectionTitle>
 					
 					<div class="space-y-3">
 						{#if loading}
@@ -794,9 +921,8 @@
 							</div>
 						</div>
 					</div>
-			{/if}
+							{/if}
 			</div>
-		</div>
 	</ContentSection>
 
 	<!-- Quick Actions -->
