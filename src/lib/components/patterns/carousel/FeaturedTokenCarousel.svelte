@@ -308,48 +308,42 @@
 								</div>
 
 												<div class={tokenStatsClasses}>
-					<!-- Desktop: Show all stats -->
-					<div class="hidden sm:contents">
-						<div class={statItemClasses}>
-							<div class={statLabelClasses}>Total Supply</div>
-							<div class={statValueClasses}>
+					<!-- Total Supply - hidden on mobile -->
+					<div class="{statItemClasses} hidden sm:flex">
+						<div class={statLabelClasses}>Total Supply</div>
+						<div class={statValueClasses}>
 							{formatSupply(item.token.supply.maxSupply, item.token.decimals)}
-							</div>
-						</div>
-
-						<div class={statItemClasses}>
-							<div class={statLabelClasses}>Available Supply</div>
-							<div class={statValueClasses}>
-							{formatSupply(getAvailableSupplyBigInt(item.token).toString(), item.token.decimals)}
-							</div>
-						</div>
-						<div class={statItemClasses}>
-							<div class={statLabelClasses}>Base Returns</div>
-							<div class={statValueClasses + ' text-primary'}>{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</div>
-						</div>
-
-						<div class={statItemClasses}>
-							<div class={statLabelClasses}>Bonus Returns</div>
-							<div class={statValueClasses + ' text-primary'}>+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
 						</div>
 					</div>
-					
-					<!-- Mobile: Hide Total Supply, combine returns -->
-					<div class="sm:hidden">
-						<div class={statItemClasses}>
-							<div class={statLabelClasses}>Available Supply</div>
-							<div class={statValueClasses}>
+
+					<!-- Available Supply - always shown -->
+					<div class={statItemClasses}>
+						<div class={statLabelClasses}>Available Supply</div>
+						<div class={statValueClasses}>
 							{formatSupply(getAvailableSupplyBigInt(item.token).toString(), item.token.decimals)}
-							</div>
 						</div>
-						<div class={statItemClasses}>
-							<div class={statLabelClasses}>Est. Return</div>
-							<div class={statValueClasses + ' text-primary'}>
+					</div>
+
+					<!-- Returns - responsive label and format -->
+					<div class={statItemClasses}>
+						<div class={statLabelClasses}>
+							<span class="hidden sm:inline">Base Returns</span>
+							<span class="sm:hidden">Est. Return</span>
+						</div>
+						<div class={statValueClasses + ' text-primary'}>
+							<span class="hidden sm:inline">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</span>
+							<span class="sm:hidden">
 								{calculatedReturns?.baseReturn !== undefined && calculatedReturns?.bonusReturn !== undefined 
 									? `${Math.round(calculatedReturns.baseReturn)}% + ${Math.round(calculatedReturns.bonusReturn)}%`
 									: 'TBD'}
-							</div>
+							</span>
 						</div>
+					</div>
+
+					<!-- Bonus Returns - hidden on mobile -->
+					<div class="{statItemClasses} hidden sm:flex">
+						<div class={statLabelClasses}>Bonus Returns</div>
+						<div class={statValueClasses + ' text-primary'}>+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
 					</div>
 				</div>
 

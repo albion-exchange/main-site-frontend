@@ -102,47 +102,36 @@
 </script>
 
 <Card hoverable clickable heightClass="h-full flex flex-col" on:click={() => window.location.href = `/assets/${asset.id}`}>
-	<!-- Desktop: Regular image -->
-	<div class="hidden sm:block">
-		<CardImage src={asset.coverImage} alt={asset.name} zoomOnHover />
-	</div>
-	
-	<!-- Mobile: Image with overlay -->
-	<div class="sm:hidden relative">
+	<!-- Universal: Image with overlay for all viewports -->
+	<div class="relative">
 		<div class="relative overflow-hidden">
 			<img 
 				src={asset.coverImage} 
 				alt={asset.name} 
-				class="w-full h-48 object-cover opacity-70"
+				class="w-full h-48 sm:h-56 lg:h-64 object-cover opacity-75 hover:opacity-60 transition-opacity duration-300"
 			/>
-			<!-- White overlay gradient -->
-			<div class="absolute inset-0 bg-gradient-to-t from-white/80 via-white/40 to-white/20"></div>
-			<!-- Content overlay -->
-			<div class="absolute bottom-0 left-0 right-0 p-4">
-				<h3 class="text-lg font-extrabold text-black mb-1 drop-shadow-sm">{asset.name}</h3>
-				<p class="text-sm text-gray-700 mb-2 drop-shadow-sm">{asset.location.state}, {asset.location.country}</p>
+			<!-- Gradient overlay -->
+			<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
+			
+			<!-- Content overlay - responsive sizing -->
+			<div class="absolute bottom-0 left-0 right-0 p-4 lg:p-6">
+				<h3 class="text-lg sm:text-xl lg:text-2xl font-extrabold text-white mb-1 sm:mb-2 drop-shadow-lg">
+					{asset.name}
+				</h3>
+				<p class="text-sm sm:text-base text-white/90 mb-2 sm:mb-3 drop-shadow-md">
+					{asset.location.state}, {asset.location.country}
+				</p>
 				<div class="flex items-center gap-2">
-					<span class="text-xs text-gray-600 drop-shadow-sm">Operator:</span>
-					<span class="text-sm font-bold text-black drop-shadow-sm">{asset.operator.name}</span>
+					<span class="text-xs sm:text-sm text-white/80 drop-shadow-md">Operator:</span>
+					<span class="text-sm sm:text-base font-bold text-white drop-shadow-md">
+						{asset.operator.name}
+					</span>
 				</div>
 			</div>
 		</div>
 	</div>
 
 	<CardContent paddingClass="p-4 sm:p-6 lg:p-8 flex-1 flex flex-col">
-		<!-- Desktop header -->
-		<header class="{headerClasses} hidden sm:block">
-			<div class={headerMainClasses}>
-				<div class={nameLocationClasses}>
-					<h3 class={assetNameClasses}>{asset.name}</h3>
-					<p class={assetLocationClasses}>{asset.location.state}, {asset.location.country}</p>
-				</div>
-				<div class={operatorClasses}>
-					<span class={operatorLabelClasses}>Operator</span>
-					<span class={operatorNameClasses}>{asset.operator.name}</span>
-				</div>
-			</div>
-		</header>
 		
 		<!-- Key Stats -->
 		<div class={highlightedStatsClasses}>
