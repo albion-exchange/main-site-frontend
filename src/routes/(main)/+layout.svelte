@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { web3Modal, signerAddress, connected, loading, disconnectWagmi } from 'svelte-wagmi';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
+	import { formatAddress } from '$lib/utils/formatters';
 	
 	$: currentPath = $page.url.pathname;
 	let mobileMenuOpen = false;
@@ -18,11 +19,6 @@
 		$web3Modal.open();
 	}
 	
-	async function handleWalletConnect() {
-		// The actual connection is handled by Web3Modal
-		// No need to handle modal state anymore
-	}
-	
 	function toggleMobileMenu() {
 		mobileMenuOpen = !mobileMenuOpen;
 	}
@@ -31,11 +27,7 @@
 		mobileMenuOpen = false;
 	}
 	
-	// Helper function to format address
-	function formatAddress(address: string): string {
-		if (!address) return "";
-		return `${address.slice(0, 6)}...${address.slice(-4)}`;
-	}
+
 	
 	// Enhanced Tailwind class mappings with better mobile responsiveness
 	$: appClasses = 'min-h-screen flex flex-col';
