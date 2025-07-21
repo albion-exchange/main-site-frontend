@@ -194,11 +194,10 @@
         <ContentSection background="white" padding="standard">
         	<!-- Mobile: Collapsible sections -->
         	<div class="lg:hidden space-y-4">
-        		<!-- Overview is always shown first on mobile -->
-        		<div>
-        			<h3 class="text-lg font-bold text-black mb-4">Overview</h3>
+        		<!-- Overview in collapsible section -->
+        		<CollapsibleSection title="Overview" isOpenByDefault={true} alwaysOpenOnDesktop={false}>
         			<AssetOverviewTab asset={assetData} />
-        		</div>
+        		</CollapsibleSection>
         		
         		<!-- Other sections in collapsible format -->
         		<CollapsibleSection title="Production Data" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
@@ -763,15 +762,17 @@
 						<div id="token-{token.contractAddress}">
 							<Card hoverable clickable paddingClass="p-0" on:click={() => handleCardClick(token.contractAddress)}>
 								<CardContent paddingClass="p-0">
-									<div class="relative preserve-3d transform-gpu transition-transform duration-500 {isFlipped ? 'rotate-y-180' : ''}" style="min-height: 650px;">
+									<div class="relative preserve-3d transform-gpu transition-transform duration-500 {isFlipped ? 'rotate-y-180' : ''}" style="min-height: 600px;">
 										<!-- Front of card -->
-										<div class="absolute inset-0 backface-hidden">
+										<div class="absolute inset-0 backface-hidden flex flex-col">
 											<!-- Full width availability banner -->
 											<div class="{!hasAvailableSupply ? 'text-base font-extrabold text-white bg-black text-center py-3 uppercase tracking-wider' : 'text-base font-extrabold text-black bg-primary text-center py-3 uppercase tracking-wider'} w-full">
 												{hasAvailableSupply ? 'Available for Purchase' : 'Currently Sold Out'}
 											</div>
 											
-											<div class="p-8 pb-0 relative">
+											<!-- Content wrapper with flex-1 to push buttons down -->
+											<div class="flex-1 flex flex-col">
+											<div class="p-8 pb-0 relative flex-1">
 												<div class="flex-1 mt-6">
 													<div class="flex justify-between items-start mb-3 gap-4">
 														<h4 class="text-2xl font-extrabold text-black font-figtree flex-1">{token.name}</h4>
@@ -867,8 +868,9 @@
 													</div>
 												</div>
 											</div>
+											</div>
 
-											<div class="p-4 sm:p-8 pt-0">
+											<div class="p-3 sm:p-8 pt-0">
 												<div class="grid grid-cols-2 gap-2 sm:gap-3">
 													{#if hasAvailableSupply}
 														<PrimaryButton fullWidth size="small" on:click={(e) => { e.stopPropagation(); handleBuyTokens(token.contractAddress); }}>

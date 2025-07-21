@@ -254,11 +254,11 @@
 									</div>
 									<div class={detailItemClasses}>
 										<span class={detailLabelClasses}>Maximum Supply</span>
-										<span class={detailValueClasses}>{(supply?.maxSupply || 0).toLocaleString()}</span>
+										<span class={detailValueClasses}>{(supply?.total || 0).toLocaleString()}</span>
 									</div>
 									<div class={detailItemClasses}>
 										<span class={detailLabelClasses}>Current Supply</span>
-										<span class={detailValueClasses}>{(supply?.mintedSupply || 0).toLocaleString()}</span>
+										<span class={detailValueClasses}>{(supply?.sold || 0).toLocaleString()}</span>
 									</div>
 								</div>
 							</div>
@@ -273,11 +273,11 @@
 										</div>
 										<div class="flex justify-between items-center">
 											<span class="text-sm text-gray-600">Maximum supply:</span>
-											<span class="text-sm font-semibold text-black">{(supply?.maxSupply || 0).toLocaleString()}</span>
+											<span class="text-sm font-semibold text-black">{(supply?.total || 0).toLocaleString()}</span>
 										</div>
 										<div class="flex justify-between items-center">
 											<span class="text-sm text-gray-600">Current supply:</span>
-											<span class="text-sm font-semibold text-black">{(supply?.mintedSupply || 0).toLocaleString()}</span>
+											<span class="text-sm font-semibold text-black">{(supply?.sold || 0).toLocaleString()}</span>
 										</div>
 									</div>
 								</CollapsibleSection>

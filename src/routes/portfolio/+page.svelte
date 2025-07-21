@@ -313,6 +313,10 @@
 						<div class="text-4xl mb-2">📊</div>
 						<p>No holdings found</p>
 						<p class="text-sm mt-2">Start investing to see your portfolio here</p>
+						<!-- Debug info -->
+						<div class="text-xs mt-4 text-gray-400">
+							Debug: Wallet connected: {$walletStore.isConnected}, Holdings count: {holdings.length}, Loading: {loading}
+						</div>
 					</div>
 				{:else}
 					{#each holdings as holding}
@@ -438,32 +442,63 @@
 						return txDate >= monthsAgo;
 					})}
 					
-									<div class="grid grid-cols-2 gap-4 mb-6">
+					{@const mobileCapitalWalkData = (() => {
+						// Calculate Total External Capital for mobile (simplified version)
+						const allTransactions = walletDataService.getAllTransactions();
+						let cumulativePurchases = 0;
+						let cumulativePayouts = 0;
+						let maxDeficit = 0;
+						
+						const sortedTx = [...allTransactions].sort((a, b) => 
+							new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+						);
+						
+						sortedTx.forEach(tx => {
+							if (tx.type === 'mint') {
+								cumulativePurchases += tx.amountUSD;
+							} else if (tx.type === 'claim') {
+								const amount = tx.amountUSD || tx.amount;
+								cumulativePayouts += amount;
+							}
+							
+							const netPosition = cumulativePayouts - cumulativePurchases;
+							maxDeficit = Math.max(maxDeficit, Math.abs(netPosition));
+						});
+						
+						return {
+							totalExternalCapital: maxDeficit,
+							grossDeployed: totalInvested,
+							grossPayout: totalPayoutsEarned,
+							currentNetPosition: totalPayoutsEarned - totalInvested
+						};
+					})()}
+					
+					<div class="grid grid-cols-2 gap-4 mb-6">
 					<StatsCard
 						title="Total External Capital"
-						value={formatCurrency(totalInvested, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-						subtitle="Capital invested"
+						value={formatCurrency(mobileCapitalWalkData.totalExternalCapital, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+						subtitle="Peak cash required"
 						size="medium"
 					/>
 					<StatsCard
 						title="Gross Deployed"
-						value={formatCurrency(totalInvested, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-						subtitle="Amount deployed"
+						value={formatCurrency(mobileCapitalWalkData.grossDeployed, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+						subtitle="Total invested"
 						size="medium"
 					/>
 					<StatsCard
 						title="Gross Payout"
-						value={formatCurrency(totalPayoutsEarned, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-						subtitle="Total received"
+						value={formatCurrency(mobileCapitalWalkData.grossPayout, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+						subtitle="Total distributions"
 						size="medium"
 						valueColor="primary"
 					/>
 					<StatsCard
 						title="Current Net Position"
-						value={formatCurrency(totalInvested - totalPayoutsEarned, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-						subtitle="Remaining at risk"
+						value={formatCurrency(mobileCapitalWalkData.currentNetPosition, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+						subtitle="Payouts - Invested"
 						size="medium"
-						valueColor={totalInvested - totalPayoutsEarned > 0 ? "default" : "primary"}
+						valueColor={mobileCapitalWalkData.currentNetPosition >= 0 ? "primary" : "default"}
 					/>
 				</div>
 					
@@ -501,6 +536,12 @@
 					<div class="space-y-3">
 						{#if loading}
 							<div class="text-center py-12 text-black opacity-70">Loading portfolio holdings...</div>
+						{:else if holdings.length === 0}
+							<div class="text-center py-8 text-black opacity-70">
+								<div class="text-4xl mb-2">📊</div>
+								<p>No holdings found</p>
+								<p class="text-sm mt-2">Start investing to see your portfolio here</p>
+							</div>
 						{:else}
 							{#each holdings as holding}
 								{@const flipped = $flippedCards.has(holding.id)}
