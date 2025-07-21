@@ -764,15 +764,13 @@
 								<CardContent paddingClass="p-0">
 									<div class="relative preserve-3d transform-gpu transition-transform duration-500 {isFlipped ? 'rotate-y-180' : ''}" style="min-height: 600px;">
 										<!-- Front of card -->
-										<div class="absolute inset-0 backface-hidden flex flex-col">
+										<div class="absolute inset-0 backface-hidden">
 											<!-- Full width availability banner -->
 											<div class="{!hasAvailableSupply ? 'text-base font-extrabold text-white bg-black text-center py-3 uppercase tracking-wider' : 'text-base font-extrabold text-black bg-primary text-center py-3 uppercase tracking-wider'} w-full">
 												{hasAvailableSupply ? 'Available for Purchase' : 'Currently Sold Out'}
 											</div>
 											
-											<!-- Content wrapper with flex-1 to push buttons down -->
-											<div class="flex-1 flex flex-col">
-											<div class="p-8 pb-0 relative flex-1">
+											<div class="p-8 pb-0 relative">
 												<div class="flex-1 mt-6">
 													<div class="flex justify-between items-start mb-3 gap-4">
 														<h4 class="text-2xl font-extrabold text-black font-figtree flex-1">{token.name}</h4>
@@ -868,9 +866,8 @@
 													</div>
 												</div>
 											</div>
-											</div>
 
-											<div class="p-3 sm:p-8 pt-0">
+											<div class="p-4 sm:p-8 pt-0">
 												<div class="grid grid-cols-2 gap-2 sm:gap-3">
 													{#if hasAvailableSupply}
 														<PrimaryButton fullWidth size="small" on:click={(e) => { e.stopPropagation(); handleBuyTokens(token.contractAddress); }}>

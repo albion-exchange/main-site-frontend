@@ -80,7 +80,14 @@
 			// Transform holdings data
 			holdings = assetPayouts.map(holding => {
 				const asset = allAssets.find(a => a.id === holding.assetId);
-				if (!asset) return null;
+				// Provide fallback data if asset not found instead of returning null
+				const assetFallback = asset || {
+					id: holding.assetId,
+					name: holding.assetName || 'Unknown Asset',
+					location: { state: 'Unknown', country: 'Location' },
+					production: { status: 'unknown' },
+					coverImage: null
+				};
 				
 				// Get the actual holding data for token count
 				const walletHoldings = walletDataService.computeHoldings();
@@ -103,7 +110,7 @@
 				let cumulativeProduction = 0;
 				
 				// Find tokens for this asset and sum their payoutHistory production
-				const assetTokens = allTokens.filter(token => token.assetId === asset.id);
+				const assetTokens = allTokens.filter(token => token.assetId === assetFallback.id);
 				
 				if (assetTokens.length > 0) {
 					// Use the first token's payout history as they should all have the same production data
@@ -113,14 +120,14 @@
 					}
 				}
 				
-				// Fallback to asset monthlyReports if no token data
-				if (cumulativeProduction === 0 && asset.monthlyReports && asset.monthlyReports.length > 0) {
+				// Fallback to asset monthlyReports if no token data (only if asset exists)
+				if (cumulativeProduction === 0 && asset && asset.monthlyReports && asset.monthlyReports.length > 0) {
 					cumulativeProduction = asset.monthlyReports.reduce((sum, report) => sum + (report.production || 0), 0);
 				}
 				
 				// Parse expected remaining production from string format (e.g., "250k BOE" -> 250000)
 				let expectedRemainingProduction = 0;
-				if (asset.production?.expectedRemainingProduction && asset.production.expectedRemainingProduction !== 'TBD') {
+				if (asset && asset.production?.expectedRemainingProduction && asset.production.expectedRemainingProduction !== 'TBD') {
 					const match = asset.production.expectedRemainingProduction.match(/^([\d.]+)k\s*boe$/i);
 					if (match) {
 						expectedRemainingProduction = parseFloat(match[1]) * 1000;
@@ -137,21 +144,21 @@
 				return {
 					id: holding.assetId,
 					name: holding.assetName,
-					location: asset ? `${asset.location.state}, ${asset.location.country}` : '',
+					location: `${assetFallback.location.state}, ${assetFallback.location.country}`,
 					totalInvested: holding.totalInvested,
 					totalPayoutsEarned: holding.totalEarned,
 					unclaimedAmount: holding.unclaimedAmount,
 					lastPayoutAmount: holding.lastPayoutAmount,
 					lastPayoutDate: holding.lastPayoutDate,
-					status: asset ? asset.production.status : 'unknown',
+					status: assetFallback.production.status,
 					tokensOwned,
 					tokenSymbol,
 					capitalReturned,
 					unrecoveredCapital,
 					assetDepletion,
-					asset // Include the full asset object for the cover image
+					asset: assetFallback // Include the full asset object for the cover image
 				};
-			}).filter(Boolean);
+			}); // Removed .filter(Boolean) since we're no longer returning null
 			
 			// Get monthly payout history
 			monthlyPayouts = walletDataService.getMonthlyPayoutHistory();
@@ -308,14 +315,14 @@
 			<div class="space-y-4">
 				{#if loading}
 					<div class="text-center py-8 text-black opacity-70">Loading portfolio holdings...</div>
-				{:else if holdings.length === 0}
+				{:else if !holdings || holdings.length === 0}
 					<div class="text-center py-8 text-black opacity-70">
 						<div class="text-4xl mb-2">📊</div>
 						<p>No holdings found</p>
 						<p class="text-sm mt-2">Start investing to see your portfolio here</p>
 						<!-- Debug info -->
 						<div class="text-xs mt-4 text-gray-400">
-							Debug: Wallet connected: {$walletStore.isConnected}, Holdings count: {holdings.length}, Loading: {loading}
+							Debug: Holdings array: {JSON.stringify(holdings)}
 						</div>
 					</div>
 				{:else}
