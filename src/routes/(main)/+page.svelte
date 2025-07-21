@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { usePlatformStats } from '$lib/composables/usePlatformStats';
 	import FeaturedTokenCarousel from '$lib/components/patterns/carousel/FeaturedTokenCarousel.svelte';
@@ -8,7 +8,7 @@
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
 	import GridContainer from '$lib/components/components/GridContainer.svelte';
 	import { PageLayout, HeroSection, ContentSection, StatsSection } from '$lib/components/layout';
-	import marketData from '$lib/data/marketData.json';
+	import { marketDataStore, formattedMarketData } from '$lib/stores/marketDataStore';
 
 	// Composables
 	const { platformStats, formattedStats: sftsFormattedStats } = usePlatformStats();
@@ -17,6 +17,15 @@
 	let showPurchaseWidget = false;
 	let selectedTokenAddress: string | null = null;
 	let selectedAssetId: string | null = null;
+	
+	// Lifecycle management
+	onMount(() => {
+		marketDataStore.startAutoRefresh();
+	});
+	
+	onDestroy(() => {
+		marketDataStore.stopAutoRefresh();
+	});
 	
 	function handleBuyTokensFromCarousel(event: CustomEvent) {
 		selectedTokenAddress = event.detail.tokenAddress;
@@ -209,20 +218,40 @@
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
 			<div class="space-y-4 lg:space-y-6">
 				<h3 class="text-2xl lg:text-3xl font-extrabold mb-4 lg:mb-6 text-white">Market Indicators</h3>
-				<div class="flex flex-col gap-3 lg:gap-4">
-					<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
-						<span>WTI Crude Oil</span>
-						<span class="text-primary font-extrabold">${marketData.oilPrices.wti.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.wti.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.wti.change >= 0 ? '+' : ''}{marketData.oilPrices.wti.change}%</span></span>
+				{#if $marketDataStore.loading}
+					<div class="flex flex-col gap-3 lg:gap-4">
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span>Loading market data...</span>
+							<span class="text-primary font-extrabold">--</span>
+						</div>
 					</div>
-					<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
-						<span>Brent Crude</span>
-						<span class="text-primary font-extrabold">${marketData.oilPrices.brent.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.brent.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.brent.change >= 0 ? '+' : ''}{marketData.oilPrices.brent.change}%</span></span>
+				{:else if $formattedMarketData}
+					<div class="flex flex-col gap-3 lg:gap-4">
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span>{$formattedMarketData.wti.name}</span>
+							<span class="text-primary font-extrabold">{$formattedMarketData.wti.price} <span class="text-xs font-semibold ml-2 {$formattedMarketData.wti.isPositive ? 'text-primary' : 'text-red-500'}">{$formattedMarketData.wti.changeText}</span></span>
+						</div>
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span>{$formattedMarketData.brent.name}</span>
+							<span class="text-primary font-extrabold">{$formattedMarketData.brent.price} <span class="text-xs font-semibold ml-2 {$formattedMarketData.brent.isPositive ? 'text-primary' : 'text-red-500'}">{$formattedMarketData.brent.changeText}</span></span>
+						</div>
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span>{$formattedMarketData.henryHub.name}</span>
+							<span class="text-primary font-extrabold">{$formattedMarketData.henryHub.price} <span class="text-xs font-semibold ml-2 {$formattedMarketData.henryHub.isPositive ? 'text-primary' : 'text-red-500'}">{$formattedMarketData.henryHub.changeText}</span></span>
+						</div>
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span>{$formattedMarketData.ttf.name}</span>
+							<span class="text-primary font-extrabold">{$formattedMarketData.ttf.price} <span class="text-xs font-semibold ml-2 {$formattedMarketData.ttf.isPositive ? 'text-primary' : 'text-red-500'}">{$formattedMarketData.ttf.changeText}</span></span>
+						</div>
 					</div>
-					<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
-						<span>Natural Gas</span>
-						<span class="text-primary font-extrabold">${marketData.oilPrices.naturalGas.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.naturalGas.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.naturalGas.change >= 0 ? '+' : ''}{marketData.oilPrices.naturalGas.change}%</span></span>
+				{:else}
+					<div class="flex flex-col gap-3 lg:gap-4">
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span>Market data unavailable</span>
+							<span class="text-primary font-extrabold">--</span>
+						</div>
 					</div>
-				</div>
+				{/if}
 			</div>
 			
 			<div class="text-center p-8 lg:p-12 bg-white/10 border border-white/20">

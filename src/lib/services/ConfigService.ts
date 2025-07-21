@@ -15,40 +15,12 @@
  */
 
 // Import configuration data
-import marketData from "$lib/data/marketData.json";
 import platformStats from "$lib/data/platformStats.json";
 import companyInfo from "$lib/data/companyInfo.json";
 import futureReleasesData from "$lib/data/futureReleases.json";
 
-export interface MarketConfig {
-  commodityPrices: {
-    oil: {
-      current: number;
-      currency: string;
-      benchmark: string;
-      lastUpdated: string;
-    };
-    gas: {
-      current: number;
-      currency: string;
-      benchmark: string;
-      lastUpdated: string;
-    };
-  };
-  exchangeRates: {
-    [currency: string]: {
-      rate: number;
-      lastUpdated: string;
-    };
-  };
-  marketIndicators: {
-    [indicator: string]: {
-      value: number;
-      change: number;
-      lastUpdated: string;
-    };
-  };
-}
+// Note: Market data is now handled by the dedicated marketDataService
+// This interface is kept for compatibility but is not actively used
 
 export interface PlatformConfig {
   totalAssets: number;
@@ -98,7 +70,6 @@ export interface FutureRelease {
 }
 
 export interface AppConfig {
-  market: MarketConfig;
   platform: PlatformConfig;
   company: CompanyConfig;
   futureReleases: FutureRelease[];
@@ -109,7 +80,6 @@ class ConfigService {
 
   constructor() {
     this.config = {
-      market: marketData as MarketConfig,
       platform: platformStats as PlatformConfig,
       company: companyInfo as CompanyConfig,
       futureReleases: this.transformFutureReleasesData(futureReleasesData)
@@ -155,9 +125,11 @@ class ConfigService {
 
   /**
    * Get market configuration
+   * @deprecated Market data is now handled by marketDataService
    */
-  getMarketConfig(): MarketConfig {
-    return this.config.market;
+  getMarketConfig(): null {
+    console.warn('getMarketConfig is deprecated. Use marketDataService instead.');
+    return null;
   }
 
   /**
@@ -197,23 +169,29 @@ class ConfigService {
 
   /**
    * Get current oil price
+   * @deprecated Use marketDataService instead
    */
   getCurrentOilPrice(): number {
-    return this.config.market.commodityPrices.oil.current;
+    console.warn('getCurrentOilPrice is deprecated. Use marketDataService instead.');
+    return 0;
   }
 
   /**
    * Get current gas price
+   * @deprecated Use marketDataService instead
    */
   getCurrentGasPrice(): number {
-    return this.config.market.commodityPrices.gas.current;
+    console.warn('getCurrentGasPrice is deprecated. Use marketDataService instead.');
+    return 0;
   }
 
   /**
    * Get exchange rate for currency
+   * @deprecated Use marketDataService instead
    */
   getExchangeRate(currency: string): number {
-    return this.config.market.exchangeRates[currency]?.rate || 1;
+    console.warn('getExchangeRate is deprecated. Use marketDataService instead.');
+    return 1;
   }
 
   /**
@@ -283,13 +261,11 @@ class ConfigService {
 
   /**
    * Get market indicator value
+   * @deprecated Use marketDataService instead
    */
-  getMarketIndicator(indicator: string): {
-    value: number;
-    change: number;
-    lastUpdated: string;
-  } | null {
-    return this.config.market.marketIndicators[indicator] || null;
+  getMarketIndicator(indicator: string): null {
+    console.warn('getMarketIndicator is deprecated. Use marketDataService instead.');
+    return null;
   }
 
   /**
@@ -309,7 +285,6 @@ class ConfigService {
     // In a real app, this might fetch from API
     // For now, we'll just re-import the JSON files
     this.config = {
-      market: marketData as MarketConfig,
       platform: platformStats as PlatformConfig,
       company: companyInfo as CompanyConfig,
       futureReleases: this.transformFutureReleasesData(futureReleasesData)
