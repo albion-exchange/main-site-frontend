@@ -42,7 +42,6 @@
     "vitest": "^1.5.0"
   },
   "dependencies": {
-    "@mailchimp/mailchimp_marketing": "^3.0.80",
     "@wagmi/connectors": "^5.0.0",
     "@wagmi/core": "^2.0.0",
     "lucide-svelte": "^0.525.0",

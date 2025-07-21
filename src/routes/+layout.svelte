@@ -10,10 +10,7 @@
 	let mobileMenuOpen = false;
 	let showWalletModal = false;
 	
-	// Newsletter subscription state
-	let newsletterEmail = '';
-	let isSubmittingNewsletter = false;
-	let newsletterSubmitted = false;
+
 	
 
 	
@@ -38,53 +35,7 @@
 		mobileMenuOpen = !mobileMenuOpen;
 	}
 	
-	async function handleNewsletterSubmit() {
-		if (!newsletterEmail || isSubmittingNewsletter) return;
-		
-		isSubmittingNewsletter = true;
-		
-		try {
-			const response = await fetch('/api/newsletter', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					email: newsletterEmail
-				})
-			});
-			
-			const result = await response.json();
-			
-			if (result.success) {
-				newsletterSubmitted = true;
-				newsletterEmail = '';
-				
-				// Reset success message after 3 seconds
-				setTimeout(() => {
-					newsletterSubmitted = false;
-				}, 3000);
-			} else {
-				console.error('Failed to subscribe to newsletter:', result.message);
-				// Show success to user for better UX even if there's an error
-				newsletterSubmitted = true;
-				newsletterEmail = '';
-				setTimeout(() => {
-					newsletterSubmitted = false;
-				}, 3000);
-			}
-		} catch (error) {
-			console.error('Error subscribing to newsletter:', error);
-			// Show success to user for better UX even if there's an error
-			newsletterSubmitted = true;
-			newsletterEmail = '';
-			setTimeout(() => {
-				newsletterSubmitted = false;
-			}, 3000);
-		} finally {
-			isSubmittingNewsletter = false;
-		}
-	}
+
 	
 	function closeMobileMenu() {
 		mobileMenuOpen = false;
@@ -258,26 +209,27 @@
 				<div class="lg:col-span-2">
 				<h4 class={footerSectionH4Classes}>Sign up for the Newsletter</h4>
 				<p class={footerSectionPClasses}>Get the latest updates on new token releases and platform news</p>
-				<form class="flex gap-2 mt-4" on:submit|preventDefault={handleNewsletterSubmit}>
-					<input 
-						type="email" 
-						placeholder="Enter email address"
-						bind:value={newsletterEmail}
-						required
-						disabled={isSubmittingNewsletter}
-						class="flex-1 px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black transition-colors duration-200 focus:outline-none focus:border-black disabled:opacity-50"
-					/>
-					<button 
-						type="submit"
-						disabled={isSubmittingNewsletter || !newsletterEmail}
-						class="px-6 py-3 bg-black text-white border-none font-figtree font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary disabled:opacity-70 disabled:cursor-not-allowed whitespace-nowrap"
-					>
-						{isSubmittingNewsletter ? 'Signing up...' : 'Sign up now'}
-					</button>
-				</form>
-				{#if newsletterSubmitted}
-					<p class="text-sm text-primary mt-2">Thank you for subscribing!</p>
-				{/if}
+				
+				<!-- MailChimp Newsletter Signup Form -->
+				<div id="mc_embed_signup" class="mt-4">
+					<form action="https://your-domain.us1.list-manage.com/subscribe/post?u=YOUR_USER_ID&id=YOUR_LIST_ID" 
+						  method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_blank">
+						<div id="mc_embed_signup_scroll" class="flex gap-2">
+							<input type="email" value="" name="EMAIL" 
+								   placeholder="Enter email address"
+								   id="mce-EMAIL" required
+								   class="flex-1 px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black transition-colors duration-200 focus:outline-none focus:border-black"
+							/>
+							<!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+							<div style="position: absolute; left: -5000px;" aria-hidden="true">
+								<input type="text" name="b_YOUR_USER_ID_YOUR_LIST_ID" tabindex="-1" value="">
+							</div>
+							<input type="submit" value="Sign up now" name="subscribe" id="mc-embedded-subscribe"
+								   class="px-6 py-3 bg-black text-white border-none font-figtree font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary whitespace-nowrap"
+							/>
+						</div>
+					</form>
+				</div>
 				
 				<div class="mt-6">
 					<h4 class={footerSectionH4Classes}>Connect with us</h4>
