@@ -3,8 +3,18 @@
 	import { fly, fade } from 'svelte/transition';
 	import { useAssetService, useTokenService, useConfigService } from '$lib/services';
 	import type { Asset, Token } from '$lib/types/uiTypes';
-	import { PrimaryButton, SecondaryButton, CollapsibleSection } from '$lib/components/components';
+	import { readContract, writeContract, waitForTransactionReceipt } from '@wagmi/core';
+	import { signerAddress, wagmiConfig } from 'svelte-wagmi';
+	import { formatEther, parseUnits, type Hex } from 'viem';
+	import {erc20Abi} from 'viem';
+	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
 	import { formatCurrency } from '$lib/utils/formatters';
+    import { sftMetadata, sfts } from '$lib/stores';
+    import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
+    import type { OffchainAssetReceiptVault } from '$lib/types/offchainAssetReceiptVaultTypes';
+    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
+	import authorizerAbi from '$lib/abi/authorizer.json';
+	import OffchainAssetReceiptVaultAbi from '$lib/abi/OffchainAssetReceiptVault.json';
 
 	export let isOpen = false;
 	export let tokenAddress: string | null = null;
@@ -26,6 +36,7 @@
 	let assetData: Asset | null = null;
 	let tokenData: Token | null = null;
 	let supply: any = null;
+	let currentSft: OffchainAssetReceiptVault;
 
 	// Reactive calculations
 	$: if (isOpen && (tokenAddress || assetId)) {
@@ -40,30 +51,40 @@
 	$: canProceed = () => {
 		return agreedToTerms && 
 			   investmentAmount > 0 && 
-			   investmentAmount <= (supply?.available || 0) && 
+			   investmentAmount <= (supply?.availableSupply || 0) && 
 			   !purchasing &&
 			   !isSoldOut();
 	};
 
-	function loadTokenData() {
+	async function loadTokenData() {
 		try {
-			if (tokenAddress) {
-				tokenData = tokenService.getTokenByAddress(tokenAddress);
-				if (tokenData) {
-					assetData = assetService.getAssetById(tokenData.assetId);
-					supply = tokenService.getTokenSupply(tokenAddress);
-				}
-			} else if (assetId) {
-				assetData = assetService.getAssetById(assetId);
-				if (assetData) {
-					// Get first available active token for this asset
-					const availableTokens = tokenService.getTokensByAssetId(assetId).filter(
-						token => token.isActive
-					);
-					if (availableTokens.length > 0) {
-						tokenData = availableTokens[0];
-						supply = tokenService.getTokenSupply(availableTokens[0].contractAddress);
-					}
+			if (tokenAddress && $sftMetadata && $sfts) {
+				const sft = $sfts.find(sft => sft.id.toLocaleLowerCase() === tokenAddress.toLocaleLowerCase());
+				const deocdedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
+
+				const pinnedMetadata: any = deocdedMeta.find(
+					(meta) => meta?.contractAddress === `0x000000000000000000000000${sft?.id.slice(2)}`
+				);
+
+				if(sft && pinnedMetadata){
+					currentSft = sft;
+
+					const sftMaxSharesSupply = await readContract($wagmiConfig, {
+						abi: authorizerAbi,
+						address: sft.activeAuthorizer?.address as Hex,
+						functionName: 'maxSharesSupply',
+						args: []
+					}) as bigint;
+
+					tokenData = generateTokenInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
+					assetData = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
+
+
+					supply = {
+						maxSupply: sftMaxSharesSupply,
+						mintedSupply: BigInt(sft.totalShares),
+						availableSupply: sftMaxSharesSupply - BigInt(sft.totalShares)
+					};
 				}
 			}
 		} catch (error) {
@@ -84,13 +105,53 @@
 		purchaseError = null;
 
 		try {
-			// Simulate purchase process
-			await new Promise(resolve => setTimeout(resolve, 2000));
-			
-			// Mock success
+			// Get payment token and decimals
+			const paymentToken = await readContract($wagmiConfig, {
+				abi: authorizerAbi,
+				address: currentSft.activeAuthorizer?.address as Hex,
+				functionName: 'paymentToken',
+				args: []
+			});
+
+			const paymentTokenDecimals = await readContract($wagmiConfig, {
+				abi: authorizerAbi,
+				address: currentSft.activeAuthorizer?.address as Hex,
+				functionName: 'paymentTokenDecimals',
+				args: []
+			}) as number;
+
+			// Check current allowance
+			const currentAllowance = await readContract($wagmiConfig, {
+				abi: erc20Abi,
+				address: paymentToken as Hex,
+				functionName: 'allowance',
+				args: [$signerAddress as Hex, currentSft.activeAuthorizer?.address as Hex]
+			});
+
+			const requiredAmount = BigInt(parseUnits(investmentAmount.toString(), paymentTokenDecimals));
+			// Only approve if current allowance is insufficient
+			if (currentAllowance < requiredAmount) {
+				const approvalHash = await writeContract($wagmiConfig, {
+					abi: erc20Abi,
+					address: paymentToken as Hex,
+					functionName: 'approve',
+					args: [currentSft.activeAuthorizer?.address as Hex, requiredAmount]
+				});
+				
+				// Wait for approval transaction to be confirmed
+				await waitForTransactionReceipt($wagmiConfig, {
+					hash: approvalHash
+				});
+			}
+			// Deposit tokens
+			await writeContract($wagmiConfig, {
+				abi: OffchainAssetReceiptVaultAbi,
+				address: tokenAddress as Hex,
+				functionName: 'deposit',
+				args: [BigInt(parseUnits(investmentAmount.toString(), 18)), $signerAddress as Hex, BigInt(0n), "0x"]
+			});
+
 			purchaseSuccess = true;
-			
-			// Dispatch success event
 			dispatch('purchaseSuccess', {
 				tokenAddress,
 				assetId,
@@ -191,22 +252,11 @@
 				<div class={titleClasses}>
 					<div class={titleRowClasses}>
 						<h2 class={mainTitleClasses}>
-							<!-- Mobile: Show token name across top -->
-							<span class="lg:hidden">
-								{#if tokenData}
-									{tokenData.symbol || tokenData.name}
-								{:else}
-									Purchase Tokens
-								{/if}
-							</span>
-							<!-- Desktop: Show full token name -->
-							<span class="hidden lg:inline">
-								{#if tokenData}
-									{tokenData.name}
-								{:else}
-									Purchase Tokens
-								{/if}
-							</span>
+							{#if tokenData}
+								{tokenData.name}
+							{:else}
+								Purchase Tokens
+							{/if}
 						</h2>
 						{#if tokenData && assetData}
 							<a href="/assets/{assetData.id}#token-{tokenData.contractAddress}" class={viewDetailsClasses}>
@@ -244,8 +294,7 @@
 					<div class={formClasses}>
 						<!-- Token Details -->
 						{#if tokenData}
-							<!-- Desktop: Regular layout -->
-							<div class="hidden lg:block {tokenDetailsClasses}">
+							<div class={tokenDetailsClasses}>
 								<h4 class={tokenDetailsTitleClasses}>Token Details</h4>
 								<div class={detailsGridClasses}>
 									<div class={detailItemClasses}>
@@ -254,33 +303,13 @@
 									</div>
 									<div class={detailItemClasses}>
 										<span class={detailLabelClasses}>Maximum Supply</span>
-										<span class={detailValueClasses}>{(supply?.total || 0).toLocaleString()}</span>
+										<span class={detailValueClasses}>{formatEther((supply?.maxSupply || 0)).toLocaleString()}</span>
 									</div>
 									<div class={detailItemClasses}>
 										<span class={detailLabelClasses}>Current Supply</span>
-										<span class={detailValueClasses}>{(supply?.sold || 0).toLocaleString()}</span>
+										<span class={detailValueClasses}>{formatEther((supply?.mintedSupply || 0)).toLocaleString()}</span>
 									</div>
 								</div>
-							</div>
-							
-							<!-- Mobile: Collapsible with inline layout -->
-							<div class="lg:hidden">
-								<CollapsibleSection title="Token Details" isOpenByDefault={false}>
-									<div class="space-y-3">
-										<div class="flex justify-between items-center">
-											<span class="text-sm text-gray-600">Share of asset:</span>
-											<span class="text-sm font-semibold text-secondary">{tokenData.sharePercentage || 0}%</span>
-										</div>
-										<div class="flex justify-between items-center">
-											<span class="text-sm text-gray-600">Maximum supply:</span>
-											<span class="text-sm font-semibold text-black">{(supply?.total || 0).toLocaleString()}</span>
-										</div>
-										<div class="flex justify-between items-center">
-											<span class="text-sm text-gray-600">Current supply:</span>
-											<span class="text-sm font-semibold text-black">{(supply?.sold || 0).toLocaleString()}</span>
-										</div>
-									</div>
-								</CollapsibleSection>
 							</div>
 						{/if}
 
