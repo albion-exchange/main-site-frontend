@@ -313,6 +313,12 @@
 			<SectionTitle level="h3" size="subsection" className="mb-6">My Holdings</SectionTitle>
 			
 			<div class="space-y-4">
+				<!-- Debug info at top -->
+				<div class="text-xs bg-yellow-100 p-2 mb-4">
+					Debug: loading={loading}, holdings={holdings ? `exists with length ${holdings.length}` : 'null'}, 
+					condition1={loading}, condition2={holdings && holdings.length > 0}
+				</div>
+				
 				{#if loading}
 					<div class="text-center py-8 text-black opacity-70">Loading portfolio holdings...</div>
 				{:else if holdings && holdings.length > 0}
@@ -323,7 +329,7 @@
 							<CardContent paddingClass="p-0">
 								<div class="relative h-full overflow-hidden" style="perspective: 1000px;">
 									<!-- Front of card -->
-									<div class="transition-transform duration-700 ease-in-out transform-style-preserve-3d {flippedCards.has(holding.id) ? 'rotate-y-180' : ''} h-full">
+									<div class="transition-transform duration-700 ease-in-out transform-style-preserve-3d {$flippedCards.has(holding.id) ? 'rotate-y-180' : ''} h-full">
 										<div class="absolute inset-0 backface-hidden p-4 sm:p-6">
 											<div class="flex items-start gap-3 mb-4">
 												<div class="w-12 h-12 bg-light-gray rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
