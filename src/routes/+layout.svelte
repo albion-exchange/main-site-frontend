@@ -49,8 +49,8 @@
 	$: navLinkActiveClasses = 'text-primary after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary';
 	$: navActionsClasses = 'flex items-center gap-4';
 	$: walletIconClasses = 'text-base';
-	$: mobileNavClasses = 'md:hidden fixed top-16 sm:top-20 lg:top-24 left-0 right-0 bg-white border-b border-light-gray z-[99] transition-transform duration-300 ease-out shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto transform -translate-y-full';
-	$: mobileNavOpenClasses = 'transform translate-y-0';
+	$: mobileNavClasses = 'md:hidden fixed top-16 sm:top-20 lg:top-24 left-0 right-0 bg-white border-b border-light-gray z-[99] transition-transform duration-300 ease-out shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto -translate-y-full';
+	$: mobileNavOpenClasses = 'translate-y-0';
 	$: mobileNavLinksClasses = 'flex flex-col p-0 gap-0';
 	$: mobileNavLinkClasses = 'text-black no-underline font-medium py-4 px-4 sm:px-6 border-b border-light-gray transition-colors duration-200 last:border-b-0 hover:text-primary hover:bg-light-gray touch-target text-base';
 	$: mobileNavLinkActiveClasses = 'text-primary bg-light-gray';
