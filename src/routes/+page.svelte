@@ -278,11 +278,12 @@
 							<span class="text-primary font-extrabold">--							</span>
 						</div>
 					</div>
-					{#if $marketData}
-						<div class="mt-4 text-xs text-white/70 text-center">
-							Last updated: {new Date($marketData.wti.lastUpdated).toLocaleTimeString()}
-						</div>
-					{/if}
+				{#if $marketData}
+					<div class="mt-4 text-xs text-white/70 text-center">
+						Last updated: {new Date($marketData.wti.lastUpdated).toLocaleTimeString()}
+						<br>
+						Data provided by Yahoo! Finance
+					</div>
 				{/if}
 			</div>
 			

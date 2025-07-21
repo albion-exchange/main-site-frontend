@@ -1,27 +1,4 @@
 {
-  "oilPrices": {
-    "wti": {
-      "price": 73.45,
-      "change": 1.2,
-      "currency": "USD",
-      "unit": "barrel",
-      "lastUpdated": "2025-01-07T10:00:00Z"
-    },
-    "brent": {
-      "price": 78.2,
-      "change": -0.8,
-      "currency": "USD",
-      "unit": "barrel",
-      "lastUpdated": "2025-01-07T10:00:00Z"
-    },
-    "naturalGas": {
-      "price": 2.84,
-      "change": 0.5,
-      "currency": "USD",
-      "unit": "MMBtu",
-      "lastUpdated": "2025-01-07T10:00:00Z"
-    }
-  },
   "defaultGrowthRate": 2.8,
   "gasFeesEstimate": {
     "low": 8.5,

@@ -2,29 +2,12 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import * as cheerio from 'cheerio';
 
-// Web scraping sources for commodity prices
-const SCRAPING_SOURCES = {
-  // Yahoo Finance individual pages (most reliable)
-  yahoo: {
-    wti: 'https://finance.yahoo.com/quote/CL=F',
-    brent: 'https://finance.yahoo.com/quote/BZ=F', 
-    henryHub: 'https://finance.yahoo.com/quote/NG=F',
-    ttf: 'https://finance.yahoo.com/quote/TTF=F' // European TTF futures
-  },
-  // Investing.com as backup
-  investing: {
-    wti: 'https://www.investing.com/commodities/crude-oil',
-    brent: 'https://www.investing.com/commodities/brent-oil',
-    henryHub: 'https://www.investing.com/commodities/natural-gas',
-    ttf: 'https://www.investing.com/commodities/dutch-ttf-gas-c1-futures'
-  },
-  // MarketWatch as third option
-  marketwatch: {
-    wti: 'https://www.marketwatch.com/investing/future/crude%20oil%20-%20electronic',
-    brent: 'https://www.marketwatch.com/investing/future/brent%20crude',
-    henryHub: 'https://www.marketwatch.com/investing/future/natural%20gas',
-    ttf: 'https://www.marketwatch.com/investing/future/dutch%20ttf%20gas'
-  }
+// Yahoo Finance URLs for commodity prices
+const YAHOO_FINANCE_URLS = {
+  wti: 'https://finance.yahoo.com/quote/CL=F',
+  brent: 'https://finance.yahoo.com/quote/BZ=F', 
+  henryHub: 'https://finance.yahoo.com/quote/NG=F',
+  ttf: 'https://finance.yahoo.com/quote/TTF=F'
 };
 
 // Web scraping function for Yahoo Finance
@@ -128,94 +111,7 @@ async function scrapeYahooFinance(symbol: string, url: string, fetch: Function) 
   }
 }
 
-// Alternative scraper for Investing.com
-async function scrapeInvesting(url: string, fetch: Function) {
-  try {
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-      }
-    });
 
-    if (!response.ok) return null;
-
-    const html = await response.text();
-    const $ = cheerio.load(html);
-
-    // Investing.com selectors
-    const priceElement = $('[data-test="instrument-price-last"]');
-    const changeElement = $('[data-test="instrument-price-change"]');
-    const percentElement = $('[data-test="instrument-price-change-percent"]');
-
-    const price = parseFloat(priceElement.text().replace(/[,$]/g, ''));
-    const change = parseFloat(changeElement.text().replace(/[,$+]/g, ''));
-    const changePercent = parseFloat(percentElement.text().replace(/[,%()]/g, ''));
-
-    if (!isNaN(price) && price > 0) {
-      return {
-        price: Number(price.toFixed(2)),
-        change: !isNaN(change) ? Number(change.toFixed(2)) : null,
-        changePercent: !isNaN(changePercent) ? Number(changePercent.toFixed(2)) : null
-      };
-    }
-
-    return null;
-  } catch (error) {
-    console.warn(`Failed to scrape Investing.com:`, error);
-    return null;
-  }
-}
-
-// MarketWatch scraper
-async function scrapeMarketWatch(url: string, fetch: Function) {
-  try {
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-      }
-    });
-
-    if (!response.ok) return null;
-
-    const html = await response.text();
-    const $ = cheerio.load(html);
-
-    // MarketWatch selectors
-    const priceSelectors = [
-      '.intraday__price .value',
-      '[data-module="LastPrice"]',
-      '.price-quote'
-    ];
-
-    let price = null;
-    for (const selector of priceSelectors) {
-      const element = $(selector);
-      if (element.length) {
-        const text = element.text().replace(/[,$]/g, '');
-        const parsed = parseFloat(text);
-        if (!isNaN(parsed) && parsed > 0) {
-          price = parsed;
-          break;
-        }
-      }
-    }
-
-    if (price) {
-      return {
-        price: Number(price.toFixed(2)),
-        change: null, // MarketWatch change data is harder to scrape reliably
-        changePercent: null
-      };
-    }
-
-    return null;
-  } catch (error) {
-    console.warn(`Failed to scrape MarketWatch:`, error);
-    return null;
-  }
-}
 
 // Simple in-memory cache for page loads (longer cache since no auto-refresh)
 let lastScrapedData: any = null;
@@ -257,52 +153,35 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
       { key: 'ttf', symbol: 'TTF=F', name: 'TTF Natural Gas', unit: 'MWh' }
     ];
 
-    // Scrape data for each commodity
+        // Scrape data for each commodity from Yahoo Finance
     for (const commodity of commodities) {
-      let scraped = null;
-
-      // Try multiple sources in order of reliability
-      const sources = [
-        { name: 'Yahoo', scraper: scrapeYahooFinance, url: SCRAPING_SOURCES.yahoo[commodity.key], needsSymbol: true },
-        { name: 'Investing', scraper: scrapeInvesting, url: SCRAPING_SOURCES.investing[commodity.key], needsSymbol: false },
-        { name: 'MarketWatch', scraper: scrapeMarketWatch, url: SCRAPING_SOURCES.marketwatch[commodity.key], needsSymbol: false }
-      ];
-
-             for (const source of sources) {
-        if (!scraped && source.url) {
-          try {
-            // Add small delay between requests to be respectful
-            await delay(300);
-            
-            if (source.needsSymbol) {
-              scraped = await source.scraper(commodity.symbol, source.url, fetch);
-            } else {
-              scraped = await source.scraper(source.url, fetch);
-            }
-            
-            if (scraped) {
-              console.log(`✅ Scraped ${commodity.name} from ${source.name}: $${scraped.price}`);
-              break;
-            }
-          } catch (error) {
-            console.warn(`Failed to scrape ${commodity.name} from ${source.name}:`, error);
-          }
+      try {
+        // Add small delay between requests to be respectful
+        await delay(300);
+        
+        const scraped = await scrapeYahooFinance(
+          commodity.symbol, 
+          YAHOO_FINANCE_URLS[commodity.key], 
+          fetch
+        );
+        
+        if (scraped) {
+          scrapedCount++;
+          marketData[commodity.key] = {
+            symbol: commodity.symbol,
+            name: commodity.name,
+            price: scraped.price,
+            change: scraped.change || (Math.random() - 0.5) * 2, // Fallback to small random change
+            changePercent: scraped.changePercent || ((scraped.change || 0) / scraped.price * 100),
+            currency: 'USD',
+            unit: commodity.unit,
+            lastUpdated: new Date().toISOString(),
+            source: 'yahoo_finance'
+          };
+          console.log(`✅ Scraped ${commodity.name} from Yahoo Finance: $${scraped.price}`);
         }
-      }
-
-      if (scraped) {
-        scrapedCount++;
-        marketData[commodity.key] = {
-          symbol: commodity.symbol,
-          name: commodity.name,
-          price: scraped.price,
-          change: scraped.change || (Math.random() - 0.5) * 2, // Fallback to small random change
-          changePercent: scraped.changePercent || ((scraped.change || 0) / scraped.price * 100),
-          currency: 'USD',
-          unit: commodity.unit,
-          lastUpdated: new Date().toISOString(),
-          source: 'scraped'
-        };
+      } catch (error) {
+        console.warn(`Failed to scrape ${commodity.name} from Yahoo Finance:`, error);
       }
     }
 
