@@ -321,9 +321,9 @@
 						{@const chartData = getPayoutChartData(holding)}
 						<Card hoverable showBorder>
 							<CardContent paddingClass="p-0">
-								<div class="relative h-full overflow-hidden" style="perspective: 1000px;">
+								<div class="relative overflow-hidden" style="perspective: 1000px; min-height: 280px;">
 									<!-- Front of card -->
-									<div class="transition-transform duration-700 ease-in-out transform-style-preserve-3d {$flippedCards.has(holding.id) ? 'rotate-y-180' : ''} h-full">
+									<div class="transition-transform duration-700 ease-in-out transform-style-preserve-3d {$flippedCards.has(holding.id) ? 'rotate-y-180' : ''}" style="min-height: 280px;">
 										<div class="absolute inset-0 backface-hidden p-4 sm:p-6">
 											<div class="flex items-start gap-3 mb-4">
 												<div class="w-12 h-12 bg-light-gray rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
@@ -381,8 +381,8 @@
 										</div>
 										
 										<!-- Back of card - Payout History Chart -->
-										<div class="absolute inset-0 backface-hidden rotate-y-180 p-4 sm:p-6 flex flex-col">
-											<div class="flex justify-between items-center mb-4">
+										<div class="absolute inset-0 backface-hidden rotate-y-180 p-4 sm:p-6 flex flex-col" style="min-height: 280px;">
+											<div class="flex justify-between items-center mb-2">
 												<h4 class="font-extrabold text-black text-base">Cumulative Payouts</h4>
 												<SecondaryButton 
 													size="small"
@@ -406,10 +406,6 @@
 														animate={false}
 														showGrid={true}
 													/>
-												</div>
-												<div class="mt-4 text-center">
-													<div class="text-lg font-extrabold text-primary">{formatCurrency(holding.totalPayoutsEarned, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
-													<div class="text-xs text-black opacity-70">Total Earned to Date</div>
 												</div>
 											{:else}
 												<div class="flex-1 flex items-center justify-center text-center">

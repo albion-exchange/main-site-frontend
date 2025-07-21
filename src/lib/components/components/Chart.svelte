@@ -83,8 +83,8 @@
 	
 	// Responsive padding - smaller on mobile
 	$: padding = isMobile 
-		? { top: 20, right: 10, bottom: 30, left: 40 }
-		: { top: 40, right: 20, bottom: 40, left: 60 };
+		? { top: 20, right: 10, bottom: 45, left: 40 }
+		: { top: 40, right: 20, bottom: 55, left: 60 };
 	$: chartWidth = actualWidth - padding.left - padding.right;
 	$: chartHeight = actualHeight - padding.top - padding.bottom;
 	

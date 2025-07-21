@@ -36,7 +36,7 @@
 	
 	// Enhanced Tailwind class mappings with better mobile responsiveness
 	$: appClasses = 'min-h-screen flex flex-col';
-	$: headerClasses = 'border-b border-light-gray bg-white sticky top-0 z-[100] relative';
+	$: headerClasses = 'border-b border-light-gray bg-white sticky top-0 z-[100]';
 	$: navContainerClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 sm:h-20 lg:h-24';
 	$: logoClasses = 'flex items-center gap-1';
 	$: logoImageClasses = 'h-12 sm:h-14 lg:h-16 w-auto';
@@ -49,7 +49,7 @@
 	$: navLinkActiveClasses = 'text-primary after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary';
 	$: navActionsClasses = 'flex items-center gap-4';
 	$: walletIconClasses = 'text-base';
-	$: mobileNavClasses = 'md:hidden fixed top-16 sm:top-20 lg:top-24 left-0 right-0 bg-white border-b border-light-gray z-[99] transition-transform duration-300 ease-out shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto -translate-y-full';
+	$: mobileNavClasses = 'md:hidden fixed top-16 left-0 right-0 bg-white border-b border-light-gray z-[99] transition-transform duration-300 ease-out shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto -translate-y-full';
 	$: mobileNavOpenClasses = 'translate-y-0';
 	$: mobileNavLinksClasses = 'flex flex-col p-0 gap-0';
 	$: mobileNavLinkClasses = 'text-black no-underline font-medium py-4 px-4 sm:px-6 border-b border-light-gray transition-colors duration-200 last:border-b-0 hover:text-primary hover:bg-light-gray touch-target text-base';
@@ -79,14 +79,14 @@
 	<header class={headerClasses}>
 		<nav>
 			<div class={navContainerClasses}>
-				<a href="/" class="{logoClasses}" on:click={closeMobileMenu}>
+				<a href="/" class="{logoClasses} z-[102]" on:click={closeMobileMenu}>
 					<div class="overflow-hidden">
 						<img src="/assets/logo.svg" alt="Albion Logo" class={logoImageClasses} style="margin-left: -0.3rem" />
 					</div>
 				</a>
 				
 				<!-- Desktop navigation - centered -->
-				<div class="{navLinksClasses} {desktopNavClasses}">
+				<div class="hidden md:flex gap-6 lg:gap-8 items-center">
 					<a href="/" class="{navLinkClasses} {currentPath === '/' ? navLinkActiveClasses : ''}">Home</a>
 					<a href="/assets" class="{navLinkClasses} {currentPath.startsWith('/assets') ? navLinkActiveClasses : ''}">Invest</a>
 					<a href="/portfolio" class="{navLinkClasses} {currentPath === '/portfolio' ? navLinkActiveClasses : ''}">Portfolio</a>
@@ -152,14 +152,19 @@
 					</button>
 					
 					<!-- Mobile menu button -->
-					<button class={mobileMenuButtonClasses} on:click={toggleMobileMenu} aria-label="Toggle menu">
-						<span class="{hamburgerClasses} {mobileMenuOpen ? hamburgerOpenClasses : ''} before:content-[''] before:absolute before:w-6 before:h-0.5 before:bg-black before:transition-all before:duration-300 before:ease-out before:-top-2 after:content-[''] after:absolute after:w-6 after:h-0.5 after:bg-black after:transition-all after:duration-300 after:ease-out after:top-2 {mobileMenuOpen ? 'before:rotate-45 before:top-0 after:-rotate-45 after:top-0' : ''}"></span>
+					<button class="md:hidden bg-transparent border-none cursor-pointer p-2 z-[101] relative flex-shrink-0 w-10 h-10 flex items-center justify-center" on:click={toggleMobileMenu} aria-label="Toggle menu">
+						<div class="w-6 h-5 relative flex flex-col justify-between">
+							<span class="block w-full h-0.5 bg-black transition-all duration-300 {mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}"></span>
+							<span class="block w-full h-0.5 bg-black transition-all duration-300 {mobileMenuOpen ? 'opacity-0' : ''}"></span>
+							<span class="block w-full h-0.5 bg-black transition-all duration-300 {mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}"></span>
+						</div>
 					</button>
 				</div>
 			</div>
 			
 			<!-- Mobile navigation menu -->
-			<div class="{mobileNavClasses} {mobileMenuOpen ? mobileNavOpenClasses : ''}">
+			{#if mobileMenuOpen}
+			<div class="{mobileNavClasses} {mobileNavOpenClasses}">
 				<div class={mobileNavLinksClasses}>
 					<a href="/" class="{mobileNavLinkClasses} {currentPath === '/' ? mobileNavLinkActiveClasses : ''}" on:click={closeMobileMenu}>Home</a>
 					<a href="/assets" class="{mobileNavLinkClasses} {currentPath.startsWith('/assets') ? mobileNavLinkActiveClasses : ''}" on:click={closeMobileMenu}>Invest</a>
@@ -167,6 +172,7 @@
 					<a href="/claims" class="{mobileNavLinkClasses} {currentPath === '/claims' ? mobileNavLinkActiveClasses : ''}" on:click={closeMobileMenu}>Claims</a>
 				</div>
 			</div>
+			{/if}
 		</nav>
 	</header>
 
