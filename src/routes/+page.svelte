@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { usePlatformStats } from '$lib/composables/usePlatformStats';
 	import { useMarketData } from '$lib/composables';
@@ -12,7 +12,7 @@
 
 	// Composables
 	const { state, formattedStats, loadStats } = usePlatformStats();
-	const { formattedData: marketData, isLoading: marketDataLoading, initialize: initializeMarketData, cleanup: cleanupMarketData, refresh: refreshMarketData, error: marketDataError } = useMarketData();
+	const { formattedData: marketData, isLoading: marketDataLoading, initialize: loadMarketData, error: marketDataError } = useMarketData();
 	
 	// Token purchase widget state
 	let showPurchaseWidget = false;
@@ -47,11 +47,7 @@
 	}
 
 	onMount(() => {
-		initializeMarketData();
-	});
-
-	onDestroy(() => {
-		cleanupMarketData();
+		loadMarketData();
 	});
 </script>
 
@@ -221,17 +217,8 @@
 	<ContentSection background="secondary" padding="standard" centered className="hidden lg:block">
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
 			<div class="space-y-4 lg:space-y-6">
-				<div class="flex items-center justify-between mb-4 lg:mb-6">
+				<div class="mb-4 lg:mb-6">
 					<h3 class="text-2xl lg:text-3xl font-extrabold text-white">Market Indicators</h3>
-					{#if $marketDataError}
-						<button 
-							on:click={refreshMarketData}
-							class="text-xs bg-red-500/20 hover:bg-red-500/30 text-red-300 px-2 py-1 rounded transition-colors"
-							title="Retry loading market data"
-						>
-							Retry
-						</button>
-					{/if}
 				</div>
 				{#if $marketDataLoading}
 					<div class="flex flex-col gap-3 lg:gap-4">

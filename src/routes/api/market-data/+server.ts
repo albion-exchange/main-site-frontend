@@ -217,10 +217,10 @@ async function scrapeMarketWatch(url: string, fetch: Function) {
   }
 }
 
-// Simple in-memory cache to avoid excessive scraping
+// Simple in-memory cache for page loads (longer cache since no auto-refresh)
 let lastScrapedData: any = null;
 let lastScrapedTime = 0;
-const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes cache
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes cache (since only refreshed on page load)
 
 // Rate limiting between requests
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -233,7 +233,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
       console.log('📦 Returning cached market data');
       return json(lastScrapedData, {
         headers: {
-          'Cache-Control': 'public, max-age=120', // Client cache for 2 minutes
+          'Cache-Control': 'public, max-age=600', // Client cache for 10 minutes
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET'
         }
@@ -242,7 +242,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
     // Add cache control headers
     const headers = new Headers();
-    headers.set('Cache-Control', 'public, max-age=120'); // Cache for 2 minutes
+    headers.set('Cache-Control', 'public, max-age=600'); // Cache for 10 minutes
     headers.set('Access-Control-Allow-Origin', '*');
     headers.set('Access-Control-Allow-Methods', 'GET');
 
