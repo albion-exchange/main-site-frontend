@@ -3,8 +3,16 @@
 	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Token, Asset } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
+	import { sftMetadata, sfts } from '$lib/stores';
 	import { formatCurrency } from '$lib/utils/formatters';
 	import { meetsSupplyThreshold, formatSupplyAmount, getAvailableSupplyBigInt } from '$lib/utils/tokenSupplyUtils';
+    import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
+	import { readContract } from '@wagmi/core';
+	import { signerAddress, wagmiConfig, chainId } from 'svelte-wagmi';
+	import type { Hex } from 'viem';
+    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
+    import { getTokenReturns } from '$lib/utils';
+	import authorizerAbi from '$lib/abi/authorizer.json';
 
 	export let autoPlay = true;
 	export let autoPlayInterval = 5000;
@@ -23,36 +31,38 @@
 	let touchStartX = 0;
 	let touchEndX = 0;
 
-	onMount(async () => {
-		await loadFeaturedTokens();
-		if (autoPlay && featuredTokensWithAssets.length > 1) {
-			startAutoPlay();
-		}
-	});
+	// Reactive statement to trigger loading when data changes
+	$: if($sfts && $sftMetadata && $sfts.length > 0 && $sftMetadata.length > 0) {
+		loadFeaturedTokensFromSfts();
+	}
 
-	onDestroy(() => {
-		if (autoPlayTimer) {
-			clearInterval(autoPlayTimer);
-		}
-	});
-
-	async function loadFeaturedTokens() {
+	async function loadFeaturedTokensFromSfts() {
 		try {
 			loading = true;
 			error = null;
-
-			// Get active tokens with sufficient available supply (>= 1000)
-			const activeTokens = tokenService.getAvailableTokens()
-				.filter(token => meetsSupplyThreshold(token, 1000))
-				.slice(0, 3);
-
-			featuredTokensWithAssets = activeTokens
-				.map(token => {
-					const asset = assetService.getAssetById(token.assetId);
-					return asset ? { token, asset } : null;
-				})
-				.filter(Boolean) as Array<{ token: Token; asset: Asset }>;
-
+			if($sftMetadata && $sfts) {
+				const deocdedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
+				for(const sft of $sfts) {
+					const pinnedMetadata: any = deocdedMeta.find(
+						(meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
+					);
+					if(pinnedMetadata) {
+	
+						const sftMaxSharesSupply = await readContract($wagmiConfig, {
+							abi: authorizerAbi,
+							address: sft.activeAuthorizer?.address as Hex,
+							functionName: 'maxSharesSupply',
+							args: []
+						});
+						const tokenInstance = generateTokenInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
+						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
+						featuredTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
+					}
+				}
+				if (autoPlay && featuredTokensWithAssets.length > 1) {
+					startAutoPlay();
+				}
+			}
 			loading = false;
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load featured tokens';
@@ -60,6 +70,12 @@
 			loading = false;
 		}
 	}
+
+	onDestroy(() => {
+		if (autoPlayTimer) {
+			clearInterval(autoPlayTimer);
+		}
+	});
 
 	function nextSlide() {
 		if (featuredTokensWithAssets.length === 0 || isTransitioning) return;
@@ -252,7 +268,7 @@
 	{:else if error}
 		<div class={errorStateClasses}>
 			<p>Error: {error}</p>
-			<button on:click={loadFeaturedTokens} class={retryButtonClasses}>Retry</button>
+			<button on:click={loadFeaturedTokensFromSfts} class={retryButtonClasses}>Retry</button>
 		</div>
 	{:else if featuredTokensWithAssets.length === 0}
 		<div class={emptyStateClasses}>
@@ -295,7 +311,7 @@
 				style="transform: translateX(-{currentIndex * 100}%)"
 			>
 				{#each featuredTokensWithAssets as item, index}
-					{@const calculatedReturns = tokenService.getTokenReturns(item.token.contractAddress)}
+					{@const calculatedReturns = getTokenReturns(item.asset, item.token)}
 					<div class="{carouselSlideClasses} {index === currentIndex ? activeSlideClasses : inactiveSlideClasses}">
 						<div class={bannerCardClasses}>
 							<!-- Token Section -->

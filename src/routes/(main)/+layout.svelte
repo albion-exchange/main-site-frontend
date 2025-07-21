@@ -1,5 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { getSftMetadata } from '$lib/queries/getSftMetadata';
+	import { getSfts } from '$lib/queries/getSfts';
+	import { sftMetadata, sfts } from '$lib/stores';
 	import { web3Modal, signerAddress, connected, loading, disconnectWagmi } from 'svelte-wagmi';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
 	import { formatAddress } from '$lib/utils/formatters';
@@ -26,6 +30,24 @@
 	function closeMobileMenu() {
 		mobileMenuOpen = false;
 	}
+
+	$: query = createQuery({
+		queryKey: ['getSftMetadata'],
+		queryFn: () => {
+			return getSftMetadata();
+		}
+	});
+	$: if ($query && $query.data) {
+		sftMetadata.set($query.data);
+	}
+
+	$: vaultQuery = createQuery({
+		queryKey: ['getSfts'],
+		queryFn: () => {
+			return getSfts();
+		}
+	});
+	$: sfts.set($vaultQuery.data);
 	
 
 	
