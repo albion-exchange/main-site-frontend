@@ -23,7 +23,7 @@
 		on:click={toggle}
 		on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } }}
 		role="button"
-		tabindex={isInteractive ? "0" : undefined}
+		tabindex={isInteractive ? 0 : undefined}
 		class:lg:cursor-default={alwaysOpenOnDesktop}
 		class:lg:pointer-events-none={alwaysOpenOnDesktop}
 	>

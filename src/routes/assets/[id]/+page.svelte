@@ -82,6 +82,17 @@
 		flippedCards = new Set(flippedCards); // Trigger reactivity
 	}
 
+	// Decide what to do when the card itself is clicked
+	function handleCardClick(tokenAddress: string) {
+		if (flippedCards.has(tokenAddress)) {
+			// If the card is showing the back, flip it back to the front
+			toggleCardFlip(tokenAddress);
+		} else {
+			// Otherwise open the purchase panel
+			handleBuyTokens(tokenAddress);
+		}
+	}
+
 
 
 	function exportProductionData() {
@@ -154,17 +165,6 @@
 		}, 1000);
 	}
 
-	// Decide what to do when the card itself is clicked
-	function handleCardClick(tokenAddress: string) {
-		if (flippedCards.has(tokenAddress)) {
-			// If the card is showing the back, flip it back to the front
-			toggleCardFlip(tokenAddress);
-		} else {
-			// Otherwise open the purchase panel
-			handleBuyTokens(tokenAddress);
-		}
-	}
-
 </script>
 
 <svelte:head>
@@ -194,11 +194,10 @@
         <ContentSection background="white" padding="standard">
         	<!-- Mobile: Collapsible sections -->
         	<div class="lg:hidden space-y-4">
-        		<!-- Overview is always shown first on mobile -->
-        		<div>
-        			<h3 class="text-lg font-bold text-black mb-4">Overview</h3>
+        		<!-- Overview in collapsible section -->
+        		<CollapsibleSection title="Overview" isOpenByDefault={true} alwaysOpenOnDesktop={false}>
         			<AssetOverviewTab asset={assetData} />
-        		</div>
+        		</CollapsibleSection>
         		
         		<!-- Other sections in collapsible format -->
         		<CollapsibleSection title="Production Data" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
@@ -235,9 +234,47 @@
 								{/if}
 							</div>
 							<div class="bg-white border border-light-gray p-6">
-								<div class="text-center">
-									<div class="text-2xl font-extrabold text-black mb-2">{assetData?.hseMetrics?.daysWithoutIncident || 0}</div>
-									<div class="text-base font-medium text-black opacity-70">Days Since Last HSE Incident</div>
+								<h4 class="text-lg font-extrabold text-black mb-6">Production Metrics</h4>
+								<div class="grid grid-cols-1 gap-4">
+									<!-- Uptime -->
+									<div class="text-center p-3 bg-light-gray">
+										<div class="text-2xl font-extrabold text-black mb-1">
+											{#if assetData?.operationalMetrics?.uptime?.percentage !== undefined}
+												{assetData.operationalMetrics.uptime.percentage.toFixed(1)}%
+											{:else}
+												<span class="text-gray-400">N/A</span>
+											{/if}
+										</div>
+										<div class="text-sm font-medium text-black opacity-70">
+											Uptime {assetData?.operationalMetrics?.uptime?.period?.replace('_', ' ') || 'N/A'}
+										</div>
+									</div>
+									
+									<!-- Current Daily Production -->
+									<div class="text-center p-3 bg-light-gray">
+										<div class="text-2xl font-extrabold text-black mb-1">
+											{#if assetData?.operationalMetrics?.dailyProduction?.current !== undefined}
+												{assetData.operationalMetrics.dailyProduction.current.toFixed(1)}
+											{:else}
+												<span class="text-gray-400">N/A</span>
+											{/if}
+										</div>
+										<div class="text-sm font-medium text-black opacity-70">
+											Current Daily Production ({assetData?.operationalMetrics?.dailyProduction?.unit || 'units'})
+										</div>
+									</div>
+									
+									<!-- HSE Incident Free Days -->
+									<div class="text-center p-3 bg-light-gray">
+										<div class="text-2xl font-extrabold text-black mb-1">
+											{#if assetData?.operationalMetrics?.hseMetrics?.incidentFreeDays !== undefined}
+												{assetData.operationalMetrics.hseMetrics.incidentFreeDays}
+											{:else}
+												<span class="text-gray-400">N/A</span>
+											{/if}
+										</div>
+										<div class="text-sm font-medium text-black opacity-70">Days Since Last HSE Incident</div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -298,12 +335,55 @@
         		
         		<CollapsibleSection title="Documents" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
         			<div class="space-y-3">
+						<!-- Legal Documents -->
 						<div class="bg-white border border-light-gray p-4">
 							<div class="flex items-center gap-3">
 								<div class="text-xl">📄</div>
 								<div class="flex-1">
 									<div class="font-semibold text-black text-sm">Asset Purchase Agreement</div>
-									<div class="text-xs text-black opacity-70">Legal documentation</div>
+									<div class="text-xs text-black opacity-70">PDF • 2.4 MB</div>
+								</div>
+								<SecondaryButton size="small">View</SecondaryButton>
+							</div>
+						</div>
+						<div class="bg-white border border-light-gray p-4">
+							<div class="flex items-center gap-3">
+								<div class="text-xl">📄</div>
+								<div class="flex-1">
+									<div class="font-semibold text-black text-sm">Operating License PEDL 183</div>
+									<div class="text-xs text-black opacity-70">PDF • 1.8 MB</div>
+								</div>
+								<SecondaryButton size="small">View</SecondaryButton>
+							</div>
+						</div>
+						<div class="bg-white border border-light-gray p-4">
+							<div class="flex items-center gap-3">
+								<div class="text-xl">📄</div>
+								<div class="flex-1">
+									<div class="font-semibold text-black text-sm">Environmental Impact Assessment</div>
+									<div class="text-xs text-black opacity-70">PDF • 5.2 MB</div>
+								</div>
+								<SecondaryButton size="small">View</SecondaryButton>
+							</div>
+						</div>
+						<div class="bg-white border border-light-gray p-4">
+							<div class="flex items-center gap-3">
+								<div class="text-xl">📄</div>
+								<div class="flex-1">
+									<div class="font-semibold text-black text-sm">Token Terms & Conditions</div>
+									<div class="text-xs text-black opacity-70">PDF • 950 KB</div>
+								</div>
+								<SecondaryButton size="small">View</SecondaryButton>
+							</div>
+						</div>
+						
+						<!-- Technical Reports -->
+						<div class="bg-white border border-light-gray p-4">
+							<div class="flex items-center gap-3">
+								<div class="text-xl">📊</div>
+								<div class="flex-1">
+									<div class="font-semibold text-black text-sm">Geological Survey Report 2024</div>
+									<div class="text-xs text-black opacity-70">PDF • 12.1 MB</div>
 								</div>
 								<SecondaryButton size="small">View</SecondaryButton>
 							</div>
@@ -312,8 +392,28 @@
 							<div class="flex items-center gap-3">
 								<div class="text-xl">📊</div>
 								<div class="flex-1">
-									<div class="font-semibold text-black text-sm">Financial Reports</div>
-									<div class="text-xs text-black opacity-70">Performance data</div>
+									<div class="font-semibold text-black text-sm">Reserve Audit by Ryder Scott</div>
+									<div class="text-xs text-black opacity-70">PDF • 3.7 MB</div>
+								</div>
+								<SecondaryButton size="small">View</SecondaryButton>
+							</div>
+						</div>
+						<div class="bg-white border border-light-gray p-4">
+							<div class="flex items-center gap-3">
+								<div class="text-xl">📊</div>
+								<div class="flex-1">
+									<div class="font-semibold text-black text-sm">Production Forecast Model</div>
+									<div class="text-xs text-black opacity-70">PDF • 8.3 MB</div>
+								</div>
+								<SecondaryButton size="small">View</SecondaryButton>
+							</div>
+						</div>
+						<div class="bg-white border border-light-gray p-4">
+							<div class="flex items-center gap-3">
+								<div class="text-xl">📊</div>
+								<div class="flex-1">
+									<div class="font-semibold text-black text-sm">HSE Safety Report 2024</div>
+									<div class="text-xs text-black opacity-70">PDF • 2.1 MB</div>
 								</div>
 								<SecondaryButton size="small">View</SecondaryButton>
 							</div>
@@ -662,7 +762,7 @@
 						<div id="token-{token.contractAddress}">
 							<Card hoverable clickable paddingClass="p-0" on:click={() => handleCardClick(token.contractAddress)}>
 								<CardContent paddingClass="p-0">
-									<div class="relative preserve-3d transform-gpu transition-transform duration-500 {isFlipped ? 'rotate-y-180' : ''}" style="min-height: 650px;">
+									<div class="relative preserve-3d transform-gpu transition-transform duration-500 {isFlipped ? 'rotate-y-180' : ''} min-h-[700px] sm:min-h-[600px]">
 										<!-- Front of card -->
 										<div class="absolute inset-0 backface-hidden">
 											<!-- Full width availability banner -->
@@ -682,111 +782,112 @@
 												</div>
 											</div>
 								
-																	<!-- Desktop: Always show stats -->
-							<div class="hidden sm:block p-8 pt-6 space-y-4">
-								<div class="flex justify-between items-start">
-									<span class="text-base font-medium text-black opacity-70 relative font-figtree">Minted Supply</span>
-									<span class="text-base font-extrabold text-black text-right font-figtree">{token.supplyNumbers?.mintedSupply?.toLocaleString() || supply?.sold?.toLocaleString() || '0'}</span>
-								</div>
-								<div class="flex justify-between items-start">
-									<span class="text-base font-medium text-black opacity-70 relative font-figtree">Max Supply</span>
-									<span class="text-base font-extrabold text-black text-right font-figtree">{token.supplyNumbers?.maxSupply?.toLocaleString() || supply?.total?.toLocaleString() || '0'}</span>
-								</div>
-								<div class="flex justify-between items-start relative">
-									<span class="text-base font-medium text-black opacity-70 relative font-figtree">
-										Implied Barrels/Token
-										<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
-											on:mouseenter={() => showTooltipWithDelay('barrels')}
-											on:mouseleave={hideTooltip}
-											role="button"
-											tabindex="0">ⓘ</span>
-									</span>
-									<span class="text-base font-extrabold text-black text-right">{calculatedReturns?.impliedBarrelsPerToken?.toFixed(6) || '0.000000'}</span>
-									{#if showTooltip === 'barrels'}
-										<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
-											Estimated barrels of oil equivalent per token based on reserves and token supply
-										</div>
-									{/if}
-								</div>
-								<div class="flex justify-between items-start relative">
-									<span class="text-base font-medium text-black opacity-70 relative font-figtree">
-										Breakeven Oil Price
-										<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
-											on:mouseenter={() => showTooltipWithDelay('breakeven')}
-											on:mouseleave={hideTooltip}
-											role="button"
-											tabindex="0">ⓘ</span>
-									</span>
-									<span class="text-base font-extrabold text-black text-right">${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
-									{#if showTooltip === 'breakeven'}
-													<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
-														Oil price required to cover operational costs and maintain profitability
-													</div>
-												{/if}
+											<div class="p-8 pt-6 space-y-4">
+												<div class="flex justify-between items-start">
+													<span class="text-base font-medium text-black opacity-70 relative font-figtree">Minted Supply</span>
+													<span class="text-base font-extrabold text-black text-right font-figtree">{token.supplyNumbers?.mintedSupply?.toLocaleString() || supply?.sold?.toLocaleString() || '0'}</span>
+												</div>
+												<div class="flex justify-between items-start">
+													<span class="text-base font-medium text-black opacity-70 relative font-figtree">Max Supply</span>
+													<span class="text-base font-extrabold text-black text-right font-figtree">{token.supplyNumbers?.maxSupply?.toLocaleString() || supply?.total?.toLocaleString() || '0'}</span>
+												</div>
+												<div class="flex justify-between items-start relative">
+													<span class="text-base font-medium text-black opacity-70 relative font-figtree">
+														Implied Barrels/Token
+														<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
+															on:mouseenter={() => showTooltipWithDelay('barrels')}
+															on:mouseleave={hideTooltip}
+															role="button"
+															tabindex="0">ⓘ</span>
+													</span>
+													<span class="text-base font-extrabold text-black text-right">{calculatedReturns?.impliedBarrelsPerToken?.toFixed(6) || '0.000000'}</span>
+													{#if showTooltip === 'barrels'}
+														<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
+															Estimated barrels of oil equivalent per token based on reserves and token supply
+														</div>
+													{/if}
+												</div>
+												<div class="flex justify-between items-start relative">
+													<span class="text-base font-medium text-black opacity-70 relative font-figtree">
+														Breakeven Oil Price
+														<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
+															on:mouseenter={() => showTooltipWithDelay('breakeven')}
+															on:mouseleave={hideTooltip}
+															role="button"
+															tabindex="0">ⓘ</span>
+													</span>
+													<span class="text-base font-extrabold text-black text-right">${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
+													{#if showTooltip === 'breakeven'}
+														<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
+															Oil price required to cover operational costs and maintain profitability
+														</div>
+													{/if}
+												</div>
 											</div>
-										</div>
 
-										<div class="p-8 pt-0 border-t border-light-gray">
-											<h5 class="text-sm font-extrabold text-black uppercase tracking-wider mb-4 pt-6">Estimated Returns</h5>
-											<div class="grid grid-cols-3 gap-3">
-												<div class="text-center p-3 bg-white">
-													<span class="text-xs font-medium text-black opacity-70 block mb-1 relative">
-														Base
-														<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
-															on:mouseenter={() => showTooltipWithDelay('base')}
-															on:mouseleave={hideTooltip}
-															role="button"
-															tabindex="0">ⓘ</span>
-													</span>
-													<span class="text-xl font-extrabold text-primary">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</span>
-													{#if showTooltip === 'base'}
-														<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
-															Conservative return estimate based on current production and oil prices
-														</div>
-													{/if}
-												</div>
-												<div class="text-center p-3 bg-white">
-													<span class="text-xs font-medium text-black opacity-70 block mb-1 relative">
-														Bonus
-														<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
-															on:mouseenter={() => showTooltipWithDelay('bonus')}
-															on:mouseleave={hideTooltip}
-															role="button"
-															tabindex="0">ⓘ</span>
-													</span>
-													<span class="text-xl font-extrabold text-primary">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
-													{#if showTooltip === 'bonus'}
-														<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
-															Additional potential return from improved oil prices or production efficiency
-														</div>
-													{/if}
-												</div>
-												<div class="text-center p-3 bg-white">
-													<span class="text-xs font-medium text-black opacity-70 block mb-1 relative">Total Expected</span>
-													<span class="text-xl font-extrabold text-primary">{calculatedReturns ? Math.round(calculatedReturns.baseReturn + calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
-												</div>
-											</div>
-																					</div>
-							</div>
-							
-													<div class="p-8 pt-0">
-								<div class="grid grid-cols-2 gap-3">
-												{#if hasAvailableSupply}
-													<PrimaryButton fullWidth on:click={(e) => { e.stopPropagation(); handleBuyTokens(token.contractAddress); }}>
-														Buy Tokens
-													</PrimaryButton>
-												{:else}
-													<PrimaryButton fullWidth disabled>
-														Sold Out
-													</PrimaryButton>
-												{/if}
-												<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCardFlip(token.contractAddress); }} role="button" tabindex="0" class="cursor-pointer">
-													<SecondaryButton fullWidth>
-														Distributions History
-													</SecondaryButton>
+											<div class="p-8 pt-0 border-t border-light-gray">
+												<h5 class="text-sm font-extrabold text-black uppercase tracking-wider mb-4 pt-6">Estimated Returns</h5>
+												<div class="grid grid-cols-3 gap-3">
+													<div class="text-center p-3 bg-white">
+														<span class="text-xs font-medium text-black opacity-70 block mb-1 relative">
+															Base
+															<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
+																on:mouseenter={() => showTooltipWithDelay('base')}
+																on:mouseleave={hideTooltip}
+																role="button"
+																tabindex="0">ⓘ</span>
+														</span>
+														<span class="text-xl font-extrabold text-primary">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</span>
+														{#if showTooltip === 'base'}
+															<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
+																Conservative return estimate based on current production and oil prices
+															</div>
+														{/if}
+													</div>
+													<div class="text-center p-3 bg-white">
+														<span class="text-xs font-medium text-black opacity-70 block mb-1 relative">
+															Bonus
+															<span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-light-gray text-black text-[10px] font-bold ml-1 cursor-help opacity-70 transition-opacity duration-200 hover:opacity-100"
+																on:mouseenter={() => showTooltipWithDelay('bonus')}
+																on:mouseleave={hideTooltip}
+																role="button"
+																tabindex="0">ⓘ</span>
+														</span>
+														<span class="text-xl font-extrabold text-primary">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
+														{#if showTooltip === 'bonus'}
+															<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
+																Additional potential return from improved oil prices or production efficiency
+															</div>
+														{/if}
+													</div>
+													<div class="text-center p-3 bg-white hidden sm:block">
+														<span class="text-xs font-medium text-black opacity-70 block mb-1 relative">Total Expected</span>
+														<span class="text-xl font-extrabold text-primary">{calculatedReturns ? Math.round(calculatedReturns.baseReturn + calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
+													</div>
 												</div>
 											</div>
-										</div>
+
+											<div class="px-4 sm:px-8 pb-6 sm:pb-8">
+												<div class="grid grid-cols-2 gap-2 sm:gap-3">
+													{#if hasAvailableSupply}
+														<PrimaryButton fullWidth size="small" on:click={(e) => { e.stopPropagation(); handleBuyTokens(token.contractAddress); }}>
+															<span class="hidden sm:inline">Buy Tokens</span>
+															<span class="sm:hidden">Buy</span>
+														</PrimaryButton>
+													{:else}
+														<PrimaryButton fullWidth size="small" disabled>
+															<span class="hidden sm:inline">Sold Out</span>
+															<span class="sm:hidden">Sold Out</span>
+														</PrimaryButton>
+													{/if}
+													<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCardFlip(token.contractAddress); }} role="button" tabindex="0" class="cursor-pointer">
+														<SecondaryButton fullWidth size="small">
+															<span class="hidden sm:inline">Distributions History</span>
+															<span class="sm:hidden">History</span>
+														</SecondaryButton>
+													</div>
+												</div>
+											</div>
 									</div>
 									
 									<!-- Back of card -->
