@@ -1,9 +1,9 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
-// API Ninjas endpoints for real commodity data
-const API_NINJAS_BASE = 'https://api.api-ninjas.com/v1/commodityprice';
-const API_KEY = process.env.API_NINJAS_KEY || 'your-api-key-here'; // You'll need to add this to environment
+// Try Yahoo Finance first, fallback to realistic simulation
+const YAHOO_FINANCE_URL = 'https://query1.finance.yahoo.com/v7/finance/quote';
+const SYMBOLS = 'CL=F,BZ=F,NG=F'; // WTI, Brent, Henry Hub (TTF not available on Yahoo)
 
 export const GET: RequestHandler = async ({ url, fetch }) => {
   try {
@@ -13,65 +13,86 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
     headers.set('Access-Control-Allow-Origin', '*');
     headers.set('Access-Control-Allow-Methods', 'GET');
 
-    // Fetch real data from API Ninjas
-    const commodities = [
-      { name: 'crude_oil', key: 'wti' },
-      { name: 'brent_crude_oil', key: 'brent' },
-      { name: 'natural_gas', key: 'henryHub' }
-    ];
-
+    // Try Yahoo Finance first
     const marketData: any = {};
-    const apiHeaders = {
-      'X-Api-Key': API_KEY,
-      'Accept': 'application/json'
-    };
+    let yahooWorked = false;
 
-    // Fetch data for each commodity
-    for (const commodity of commodities) {
-      try {
-        const response = await fetch(`${API_NINJAS_BASE}?name=${commodity.name}`, {
-          headers: apiHeaders
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const price = data.price || 0;
-          
-          // Calculate mock change (in real implementation, you'd get historical data)
-          const mockChange = (Math.random() - 0.5) * 4; // Random change between -2 and +2
-          const changePercent = price > 0 ? (mockChange / price) * 100 : 0;
-
-          marketData[commodity.key] = {
-            symbol: commodity.name.toUpperCase(),
-            name: data.name || commodity.name.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-            price: Number(price.toFixed(2)),
-            change: Number(mockChange.toFixed(2)),
-            changePercent: Number(changePercent.toFixed(2)),
-            currency: 'USD',
-            unit: commodity.key.includes('gas') ? 'MMBtu' : 'barrel',
-            lastUpdated: new Date().toISOString()
-          };
-        } else {
-          throw new Error(`API Ninjas error for ${commodity.name}: ${response.status}`);
+    try {
+      const response = await fetch(`${YAHOO_FINANCE_URL}?symbols=${SYMBOLS}`, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache'
         }
-      } catch (error) {
-        console.warn(`Failed to fetch ${commodity.name}:`, error);
-        // Use fallback for this specific commodity
-        marketData[commodity.key] = getFallbackData()[commodity.key];
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.quoteResponse?.result) {
+          console.log('✅ Yahoo Finance API working!');
+          yahooWorked = true;
+          
+          for (const quote of data.quoteResponse.result) {
+            const symbol = quote.symbol;
+            const price = quote.regularMarketPrice || 0;
+            const previousClose = quote.regularMarketPreviousClose || price;
+            const change = price - previousClose;
+            const changePercent = previousClose > 0 ? (change / previousClose) * 100 : 0;
+
+            const dataPoint = {
+              symbol,
+              price: Number(price.toFixed(2)),
+              change: Number(change.toFixed(2)),
+              changePercent: Number(changePercent.toFixed(2)),
+              currency: 'USD',
+              lastUpdated: new Date().toISOString()
+            };
+
+            // Map symbols to our standard names
+            switch (symbol) {
+              case 'BZ=F':
+                marketData.brent = { 
+                  ...dataPoint, 
+                  name: 'Brent Crude',
+                  unit: 'barrel'
+                };
+                break;
+              case 'CL=F':
+                marketData.wti = { 
+                  ...dataPoint, 
+                  name: 'WTI Crude',
+                  unit: 'barrel'
+                };
+                break;
+              case 'NG=F':
+                marketData.henryHub = { 
+                  ...dataPoint, 
+                  name: 'Henry Hub Natural Gas',
+                  unit: 'MMBtu'
+                };
+                break;
+            }
+          }
+        }
       }
+    } catch (error) {
+      console.log('⚠️ Yahoo Finance API failed:', error);
     }
 
-    // TTF is not available in API Ninjas free tier, so we'll use a realistic estimate
-    marketData.ttf = {
-      symbol: 'TTF',
-      name: 'TTF Natural Gas',
-      price: 45.20 + (Math.random() - 0.5) * 10, // Some variation around realistic price
-      change: (Math.random() - 0.5) * 4,
-      changePercent: (Math.random() - 0.5) * 8,
-      currency: 'USD',
-      unit: 'MWh',
-      lastUpdated: new Date().toISOString()
-    };
+    // If Yahoo didn't work or we're missing data, use realistic fallback
+    if (!yahooWorked || !marketData.brent || !marketData.wti || !marketData.henryHub) {
+      console.log('🔄 Using realistic fallback data');
+      const fallback = getFallbackData();
+      
+      if (!marketData.brent) marketData.brent = fallback.brent;
+      if (!marketData.wti) marketData.wti = fallback.wti;
+      if (!marketData.henryHub) marketData.henryHub = fallback.henryHub;
+    }
+
+    // TTF is not available on Yahoo Finance, so always use realistic simulation
+    const fallback = getFallbackData();
+    marketData.ttf = fallback.ttf;
 
     // Ensure all required data points are present
     if (!marketData.brent || !marketData.wti || !marketData.henryHub || !marketData.ttf) {
