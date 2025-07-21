@@ -1,4 +1,4 @@
-import { writable, derived } from 'svelte/store';
+import { writable, derived, get } from 'svelte/store';
 import { marketDataService, type MarketData, type MarketDataPoint } from '$lib/services';
 
 interface MarketDataState {
@@ -35,14 +35,19 @@ export function useMarketData() {
 
   // Formatted data for display
   const formattedData = derived(marketData, ($marketData) => {
-    if (!$marketData) return null;
+    if (!$marketData || !$marketData.brent || !$marketData.wti || !$marketData.henryHub || !$marketData.ttf) return null;
 
-    return {
-      brent: formatMarketDataPoint($marketData.brent),
-      wti: formatMarketDataPoint($marketData.wti),
-      henryHub: formatMarketDataPoint($marketData.henryHub),
-      ttf: formatMarketDataPoint($marketData.ttf)
-    };
+    try {
+      return {
+        brent: formatMarketDataPoint($marketData.brent),
+        wti: formatMarketDataPoint($marketData.wti),
+        henryHub: formatMarketDataPoint($marketData.henryHub),
+        ttf: formatMarketDataPoint($marketData.ttf)
+      };
+    } catch (error) {
+      console.error('Error formatting market data:', error);
+      return null;
+    }
   });
 
   // Format individual market data point for display
@@ -78,25 +83,20 @@ export function useMarketData() {
 
   // Fetch market data
   async function fetchData(force = false) {
+    // Get current state synchronously using get() function
+    const currentState = get(state);
+
+    // Check if we need to fetch or if we have recent data
+    if (!force && currentState.data && currentState.lastFetch) {
+      const timeSinceLastFetch = Date.now() - currentState.lastFetch.getTime();
+      if (timeSinceLastFetch < CACHE_DURATION) {
+        return;
+      }
+    }
+
     state.update(s => ({ ...s, loading: true, error: null }));
 
     try {
-      // Check if we need to fetch or if we have recent data
-      const currentState = await new Promise<MarketDataState>(resolve => {
-        const unsubscribe = state.subscribe(value => {
-          unsubscribe();
-          resolve(value);
-        });
-      });
-
-      if (!force && currentState.data && currentState.lastFetch) {
-        const timeSinceLastFetch = Date.now() - currentState.lastFetch.getTime();
-        if (timeSinceLastFetch < CACHE_DURATION) {
-          state.update(s => ({ ...s, loading: false }));
-          return;
-        }
-      }
-
       const data = await marketDataService.fetchCurrentData();
       
       state.update(s => ({
@@ -124,7 +124,7 @@ export function useMarketData() {
   }
 
   // Auto-refresh mechanism
-  let refreshInterval: NodeJS.Timeout | null = null;
+  let refreshInterval: ReturnType<typeof setInterval> | null = null;
 
   function startAutoRefresh() {
     if (refreshInterval) return;
@@ -143,8 +143,11 @@ export function useMarketData() {
 
   // Initialize data loading
   function initialize() {
-    fetchData(false);
-    startAutoRefresh();
+    // Use setTimeout to ensure the component is fully mounted
+    setTimeout(() => {
+      fetchData(false);
+      startAutoRefresh();
+    }, 0);
   }
 
   // Cleanup
