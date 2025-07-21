@@ -9,6 +9,7 @@ export { default as WalletDataService } from './WalletDataService';
 export { default as AssetService } from './AssetService';
 export { default as TokenService } from './TokenService';
 export { default as ConfigService } from './ConfigService';
+export { MarketDataService, marketDataService } from './MarketDataService';
 
 // Service infrastructure
 export { 
@@ -28,3 +29,8 @@ export type {
   FutureRelease,
   AppConfig 
 } from './ConfigService';
+
+export type {
+  MarketData,
+  MarketDataPoint
+} from './MarketDataService';

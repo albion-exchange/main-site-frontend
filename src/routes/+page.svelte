@@ -1,17 +1,18 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { usePlatformStats } from '$lib/composables/usePlatformStats';
+	import { useMarketData } from '$lib/composables';
 	import FeaturedTokenCarousel from '$lib/components/patterns/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/patterns/TokenPurchaseWidget.svelte';
 	import { PrimaryButton, SecondaryButton, StatsCard, ButtonGroup } from '$lib/components/components';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
 	import GridContainer from '$lib/components/components/GridContainer.svelte';
 	import { PageLayout, HeroSection, ContentSection, StatsSection } from '$lib/components/layout';
-	import marketData from '$lib/data/marketData.json';
 
 	// Composables
 	const { state, formattedStats, loadStats } = usePlatformStats();
+	const { formattedData: marketData, isLoading: marketDataLoading, initialize: initializeMarketData, cleanup: cleanupMarketData, refresh: refreshMarketData, error: marketDataError } = useMarketData();
 	
 	// Token purchase widget state
 	let showPurchaseWidget = false;
@@ -44,6 +45,14 @@
 		selectedTokenAddress = null;
 		selectedAssetId = null;
 	}
+
+	onMount(() => {
+		initializeMarketData();
+	});
+
+	onDestroy(() => {
+		cleanupMarketData();
+	});
 </script>
 
 <svelte:head>
@@ -212,21 +221,82 @@
 	<ContentSection background="secondary" padding="standard" centered className="hidden lg:block">
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
 			<div class="space-y-4 lg:space-y-6">
-				<h3 class="text-2xl lg:text-3xl font-extrabold mb-4 lg:mb-6 text-white">Market Indicators</h3>
-				<div class="flex flex-col gap-3 lg:gap-4">
-					<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
-						<span>WTI Crude Oil</span>
-						<span class="text-primary font-extrabold">${marketData.oilPrices.wti.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.wti.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.wti.change >= 0 ? '+' : ''}{marketData.oilPrices.wti.change}%</span></span>
-					</div>
-					<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
-						<span>Brent Crude</span>
-						<span class="text-primary font-extrabold">${marketData.oilPrices.brent.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.brent.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.brent.change >= 0 ? '+' : ''}{marketData.oilPrices.brent.change}%</span></span>
-					</div>
-					<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
-						<span>Natural Gas</span>
-						<span class="text-primary font-extrabold">${marketData.oilPrices.naturalGas.price} <span class="text-xs font-semibold ml-2 {marketData.oilPrices.naturalGas.change >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.oilPrices.naturalGas.change >= 0 ? '+' : ''}{marketData.oilPrices.naturalGas.change}%</span></span>
-					</div>
+				<div class="flex items-center justify-between mb-4 lg:mb-6">
+					<h3 class="text-2xl lg:text-3xl font-extrabold text-white">Market Indicators</h3>
+					{#if $marketDataError}
+						<button 
+							on:click={refreshMarketData}
+							class="text-xs bg-red-500/20 hover:bg-red-500/30 text-red-300 px-2 py-1 rounded transition-colors"
+							title="Retry loading market data"
+						>
+							Retry
+						</button>
+					{/if}
 				</div>
+				{#if $marketDataLoading}
+					<div class="flex flex-col gap-3 lg:gap-4">
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span class="flex items-center gap-2">
+								<div class="w-4 h-4 border-2 border-white/30 border-t-white animate-spin rounded-full"></div>
+								Loading market data...
+							</span>
+							<span class="text-primary font-extrabold">--</span>
+						</div>
+					</div>
+				{:else if $marketData}
+					<div class="flex flex-col gap-3 lg:gap-4">
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span>WTI Crude Oil</span>
+							<span class="text-primary font-extrabold">{$marketData.wti.formattedPrice} 
+								<span class="text-xs font-semibold ml-2 {$marketData.wti.formattedChange.isPositive ? 'text-primary' : 'text-red-500'}">
+									{$marketData.wti.formattedChange.percent}
+								</span>
+							</span>
+						</div>
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span>Brent Crude</span>
+							<span class="text-primary font-extrabold">{$marketData.brent.formattedPrice} 
+								<span class="text-xs font-semibold ml-2 {$marketData.brent.formattedChange.isPositive ? 'text-primary' : 'text-red-500'}">
+									{$marketData.brent.formattedChange.percent}
+								</span>
+							</span>
+						</div>
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span>Henry Hub</span>
+							<span class="text-primary font-extrabold">{$marketData.henryHub.formattedPrice} 
+								<span class="text-xs font-semibold ml-2 {$marketData.henryHub.formattedChange.isPositive ? 'text-primary' : 'text-red-500'}">
+									{$marketData.henryHub.formattedChange.percent}
+								</span>
+							</span>
+						</div>
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span>TTF Natural Gas</span>
+							<span class="text-primary font-extrabold">{$marketData.ttf.formattedPrice} 
+								<span class="text-xs font-semibold ml-2 {$marketData.ttf.formattedChange.isPositive ? 'text-primary' : 'text-red-500'}">
+									{$marketData.ttf.formattedChange.percent}
+								</span>
+							</span>
+						</div>
+					</div>
+				{:else}
+					<div class="flex flex-col gap-3 lg:gap-4">
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span class="text-red-400">
+								{#if $marketDataError}
+									Market data temporarily unavailable
+								{:else}
+									Market data unavailable
+								{/if}
+							</span>
+							<span class="text-primary font-extrabold">--							</span>
+						</div>
+					</div>
+					{#if $marketData}
+						<div class="mt-4 text-xs text-white/70 text-center">
+							Last updated: {new Date($marketData.wti.lastUpdated).toLocaleTimeString()}
+						</div>
+					{/if}
+				{/if}
 			</div>
 			
 			<div class="text-center p-8 lg:p-12 bg-white/10 border border-white/20">
