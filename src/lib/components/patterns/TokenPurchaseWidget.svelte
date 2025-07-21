@@ -3,7 +3,7 @@
 	import { fly, fade } from 'svelte/transition';
 	import { useAssetService, useTokenService, useConfigService } from '$lib/services';
 	import type { Asset, Token } from '$lib/types/uiTypes';
-	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
+	import { PrimaryButton, SecondaryButton, CollapsibleSection } from '$lib/components/components';
 	import { formatCurrency } from '$lib/utils/formatters';
 
 	export let isOpen = false;
@@ -191,11 +191,22 @@
 				<div class={titleClasses}>
 					<div class={titleRowClasses}>
 						<h2 class={mainTitleClasses}>
-							{#if tokenData}
-								{tokenData.name}
-							{:else}
-								Purchase Tokens
-							{/if}
+							<!-- Mobile: Show token name across top -->
+							<span class="lg:hidden">
+								{#if tokenData}
+									{tokenData.symbol || tokenData.name}
+								{:else}
+									Purchase Tokens
+								{/if}
+							</span>
+							<!-- Desktop: Show full token name -->
+							<span class="hidden lg:inline">
+								{#if tokenData}
+									{tokenData.name}
+								{:else}
+									Purchase Tokens
+								{/if}
+							</span>
 						</h2>
 						{#if tokenData && assetData}
 							<a href="/assets/{assetData.id}#token-{tokenData.contractAddress}" class={viewDetailsClasses}>
@@ -233,7 +244,8 @@
 					<div class={formClasses}>
 						<!-- Token Details -->
 						{#if tokenData}
-							<div class={tokenDetailsClasses}>
+							<!-- Desktop: Regular layout -->
+							<div class="hidden lg:block {tokenDetailsClasses}">
 								<h4 class={tokenDetailsTitleClasses}>Token Details</h4>
 								<div class={detailsGridClasses}>
 									<div class={detailItemClasses}>
@@ -249,6 +261,26 @@
 										<span class={detailValueClasses}>{(supply?.mintedSupply || 0).toLocaleString()}</span>
 									</div>
 								</div>
+							</div>
+							
+							<!-- Mobile: Collapsible with inline layout -->
+							<div class="lg:hidden">
+								<CollapsibleSection title="Token Details" isOpenByDefault={false}>
+									<div class="space-y-3">
+										<div class="flex justify-between items-center">
+											<span class="text-sm text-gray-600">Share of asset:</span>
+											<span class="text-sm font-semibold text-secondary">{tokenData.sharePercentage || 0}%</span>
+										</div>
+										<div class="flex justify-between items-center">
+											<span class="text-sm text-gray-600">Maximum supply:</span>
+											<span class="text-sm font-semibold text-black">{(supply?.maxSupply || 0).toLocaleString()}</span>
+										</div>
+										<div class="flex justify-between items-center">
+											<span class="text-sm text-gray-600">Current supply:</span>
+											<span class="text-sm font-semibold text-black">{(supply?.mintedSupply || 0).toLocaleString()}</span>
+										</div>
+									</div>
+								</CollapsibleSection>
 							</div>
 						{/if}
 

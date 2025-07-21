@@ -336,12 +336,55 @@
         		
         		<CollapsibleSection title="Documents" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
         			<div class="space-y-3">
+						<!-- Legal Documents -->
 						<div class="bg-white border border-light-gray p-4">
 							<div class="flex items-center gap-3">
 								<div class="text-xl">📄</div>
 								<div class="flex-1">
 									<div class="font-semibold text-black text-sm">Asset Purchase Agreement</div>
-									<div class="text-xs text-black opacity-70">Legal documentation</div>
+									<div class="text-xs text-black opacity-70">PDF • 2.4 MB</div>
+								</div>
+								<SecondaryButton size="small">View</SecondaryButton>
+							</div>
+						</div>
+						<div class="bg-white border border-light-gray p-4">
+							<div class="flex items-center gap-3">
+								<div class="text-xl">📄</div>
+								<div class="flex-1">
+									<div class="font-semibold text-black text-sm">Operating License PEDL 183</div>
+									<div class="text-xs text-black opacity-70">PDF • 1.8 MB</div>
+								</div>
+								<SecondaryButton size="small">View</SecondaryButton>
+							</div>
+						</div>
+						<div class="bg-white border border-light-gray p-4">
+							<div class="flex items-center gap-3">
+								<div class="text-xl">📄</div>
+								<div class="flex-1">
+									<div class="font-semibold text-black text-sm">Environmental Impact Assessment</div>
+									<div class="text-xs text-black opacity-70">PDF • 5.2 MB</div>
+								</div>
+								<SecondaryButton size="small">View</SecondaryButton>
+							</div>
+						</div>
+						<div class="bg-white border border-light-gray p-4">
+							<div class="flex items-center gap-3">
+								<div class="text-xl">📄</div>
+								<div class="flex-1">
+									<div class="font-semibold text-black text-sm">Token Terms & Conditions</div>
+									<div class="text-xs text-black opacity-70">PDF • 950 KB</div>
+								</div>
+								<SecondaryButton size="small">View</SecondaryButton>
+							</div>
+						</div>
+						
+						<!-- Technical Reports -->
+						<div class="bg-white border border-light-gray p-4">
+							<div class="flex items-center gap-3">
+								<div class="text-xl">📊</div>
+								<div class="flex-1">
+									<div class="font-semibold text-black text-sm">Geological Survey Report 2024</div>
+									<div class="text-xs text-black opacity-70">PDF • 12.1 MB</div>
 								</div>
 								<SecondaryButton size="small">View</SecondaryButton>
 							</div>
@@ -350,8 +393,28 @@
 							<div class="flex items-center gap-3">
 								<div class="text-xl">📊</div>
 								<div class="flex-1">
-									<div class="font-semibold text-black text-sm">Financial Reports</div>
-									<div class="text-xs text-black opacity-70">Performance data</div>
+									<div class="font-semibold text-black text-sm">Reserve Audit by Ryder Scott</div>
+									<div class="text-xs text-black opacity-70">PDF • 3.7 MB</div>
+								</div>
+								<SecondaryButton size="small">View</SecondaryButton>
+							</div>
+						</div>
+						<div class="bg-white border border-light-gray p-4">
+							<div class="flex items-center gap-3">
+								<div class="text-xl">📊</div>
+								<div class="flex-1">
+									<div class="font-semibold text-black text-sm">Production Forecast Model</div>
+									<div class="text-xs text-black opacity-70">PDF • 8.3 MB</div>
+								</div>
+								<SecondaryButton size="small">View</SecondaryButton>
+							</div>
+						</div>
+						<div class="bg-white border border-light-gray p-4">
+							<div class="flex items-center gap-3">
+								<div class="text-xl">📊</div>
+								<div class="flex-1">
+									<div class="font-semibold text-black text-sm">HSE Safety Report 2024</div>
+									<div class="text-xs text-black opacity-70">PDF • 2.1 MB</div>
 								</div>
 								<SecondaryButton size="small">View</SecondaryButton>
 							</div>
@@ -798,27 +861,30 @@
 															</div>
 														{/if}
 													</div>
-													<div class="text-center p-3 bg-white">
+													<div class="text-center p-3 bg-white hidden sm:block">
 														<span class="text-xs font-medium text-black opacity-70 block mb-1 relative">Total Expected</span>
 														<span class="text-xl font-extrabold text-primary">{calculatedReturns ? Math.round(calculatedReturns.baseReturn + calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
 													</div>
 												</div>
 											</div>
 
-											<div class="p-8 pt-0">
-												<div class="grid grid-cols-2 gap-3">
+											<div class="p-4 sm:p-8 pt-0">
+												<div class="grid grid-cols-2 gap-2 sm:gap-3">
 													{#if hasAvailableSupply}
-														<PrimaryButton fullWidth on:click={(e) => { e.stopPropagation(); handleBuyTokens(token.contractAddress); }}>
-															Buy Tokens
+														<PrimaryButton fullWidth size="small" on:click={(e) => { e.stopPropagation(); handleBuyTokens(token.contractAddress); }}>
+															<span class="hidden sm:inline">Buy Tokens</span>
+															<span class="sm:hidden">Buy</span>
 														</PrimaryButton>
 													{:else}
-														<PrimaryButton fullWidth disabled>
-															Sold Out
+														<PrimaryButton fullWidth size="small" disabled>
+															<span class="hidden sm:inline">Sold Out</span>
+															<span class="sm:hidden">Sold Out</span>
 														</PrimaryButton>
 													{/if}
 													<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCardFlip(token.contractAddress); }} role="button" tabindex="0" class="cursor-pointer">
-														<SecondaryButton fullWidth>
-															Distributions History
+														<SecondaryButton fullWidth size="small">
+															<span class="hidden sm:inline">Distributions History</span>
+															<span class="sm:hidden">History</span>
 														</SecondaryButton>
 													</div>
 												</div>
