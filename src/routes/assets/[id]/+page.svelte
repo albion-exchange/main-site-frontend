@@ -762,7 +762,7 @@
 						<div id="token-{token.contractAddress}">
 							<Card hoverable clickable paddingClass="p-0" on:click={() => handleCardClick(token.contractAddress)}>
 								<CardContent paddingClass="p-0">
-									<div class="relative preserve-3d transform-gpu transition-transform duration-500 {isFlipped ? 'rotate-y-180' : ''}" style="min-height: 600px;">
+									<div class="relative preserve-3d transform-gpu transition-transform duration-500 {isFlipped ? 'rotate-y-180' : ''} min-h-[450px] sm:min-h-[600px]">
 										<!-- Front of card -->
 										<div class="absolute inset-0 backface-hidden">
 											<!-- Full width availability banner -->
