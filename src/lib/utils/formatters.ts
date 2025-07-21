@@ -209,6 +209,7 @@ export function formatCompactNumber(
 ): string {
   return new Intl.NumberFormat('en-US', {
     notation: 'compact',
+    minimumFractionDigits: decimals,
     maximumFractionDigits: decimals
   }).format(value);
 }

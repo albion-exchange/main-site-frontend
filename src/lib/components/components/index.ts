@@ -13,6 +13,7 @@ export { default as CollapsibleSection } from "./CollapsibleSection.svelte";
 
 export { default as DataRow } from "./DataRow.svelte";
 export { default as DataTable } from "./DataTable.svelte";
+export { default as FormattedNumber } from "./FormattedNumber.svelte";
 export { default as FormField } from "./FormField.svelte";
 export { default as GridContainer } from "./GridContainer.svelte";
 export { default as IconCard } from "./IconCard.svelte";

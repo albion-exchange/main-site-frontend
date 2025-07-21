@@ -4,7 +4,7 @@
 	import walletDataService from '$lib/services/WalletDataService';
 	import type { Asset } from '$lib/types/uiTypes';
 	import { web3Modal, signerAddress, connected, loading } from 'svelte-wagmi';
-	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard, CollapsibleSection } from '$lib/components/components';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard, CollapsibleSection, FormattedNumber } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection, StatsSection } from '$lib/components/layout';
 	import { formatCurrency, formatSmartNumber } from '$lib/utils/formatters';
 	import { dateUtils } from '$lib/utils/dateHelpers';
@@ -275,7 +275,9 @@
 										/>
 									</div>
 									<div class="text-center">
-										<div class="text-lg lg:text-xl font-extrabold text-primary mb-1">{formatCurrency(holding.unclaimedAmount)}</div>
+										<div class="text-lg lg:text-xl font-extrabold text-primary mb-1">
+											<FormattedNumber value={holding.unclaimedAmount} type="currency" compact={holding.unclaimedAmount >= 10000} />
+										</div>
 										<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Available</div>
 									</div>
 									<div class="text-center">
@@ -361,7 +363,9 @@
 										<tr class="border-b border-light-gray hover:bg-light-gray transition-colors">
 											<td class="p-3 lg:p-4 text-sm text-black">{formatDate(claim.date)}</td>
 											<td class="p-3 lg:p-4 text-sm text-black">{claim.asset}</td>
-											<td class="p-3 lg:p-4 text-sm text-black font-semibold">{formatCurrency(claim.amount)}</td>
+											<td class="p-3 lg:p-4 text-sm text-black font-semibold">
+												<FormattedNumber value={claim.amount} type="currency" compact={claim.amount >= 10000} />
+											</td>
 											<td class="p-3 lg:p-4 text-center hidden sm:table-cell">
 												<a 
 													href="https://basescan.org/tx/{claim.txHash}" 

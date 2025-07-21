@@ -7,7 +7,7 @@
 	import { signerAddress, wagmiConfig } from 'svelte-wagmi';
 	import { formatEther, parseUnits, type Hex } from 'viem';
 	import {erc20Abi} from 'viem';
-	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
+	import { PrimaryButton, SecondaryButton, FormattedNumber } from '$lib/components/components';
 	import { formatCurrency, formatTokenSupply } from '$lib/utils/formatters';
     import { sftMetadata, sfts } from '$lib/stores';
     import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
@@ -278,7 +278,7 @@
 					<div class={successStateClasses}>
 						<div class={successIconClasses}>✓</div>
 						<h3 class={successTitleClasses}>Purchase Successful!</h3>
-						<p class={successTextClasses}>You have successfully purchased {formatTokenSupply(order.tokens)} tokens.</p>
+						<p class={successTextClasses}>You have successfully purchased <FormattedNumber value={order.tokens} type="token" /> tokens.</p>
 					</div>
 				{:else if purchaseError}
 					<!-- Error State -->
@@ -303,11 +303,21 @@
 									</div>
 									<div class={detailItemClasses}>
 										<span class={detailLabelClasses}>Maximum Supply</span>
-										<span class={detailValueClasses}>{formatTokenSupply(formatEther((supply?.maxSupply || 0)))}</span>
+										<span class={detailValueClasses}>
+											<FormattedNumber 
+												value={formatEther((supply?.maxSupply || 0))} 
+												type="token"
+											/>
+										</span>
 									</div>
 									<div class={detailItemClasses}>
 										<span class={detailLabelClasses}>Current Supply</span>
-										<span class={detailValueClasses}>{formatTokenSupply(formatEther((supply?.mintedSupply || 0)))}</span>
+										<span class={detailValueClasses}>
+											<FormattedNumber 
+												value={formatEther((supply?.mintedSupply || 0))} 
+												type="token"
+											/>
+										</span>
 									</div>
 								</div>
 							</div>
@@ -329,7 +339,7 @@
 								{#if isSoldOut()}
 									<span class={soldOutClasses}>Sold Out</span>
 								{:else}
-									<span>Available: {formatTokenSupply(supply?.available || 0)} tokens</span>
+									<span>Available: <FormattedNumber value={supply?.available || 0} type="token" /> tokens</span>
 								{/if}
 							</div>
 							{#if !isSoldOut() && supply?.available && investmentAmount > supply.available}

@@ -2,7 +2,7 @@
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Token, Asset } from '$lib/types/uiTypes';
-	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
+	import { PrimaryButton, SecondaryButton, FormattedNumber } from '$lib/components/components';
 	import { sftMetadata, sfts } from '$lib/stores';
 	import { formatCurrency, formatTokenSupply } from '$lib/utils/formatters';
 	import { meetsSupplyThreshold, formatSupplyAmount, getAvailableSupplyBigInt } from '$lib/utils/tokenSupplyUtils';
@@ -325,7 +325,10 @@
 					<div class="{statItemClasses} hidden sm:flex">
 						<div class={statLabelClasses}>Total Supply</div>
 						<div class={statValueClasses}>
-							{formatSupply(item.token.supply.maxSupply, item.token.decimals)}
+							<FormattedNumber 
+								value={formatSupplyAmount(item.token.supply.maxSupply, item.token.decimals)} 
+								type="token"
+							/>
 						</div>
 					</div>
 
@@ -333,7 +336,10 @@
 					<div class={statItemClasses}>
 						<div class={statLabelClasses}>Available Supply</div>
 						<div class={statValueClasses}>
-							{formatSupply(getAvailableSupplyBigInt(item.token).toString(), item.token.decimals)}
+							<FormattedNumber 
+								value={formatSupplyAmount(getAvailableSupplyBigInt(item.token).toString(), item.token.decimals)} 
+								type="token"
+							/>
 						</div>
 					</div>
 
