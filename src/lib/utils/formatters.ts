@@ -332,3 +332,45 @@ export function formatAddress(address: string): string {
 	if (!address) return "";
 	return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
+
+/**
+ * Smart return formatting that switches from % to x multiplier for large values
+ * @param returnPercentage - Return value as percentage (e.g., 150 for 150%)
+ * @param options - Formatting options
+ * @returns Formatted return string
+ */
+export function formatSmartReturn(
+  returnPercentage: number | undefined,
+  options: {
+    threshold?: number;      // When to switch from % to x (default: 100)
+    showPlus?: boolean;      // Show + sign for positive values
+  } = {}
+): string {
+  if (returnPercentage === undefined || returnPercentage === null) {
+    return 'TBD';
+  }
+
+  const { threshold = 100, showPlus = false } = options;
+  
+  // For values below threshold, show as percentage
+  if (returnPercentage < threshold) {
+    const formatted = `${Math.round(returnPercentage)}%`;
+    return showPlus && returnPercentage > 0 ? `+${formatted}` : formatted;
+  }
+  
+  // Convert percentage to multiplier (100% = 2x, 200% = 3x, etc.)
+  const multiplier = (returnPercentage / 100) + 1;
+  
+  // For very large multipliers, use K/M notation
+  if (multiplier >= 1000) {
+    return formatCompactNumber(multiplier, 1) + 'x';
+  }
+  
+  // For moderate multipliers, show with one decimal if needed
+  if (multiplier < 10) {
+    return `${multiplier.toFixed(1)}x`;
+  }
+  
+  // For larger multipliers, show as integer
+  return `${Math.round(multiplier)}x`;
+}

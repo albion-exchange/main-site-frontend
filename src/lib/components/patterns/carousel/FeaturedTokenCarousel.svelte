@@ -2,9 +2,9 @@
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Token, Asset } from '$lib/types/uiTypes';
-	import { PrimaryButton, SecondaryButton, FormattedNumber } from '$lib/components/components';
+	import { PrimaryButton, SecondaryButton, FormattedNumber, FormattedReturn } from '$lib/components/components';
 	import { sftMetadata, sfts } from '$lib/stores';
-	import { formatCurrency, formatTokenSupply } from '$lib/utils/formatters';
+	import { formatCurrency, formatTokenSupply, formatSmartReturn } from '$lib/utils/formatters';
 	import { meetsSupplyThreshold, formatSupplyAmount, getAvailableSupplyBigInt } from '$lib/utils/tokenSupplyUtils';
     import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
 	import { readContract } from '@wagmi/core';
@@ -350,11 +350,15 @@
 							<span class="sm:hidden">Est. Return</span>
 						</div>
 						<div class={statValueClasses + ' text-primary'}>
-							<span class="hidden sm:inline">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</span>
+							<span class="hidden sm:inline">
+								<FormattedReturn value={calculatedReturns?.baseReturn} />
+							</span>
 							<span class="sm:hidden">
-								{calculatedReturns?.baseReturn !== undefined && calculatedReturns?.bonusReturn !== undefined 
-									? `${Math.round(calculatedReturns.baseReturn)}% + ${Math.round(calculatedReturns.bonusReturn)}%`
-									: 'TBD'}
+								{#if calculatedReturns?.baseReturn !== undefined && calculatedReturns?.bonusReturn !== undefined}
+									<FormattedReturn value={calculatedReturns.baseReturn} /> + <FormattedReturn value={calculatedReturns.bonusReturn} />
+								{:else}
+									TBD
+								{/if}
 							</span>
 						</div>
 					</div>
@@ -362,7 +366,9 @@
 					<!-- Bonus Returns - hidden on mobile -->
 					<div class="{statItemClasses} hidden sm:flex">
 						<div class={statLabelClasses}>Bonus Returns</div>
-						<div class={statValueClasses + ' text-primary'}>+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
+						<div class={statValueClasses + ' text-primary'}>
+							<FormattedReturn value={calculatedReturns?.bonusReturn} showPlus={true} />
+						</div>
 					</div>
 				</div>
 
