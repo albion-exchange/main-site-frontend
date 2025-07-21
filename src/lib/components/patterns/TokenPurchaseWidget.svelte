@@ -8,7 +8,7 @@
 	import { formatEther, parseUnits, type Hex } from 'viem';
 	import {erc20Abi} from 'viem';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
-	import { formatCurrency } from '$lib/utils/formatters';
+	import { formatCurrency, formatTokenSupply } from '$lib/utils/formatters';
     import { sftMetadata, sfts } from '$lib/stores';
     import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
     import type { OffchainAssetReceiptVault } from '$lib/types/offchainAssetReceiptVaultTypes';
@@ -278,7 +278,7 @@
 					<div class={successStateClasses}>
 						<div class={successIconClasses}>✓</div>
 						<h3 class={successTitleClasses}>Purchase Successful!</h3>
-						<p class={successTextClasses}>You have successfully purchased {order.tokens.toLocaleString()} tokens.</p>
+						<p class={successTextClasses}>You have successfully purchased {formatTokenSupply(order.tokens)} tokens.</p>
 					</div>
 				{:else if purchaseError}
 					<!-- Error State -->
@@ -303,11 +303,11 @@
 									</div>
 									<div class={detailItemClasses}>
 										<span class={detailLabelClasses}>Maximum Supply</span>
-										<span class={detailValueClasses}>{formatEther((supply?.maxSupply || 0)).toLocaleString()}</span>
+										<span class={detailValueClasses}>{formatTokenSupply(formatEther((supply?.maxSupply || 0)))}</span>
 									</div>
 									<div class={detailItemClasses}>
 										<span class={detailLabelClasses}>Current Supply</span>
-										<span class={detailValueClasses}>{formatEther((supply?.mintedSupply || 0)).toLocaleString()}</span>
+										<span class={detailValueClasses}>{formatTokenSupply(formatEther((supply?.mintedSupply || 0)))}</span>
 									</div>
 								</div>
 							</div>
@@ -329,7 +329,7 @@
 								{#if isSoldOut()}
 									<span class={soldOutClasses}>Sold Out</span>
 								{:else}
-									<span>Available: {(supply?.available || 0).toLocaleString()} tokens</span>
+									<span>Available: {formatTokenSupply(supply?.available || 0)} tokens</span>
 								{/if}
 							</div>
 							{#if !isSoldOut() && supply?.available && investmentAmount > supply.available}

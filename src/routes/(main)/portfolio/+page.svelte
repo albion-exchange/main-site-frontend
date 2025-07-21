@@ -6,7 +6,7 @@
 	import { web3Modal, signerAddress, connected, loading } from 'svelte-wagmi';
 	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, TabNavigation, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart, CollapsibleSection } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
-	import { formatCurrency, formatPercentage, formatNumber } from '$lib/utils/formatters';
+	import { formatCurrency, formatPercentage, formatNumber, formatSmartNumber } from '$lib/utils/formatters';
 	import { useTooltip, useCardFlip } from '$lib/composables';
 
 	let totalInvested = 0;
@@ -240,13 +240,13 @@
 			{:else}
 				<StatsCard
 					title="Portfolio Value"
-					value={formatCurrency(totalInvested)}
+					value={formatCurrency(totalInvested, { compact: true })}
 					subtitle="Total invested"
 					size="small"
 				/>
 				<StatsCard
 					title="Total Earned"
-					value={formatCurrency(totalPayoutsEarned)}
+					value={formatCurrency(totalPayoutsEarned, { compact: true })}
 					subtitle="All payouts"
 					valueColor="primary"
 					size="small"
@@ -402,7 +402,7 @@
 								</div>
 								<div class="text-right">
 									<div class="font-bold text-sm">{allocationPercentage.toFixed(1)}%</div>
-									<div class="text-xs text-gray-600">{formatCurrency(holding.totalInvested)}</div>
+									<div class="text-xs text-gray-600">{formatCurrency(holding.totalInvested, { compact: true })}</div>
 								</div>
 							</div>
 						{/each}

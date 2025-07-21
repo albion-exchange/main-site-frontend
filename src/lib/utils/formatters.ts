@@ -214,6 +214,69 @@ export function formatCompactNumber(
 }
 
 /**
+ * Smart number formatting for UI display
+ * Automatically uses compact notation for large numbers to prevent overflow
+ * @param value - Number to format
+ * @param options - Formatting options
+ * @returns Formatted string with appropriate suffix
+ */
+export function formatSmartNumber(
+  value: number,
+  options: {
+    threshold?: number;      // When to switch to compact (default: 10000)
+    decimals?: number;       // Decimal places for compact format (default: 1)
+    forceCompact?: boolean;  // Always use compact notation
+    prefix?: string;         // Prefix like $ for currency
+    suffix?: string;         // Suffix like % for percentage
+  } = {}
+): string {
+  const {
+    threshold = 10000,
+    decimals = 1,
+    forceCompact = false,
+    prefix = '',
+    suffix = ''
+  } = options;
+
+  if (forceCompact || Math.abs(value) >= threshold) {
+    const formatted = formatCompactNumber(value, decimals);
+    return `${prefix}${formatted}${suffix}`;
+  }
+
+  // For smaller numbers, use regular formatting with commas
+  const formatted = formatNumber(value);
+  return `${prefix}${formatted}${suffix}`;
+}
+
+/**
+ * Format token supply amounts with smart abbreviation
+ * @param value - Token amount (already adjusted for decimals)
+ * @param options - Formatting options
+ * @returns Formatted token amount
+ */
+export function formatTokenSupply(
+  value: number | string,
+  options: {
+    decimals?: number;
+    forceCompact?: boolean;
+  } = {}
+): string {
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  
+  // For very large token supplies, always use compact
+  if (numValue >= 1000000) {
+    return formatCompactNumber(numValue, options.decimals ?? 1);
+  }
+  
+  // For medium amounts, use smart formatting
+  return formatSmartNumber(numValue, {
+    threshold: 10000,
+    decimals: options.decimals ?? 1,
+    forceCompact: options.forceCompact
+  });
+}
+
+/**
  * Formats a value with optional prefix and suffix
  * Useful for chart tooltips and custom displays
  * @param value - Value to format

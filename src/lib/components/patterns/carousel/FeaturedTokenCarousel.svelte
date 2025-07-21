@@ -4,7 +4,7 @@
 	import type { Token, Asset } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
 	import { sftMetadata, sfts } from '$lib/stores';
-	import { formatCurrency } from '$lib/utils/formatters';
+	import { formatCurrency, formatTokenSupply } from '$lib/utils/formatters';
 	import { meetsSupplyThreshold, formatSupplyAmount, getAvailableSupplyBigInt } from '$lib/utils/tokenSupplyUtils';
     import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
 	import { readContract } from '@wagmi/core';
@@ -188,10 +188,7 @@
 
 	function formatSupply(supply: string, decimals: number): string {
 		const formatted = formatSupplyAmount(supply, decimals);
-		return new Intl.NumberFormat('en-US', {
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 0
-		}).format(formatted);
+		return formatTokenSupply(formatted);
 	}
 
 	$: currentItem = featuredTokensWithAssets[currentIndex];
