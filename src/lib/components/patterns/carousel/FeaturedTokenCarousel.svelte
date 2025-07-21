@@ -186,7 +186,7 @@
 	$: errorStateClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center p-8 lg:p-16 text-black bg-white border border-light-gray rounded-lg';
 	$: emptyStateClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center p-8 lg:p-16 text-black bg-white border border-light-gray rounded-lg';
 	$: spinnerClasses = 'w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mb-4';
-	$: retryButtonClasses = 'mt-4 px-6 py-3 bg-primary text-white border-none cursor-pointer font-semibold transition-colors duration-200 hover:bg-secondary touch-target rounded';
+	$: retryButtonClasses = 'mt-4 px-6 py-3 bg-primary text-white border-none cursor-pointer font-semibold transition-colors duration-200 hover:bg-secondary min-h-11 rounded';
 	$: carouselWrapperClasses = 'relative overflow-hidden rounded-lg outline-none focus:ring-4 focus:ring-primary/50 touch-pan-y';
 	$: carouselTrackClasses = 'flex w-full transition-transform duration-500 ease-in-out will-change-transform';
 	$: carouselSlideClasses = 'flex-shrink-0 w-full relative';
@@ -225,12 +225,12 @@
 	$: assetMetaValueClasses = 'text-xs text-black opacity-70 font-figtree';
 	
 	// Navigation controls - hidden on mobile, shown on desktop
-	$: navButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target items-center justify-center rounded-full';
-	$: prevButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target left-[-4rem] items-center justify-center rounded-full';
-	$: nextButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target right-[-4rem] items-center justify-center rounded-full';
+	$: navButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg items-center justify-center rounded-full';
+	$: prevButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg left-[-4rem] items-center justify-center rounded-full';
+	$: nextButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg right-[-4rem] items-center justify-center rounded-full';
 	$: indicatorsClasses = 'absolute bottom-4 left-1/2 transform -translate-x-1/2 gap-2 z-10 hidden';
-	$: indicatorClasses = 'w-3 h-3 border-none bg-white/50 cursor-pointer transition-all duration-200 hover:bg-white/80 touch-target rounded-full';
-	$: indicatorActiveClasses = 'w-3 h-3 border-none bg-white cursor-pointer transition-all duration-200 scale-125 shadow-lg touch-target rounded-full';
+	$: indicatorClasses = 'w-3 h-3 border-none bg-white/50 cursor-pointer transition-all duration-200 hover:bg-white/80 min-w-[44px] min-h-[44px] rounded-full';
+	$: indicatorActiveClasses = 'w-3 h-3 border-none bg-white cursor-pointer transition-all duration-200 scale-125 shadow-lg min-w-[44px] min-h-[44px] rounded-full';
 
 	
 	// Get status-specific classes

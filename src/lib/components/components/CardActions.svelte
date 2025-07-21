@@ -17,7 +17,7 @@
 		around: 'justify-around'
 	};
 	
-	$: containerClasses = `flex items-center flex-wrap max-[480px]:flex-col ${gapClasses[gap]} ${justifyClasses[justify]} [&>*]:flex-1 [&>*]:min-w-0 [&>a]:text-center [&>button]:text-center max-[480px]:[&>*]:w-full`;
+	$: containerClasses = `flex items-center flex-wrap flex-col sm:flex-row ${gapClasses[gap]} ${justifyClasses[justify]} [&>*]:flex-1 [&>*]:min-w-0 [&>a]:text-center [&>button]:text-center [&>*]:w-full sm:[&>*]:w-auto`;
 </script>
 
 <div class={containerClasses}>

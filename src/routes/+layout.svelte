@@ -4,6 +4,7 @@
 	import { walletStore, walletActions, formatAddress } from '$lib/stores/wallet';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
 	import WalletModal from '$lib/components/patterns/WalletModal.svelte';
+	import { slide } from 'svelte/transition';
 	
 	$: currentPath = $page.url.pathname;
 	let mobileMenuOpen = false;
@@ -41,18 +42,15 @@
 	$: logoClasses = 'flex items-center gap-1';
 	$: logoImageClasses = 'h-12 sm:h-14 lg:h-16 w-auto';
 	$: mobileMenuButtonClasses = 'md:hidden bg-transparent border-none cursor-pointer p-2 z-[101] relative flex-shrink-0 w-10 h-10 flex items-center justify-center';
-	$: hamburgerClasses = 'block w-6 h-0.5 bg-black transition-all duration-300 ease-out relative';
-	$: hamburgerOpenClasses = 'bg-transparent';
 	$: desktopNavClasses = 'hidden md:flex';
 	$: navLinksClasses = 'flex gap-6 lg:gap-8 items-center';
-	$: navLinkClasses = 'text-black no-underline font-medium py-2 relative transition-colors duration-200 hover:text-primary touch-target text-sm lg:text-base';
+	$: navLinkClasses = 'text-black no-underline font-medium py-2 relative transition-colors duration-200 hover:text-primary min-h-11 min-w-11 text-sm lg:text-base';
 	$: navLinkActiveClasses = 'text-primary after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary';
 	$: navActionsClasses = 'flex items-center gap-4';
 	$: walletIconClasses = 'text-base';
-	$: mobileNavClasses = 'md:hidden fixed top-16 left-0 right-0 bg-white border-b border-light-gray z-[99] transition-transform duration-300 ease-out shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto -translate-y-full';
-	$: mobileNavOpenClasses = 'translate-y-0';
+	$: mobileNavClasses = 'md:hidden fixed top-16 left-0 right-0 bg-white border-b border-light-gray z-[99] shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto';
 	$: mobileNavLinksClasses = 'flex flex-col p-0 gap-0';
-	$: mobileNavLinkClasses = 'text-black no-underline font-medium py-4 px-4 sm:px-6 border-b border-light-gray transition-colors duration-200 last:border-b-0 hover:text-primary hover:bg-light-gray touch-target text-base';
+	$: mobileNavLinkClasses = 'text-black no-underline font-medium py-4 px-4 sm:px-6 border-b border-light-gray transition-colors duration-200 last:border-b-0 hover:text-primary hover:bg-light-gray min-h-11 text-base';
 	$: mobileNavLinkActiveClasses = 'text-primary bg-light-gray';
 	$: mobileNavActionsClasses = 'p-4 sm:p-6 border-t border-light-gray bg-light-gray';
 	$: mainContentClasses = 'flex-1';
@@ -64,9 +62,9 @@
 	$: footerSectionPClasses = 'text-black leading-relaxed text-sm sm:text-base';
 	$: footerSectionUlClasses = 'list-none p-0';
 	$: footerSectionLiClasses = 'mb-2';
-	$: footerSectionLinkClasses = 'text-black no-underline transition-colors duration-200 hover:text-primary text-sm sm:text-base touch-target';
+	$: footerSectionLinkClasses = 'text-black no-underline transition-colors duration-200 hover:text-primary text-sm sm:text-base inline-block min-h-11';
 	$: footerSocialButtonsClasses = 'flex gap-3 sm:gap-4 mt-3 sm:mt-4 justify-center sm:justify-start';
-	$: footerSocialBtnClasses = 'flex items-center justify-center w-10 h-10 rounded-full border-2 border-black text-black no-underline transition-colors duration-200 touch-target';
+	$: footerSocialBtnClasses = 'flex items-center justify-center w-11 h-11 rounded-full border-2 border-black text-black no-underline transition-colors duration-200';
 	$: footerSocialTwitterClasses = 'hover:border-[#1da1f2] hover:text-[#1da1f2]';
 	$: footerSocialLinkedinClasses = 'hover:border-[#0077b5] hover:text-[#0077b5]';
 	$: footerSocialTelegramClasses = 'hover:border-[#0088cc] hover:text-[#0088cc]';
@@ -164,7 +162,7 @@
 			
 			<!-- Mobile navigation menu -->
 			{#if mobileMenuOpen}
-			<div class="{mobileNavClasses} {mobileNavOpenClasses}">
+			<div class={mobileNavClasses} transition:slide={{ duration: 300 }}>
 				<div class={mobileNavLinksClasses}>
 					<a href="/" class="{mobileNavLinkClasses} {currentPath === '/' ? mobileNavLinkActiveClasses : ''}" on:click={closeMobileMenu}>Home</a>
 					<a href="/assets" class="{mobileNavLinkClasses} {currentPath.startsWith('/assets') ? mobileNavLinkActiveClasses : ''}" on:click={closeMobileMenu}>Invest</a>
