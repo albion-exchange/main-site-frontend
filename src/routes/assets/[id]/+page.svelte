@@ -683,7 +683,8 @@
 											</div>
 								
 																	<!-- Desktop: Always show stats -->
-							<div class="hidden sm:block p-8 pt-6 space-y-4">
+							<!-- Show stats on all viewports -->
+                            <div class="p-8 pt-6 space-y-4">
 								<div class="flex justify-between items-start">
 									<span class="text-base font-medium text-black opacity-70 relative font-figtree">Minted Supply</span>
 									<span class="text-base font-extrabold text-black text-right font-figtree">{token.supplyNumbers?.mintedSupply?.toLocaleString() || supply?.sold?.toLocaleString() || '0'}</span>
