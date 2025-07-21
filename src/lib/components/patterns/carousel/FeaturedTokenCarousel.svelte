@@ -212,8 +212,8 @@
 	$: tokenStatsClasses = 'grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 lg:mb-8';
 	$: tokenStatsDesktopClasses = 'grid grid-cols-4 gap-4 mb-8 items-start';
 	$: assetStatsClasses = 'grid grid-cols-1 gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 lg:mb-8';
-	$: statItemClasses = 'text-left flex flex-col';
-	$: statLabelClasses = 'text-xs font-medium text-gray-500 mb-1 font-figtree uppercase tracking-wide min-h-[1.25rem] flex items-center';
+	$: statItemClasses = 'text-left flex flex-col min-h-[4rem]';
+	$: statLabelClasses = 'text-xs font-medium text-gray-500 mb-1 font-figtree uppercase tracking-wide min-h-[2.5rem] flex items-center';
 	$: statValueClasses = 'text-sm sm:text-base lg:text-lg font-bold text-black min-h-[1.75rem] flex items-center';
 	$: tokenActionsClasses = 'flex flex-col gap-2 sm:gap-3 mt-auto';
 	$: tokenActionsMobileClasses = 'flex flex-row gap-2 mt-auto';
