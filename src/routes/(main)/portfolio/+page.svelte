@@ -3,8 +3,7 @@
 	import { useAssetService, useTokenService } from '$lib/services';
 	import walletDataService from '$lib/services/WalletDataService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
-	import { walletStore, walletActions } from '$lib/stores/wallet';
-	import WalletModal from '$lib/components/patterns/WalletModal.svelte';
+	import { web3Modal, signerAddress, connected, loading } from 'svelte-wagmi';
 	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, TabNavigation, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart, CollapsibleSection } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
 	import { formatCurrency, formatPercentage, formatNumber } from '$lib/utils/formatters';
@@ -19,8 +18,7 @@
 	let holdings: any[] = [];
 	let monthlyPayouts: any[] = [];
 	let tokenAllocations: any[] = [];
-	let loading = true;
-	let showWalletModal = false;
+	let pageLoading = true;
 	
 	// Use composables
 	const { show: showTooltipWithDelay, hide: hideTooltip, isVisible: isTooltipVisible } = useTooltip();
@@ -53,8 +51,8 @@
 
 	onMount(async () => {
 		// Check if wallet is connected
-		if (!$walletStore.isConnected) {
-			showWalletModal = true;
+		if (!$connected || !$signerAddress) {
+			$web3Modal.open();
 			return;
 		}
 		
@@ -158,10 +156,10 @@
 			// Get token allocations
 			tokenAllocations = walletDataService.getTokenAllocation();
 			
-			loading = false;
+			pageLoading = false;
 		} catch (error) {
 			console.error('Error loading portfolio data:', error);
-			loading = false;
+			pageLoading = false;
 		}
 	}
 
@@ -176,20 +174,12 @@
 	}
 	
 	async function handleWalletConnect() {
-		await walletActions.connect();
-		showWalletModal = false;
-		
-		// Reload the page content now that wallet is connected
-		if ($walletStore.isConnected) {
-			loading = true;
-			loadPortfolioData();
-		}
+		pageLoading = true;
+		loadPortfolioData();
 	}
 	
 	function handleWalletModalClose() {
-		showWalletModal = false;
-		// Redirect to home if wallet not connected
-		if (!$walletStore.isConnected) {
+		if (!$connected || !$signerAddress) {
 			window.location.href = '/';
 		}
 	}
@@ -204,19 +194,19 @@
 	<meta name="description" content="Track your oil & gas investment portfolio performance" />
 </svelte:head>
 
-{#if !$walletStore.isConnected && !showWalletModal}
+{#if (!$connected || !$signerAddress)}
 	<PageLayout variant="constrained">
 		<ContentSection background="white" padding="large" centered>
 			<div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
 				<SectionTitle level="h1" size="page" center>Wallet Connection Required</SectionTitle>
 				<p class="text-lg text-black opacity-80 mb-8 max-w-md">Please connect your wallet to view your portfolio.</p>
-				<PrimaryButton on:click={() => showWalletModal = true}>
+				<PrimaryButton on:click={() => $web3Modal.open()}>
 					Connect Wallet
 				</PrimaryButton>
 			</div>
 		</ContentSection>
 	</PageLayout>
-{:else if $walletStore.isConnected}
+{:else if $connected && $signerAddress}
 <PageLayout variant="constrained">
 	<!-- Portfolio Overview Header -->
 	<HeroSection 
@@ -963,14 +953,6 @@
 	</FullWidthSection>
 </PageLayout>
 {/if}
-
-<!-- Wallet Modal -->
-<WalletModal
-	bind:isOpen={showWalletModal}
-	isConnecting={$walletStore.isConnecting}
-	on:connect={handleWalletConnect}
-	on:close={handleWalletModalClose}
-/>
 
 <style>
 	/* CSS classes removed - styles are now inline for better browser compatibility */

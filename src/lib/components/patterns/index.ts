@@ -2,4 +2,3 @@
 export { default as AssetCard } from "./assets/AssetCard.svelte";
 export { default as FeaturedTokenCarousel } from "./carousel/FeaturedTokenCarousel.svelte";
 export { default as TokenPurchaseWidget } from "./TokenPurchaseWidget.svelte";
-export { default as WalletModal } from "./WalletModal.svelte";
