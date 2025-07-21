@@ -97,23 +97,6 @@
     }
   }
 
-  @media (max-width: 480px) {
-    body {
-      font-size: 13px;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-    }
-
-    h2 {
-      font-size: 1.25rem;
-    }
-
-    h3 {
-      font-size: 1.1rem;
-    }
-  }
 }
 
 /* 3D Transform Utilities */
@@ -138,32 +121,6 @@
   }
 }
 
-/* Slide Animations */
-@keyframes slide-in-right {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes slide-out-right {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
-
-.animate-slide-in-right {
-  animation: slide-in-right 0.3s ease-out forwards;
-}
-
-.animate-slide-out-right {
-  animation: slide-out-right 0.3s ease-in forwards;
-}
 
 /* Mobile-specific utilities */
 @layer utilities {
@@ -176,11 +133,6 @@
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
   
-  /* Better touch targets for mobile */
-  .touch-target {
-    min-height: 44px;
-    min-width: 44px;
-  }
   
   /* Improved scroll behavior for mobile */
   .mobile-scroll {
@@ -188,78 +140,6 @@
     overscroll-behavior: contain;
   }
   
-  /* Enhanced mobile shadows */
-  .mobile-card-shadow {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  @media (min-width: 768px) {
-    .mobile-card-shadow {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-  }
 }
 
-/* Mobile-first responsive padding system */
-@layer utilities {
-  .responsive-px {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  
-  .responsive-py {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
-  }
-  
-  @media (min-width: 640px) {
-    .responsive-px {
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-    }
-    
-    .responsive-py {
-      padding-top: 2rem;
-      padding-bottom: 2rem;
-    }
-  }
-  
-  @media (min-width: 768px) {
-    .responsive-px {
-      padding-left: 2rem;
-      padding-right: 2rem;
-    }
-    
-    .responsive-py {
-      padding-top: 3rem;
-      padding-bottom: 3rem;
-    }
-  }
-  
-  @media (min-width: 1024px) {
-    .responsive-px {
-      padding-left: 2rem;
-      padding-right: 2rem;
-    }
-    
-    .responsive-py {
-      padding-top: 4rem;
-      padding-bottom: 4rem;
-    }
-  }
-}
 
-/* Card flip animation utilities */
-@layer utilities {
-  .transform-style-preserve-3d {
-    transform-style: preserve-3d;
-  }
-  
-  .backface-hidden {
-    backface-visibility: hidden;
-  }
-  
-  .rotate-y-180 {
-    transform: rotateY(180deg);
-  }
-}

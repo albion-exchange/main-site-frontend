@@ -11,12 +11,16 @@
 	import marketData from '$lib/data/marketData.json';
 
 	// Composables
-	const { platformStats, formattedStats: sftsFormattedStats } = usePlatformStats();
+	const { state, formattedStats, loadStats } = usePlatformStats();
 	
 	// Token purchase widget state
 	let showPurchaseWidget = false;
 	let selectedTokenAddress: string | null = null;
 	let selectedAssetId: string | null = null;
+	
+	// Reactive data
+	$: stats = $state;
+	$: formatted = $formattedStats;
 	
 	function handleBuyTokensFromCarousel(event: CustomEvent) {
 		selectedTokenAddress = event.detail.tokenAddress;
@@ -65,7 +69,7 @@
 	<!-- Platform Stats - 3 columns on all viewports -->
 	<ContentSection background="white" padding="compact">
 		<div class="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-8 text-center">
-		{#if $platformStats.loading}
+		{#if stats.loading}
 			<StatsCard
 				title="Total Invested"
 				value="--"
@@ -87,21 +91,21 @@
 		{:else}
 			<StatsCard
 				title="Total Invested"
-				value={$sftsFormattedStats.totalInvested}
+				value={formatted.totalInvested}
 				subtitle="this month"
-				trend={$sftsFormattedStats.growthTrend}
+				trend={formatted.growthTrend}
 				size="small"
 				valueColor="primary"
 			/>
 			<StatsCard
 				title="Assets"
-				value={$sftsFormattedStats.totalAssets}
-				subtitle={$sftsFormattedStats.regionsText}
+				value={formatted.totalAssets}
+				subtitle={formatted.regionsText}
 				size="small"
 			/>
 			<StatsCard
 				title="Active Investors"
-				value={$sftsFormattedStats.activeInvestors}
+				value={formatted.activeInvestors}
 				subtitle="Token holders"
 				size="small"
 			/>
@@ -227,7 +231,7 @@
 			
 			<div class="text-center p-8 lg:p-12 bg-white/10 border border-white/20">
 				<h4 class="text-xl lg:text-2xl font-extrabold mb-3 lg:mb-4 text-white">Start Investing Today</h4>
-				<p class="mb-6 lg:mb-8 opacity-90 text-sm lg:text-base">Join {$sftsFormattedStats.activeInvestors} investors earning from energy assets</p>
+				<p class="mb-6 lg:mb-8 opacity-90 text-sm lg:text-base">Join {formatted.activeInvestors} investors earning from energy assets</p>
 				<SecondaryButton href="/assets">Get Started Now</SecondaryButton>
 			</div>
 		</div>

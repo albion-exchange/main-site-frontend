@@ -19,3 +19,8 @@ export { dateUtils } from './dateHelpers';
 
 // Re-export specific calculators
 export { getTokenReturns } from './returnCalculations';
+export { 
+  getPortfolioMetrics,
+  getTotalInvested,
+  getTotalEarned 
+} from './portfolioCalculations';

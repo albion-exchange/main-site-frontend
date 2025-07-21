@@ -3,7 +3,8 @@
 	import { useAssetService, useTokenService } from '$lib/services';
 	import walletDataService from '$lib/services/WalletDataService';
 	import type { Asset } from '$lib/types/uiTypes';
-	import { web3Modal, signerAddress, connected, loading } from 'svelte-wagmi';
+	import { walletStore, walletActions } from '$lib/stores/wallet';
+	import WalletModal from '$lib/components/patterns/WalletModal.svelte';
 	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard, CollapsibleSection } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection, StatsSection } from '$lib/components/layout';
 	import { formatCurrency } from '$lib/utils/formatters';
@@ -16,11 +17,12 @@
 	let totalEarned = 0;
 	let totalClaimed = 0;
 	let unclaimedPayout = 0;
-	let pageLoading = true;
+	let loading = true;
 	let claiming = false;
 	let claimSuccess = false;
 
 	let claimMethod = 'wallet';
+	let showWalletModal = false;
 	let estimatedGas = 0;
 
 	let holdings: any[] = [];
@@ -33,24 +35,38 @@
 
 	function loadClaimsData() {
 		try {
+			// Set a fixed gas fee
 			estimatedGas = 1.25;
+			
+			// Load data from wallet service
 			totalEarned = walletDataService.getTotalPayoutsEarned();
 			unclaimedPayout = walletDataService.getUnclaimedPayouts();
+			
+			// Calculate total claimed from claim transactions
 			const allTransactions = walletDataService.getAllTransactions();
 			const claimTransactions = allTransactions.filter(tx => tx.type === 'claim');
 			totalClaimed = claimTransactions.reduce((sum, tx) => sum + tx.amount, 0);
+			
+			// Get holdings by asset
 			const assetPayouts = walletDataService.getHoldingsByAsset();
 			holdings = assetPayouts.map(assetPayout => {
 				const asset = assetService.getAssetById(assetPayout.assetId);
 				if (!asset) return null;
+				
+				// Find last payout date from monthly payouts
 				const lastPayoutMonth = assetPayout.monthlyPayouts
 					.filter(p => p.amount > 0)
 					.sort((a, b) => b.month.localeCompare(a.month))[0];
+				
+				// Get the contract address for this asset
 				const tokens = tokenService.getTokensByAssetId(assetPayout.assetId);
 				const contractAddress = tokens.length > 0 ? tokens[0].contractAddress : null;
+				
+				// Find last claim for this asset
 				const lastClaim = contractAddress ? claimTransactions
 					.filter(tx => tx.address === contractAddress)
 					.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0] : null;
+				
 				return {
 					id: assetPayout.assetId,
 					name: assetPayout.assetName,
@@ -62,9 +78,13 @@
 					status: asset ? asset.production.status : 'unknown'
 				};
 			}).filter(Boolean);
+			
+			// Get claim history from transactions
 			claimHistory = claimTransactions.map(tx => {
+				// Find the asset name for this transaction
 				const token = tokenService.getTokenByAddress(tx.address);
 				const asset = token ? assetService.getAssetById(token.assetId) : null;
+				
 				return {
 					date: tx.timestamp,
 					amount: tx.amount,
@@ -73,18 +93,21 @@
 					status: 'completed'
 				};
 			});
-			pageLoading = false;
+			
+			loading = false;
 		} catch (error) {
 			console.error('Error loading claims data:', error);
-			pageLoading = false;
+			loading = false;
 		}
 	}
 
 	onMount(async () => {
-		if (!$connected || !$signerAddress) {
-			$web3Modal.open();
+		// Check if wallet is connected
+		if (!$walletStore.isConnected) {
+			showWalletModal = true;
 			return;
 		}
+
 		loadClaimsData();
 	});
 	
@@ -97,30 +120,40 @@
 	}
 
 	async function connectWallet() {
-		$web3Modal.open();
+		showWalletModal = true;
 	}
 
 	async function handleWalletConnect() {
+		await walletActions.connect();
+		showWalletModal = false;
 		loadClaimsData();
 	}
 
+	// Claim functions
 	async function claimAllPayouts() {
 		claiming = true;
 		try {
+			// Simulate claiming process
 			await new Promise(resolve => setTimeout(resolve, 2000));
+			
+			// Add claim transactions to wallet data
 			holdings.forEach(holding => {
 				if (holding.unclaimedAmount > 0) {
 					walletDataService.addTransaction({
 						type: 'claim',
-						address: holding.id,
+						address: holding.id, // Using asset ID as address for now
 						amount: holding.unclaimedAmount,
-						txHash: `0x${Math.random().toString(16).substr(2, 64)}`,
+						txHash: `0x${Math.random().toString(16).substr(2, 64)}`, // Generate fake hash
 						timestamp: new Date().toISOString()
 					});
 				}
 			});
+			
 			claimSuccess = true;
+			
+			// Reload data to reflect changes
 			loadClaimsData();
+			
 			setTimeout(() => {
 				claimSuccess = false;
 			}, 3000);
@@ -136,7 +169,11 @@
 		try {
 			const holding = holdings.find(h => h.id === assetId);
 			if (!holding || holding.unclaimedAmount <= 0) return;
+			
+			// Simulate claiming process
 			await new Promise(resolve => setTimeout(resolve, 1500));
+			
+			// Add claim transaction
 			walletDataService.addTransaction({
 				type: 'claim',
 				address: assetId,
@@ -144,8 +181,10 @@
 				txHash: `0x${Math.random().toString(16).substr(2, 64)}`,
 				timestamp: new Date().toISOString()
 			});
+			
 			claimSuccess = true;
 			loadClaimsData();
+			
 			setTimeout(() => {
 				claimSuccess = false;
 			}, 3000);
@@ -157,6 +196,7 @@
 	}
 
 	function exportClaimHistory() {
+		// Create CSV content
 		const headers = ['Date', 'Asset', 'Amount', 'Transaction Hash'];
 		const csvContent = [
 			headers.join(','),
@@ -167,6 +207,8 @@
 				claim.txHash
 			].join(','))
 		].join('\n');
+		
+		// Download CSV
 		const blob = new Blob([csvContent], { type: 'text/csv' });
 		const url = window.URL.createObjectURL(blob);
 		const link = document.createElement('a');
@@ -183,7 +225,8 @@
 </svelte:head>
 
 <PageLayout>
-	{#if !$connected || !$signerAddress}
+	{#if !$walletStore.isConnected}
+		<!-- Wallet Connection Required -->
 		<HeroSection 
 			title="Connect Your Wallet"
 			subtitle="Connect your wallet to view and claim your energy asset payouts"
@@ -193,7 +236,8 @@
 				<PrimaryButton on:click={connectWallet}>Connect Wallet</PrimaryButton>
 			</div>
 		</HeroSection>
-	{:else if pageLoading}
+	{:else if loading}
+		<!-- Loading State -->
 		<ContentSection background="white" padding="standard" centered>
 			<div class="text-center">
 				<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mx-auto mb-4"></div>
@@ -239,6 +283,7 @@
 					<PrimaryButton 
 						on:click={claimAllPayouts} 
 						disabled={claiming}
+						className="px-8 py-4"
 					>
 						{claiming ? 'Processing...' : `Claim ${formatCurrency(unclaimedPayout)}`}
 					</PrimaryButton>
@@ -379,42 +424,49 @@
 											</td>
 										</tr>
 									{/each}
-								</tbody>
-							</table>
+															</tbody>
+						</table>
+					</div>
+					
+					<!-- Pagination Controls -->
+					{#if claimHistory.length > itemsPerPage}
+						{@const totalPages = Math.ceil(claimHistory.length / itemsPerPage)}
+						<div class="flex justify-center items-center gap-2 mt-4">
+							<button 
+								class="px-3 py-1 text-sm border border-light-gray rounded disabled:opacity-50"
+								disabled={currentPage === 1}
+								on:click={() => currentPage = Math.max(1, currentPage - 1)}
+							>
+								Previous
+							</button>
+							
+							<span class="text-sm text-gray-600">
+								{currentPage} of {totalPages}
+							</span>
+							
+							<button 
+								class="px-3 py-1 text-sm border border-light-gray rounded disabled:opacity-50"
+								disabled={currentPage === totalPages}
+								on:click={() => currentPage = Math.min(totalPages, currentPage + 1)}
+							>
+								Next
+							</button>
 						</div>
-						
-						<!-- Pagination Controls -->
-						{#if claimHistory.length > itemsPerPage}
-							{@const totalPages = Math.ceil(claimHistory.length / itemsPerPage)}
-							<div class="flex justify-center items-center gap-2 mt-4">
-								<button 
-									class="px-3 py-1 text-sm border border-light-gray rounded disabled:opacity-50"
-									disabled={currentPage === 1}
-									on:click={() => currentPage = Math.max(1, currentPage - 1)}
-								>
-									Previous
-								</button>
-								
-								<span class="text-sm text-gray-600">
-									{currentPage} of {totalPages}
-								</span>
-								
-								<button 
-									class="px-3 py-1 text-sm border border-light-gray rounded disabled:opacity-50"
-									disabled={currentPage === totalPages}
-									on:click={() => currentPage = Math.min(totalPages, currentPage + 1)}
-								>
-									Next
-								</button>
-							</div>
-						{/if}
-					</div>
-				{:else}
-					<div class="text-center py-8 text-gray-500">
-						<p>No claim history yet. Your first claims will appear here.</p>
-					</div>
-				{/if}
+					{/if}
+				</div>
+			{:else}
+				<div class="text-center py-8 text-gray-500">
+					<p>No claim history yet. Your first claims will appear here.</p>
+				</div>
+			{/if}
 			</CollapsibleSection>
 		</ContentSection>
 	{/if}
 </PageLayout>
+
+<!-- Wallet Modal -->
+<WalletModal 
+	isOpen={showWalletModal}
+	on:connect={handleWalletConnect}
+	on:close={() => showWalletModal = false}
+/>

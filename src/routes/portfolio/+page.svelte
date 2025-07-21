@@ -3,7 +3,8 @@
 	import { useAssetService, useTokenService } from '$lib/services';
 	import walletDataService from '$lib/services/WalletDataService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
-	import { web3Modal, signerAddress, connected, loading } from 'svelte-wagmi';
+	import { walletStore, walletActions } from '$lib/stores/wallet';
+	import WalletModal from '$lib/components/patterns/WalletModal.svelte';
 	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, TabNavigation, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart, CollapsibleSection } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
 	import { formatCurrency, formatPercentage, formatNumber } from '$lib/utils/formatters';
@@ -18,7 +19,8 @@
 	let holdings: any[] = [];
 	let monthlyPayouts: any[] = [];
 	let tokenAllocations: any[] = [];
-	let pageLoading = true;
+	let loading = true;
+	let showWalletModal = false;
 	
 	// Use composables
 	const { show: showTooltipWithDelay, hide: hideTooltip, isVisible: isTooltipVisible } = useTooltip();
@@ -51,8 +53,9 @@
 
 	onMount(async () => {
 		// Check if wallet is connected
-		if (!$connected || !$signerAddress) {
-			$web3Modal.open();
+		if (!$walletStore.isConnected) {
+			showWalletModal = true;
+			loading = false;
 			return;
 		}
 		
@@ -77,7 +80,14 @@
 			// Transform holdings data
 			holdings = assetPayouts.map(holding => {
 				const asset = allAssets.find(a => a.id === holding.assetId);
-				if (!asset) return null;
+				// Provide fallback data if asset not found instead of returning null
+				const assetFallback = asset || {
+					id: holding.assetId,
+					name: holding.assetName || 'Unknown Asset',
+					location: { state: 'Unknown', country: 'Location' },
+					production: { status: 'unknown' },
+					coverImage: null
+				};
 				
 				// Get the actual holding data for token count
 				const walletHoldings = walletDataService.computeHoldings();
@@ -100,7 +110,7 @@
 				let cumulativeProduction = 0;
 				
 				// Find tokens for this asset and sum their payoutHistory production
-				const assetTokens = allTokens.filter(token => token.assetId === asset.id);
+				const assetTokens = allTokens.filter(token => token.assetId === assetFallback.id);
 				
 				if (assetTokens.length > 0) {
 					// Use the first token's payout history as they should all have the same production data
@@ -110,14 +120,14 @@
 					}
 				}
 				
-				// Fallback to asset monthlyReports if no token data
-				if (cumulativeProduction === 0 && asset.monthlyReports && asset.monthlyReports.length > 0) {
+				// Fallback to asset monthlyReports if no token data (only if asset exists)
+				if (cumulativeProduction === 0 && asset && asset.monthlyReports && asset.monthlyReports.length > 0) {
 					cumulativeProduction = asset.monthlyReports.reduce((sum, report) => sum + (report.production || 0), 0);
 				}
 				
 				// Parse expected remaining production from string format (e.g., "250k BOE" -> 250000)
 				let expectedRemainingProduction = 0;
-				if (asset.production?.expectedRemainingProduction && asset.production.expectedRemainingProduction !== 'TBD') {
+				if (asset && asset.production?.expectedRemainingProduction && asset.production.expectedRemainingProduction !== 'TBD') {
 					const match = asset.production.expectedRemainingProduction.match(/^([\d.]+)k\s*boe$/i);
 					if (match) {
 						expectedRemainingProduction = parseFloat(match[1]) * 1000;
@@ -134,21 +144,21 @@
 				return {
 					id: holding.assetId,
 					name: holding.assetName,
-					location: asset ? `${asset.location.state}, ${asset.location.country}` : '',
+					location: `${assetFallback.location.state}, ${assetFallback.location.country}`,
 					totalInvested: holding.totalInvested,
 					totalPayoutsEarned: holding.totalEarned,
 					unclaimedAmount: holding.unclaimedAmount,
 					lastPayoutAmount: holding.lastPayoutAmount,
 					lastPayoutDate: holding.lastPayoutDate,
-					status: asset ? asset.production.status : 'unknown',
+					status: assetFallback.production.status,
 					tokensOwned,
 					tokenSymbol,
 					capitalReturned,
 					unrecoveredCapital,
 					assetDepletion,
-					asset // Include the full asset object for the cover image
+					asset: assetFallback // Include the full asset object for the cover image
 				};
-			}).filter(Boolean);
+			}); // Removed .filter(Boolean) since we're no longer returning null
 			
 			// Get monthly payout history
 			monthlyPayouts = walletDataService.getMonthlyPayoutHistory();
@@ -156,10 +166,10 @@
 			// Get token allocations
 			tokenAllocations = walletDataService.getTokenAllocation();
 			
-			pageLoading = false;
+			loading = false;
 		} catch (error) {
 			console.error('Error loading portfolio data:', error);
-			pageLoading = false;
+			loading = false;
 		}
 	}
 
@@ -174,12 +184,20 @@
 	}
 	
 	async function handleWalletConnect() {
-		pageLoading = true;
-		loadPortfolioData();
+		await walletActions.connect();
+		showWalletModal = false;
+		
+		// Reload the page content now that wallet is connected
+		if ($walletStore.isConnected) {
+			loading = true;
+			loadPortfolioData();
+		}
 	}
 	
 	function handleWalletModalClose() {
-		if (!$connected || !$signerAddress) {
+		showWalletModal = false;
+		// Redirect to home if wallet not connected
+		if (!$walletStore.isConnected) {
 			window.location.href = '/';
 		}
 	}
@@ -194,19 +212,19 @@
 	<meta name="description" content="Track your oil & gas investment portfolio performance" />
 </svelte:head>
 
-{#if (!$connected || !$signerAddress)}
+{#if !$walletStore.isConnected && !showWalletModal}
 	<PageLayout variant="constrained">
 		<ContentSection background="white" padding="large" centered>
 			<div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
 				<SectionTitle level="h1" size="page" center>Wallet Connection Required</SectionTitle>
 				<p class="text-lg text-black opacity-80 mb-8 max-w-md">Please connect your wallet to view your portfolio.</p>
-				<PrimaryButton on:click={() => $web3Modal.open()}>
+				<PrimaryButton on:click={() => showWalletModal = true}>
 					Connect Wallet
 				</PrimaryButton>
 			</div>
 		</ContentSection>
 	</PageLayout>
-{:else if $connected && $signerAddress}
+{:else if $walletStore.isConnected}
 <PageLayout variant="constrained">
 	<!-- Portfolio Overview Header -->
 	<HeroSection 
@@ -246,7 +264,7 @@
 				/>
 				<StatsCard
 					title="Total Earned"
-					value={formatCurrency(totalPayoutsEarned)}
+					value={formatCurrency(totalPayoutsEarned, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
 					subtitle="All payouts"
 					valueColor="primary"
 					size="small"
@@ -298,50 +316,123 @@
 				{#if loading}
 					<div class="text-center py-8 text-black opacity-70">Loading portfolio holdings...</div>
 				{:else}
-					{#each holdings as holding}
+					{#if holdings && Array.isArray(holdings) && holdings.length > 0}
+						{#each holdings as holding}
+						{@const chartData = getPayoutChartData(holding)}
 						<Card hoverable showBorder>
-							<CardContent paddingClass="p-4 sm:p-6">
-								<div class="flex items-start gap-3 mb-4">
-									<div class="w-12 h-12 bg-light-gray rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
-										{#if holding.asset?.coverImage}
-											<img src={holding.asset.coverImage} alt={holding.name} class="w-full h-full object-cover" />
-										{:else}
-											<div class="text-xl opacity-50">🛢️</div>
-										{/if}
-									</div>
-									<div class="flex-1">
-										<h4 class="font-extrabold text-black text-base mb-1">{holding.tokenSymbol}</h4>
-										<div class="text-sm text-black opacity-70 mb-1">{holding.name}</div>
-										<StatusBadge
-											status={holding.status}
-											variant={holding.status === 'producing' ? 'available' : 'default'}
-											size="small"
-										/>
-									</div>
-									<div class="text-right">
-										<div class="text-lg font-extrabold text-primary">{formatCurrency(holding.totalPayoutsEarned)}</div>
-										<div class="text-xs text-black opacity-70">Total Earned</div>
+							<CardContent paddingClass="p-0">
+								<div class="relative overflow-hidden" style="perspective: 1000px; min-height: 280px;">
+									<!-- Front of card -->
+									<div class="transition-transform duration-700 ease-in-out transform-style-preserve-3d {$flippedCards.has(holding.id) ? 'rotate-y-180' : ''}" style="min-height: 280px;">
+										<div class="absolute inset-0 backface-hidden p-4 sm:p-6">
+											<div class="flex items-start gap-3 mb-4">
+												<div class="w-12 h-12 bg-light-gray rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
+													{#if holding.asset?.coverImage}
+														<img src={holding.asset.coverImage} alt={holding.name} class="w-full h-full object-cover" />
+													{:else}
+														<div class="text-xl opacity-50">🛢️</div>
+													{/if}
+												</div>
+												<div class="flex-1">
+													<h4 class="font-extrabold text-black text-base mb-1">{holding.tokenSymbol}</h4>
+													<div class="text-sm text-black opacity-70 mb-1">{holding.name}</div>
+													<StatusBadge
+														status={holding.status}
+														variant={holding.status === 'producing' ? 'available' : 'default'}
+														size="small"
+													/>
+												</div>
+												<div class="text-right">
+													<div class="text-lg font-extrabold text-primary">{formatCurrency(holding.totalPayoutsEarned, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+													<div class="text-xs text-black opacity-70">Total Earned</div>
+												</div>
+											</div>
+											
+											<div class="grid grid-cols-2 gap-4 mb-4">
+												<div>
+													<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-1">Tokens</div>
+													<div class="text-sm font-extrabold text-black">{formatNumber(holding.tokensOwned)}</div>
+												</div>
+												<div>
+													<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-1">Invested</div>
+													<div class="text-sm font-extrabold text-black">{formatCurrency(holding.totalInvested)}</div>
+												</div>
+											</div>
+											
+											<div class="flex gap-2">
+												<SecondaryButton size="small" href="/claims" fullWidth>Claims</SecondaryButton>
+												<SecondaryButton 
+													size="small" 
+													fullWidth
+													on:click={(e) => {
+														// On mobile, flip the card to show history
+														if (window.innerWidth < 1024) {
+															e.preventDefault();
+															toggleCardFlip(holding.id);
+														} else {
+															// On desktop, navigate to asset details
+															window.location.href = `/assets/${holding.assetId}#returns-chart`;
+														}
+													}}
+												>
+													History
+												</SecondaryButton>
+											</div>
+										</div>
+										
+										<!-- Back of card - Payout History Chart -->
+										<div class="absolute inset-0 backface-hidden rotate-y-180 p-4 sm:p-6 flex flex-col" style="min-height: 280px;">
+											<div class="flex justify-between items-center mb-2">
+												<h4 class="font-extrabold text-black text-base">Cumulative Payouts</h4>
+												<SecondaryButton 
+													size="small"
+													on:click={() => toggleCardFlip(holding.id)}
+												>
+													← Back
+												</SecondaryButton>
+											</div>
+											
+											{#if chartData.length > 0}
+												<div class="flex-1 min-h-0">
+													<Chart
+														data={chartData.map((point, index) => ({
+															label: point.date,
+															value: chartData.slice(0, index + 1).reduce((sum, p) => sum + p.value, 0)
+														}))}
+														width={300}
+														height={200}
+														valuePrefix="$"
+														barColor="#08bccc"
+														animate={false}
+														showGrid={true}
+													/>
+												</div>
+											{:else}
+												<div class="flex-1 flex items-center justify-center text-center">
+													<div>
+														<div class="text-4xl mb-2">📊</div>
+														<p class="text-sm text-black opacity-70">No payout history yet</p>
+														<p class="text-xs text-black opacity-50">Charts will appear after first payments</p>
+													</div>
+												</div>
+											{/if}
+										</div>
 									</div>
 								</div>
-								
-								<div class="grid grid-cols-2 gap-4 mb-4">
-									<div>
-										<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-1">Tokens</div>
-										<div class="text-sm font-extrabold text-black">{formatNumber(holding.tokensOwned)}</div>
-									</div>
-									<div>
-										<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide mb-1">Invested</div>
-										<div class="text-sm font-extrabold text-black">{formatCurrency(holding.totalInvested)}</div>
-									</div>
-								</div>
-								
-															<div class="flex gap-2">
-								<SecondaryButton size="small" href="/claims" fullWidth>Claims</SecondaryButton>
-								<SecondaryButton size="small" href="/assets/{holding.assetId}#returns-chart" fullWidth>History</SecondaryButton>
-							</div>
 							</CardContent>
 						</Card>
-					{/each}
+						{/each}
+					{:else}
+						<div class="text-center py-8 text-black opacity-70">
+							<div class="text-4xl mb-2">📊</div>
+							<p>No holdings found</p>
+							<p class="text-sm mt-2">Start investing to see your portfolio here</p>
+							<!-- Debug info -->
+							<div class="text-xs mt-4 text-gray-400">
+								Debug: Loading: {loading}, Holdings: {holdings ? holdings.length : 'null'}, Array: {holdings ? 'exists' : 'null'}
+							</div>
+						</div>
+					{/if}
 				{/if}
 			</div>
 			
@@ -356,32 +447,63 @@
 						return txDate >= monthsAgo;
 					})}
 					
-									<div class="grid grid-cols-2 gap-4 mb-6">
+					{@const mobileCapitalWalkData = (() => {
+						// Calculate Total External Capital for mobile (simplified version)
+						const allTransactions = walletDataService.getAllTransactions();
+						let cumulativePurchases = 0;
+						let cumulativePayouts = 0;
+						let maxDeficit = 0;
+						
+						const sortedTx = [...allTransactions].sort((a, b) => 
+							new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+						);
+						
+						sortedTx.forEach(tx => {
+							if (tx.type === 'mint') {
+								cumulativePurchases += tx.amountUSD;
+							} else if (tx.type === 'claim') {
+								const amount = tx.amountUSD || tx.amount;
+								cumulativePayouts += amount;
+							}
+							
+							const netPosition = cumulativePayouts - cumulativePurchases;
+							maxDeficit = Math.max(maxDeficit, Math.abs(netPosition));
+						});
+						
+						return {
+							totalExternalCapital: maxDeficit,
+							grossDeployed: totalInvested,
+							grossPayout: totalPayoutsEarned,
+							currentNetPosition: totalPayoutsEarned - totalInvested
+						};
+					})()}
+					
+					<div class="grid grid-cols-2 gap-4 mb-6">
 					<StatsCard
-						title="Portfolio Value"
-						value={formatCurrency(totalInvested)}
+						title="Total External Capital"
+						value={formatCurrency(mobileCapitalWalkData.totalExternalCapital, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+						subtitle="Peak cash required"
+						size="medium"
+					/>
+					<StatsCard
+						title="Gross Deployed"
+						value={formatCurrency(mobileCapitalWalkData.grossDeployed, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
 						subtitle="Total invested"
 						size="medium"
 					/>
 					<StatsCard
-						title="Total Earned"
-						value={formatCurrency(totalPayoutsEarned)}
-						subtitle="All payouts"
+						title="Gross Payout"
+						value={formatCurrency(mobileCapitalWalkData.grossPayout, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+						subtitle="Total distributions"
 						size="medium"
 						valueColor="primary"
 					/>
 					<StatsCard
-						title="Active Assets"
-						value={activeAssetsCount.toString()}
-						subtitle="In portfolio"
+						title="Current Net Position"
+						value={formatCurrency(mobileCapitalWalkData.currentNetPosition, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+						subtitle="Payouts - Invested"
 						size="medium"
-					/>
-					<StatsCard
-						title="Unclaimed"
-						value={formatCurrency(unclaimedPayout)}
-						subtitle="Available to claim"
-						size="medium"
-						valueColor="primary"
+						valueColor={mobileCapitalWalkData.currentNetPosition >= 0 ? "primary" : "default"}
 					/>
 				</div>
 					
@@ -419,6 +541,12 @@
 					<div class="space-y-3">
 						{#if loading}
 							<div class="text-center py-12 text-black opacity-70">Loading portfolio holdings...</div>
+						{:else if holdings.length === 0}
+							<div class="text-center py-8 text-black opacity-70">
+								<div class="text-4xl mb-2">📊</div>
+								<p>No holdings found</p>
+								<p class="text-sm mt-2">Start investing to see your portfolio here</p>
+							</div>
 						{:else}
 							{#each holdings as holding}
 								{@const flipped = $flippedCards.has(holding.id)}
@@ -468,7 +596,7 @@
 											<!-- Payouts to Date -->
 											<div class="flex flex-col">
 												<div class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-4 h-10 flex items-start">Payouts to Date</div>
-												<div class="text-xl font-extrabold text-primary mb-3">{formatCurrency(holding.totalPayoutsEarned)}</div>
+												<div class="text-xl font-extrabold text-primary mb-3">{formatCurrency(holding.totalPayoutsEarned, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
 												<div class="text-sm text-black opacity-70">Cumulative</div>
 											</div>
 
@@ -953,6 +1081,14 @@
 	</FullWidthSection>
 </PageLayout>
 {/if}
+
+<!-- Wallet Modal -->
+<WalletModal
+	bind:isOpen={showWalletModal}
+	isConnecting={$walletStore.isConnecting}
+	on:connect={handleWalletConnect}
+	on:close={handleWalletModalClose}
+/>
 
 <style>
 	/* CSS classes removed - styles are now inline for better browser compatibility */
