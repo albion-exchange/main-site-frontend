@@ -55,6 +55,7 @@
 		// Check if wallet is connected
 		if (!$walletStore.isConnected) {
 			showWalletModal = true;
+			loading = false;
 			return;
 		}
 		
@@ -256,7 +257,7 @@
 				/>
 				<StatsCard
 					title="Total Earned"
-					value={formatCurrency(totalPayoutsEarned)}
+					value={formatCurrency(totalPayoutsEarned, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
 					subtitle="All payouts"
 					valueColor="primary"
 					size="small"
@@ -307,8 +308,14 @@
 			<div class="space-y-4">
 				{#if loading}
 					<div class="text-center py-8 text-black opacity-70">Loading portfolio holdings...</div>
+				{:else if holdings.length === 0}
+					<div class="text-center py-8 text-black opacity-70">
+						<div class="text-4xl mb-2">📊</div>
+						<p>No holdings found</p>
+						<p class="text-sm mt-2">Start investing to see your portfolio here</p>
+					</div>
 				{:else}
-										{#each holdings as holding}
+					{#each holdings as holding}
 						{@const chartData = getPayoutChartData(holding)}
 						<Card hoverable showBorder>
 							<CardContent paddingClass="p-0">
@@ -334,7 +341,7 @@
 													/>
 												</div>
 												<div class="text-right">
-													<div class="text-lg font-extrabold text-primary">{formatCurrency(holding.totalPayoutsEarned)}</div>
+													<div class="text-lg font-extrabold text-primary">{formatCurrency(holding.totalPayoutsEarned, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
 													<div class="text-xs text-black opacity-70">Total Earned</div>
 												</div>
 											</div>
@@ -399,7 +406,7 @@
 													/>
 												</div>
 												<div class="mt-4 text-center">
-													<div class="text-lg font-extrabold text-primary">{formatCurrency(holding.totalPayoutsEarned)}</div>
+													<div class="text-lg font-extrabold text-primary">{formatCurrency(holding.totalPayoutsEarned, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
 													<div class="text-xs text-black opacity-70">Total Earned to Date</div>
 												</div>
 											{:else}
@@ -433,30 +440,30 @@
 					
 									<div class="grid grid-cols-2 gap-4 mb-6">
 					<StatsCard
-						title="Portfolio Value"
-						value={formatCurrency(totalInvested)}
-						subtitle="Total invested"
+						title="Total External Capital"
+						value={formatCurrency(totalInvested, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+						subtitle="Capital invested"
 						size="medium"
 					/>
 					<StatsCard
-						title="Total Earned"
-						value={formatCurrency(totalPayoutsEarned)}
-						subtitle="All payouts"
+						title="Gross Deployed"
+						value={formatCurrency(totalInvested, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+						subtitle="Amount deployed"
+						size="medium"
+					/>
+					<StatsCard
+						title="Gross Payout"
+						value={formatCurrency(totalPayoutsEarned, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+						subtitle="Total received"
 						size="medium"
 						valueColor="primary"
 					/>
 					<StatsCard
-						title="Active Assets"
-						value={activeAssetsCount.toString()}
-						subtitle="In portfolio"
+						title="Current Net Position"
+						value={formatCurrency(totalInvested - totalPayoutsEarned, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+						subtitle="Remaining at risk"
 						size="medium"
-					/>
-					<StatsCard
-						title="Unclaimed"
-						value={formatCurrency(unclaimedPayout)}
-						subtitle="Available to claim"
-						size="medium"
-						valueColor="primary"
+						valueColor={totalInvested - totalPayoutsEarned > 0 ? "default" : "primary"}
 					/>
 				</div>
 					
@@ -543,7 +550,7 @@
 											<!-- Payouts to Date -->
 											<div class="flex flex-col">
 												<div class="text-sm font-bold text-black opacity-70 uppercase tracking-wider mb-4 h-10 flex items-start">Payouts to Date</div>
-												<div class="text-xl font-extrabold text-primary mb-3">{formatCurrency(holding.totalPayoutsEarned)}</div>
+												<div class="text-xl font-extrabold text-primary mb-3">{formatCurrency(holding.totalPayoutsEarned, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
 												<div class="text-sm text-black opacity-70">Cumulative</div>
 											</div>
 
