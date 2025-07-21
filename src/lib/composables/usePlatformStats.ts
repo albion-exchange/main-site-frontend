@@ -12,7 +12,7 @@ interface PlatformStatsState {
   totalInvested: number;
   activeInvestors: number;
   totalRegions: number;
-  monthlyGrowthRate: number;
+  monthlyGrowthRate: number | null;
   loading: boolean;
   error: string | null;
 }
@@ -30,7 +30,7 @@ export function usePlatformStats() {
     totalInvested: 0,
     activeInvestors: 0,
     totalRegions: 0,
-    monthlyGrowthRate: 0,
+    monthlyGrowthRate: null,
     loading: true,
     error: null
   });
@@ -90,15 +90,11 @@ export function usePlatformStats() {
     }
   }
 
-  function calculateGrowthRate(assets: any[]): number {
+  function calculateGrowthRate(assets: any[]): number | null {
     const assetsWithReports = assets.filter(asset => asset.monthlyReports.length >= 2);
     
     if (assetsWithReports.length === 0) {
-      const marketConfig = withSyncErrorHandling(
-        () => configService.getMarketConfig(),
-        { service: 'ConfigService', operation: 'getMarketConfig' }
-      );
-      return marketConfig?.defaultGrowthRate || 0;
+      return null; // Return null when no data available
     }
     
     const growthRates = assetsWithReports.map(asset => {
@@ -119,11 +115,7 @@ export function usePlatformStats() {
       return Number(avgGrowth.toFixed(1));
     }
     
-    const marketConfig = withSyncErrorHandling(
-      () => configService.getMarketConfig(),
-      { service: 'ConfigService', operation: 'getMarketConfig' }
-    );
-    return marketConfig?.defaultGrowthRate || 0;
+    return null; // Return null when no valid growth rates available
   }
 
   // Formatted values for display
@@ -134,7 +126,8 @@ export function usePlatformStats() {
     regionsText: `Across ${$state.totalRegions} regions`,
     growthTrend: {
       value: $state.monthlyGrowthRate,
-      positive: $state.monthlyGrowthRate >= 0
+      displayValue: $state.monthlyGrowthRate !== null ? `${$state.monthlyGrowthRate}%` : 'N/A',
+      positive: $state.monthlyGrowthRate !== null ? $state.monthlyGrowthRate >= 0 : false
     }
   }));
 

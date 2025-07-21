@@ -19,14 +19,7 @@ import platformStats from "$lib/data/platformStats.json";
 import companyInfo from "$lib/data/companyInfo.json";
 import futureReleasesData from "$lib/data/futureReleases.json";
 
-// Market configuration defaults - only what's actually used
-const defaultMarketConfig = {
-  defaultGrowthRate: 2.8
-};
-
-export interface MarketConfig {
-  defaultGrowthRate: number;
-}
+// No market configuration needed - all data comes from live sources
 
 export interface PlatformConfig {
   totalAssets: number;
@@ -76,7 +69,6 @@ export interface FutureRelease {
 }
 
 export interface AppConfig {
-  market: MarketConfig;
   platform: PlatformConfig;
   company: CompanyConfig;
   futureReleases: FutureRelease[];
@@ -87,7 +79,6 @@ class ConfigService {
 
   constructor() {
     this.config = {
-      market: defaultMarketConfig as MarketConfig,
       platform: platformStats as PlatformConfig,
       company: companyInfo as CompanyConfig,
       futureReleases: this.transformFutureReleasesData(futureReleasesData)
@@ -131,12 +122,7 @@ class ConfigService {
     return this.config;
   }
 
-  /**
-   * Get market configuration
-   */
-  getMarketConfig(): MarketConfig {
-    return this.config.market;
-  }
+
 
   /**
    * Get platform configuration
@@ -259,7 +245,6 @@ class ConfigService {
     // In a real app, this might fetch from API
     // For now, we'll just re-import the JSON files
     this.config = {
-      market: defaultMarketConfig as MarketConfig,
       platform: platformStats as PlatformConfig,
       company: companyInfo as CompanyConfig,
       futureReleases: this.transformFutureReleasesData(futureReleasesData)

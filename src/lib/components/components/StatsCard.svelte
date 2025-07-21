@@ -6,7 +6,7 @@
 	export let title: string;
 	export let value: string | number;
 	export let subtitle: string = '';
-	export let trend: { value: number; positive: boolean } | null = null;
+	export let trend: { value: number | null; displayValue: string; positive: boolean } | null = null;
 	export let size: 'small' | 'medium' | 'large' = 'medium';
 	export let valueColor: 'default' | 'primary' | 'secondary' = 'default';
 	
@@ -28,10 +28,7 @@
 		secondary: 'text-secondary'
 	};
 	
-	function formatTrend(value: number): string {
-		const sign = value >= 0 ? '+' : '';
-		return `${sign}${value.toFixed(1)}%`;
-	}
+
 </script>
 
 <Card hoverable showBorder={false}>
@@ -44,8 +41,8 @@
 			{#if subtitle || trend}
 				<div class="mt-2 text-sm">
 					{#if trend}
-						<span class="{trend.positive ? 'text-primary' : 'text-red-600'} font-semibold">
-							{formatTrend(trend.value)}
+						<span class="{trend.positive ? 'text-primary' : (trend.value === null ? 'text-black opacity-70' : 'text-red-600')} font-semibold">
+							{trend.displayValue}
 						</span>
 					{/if}
 					{#if subtitle}
