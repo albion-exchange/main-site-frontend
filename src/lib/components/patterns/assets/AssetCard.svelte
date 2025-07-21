@@ -115,10 +115,10 @@
 			
 			<!-- Content overlay - responsive sizing -->
 			<div class="absolute bottom-0 left-0 right-0 p-4 lg:p-6">
-				<h3 class="text-lg sm:text-xl lg:text-2xl font-extrabold text-white mb-1 sm:mb-2 drop-shadow-lg">
+				<h3 class="text-lg sm:text-xl lg:text-2xl font-extrabold text-white mb-1 sm:mb-2 drop-shadow-lg text-left">
 					{asset.name}
 				</h3>
-				<p class="text-sm sm:text-base text-white/90 mb-2 sm:mb-3 drop-shadow-md">
+				<p class="text-sm sm:text-base text-white/90 mb-2 sm:mb-3 drop-shadow-md text-left">
 					{asset.location.state}, {asset.location.country}
 				</p>
 				<div class="flex items-center gap-2">
@@ -200,7 +200,7 @@
 						<!-- Desktop: Full token info -->
 						<div class="hidden sm:flex w-full justify-between items-center">
 							<div class={tokenButtonLeftClasses}>
-								<div class="flex justify-between items-center w-full gap-2">
+								<div class="flex items-center gap-2 w-full">
 									<span class={tokenSymbolClasses}>{token.symbol}</span>
 									<span class="text-xs font-extrabold text-white bg-secondary px-2 py-1 tracking-wider rounded whitespace-nowrap">{token.sharePercentage ? `${token.sharePercentage}%` : shareOfAsset} of Asset</span>
 								</div>

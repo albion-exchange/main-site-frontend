@@ -99,7 +99,10 @@
 					? formatCurrency(asset.monthlyReports[asset.monthlyReports.length - 1].netIncome)
 					: '$0'}
 				subtitle={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.month 
-					? asset.monthlyReports[asset.monthlyReports.length - 1].month
+					? (() => {
+						const date = new Date(asset.monthlyReports[asset.monthlyReports.length - 1].month + '-01');
+						return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+					})()
 					: 'No data'}
 				size="small"
 			/>

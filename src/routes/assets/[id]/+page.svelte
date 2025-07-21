@@ -235,9 +235,47 @@
 								{/if}
 							</div>
 							<div class="bg-white border border-light-gray p-6">
-								<div class="text-center">
-									<div class="text-2xl font-extrabold text-black mb-2">{assetData?.hseMetrics?.daysWithoutIncident || 0}</div>
-									<div class="text-base font-medium text-black opacity-70">Days Since Last HSE Incident</div>
+								<h4 class="text-lg font-extrabold text-black mb-6">Production Metrics</h4>
+								<div class="grid grid-cols-1 gap-4">
+									<!-- Uptime -->
+									<div class="text-center p-3 bg-light-gray">
+										<div class="text-2xl font-extrabold text-black mb-1">
+											{#if assetData?.operationalMetrics?.uptime?.percentage !== undefined}
+												{assetData.operationalMetrics.uptime.percentage.toFixed(1)}%
+											{:else}
+												<span class="text-gray-400">N/A</span>
+											{/if}
+										</div>
+										<div class="text-sm font-medium text-black opacity-70">
+											Uptime {assetData?.operationalMetrics?.uptime?.period?.replace('_', ' ') || 'N/A'}
+										</div>
+									</div>
+									
+									<!-- Current Daily Production -->
+									<div class="text-center p-3 bg-light-gray">
+										<div class="text-2xl font-extrabold text-black mb-1">
+											{#if assetData?.operationalMetrics?.dailyProduction?.current !== undefined}
+												{assetData.operationalMetrics.dailyProduction.current.toFixed(1)}
+											{:else}
+												<span class="text-gray-400">N/A</span>
+											{/if}
+										</div>
+										<div class="text-sm font-medium text-black opacity-70">
+											Current Daily Production ({assetData?.operationalMetrics?.dailyProduction?.unit || 'units'})
+										</div>
+									</div>
+									
+									<!-- HSE Incident Free Days -->
+									<div class="text-center p-3 bg-light-gray">
+										<div class="text-2xl font-extrabold text-black mb-1">
+											{#if assetData?.operationalMetrics?.hseMetrics?.incidentFreeDays !== undefined}
+												{assetData.operationalMetrics.hseMetrics.incidentFreeDays}
+											{:else}
+												<span class="text-gray-400">N/A</span>
+											{/if}
+										</div>
+										<div class="text-sm font-medium text-black opacity-70">Days Since Last HSE Incident</div>
+									</div>
 								</div>
 							</div>
 						</div>
