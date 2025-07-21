@@ -3,7 +3,7 @@
 	
 	export let value: number | undefined;
 	export let showPlus: boolean = false;
-	export let threshold: number = 100;
+	export let threshold: number = 1000;
 	
 	let showTooltip = false;
 	

@@ -342,7 +342,7 @@ export function formatAddress(address: string): string {
 export function formatSmartReturn(
   returnPercentage: number | undefined,
   options: {
-    threshold?: number;      // When to switch from % to x (default: 100)
+    threshold?: number;      // When to switch from % to x (default: 1000)
     showPlus?: boolean;      // Show + sign for positive values
   } = {}
 ): string {
@@ -350,7 +350,7 @@ export function formatSmartReturn(
     return 'TBD';
   }
 
-  const { threshold = 100, showPlus = false } = options;
+  const { threshold = 1000, showPlus = false } = options;
   
   // For values below threshold, show as percentage
   if (returnPercentage < threshold) {
