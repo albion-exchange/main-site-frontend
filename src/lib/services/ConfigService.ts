@@ -19,73 +19,13 @@ import platformStats from "$lib/data/platformStats.json";
 import companyInfo from "$lib/data/companyInfo.json";
 import futureReleasesData from "$lib/data/futureReleases.json";
 
-// Market configuration defaults (replacing marketData.json)
+// Market configuration defaults - only what's actually used
 const defaultMarketConfig = {
-  defaultGrowthRate: 2.8,
-  gasFeesEstimate: {
-    low: 8.5,
-    medium: 12.5,
-    high: 18.75,
-    currency: "USD"
-  },
-  tokenPricing: {
-    defaultEstimatedValue: 10,
-    regionMultipliers: {
-      bakken: 1.2,
-      permian: 1.5,
-      "gulf-mexico": 1.8,
-      europe: 0.8
-    }
-  },
-  scenarios: {
-    oilPrice: {
-      bear: {
-        price: 60,
-        baseReturn: 9.2,
-        change: -6.0
-      },
-      base: {
-        price: 75,
-        baseReturn: 12.8,
-        change: 0.0
-      },
-      bull: {
-        price: 95,
-        baseReturn: 17.8,
-        change: 38.6
-      }
-    }
-  }
+  defaultGrowthRate: 2.8
 };
 
 export interface MarketConfig {
-  commodityPrices: {
-    oil: {
-      current: number;
-      currency: string;
-      benchmark: string;
-      lastUpdated: string;
-    };
-    gas: {
-      current: number;
-      currency: string;
-      benchmark: string;
-      lastUpdated: string;
-    };
-  };
-  exchangeRates: {
-    [currency: string]: {
-      rate: number;
-      lastUpdated: string;
-    };
-  };
-  marketIndicators: {
-    [indicator: string]: {
-      value: number;
-      change: number;
-      lastUpdated: string;
-    };
-  };
+  defaultGrowthRate: number;
 }
 
 export interface PlatformConfig {
@@ -233,26 +173,7 @@ class ConfigService {
     return this.config.futureReleases.find(release => release.id === releaseId) || null;
   }
 
-  /**
-   * Get current oil price
-   */
-  getCurrentOilPrice(): number {
-    return this.config.market.commodityPrices.oil.current;
-  }
 
-  /**
-   * Get current gas price
-   */
-  getCurrentGasPrice(): number {
-    return this.config.market.commodityPrices.gas.current;
-  }
-
-  /**
-   * Get exchange rate for currency
-   */
-  getExchangeRate(currency: string): number {
-    return this.config.market.exchangeRates[currency]?.rate || 1;
-  }
 
   /**
    * Get platform statistics
@@ -319,16 +240,7 @@ class ConfigService {
     return this.config.company.legal;
   }
 
-  /**
-   * Get market indicator value
-   */
-  getMarketIndicator(indicator: string): {
-    value: number;
-    change: number;
-    lastUpdated: string;
-  } | null {
-    return this.config.market.marketIndicators[indicator] || null;
-  }
+
 
   /**
    * Check if data is stale (for cache invalidation)
