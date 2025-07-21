@@ -79,11 +79,8 @@
 	<header class={headerClasses}>
 		<nav>
 			<div class={navContainerClasses}>
-				<a href="/" class="{logoClasses} bg-red-200 border-2 border-red-500" on:click={closeMobileMenu}>
-					<div class="overflow-hidden bg-blue-200">
-						<img src="/assets/logo.svg" alt="Albion Logo" class={logoImageClasses} style="margin-left: -0.3rem" />
-						<span class="text-xs bg-yellow-200">LOGO DEBUG</span>
-					</div>
+				<a href="/" class="{logoClasses}" on:click={closeMobileMenu}>
+					<span class="text-lg font-bold text-black">ALBION LABS</span>
 				</a>
 				
 				<!-- Desktop navigation - centered -->
@@ -124,7 +121,7 @@
 					
 					<!-- Mobile wallet button -->
 					<button 
-						class="md:hidden flex items-center gap-1 px-2 py-1 text-xs bg-green-200 border-2 border-green-500 rounded hover:bg-light-gray hover:border-secondary transition-all duration-200"
+						class="md:hidden flex items-center gap-1 px-3 py-2 text-xs bg-white border border-light-gray rounded hover:bg-light-gray hover:border-secondary transition-all duration-200"
 						on:click={connectWallet}
 						disabled={$walletStore.isConnecting}
 					>
