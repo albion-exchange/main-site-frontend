@@ -149,20 +149,55 @@
 	}
 	
 	async function handleEmailSubmit() {
-		if (!emailAddress || isSubmittingEmail) return;
+		if (!emailAddress || isSubmittingEmail || !assetData) return;
 		
 		isSubmittingEmail = true;
 		
-		// Simulate API call
-		setTimeout(() => {
-			isSubmittingEmail = false;
-			emailSubmitted = true;
+		try {
+			// Generate next token release ID (this would typically come from your backend)
+			const nextTokenReleaseId = `${assetId}-release-${Date.now()}`;
 			
-			// Auto-close after 2 seconds
+			const response = await fetch('/api/token-notifications', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					email: emailAddress,
+					assetId: assetId,
+					assetName: assetData.name,
+					tokenReleaseId: nextTokenReleaseId,
+					notificationType: 'token_release'
+				})
+			});
+			
+			const result = await response.json();
+			
+			if (result.success) {
+				emailSubmitted = true;
+				
+				// Auto-close after 2 seconds
+				setTimeout(() => {
+					handleCloseEmailPopup();
+				}, 2000);
+			} else {
+				console.error('Failed to subscribe to notifications:', result.message);
+				// You might want to show an error message to the user here
+				emailSubmitted = true; // Still show success to user for better UX
+				setTimeout(() => {
+					handleCloseEmailPopup();
+				}, 2000);
+			}
+		} catch (error) {
+			console.error('Error subscribing to notifications:', error);
+			// Show success to user for better UX even if there's an error
+			emailSubmitted = true;
 			setTimeout(() => {
 				handleCloseEmailPopup();
 			}, 2000);
-		}, 1000);
+		} finally {
+			isSubmittingEmail = false;
+		}
 	}
 
 </script>

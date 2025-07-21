@@ -4,16 +4,6 @@
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	
-	let formData = {
-		name: '',
-		email: '',
-		company: '',
-		subject: '',
-		message: ''
-	};
-	
-	let isSubmitting = false;
-	let submitStatus: 'idle' | 'success' | 'error' = 'idle';
 	let companyInfo: any = {};
 	const configService = useConfigService();
 	
@@ -24,203 +14,54 @@
 			console.error('Failed to load company info:', error);
 		}
 	});
-
-	async function handleSubmit() {
-		isSubmitting = true;
-		
-		// Simulate form submission
-		setTimeout(() => {
-			isSubmitting = false;
-			submitStatus = 'success';
-			
-			// Reset form
-			formData = {
-				name: '',
-				email: '',
-				company: '',
-				subject: '',
-				message: ''
-			};
-			
-			// Reset status after 3 seconds
-			setTimeout(() => {
-				submitStatus = 'idle';
-			}, 3000);
-		}, 1000);
-	}
 </script>
 
 <svelte:head>
-	<title>Contact - Albion</title>
-	<meta name="description" content="Get in touch with the Albion team for investment inquiries and support" />
+	<title>Support - Albion</title>
+	<meta name="description" content="Get support for the Albion platform - FAQs, resources, and contact information" />
 </svelte:head>
 
 <PageLayout>
 	<!-- Hero Section -->
 	<HeroSection 
-		title="Contact Us"
-		subtitle="Get in touch with our team for investment inquiries, platform support, or partnership opportunities."
+		title="Support"
+		subtitle="Find answers to your questions and get help with the Albion platform."
 		showBorder={true}
 	/>
-
-	<!-- Contact Form & Info -->
-	<ContentSection background="white" padding="standard">
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-			<!-- Contact Form -->
-			<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200 md:p-12">
-				<SectionTitle level="h2" size="card" className="mb-8">Send us a Message</SectionTitle>
-				
-				<form on:submit|preventDefault={handleSubmit}>
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-						<div class="flex flex-col">
-							<label for="name" class="typography-field-label mb-2">Full Name</label>
-							<input 
-								id="name"
-								type="text" 
-								bind:value={formData.name}
-								required
-								placeholder="John Doe"
-								class="px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black transition-colors duration-200 focus:outline-none focus:border-black"
-							/>
-						</div>
-						
-						<div class="flex flex-col">
-							<label for="email" class="typography-field-label mb-2">Email Address</label>
-							<input 
-								id="email"
-								type="email" 
-								bind:value={formData.email}
-								required
-								placeholder="john@example.com"
-								class="px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black transition-colors duration-200 focus:outline-none focus:border-black"
-							/>
-						</div>
-					</div>
-					
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-						<div class="flex flex-col">
-							<label for="company" class="typography-field-label mb-2">Company (Optional)</label>
-							<input 
-								id="company"
-								type="text" 
-								bind:value={formData.company}
-								placeholder="Acme Corp"
-								class="px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black transition-colors duration-200 focus:outline-none focus:border-black"
-							/>
-						</div>
-						
-						<div class="flex flex-col">
-							<label for="subject" class="typography-field-label mb-2">Subject</label>
-							<select id="subject" bind:value={formData.subject} required class="px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black transition-colors duration-200 focus:outline-none focus:border-black">
-								<option value="">Select a topic</option>
-								<option value="investment">Investment Inquiry</option>
-								<option value="support">Platform Support</option>
-								<option value="partnership">Partnership</option>
-								<option value="media">Media Inquiry</option>
-								<option value="other">Other</option>
-							</select>
-						</div>
-					</div>
-					
-					<div class="flex flex-col mb-6">
-						<label for="message" class="typography-field-label mb-2">Message</label>
-						<textarea 
-							id="message"
-							bind:value={formData.message}
-							required
-							rows="6"
-							placeholder="Tell us about your inquiry..."
-							class="px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black resize-vertical min-h-[120px] transition-colors duration-200 focus:outline-none focus:border-black"
-						></textarea>
-					</div>
-					
-					<button type="submit" class="w-full px-4 py-4 bg-black text-white border-none font-figtree font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary disabled:opacity-70 disabled:cursor-not-allowed" disabled={isSubmitting}>
-						{#if isSubmitting}
-							Sending...
-						{:else if submitStatus === 'success'}
-							Message Sent!
-						{:else}
-							Send Message
-						{/if}
-					</button>
-					
-					{#if submitStatus === 'success'}
-						<div class="bg-light-gray border border-primary text-primary px-4 py-4 mt-4 font-semibold text-center">
-							Thank you for your message. We'll get back to you within 24 hours.
-						</div>
-					{/if}
-				</form>
-			</div>
-
-			<!-- Contact Information -->
-			<div class="bg-light-gray border border-light-gray md:p-12 p-8">
-				<SectionTitle level="h2" size="card" className="mb-8">Get in Touch</SectionTitle>
-				
-				<div class="flex flex-col gap-8 mb-12">
-					<div class="flex items-start gap-4">
-						<div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-xl flex-shrink-0">📧</div>
-						<div class="flex-1">
-							<SectionTitle level="h3" size="small" uppercase className="mb-2">Email</SectionTitle>
-							<p class="text-black font-semibold mb-1">contact@albion.com</p>
-							<span class="text-xs text-black opacity-70">We respond within 24 hours</span>
-						</div>
-					</div>
-					
-					<div class="flex items-start gap-4">
-						<div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-xl flex-shrink-0">💬</div>
-						<div class="flex-1">
-							<SectionTitle level="h3" size="small" uppercase className="mb-2">Live Chat</SectionTitle>
-							<p class="text-black font-semibold mb-1">Available 24/7</p>
-							<span class="text-xs text-black opacity-70">Instant support for platform users</span>
-						</div>
-					</div>
-					
-					<div class="flex items-start gap-4">
-						<div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-xl flex-shrink-0">📞</div>
-						<div class="flex-1">
-							<SectionTitle level="h3" size="small" uppercase className="mb-2">Phone</SectionTitle>
-							<p class="text-black font-semibold mb-1">{companyInfo.contact?.phone || 'N/A'}</p>
-							<span class="text-xs text-black opacity-70">Mon-Fri, 9AM-6PM EST</span>
-						</div>
-					</div>
-					
-					<div class="flex items-start gap-4">
-						<div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-xl flex-shrink-0">📍</div>
-						<div class="flex-1">
-							<SectionTitle level="h3" size="small" uppercase className="mb-2">Office</SectionTitle>
-							<p class="text-black font-semibold mb-1">{companyInfo.contact?.address?.street || 'N/A'}<br>{companyInfo.contact?.address?.city || 'N/A'}, {companyInfo.contact?.address?.state || 'N/A'} {companyInfo.contact?.address?.zipCode || 'N/A'}</p>
-							<span class="text-xs text-black opacity-70">By appointment only</span>
-						</div>
-					</div>
-				</div>
-
-			</div>
-		</div>
-	</ContentSection>
 
 	<!-- FAQ Section -->
 	<ContentSection background="white" padding="standard" centered>
 		<SectionTitle level="h2" size="section" center className="mb-12">Frequently Asked Questions</SectionTitle>
 		
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-			<div class="bg-white p-8 text-left">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+			<div class="bg-white p-8 text-left border border-light-gray">
 				<SectionTitle level="h3" size="small" uppercase>How do I start investing?</SectionTitle>
 				<p class="text-sm text-black">Create an account, complete KYC verification, connect your wallet, and browse available assets to make your first investment.</p>
 			</div>
 			
-			<div class="bg-white p-8 text-left">
+			<div class="bg-white p-8 text-left border border-light-gray">
 				<SectionTitle level="h3" size="small" uppercase>What is the minimum investment?</SectionTitle>
 				<p class="text-sm text-black">Minimum investments vary by asset, typically ranging from $1,000 to $5,000 depending on the tranche selected.</p>
 			</div>
 			
-			<div class="bg-white p-8 text-left">
+			<div class="bg-white p-8 text-left border border-light-gray">
 				<SectionTitle level="h3" size="small" uppercase>How often are payouts distributed?</SectionTitle>
 				<p class="text-sm text-black">Payouts are distributed monthly based on actual production revenue from the underlying oil & gas assets.</p>
 			</div>
 			
-			<div class="bg-white p-8 text-left">
+			<div class="bg-white p-8 text-left border border-light-gray">
 				<SectionTitle level="h3" size="small" uppercase>Can I sell my tokens?</SectionTitle>
 				<p class="text-sm text-black">Secondary market trading will be available in Q2 2024. Currently, tokens can be held until asset maturity.</p>
+			</div>
+			
+			<div class="bg-white p-8 text-left border border-light-gray">
+				<SectionTitle level="h3" size="small" uppercase>How do I claim my payouts?</SectionTitle>
+				<p class="text-sm text-black">Visit the Claims page in your portfolio to view and claim available payouts from your token holdings.</p>
+			</div>
+			
+			<div class="bg-white p-8 text-left border border-light-gray">
+				<SectionTitle level="h3" size="small" uppercase>What wallet types are supported?</SectionTitle>
+				<p class="text-sm text-black">We support MetaMask, WalletConnect, and other popular Ethereum wallets. Make sure your wallet is connected to the correct network.</p>
 			</div>
 		</div>
 	</ContentSection>
@@ -249,6 +90,66 @@
 				<SectionTitle level="h3" size="small" uppercase textColor="white">Community Forum</SectionTitle>
 				<p class="mb-6 opacity-90 text-sm">Connect with other investors</p>
 				<a href="/community" class="text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200">Join Discussion</a>
+			</div>
+		</div>
+	</ContentSection>
+
+	<!-- Get Help Section -->
+	<ContentSection background="white" padding="standard" centered>
+		<SectionTitle level="h2" size="section" center className="mb-12">Still Need Help?</SectionTitle>
+		
+		<div class="max-w-4xl mx-auto">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+				<!-- Email Support -->
+				<div class="bg-light-gray border border-light-gray p-8 text-center">
+					<div class="text-5xl mb-4">📧</div>
+					<SectionTitle level="h3" size="small" uppercase className="mb-4">Email Support</SectionTitle>
+					<p class="text-black mb-6">Get personalized help from our support team</p>
+					<a 
+						href="mailto:contact@albion.exchange" 
+						class="inline-block px-6 py-3 bg-black text-white border-none font-figtree font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary no-underline"
+					>
+						contact@albion.exchange
+					</a>
+					<p class="text-xs text-black opacity-70 mt-4">We respond within 24 hours</p>
+				</div>
+
+				<!-- Telegram Support -->
+				<div class="bg-light-gray border border-light-gray p-8 text-center">
+					<div class="text-5xl mb-4">💬</div>
+					<SectionTitle level="h3" size="small" uppercase className="mb-4">Telegram Community</SectionTitle>
+					<p class="text-black mb-6">Join our community for real-time discussions and support</p>
+					<a 
+						href="https://t.me/albion_support" 
+						target="_blank" 
+						rel="noopener noreferrer"
+						class="inline-block px-6 py-3 bg-[#0088cc] text-white border-none font-figtree font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-[#0077b5] no-underline"
+					>
+						Join Telegram
+					</a>
+					<p class="text-xs text-black opacity-70 mt-4">Active community support</p>
+				</div>
+			</div>
+
+			<!-- Additional Support Info -->
+			<div class="mt-12 text-center">
+				<div class="bg-white border border-light-gray p-8">
+					<SectionTitle level="h3" size="small" uppercase className="mb-4">Support Hours</SectionTitle>
+					<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
+						<div>
+							<p class="font-semibold text-black mb-1">Email Support</p>
+							<p class="text-black opacity-70">24/7 - We aim to respond within 24 hours</p>
+						</div>
+						<div>
+							<p class="font-semibold text-black mb-1">Telegram Community</p>
+							<p class="text-black opacity-70">24/7 - Community-driven support</p>
+						</div>
+						<div>
+							<p class="font-semibold text-black mb-1">Platform Status</p>
+							<p class="text-black opacity-70">Check <a href="/status" class="text-primary hover:opacity-80">status.albion.exchange</a></p>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</ContentSection>

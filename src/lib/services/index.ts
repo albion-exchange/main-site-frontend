@@ -10,6 +10,15 @@ export { default as AssetService } from './AssetService';
 export { default as TokenService } from './TokenService';
 export { default as ConfigService } from './ConfigService';
 
+// MailChimp service
+export { 
+  MailChimpService, 
+  createMailChimpService,
+  MAILCHIMP_LISTS,
+  type MailChimpSubscription,
+  type TokenNotificationRequest
+} from './MailChimpService';
+
 // Service infrastructure
 export { 
   serviceContainer,
@@ -17,6 +26,7 @@ export {
   useTokenService,
   useConfigService,
   useWalletDataService,
+  useMailChimpService,
   type ServiceContainer
 } from './ServiceContainer';
 

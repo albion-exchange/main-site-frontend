@@ -187,7 +187,7 @@
 			<p class="text-lg text-black mb-8">Join thousands of investors earning from institutional-grade energy assets.</p>
 			<div class="flex md:flex-row flex-col gap-4 justify-center items-center">
 				<PrimaryButton href="/assets" size="large">Browse Assets</PrimaryButton>
-				<SecondaryButton href="/contact" size="large">Contact Us</SecondaryButton>
+				<SecondaryButton href="/contact" size="large">Get Support</SecondaryButton>
 		</div>
 	</ContentSection>
 </PageLayout>
