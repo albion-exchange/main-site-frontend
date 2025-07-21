@@ -867,7 +867,7 @@
 												</div>
 											</div>
 
-											<div class="p-4 sm:p-8 pt-0">
+											<div class="px-4 sm:px-8 pb-6 sm:pb-8">
 												<div class="grid grid-cols-2 gap-2 sm:gap-3">
 													{#if hasAvailableSupply}
 														<PrimaryButton fullWidth size="small" on:click={(e) => { e.stopPropagation(); handleBuyTokens(token.contractAddress); }}>
