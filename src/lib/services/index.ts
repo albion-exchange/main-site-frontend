@@ -9,6 +9,7 @@ export { default as WalletDataService } from './WalletDataService';
 export { default as AssetService } from './AssetService';
 export { default as TokenService } from './TokenService';
 export { default as ConfigService } from './ConfigService';
+export { MailchimpService, useMailchimpService } from './MailchimpService';
 
 // Service infrastructure
 export { 

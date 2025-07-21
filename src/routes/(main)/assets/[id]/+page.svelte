@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { useTokenService, useConfigService } from '$lib/services';
+	import { useTokenService, useConfigService, useMailchimpService } from '$lib/services';
 	import type { Asset, Token } from '$lib/types/uiTypes';
-	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart, CollapsibleSection } from '$lib/components/components';
+	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart, CollapsibleSection, MailchimpSignup } from '$lib/components/components';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
 
 	import TabButton from '$lib/components/components/TabButton.svelte';
@@ -28,6 +28,7 @@
 	// Use services
 	const tokenService = useTokenService();
 	const configService = useConfigService();
+	const mailchimpService = useMailchimpService();
 	
 	// Get asset ID from URL params
 	$: assetId = $page.params.id;
@@ -65,6 +66,11 @@
 	let emailAddress = '';
 	let isSubmittingEmail = false;
 	let emailSubmitted = false;
+	let emailSubmitStatus: 'idle' | 'success' | 'error' = 'idle';
+	let emailErrorMessage = '';
+	
+	// Future release data for MailChimp integration
+	let selectedFutureRelease: any = null;
 	
 	// Track flipped state for each token card
 	let flippedCards = new Set();
@@ -138,7 +144,8 @@
 		selectedTokenAddress = null;
 	}
 	
-	function handleGetNotified() {
+	function handleGetNotified(futureRelease?: any) {
+		selectedFutureRelease = futureRelease;
 		showEmailPopup = true;
 	}
 	
@@ -146,23 +153,46 @@
 		showEmailPopup = false;
 		emailAddress = '';
 		emailSubmitted = false;
+		emailSubmitStatus = 'idle';
+		emailErrorMessage = '';
+		selectedFutureRelease = null;
 	}
 	
-	async function handleEmailSubmit() {
-		if (!emailAddress || isSubmittingEmail) return;
+	async function handleEmailSubmit(event: CustomEvent<{ email: string }>) {
+		const email = event.detail.email;
+		
+		if (!email || isSubmittingEmail) return;
 		
 		isSubmittingEmail = true;
+		emailSubmitStatus = 'idle';
 		
-		// Simulate API call
-		setTimeout(() => {
-			isSubmittingEmail = false;
-			emailSubmitted = true;
+		try {
+			// Subscribe to token notifications with asset and release info
+			const result = await mailchimpService.subscribeToTokenNotifications(
+				email,
+				assetData?.name || 'Unknown Asset',
+				selectedFutureRelease?.id || selectedFutureRelease?.whenRelease || 'Next Release'
+			);
 			
-			// Auto-close after 2 seconds
-			setTimeout(() => {
-				handleCloseEmailPopup();
-			}, 2000);
-		}, 1000);
+			if (result.success) {
+				emailSubmitStatus = 'success';
+				emailSubmitted = true;
+				
+				// Auto-close after 3 seconds
+				setTimeout(() => {
+					handleCloseEmailPopup();
+				}, 3000);
+			} else {
+				emailSubmitStatus = 'error';
+				emailErrorMessage = result.message;
+			}
+		} catch (error) {
+			emailSubmitStatus = 'error';
+			emailErrorMessage = 'Failed to subscribe. Please try again.';
+			console.error('Email subscription error:', error);
+		} finally {
+			isSubmittingEmail = false;
+		}
 	}
 
 </script>
@@ -949,7 +979,7 @@
 								<div class="text-5xl mb-6">{release.emoji || '📅'}</div>
 								<h4 class="text-xl font-extrabold mb-4 text-black uppercase tracking-wider">{index === 0 ? 'Next Release' : 'Future Release'} - {release.whenRelease}</h4>
 								<p class="text-base mb-8 text-black opacity-70">{release.description || 'Token release planned'}</p>
-								<SecondaryButton on:click={handleGetNotified}>
+								<SecondaryButton on:click={() => handleGetNotified(release)}>
 									Get Notified
 								</SecondaryButton>
 							</div>
@@ -965,7 +995,7 @@
 									<div class="text-5xl mb-6">🚀</div>
 									<h4 class="text-xl font-extrabold mb-4 text-black uppercase tracking-wider">New Release Coming Soon</h4>
 									<p class="text-base mb-8 text-black opacity-70">Next token release planned for Q1 2025</p>
-									<SecondaryButton on:click={handleGetNotified}>
+									<SecondaryButton on:click={() => handleGetNotified({ whenRelease: 'Q1 2025', description: 'New Release Coming Soon' })}>
 										Get Notified
 									</SecondaryButton>
 								</div>
@@ -1008,23 +1038,27 @@
 								Thank you! We'll notify you when the new token release is available.
 							</div>
 						{:else}
-							<p>Enter your email address to be notified when the next token release becomes available.</p>
-							<form class="mt-4 space-y-4" on:submit|preventDefault={handleEmailSubmit}>
-								<input
-									type="email"
-									class="w-full px-4 py-3 border border-light-gray bg-white text-black placeholder-black placeholder-opacity-50 focus:outline-none focus:border-primary disabled:opacity-50"
+							<p class="mb-4">Enter your email address to be notified when the next token release becomes available.</p>
+							{#if selectedFutureRelease}
+								<div class="mb-4 p-3 bg-light-gray text-sm">
+									<strong>Release:</strong> {selectedFutureRelease.whenRelease || 'Next Release'}
+									{#if assetData?.name}
+										<br><strong>Asset:</strong> {assetData.name}
+									{/if}
+								</div>
+							{/if}
+							<div class="mt-4">
+								<MailchimpSignup 
 									placeholder="Enter your email address"
-									bind:value={emailAddress}
-									required
-									disabled={isSubmittingEmail}
+									buttonText="Notify Me"
+									layout="vertical"
+									isSubmitting={isSubmittingEmail}
+									submitStatus={emailSubmitStatus}
+									errorMessage={emailErrorMessage}
+									successMessage="Thank you! We'll notify you when the new token release is available."
+									on:submit={handleEmailSubmit}
 								/>
-								<PrimaryButton 
-									type="submit" 
-									disabled={isSubmittingEmail || !emailAddress}
-								>
-									{isSubmittingEmail ? 'Submitting...' : 'Notify Me'}
-								</PrimaryButton>
-							</form>
+							</div>
 						{/if}
 					</div>
 				</div>

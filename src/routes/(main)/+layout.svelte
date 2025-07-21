@@ -5,12 +5,20 @@
 	import { getSfts } from '$lib/queries/getSfts';
 	import { sftMetadata, sfts } from '$lib/stores';
 	import { web3Modal, signerAddress, connected, loading, disconnectWagmi } from 'svelte-wagmi';
-	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
+	import { PrimaryButton, SecondaryButton, MailchimpSignup } from '$lib/components/components';
 	import { formatAddress } from '$lib/utils/formatters';
+	import { useMailchimpService } from '$lib/services';
 	import { slide } from 'svelte/transition';
 	
 	$: currentPath = $page.url.pathname;
 	let mobileMenuOpen = false;
+	
+	// Newsletter signup state
+	let newsletterSubmitting = false;
+	let newsletterStatus: 'idle' | 'success' | 'error' = 'idle';
+	let newsletterError = '';
+	
+	const mailchimpService = useMailchimpService();
 	
 	// Real wallet connection
 	async function connectWallet() {
@@ -30,6 +38,32 @@
 	
 	function closeMobileMenu() {
 		mobileMenuOpen = false;
+	}
+	
+	async function handleNewsletterSignup(event: CustomEvent<{ email: string }>) {
+		const email = event.detail.email;
+		
+		if (!email || newsletterSubmitting) return;
+		
+		newsletterSubmitting = true;
+		newsletterStatus = 'idle';
+		
+		try {
+			const result = await mailchimpService.subscribeToNewsletter(email);
+			
+			if (result.success) {
+				newsletterStatus = 'success';
+			} else {
+				newsletterStatus = 'error';
+				newsletterError = result.message;
+			}
+		} catch (error) {
+			newsletterStatus = 'error';
+			newsletterError = 'Failed to subscribe. Please try again.';
+			console.error('Newsletter subscription error:', error);
+		} finally {
+			newsletterSubmitting = false;
+		}
 	}
 
 	$: query = createQuery({
@@ -186,13 +220,26 @@
 					<h4 class={footerSectionH4Classes}>Company</h4>
 					<ul class={footerSectionUlClasses}>
 						<li class={footerSectionLiClasses}><a href="/about" class={footerSectionLinkClasses}>About</a></li>
-						<li class={footerSectionLiClasses}><a href="/contact" class={footerSectionLinkClasses}>Contact</a></li>
+						<li class={footerSectionLiClasses}><a href="/contact" class={footerSectionLinkClasses}>Support</a></li>
 						<li class={footerSectionLiClasses}><a href="/legal" class={footerSectionLinkClasses}>Legal</a></li>
 					</ul>
 				</div>
 				<div class="hidden lg:block">
-					<h4 class={footerSectionH4Classes}>Stay Connected</h4>
-					<p class={footerSectionPClasses}>Follow Albion for the latest updates on energy investments and platform news</p>
+					<h4 class={footerSectionH4Classes}>Newsletter</h4>
+					<p class={footerSectionPClasses}>Get the latest updates on energy investments and new token releases</p>
+					<div class="mt-4">
+						<MailchimpSignup 
+							placeholder="Enter your email"
+							buttonText="Subscribe"
+							size="small"
+							layout="vertical"
+							isSubmitting={newsletterSubmitting}
+							submitStatus={newsletterStatus}
+							errorMessage={newsletterError}
+							successMessage="Successfully subscribed to our newsletter!"
+							on:submit={handleNewsletterSignup}
+						/>
+					</div>
 					<div class={footerSocialButtonsClasses}>
 						<a href="https://twitter.com/albion" target="_blank" rel="noopener noreferrer" class="{footerSocialBtnClasses} {footerSocialTwitterClasses}" aria-label="Follow Albion on Twitter">
 							<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">

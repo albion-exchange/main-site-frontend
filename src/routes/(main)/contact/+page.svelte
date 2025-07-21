@@ -1,199 +1,45 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { useConfigService } from '$lib/services';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
-	
-	let formData = {
-		name: '',
-		email: '',
-		company: '',
-		subject: '',
-		message: ''
-	};
-	
-	let isSubmitting = false;
-	let submitStatus: 'idle' | 'success' | 'error' = 'idle';
-	let companyInfo: any = {};
-	const configService = useConfigService();
-	
-	onMount(() => {
-		try {
-			companyInfo = configService.getCompanyConfig();
-		} catch (error) {
-			console.error('Failed to load company info:', error);
-		}
-	});
-
-	async function handleSubmit() {
-		isSubmitting = true;
-		
-		// Simulate form submission
-		setTimeout(() => {
-			isSubmitting = false;
-			submitStatus = 'success';
-			
-			// Reset form
-			formData = {
-				name: '',
-				email: '',
-				company: '',
-				subject: '',
-				message: ''
-			};
-			
-			// Reset status after 3 seconds
-			setTimeout(() => {
-				submitStatus = 'idle';
-			}, 3000);
-		}, 1000);
-	}
 </script>
 
 <svelte:head>
-	<title>Contact - Albion</title>
-	<meta name="description" content="Get in touch with the Albion team for investment inquiries and support" />
+	<title>Support - Albion</title>
+	<meta name="description" content="Get help and support for the Albion platform with our comprehensive resources and team assistance" />
 </svelte:head>
 
 <PageLayout>
 	<!-- Hero Section -->
 	<HeroSection 
-		title="Contact Us"
-		subtitle="Get in touch with our team for investment inquiries, platform support, or partnership opportunities."
+		title="Support"
+		subtitle="Get the help you need with our comprehensive support resources and dedicated team assistance."
 		showBorder={true}
 	/>
 
-	<!-- Contact Form & Info -->
+	<!-- Quick Help Section -->
 	<ContentSection background="white" padding="standard">
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-			<!-- Contact Form -->
-			<div class="bg-white border border-light-gray p-8 shadow-sm hover:shadow-md transition-shadow duration-200 md:p-12">
-				<SectionTitle level="h2" size="card" className="mb-8">Send us a Message</SectionTitle>
-				
-				<form on:submit|preventDefault={handleSubmit}>
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-						<div class="flex flex-col">
-							<label for="name" class="typography-field-label mb-2">Full Name</label>
-							<input 
-								id="name"
-								type="text" 
-								bind:value={formData.name}
-								required
-								placeholder="John Doe"
-								class="px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black transition-colors duration-200 focus:outline-none focus:border-black"
-							/>
-						</div>
-						
-						<div class="flex flex-col">
-							<label for="email" class="typography-field-label mb-2">Email Address</label>
-							<input 
-								id="email"
-								type="email" 
-								bind:value={formData.email}
-								required
-								placeholder="john@example.com"
-								class="px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black transition-colors duration-200 focus:outline-none focus:border-black"
-							/>
-						</div>
-					</div>
-					
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-						<div class="flex flex-col">
-							<label for="company" class="typography-field-label mb-2">Company (Optional)</label>
-							<input 
-								id="company"
-								type="text" 
-								bind:value={formData.company}
-								placeholder="Acme Corp"
-								class="px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black transition-colors duration-200 focus:outline-none focus:border-black"
-							/>
-						</div>
-						
-						<div class="flex flex-col">
-							<label for="subject" class="typography-field-label mb-2">Subject</label>
-							<select id="subject" bind:value={formData.subject} required class="px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black transition-colors duration-200 focus:outline-none focus:border-black">
-								<option value="">Select a topic</option>
-								<option value="investment">Investment Inquiry</option>
-								<option value="support">Platform Support</option>
-								<option value="partnership">Partnership</option>
-								<option value="media">Media Inquiry</option>
-								<option value="other">Other</option>
-							</select>
-						</div>
-					</div>
-					
-					<div class="flex flex-col mb-6">
-						<label for="message" class="typography-field-label mb-2">Message</label>
-						<textarea 
-							id="message"
-							bind:value={formData.message}
-							required
-							rows="6"
-							placeholder="Tell us about your inquiry..."
-							class="px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black resize-vertical min-h-[120px] transition-colors duration-200 focus:outline-none focus:border-black"
-						></textarea>
-					</div>
-					
-					<button type="submit" class="w-full px-4 py-4 bg-black text-white border-none font-figtree font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary disabled:opacity-70 disabled:cursor-not-allowed" disabled={isSubmitting}>
-						{#if isSubmitting}
-							Sending...
-						{:else if submitStatus === 'success'}
-							Message Sent!
-						{:else}
-							Send Message
-						{/if}
-					</button>
-					
-					{#if submitStatus === 'success'}
-						<div class="bg-light-gray border border-primary text-primary px-4 py-4 mt-4 font-semibold text-center">
-							Thank you for your message. We'll get back to you within 24 hours.
-						</div>
-					{/if}
-				</form>
+		<SectionTitle level="h2" size="section" center className="mb-12">Quick Help</SectionTitle>
+		
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+			<div class="bg-white border border-light-gray p-8 text-center hover:shadow-md transition-shadow duration-200">
+				<div class="text-5xl mb-4">📖</div>
+				<SectionTitle level="h3" size="small" uppercase className="mb-4">Getting Started</SectionTitle>
+				<p class="text-sm text-black mb-6">Learn how to create an account, complete KYC, and make your first investment.</p>
+				<a href="/help/getting-started" class="text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200">View Guide</a>
 			</div>
-
-			<!-- Contact Information -->
-			<div class="bg-light-gray border border-light-gray md:p-12 p-8">
-				<SectionTitle level="h2" size="card" className="mb-8">Get in Touch</SectionTitle>
-				
-				<div class="flex flex-col gap-8 mb-12">
-					<div class="flex items-start gap-4">
-						<div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-xl flex-shrink-0">📧</div>
-						<div class="flex-1">
-							<SectionTitle level="h3" size="small" uppercase className="mb-2">Email</SectionTitle>
-							<p class="text-black font-semibold mb-1">contact@albion.com</p>
-							<span class="text-xs text-black opacity-70">We respond within 24 hours</span>
-						</div>
-					</div>
-					
-					<div class="flex items-start gap-4">
-						<div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-xl flex-shrink-0">💬</div>
-						<div class="flex-1">
-							<SectionTitle level="h3" size="small" uppercase className="mb-2">Live Chat</SectionTitle>
-							<p class="text-black font-semibold mb-1">Available 24/7</p>
-							<span class="text-xs text-black opacity-70">Instant support for platform users</span>
-						</div>
-					</div>
-					
-					<div class="flex items-start gap-4">
-						<div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-xl flex-shrink-0">📞</div>
-						<div class="flex-1">
-							<SectionTitle level="h3" size="small" uppercase className="mb-2">Phone</SectionTitle>
-							<p class="text-black font-semibold mb-1">{companyInfo.contact?.phone || 'N/A'}</p>
-							<span class="text-xs text-black opacity-70">Mon-Fri, 9AM-6PM EST</span>
-						</div>
-					</div>
-					
-					<div class="flex items-start gap-4">
-						<div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-xl flex-shrink-0">📍</div>
-						<div class="flex-1">
-							<SectionTitle level="h3" size="small" uppercase className="mb-2">Office</SectionTitle>
-							<p class="text-black font-semibold mb-1">{companyInfo.contact?.address?.street || 'N/A'}<br>{companyInfo.contact?.address?.city || 'N/A'}, {companyInfo.contact?.address?.state || 'N/A'} {companyInfo.contact?.address?.zipCode || 'N/A'}</p>
-							<span class="text-xs text-black opacity-70">By appointment only</span>
-						</div>
-					</div>
-				</div>
-
+			
+			<div class="bg-white border border-light-gray p-8 text-center hover:shadow-md transition-shadow duration-200">
+				<div class="text-5xl mb-4">💰</div>
+				<SectionTitle level="h3" size="small" uppercase className="mb-4">Investments & Returns</SectionTitle>
+				<p class="text-sm text-black mb-6">Understand how investments work, payouts are distributed, and returns are calculated.</p>
+				<a href="/help/investments" class="text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200">Learn More</a>
+			</div>
+			
+			<div class="bg-white border border-light-gray p-8 text-center hover:shadow-md transition-shadow duration-200">
+				<div class="text-5xl mb-4">🔒</div>
+				<SectionTitle level="h3" size="small" uppercase className="mb-4">Security & Privacy</SectionTitle>
+				<p class="text-sm text-black mb-6">Learn about our security measures, data protection, and account safety.</p>
+				<a href="/help/security" class="text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200">Read More</a>
 			</div>
 		</div>
 	</ContentSection>
@@ -249,6 +95,31 @@
 				<SectionTitle level="h3" size="small" uppercase textColor="white">Community Forum</SectionTitle>
 				<p class="mb-6 opacity-90 text-sm">Connect with other investors</p>
 				<a href="/community" class="text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200">Join Discussion</a>
+			</div>
+		</div>
+	</ContentSection>
+
+	<!-- Still Need Help Section -->
+	<ContentSection background="secondary" padding="standard" centered>
+		<SectionTitle level="h2" size="section" center className="mb-8 text-white">Still Need Help?</SectionTitle>
+		
+		<div class="max-w-2xl mx-auto text-center">
+			<p class="text-white opacity-90 mb-8 text-lg">Can't find what you're looking for? Our support team is here to help.</p>
+			
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div class="bg-white/10 border border-white/20 p-6 rounded">
+					<div class="text-3xl mb-4">📧</div>
+					<SectionTitle level="h3" size="small" uppercase textColor="white" className="mb-3">Email Support</SectionTitle>
+					<p class="text-white opacity-90 mb-4 text-sm">Get personalized help from our team</p>
+					<a href="mailto:contact@albion.exchange" class="text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200">contact@albion.exchange</a>
+				</div>
+				
+				<div class="bg-white/10 border border-white/20 p-6 rounded">
+					<div class="text-3xl mb-4">💬</div>
+					<SectionTitle level="h3" size="small" uppercase textColor="white" className="mb-3">Join Our Community</SectionTitle>
+					<p class="text-white opacity-90 mb-4 text-sm">Connect with other investors and get instant help</p>
+					<a href="https://t.me/albion" target="_blank" rel="noopener noreferrer" class="text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200">Telegram Channel</a>
+				</div>
 			</div>
 		</div>
 	</ContentSection>
