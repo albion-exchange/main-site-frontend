@@ -80,7 +80,9 @@
 		<nav>
 			<div class={navContainerClasses}>
 				<a href="/" class="{logoClasses}" on:click={closeMobileMenu}>
-					<span class="text-lg font-bold text-black">ALBION LABS</span>
+					<div class="overflow-hidden">
+						<img src="/assets/logo.svg" alt="Albion Logo" class={logoImageClasses} style="margin-left: -0.3rem" />
+					</div>
 				</a>
 				
 				<!-- Desktop navigation - centered -->

@@ -313,17 +313,11 @@
 			<SectionTitle level="h3" size="subsection" className="mb-6">My Holdings</SectionTitle>
 			
 			<div class="space-y-4">
-				<!-- Debug info at top -->
-				<div class="text-xs bg-yellow-100 p-2 mb-4">
-					Debug: loading={loading}, holdings={holdings ? `exists with length ${holdings.length}` : 'null'}, 
-					condition1={loading}, condition2={holdings && holdings.length > 0}
-				</div>
-				
 				{#if loading}
 					<div class="text-center py-8 text-black opacity-70">Loading portfolio holdings...</div>
-				{:else if holdings && holdings.length > 0}
-					<!-- This should show when we have holdings -->
-					{#each holdings as holding}
+				{:else}
+					{#if holdings && Array.isArray(holdings) && holdings.length > 0}
+						{#each holdings as holding}
 						{@const chartData = getPayoutChartData(holding)}
 						<Card hoverable showBorder>
 							<CardContent paddingClass="p-0">
@@ -431,17 +425,18 @@
 								</div>
 							</CardContent>
 						</Card>
-					{/each}
-				{:else}
-					<div class="text-center py-8 text-black opacity-70">
-						<div class="text-4xl mb-2">📊</div>
-						<p>No holdings found</p>
-						<p class="text-sm mt-2">Start investing to see your portfolio here</p>
-						<!-- Debug info -->
-						<div class="text-xs mt-4 text-gray-400">
-							Debug: Loading: {loading}, Holdings: {holdings ? holdings.length : 'null'}, Array: {holdings ? 'exists' : 'null'}
+						{/each}
+					{:else}
+						<div class="text-center py-8 text-black opacity-70">
+							<div class="text-4xl mb-2">📊</div>
+							<p>No holdings found</p>
+							<p class="text-sm mt-2">Start investing to see your portfolio here</p>
+							<!-- Debug info -->
+							<div class="text-xs mt-4 text-gray-400">
+								Debug: Loading: {loading}, Holdings: {holdings ? holdings.length : 'null'}, Array: {holdings ? 'exists' : 'null'}
+							</div>
 						</div>
-					</div>
+					{/if}
 				{/if}
 			</div>
 			
