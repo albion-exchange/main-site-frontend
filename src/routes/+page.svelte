@@ -275,9 +275,10 @@
 									Market data unavailable
 								{/if}
 							</span>
-							<span class="text-primary font-extrabold">--							</span>
+							<span class="text-primary font-extrabold">--</span>
 						</div>
 					</div>
+				{/if}
 				{#if $marketData}
 					<div class="mt-4 text-xs text-white/70 text-center">
 						Last updated: {new Date($marketData.wti.lastUpdated).toLocaleTimeString()}

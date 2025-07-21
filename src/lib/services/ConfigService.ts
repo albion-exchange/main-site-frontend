@@ -15,10 +15,48 @@
  */
 
 // Import configuration data
-import marketData from "$lib/data/marketData.json";
 import platformStats from "$lib/data/platformStats.json";
 import companyInfo from "$lib/data/companyInfo.json";
 import futureReleasesData from "$lib/data/futureReleases.json";
+
+// Market configuration defaults (replacing marketData.json)
+const defaultMarketConfig = {
+  defaultGrowthRate: 2.8,
+  gasFeesEstimate: {
+    low: 8.5,
+    medium: 12.5,
+    high: 18.75,
+    currency: "USD"
+  },
+  tokenPricing: {
+    defaultEstimatedValue: 10,
+    regionMultipliers: {
+      bakken: 1.2,
+      permian: 1.5,
+      "gulf-mexico": 1.8,
+      europe: 0.8
+    }
+  },
+  scenarios: {
+    oilPrice: {
+      bear: {
+        price: 60,
+        baseReturn: 9.2,
+        change: -6.0
+      },
+      base: {
+        price: 75,
+        baseReturn: 12.8,
+        change: 0.0
+      },
+      bull: {
+        price: 95,
+        baseReturn: 17.8,
+        change: 38.6
+      }
+    }
+  }
+};
 
 export interface MarketConfig {
   commodityPrices: {
@@ -109,7 +147,7 @@ class ConfigService {
 
   constructor() {
     this.config = {
-      market: marketData as MarketConfig,
+      market: defaultMarketConfig as MarketConfig,
       platform: platformStats as PlatformConfig,
       company: companyInfo as CompanyConfig,
       futureReleases: this.transformFutureReleasesData(futureReleasesData)
@@ -309,7 +347,7 @@ class ConfigService {
     // In a real app, this might fetch from API
     // For now, we'll just re-import the JSON files
     this.config = {
-      market: marketData as MarketConfig,
+      market: defaultMarketConfig as MarketConfig,
       platform: platformStats as PlatformConfig,
       company: companyInfo as CompanyConfig,
       futureReleases: this.transformFutureReleasesData(futureReleasesData)
