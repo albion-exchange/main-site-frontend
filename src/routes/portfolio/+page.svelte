@@ -315,17 +315,8 @@
 			<div class="space-y-4">
 				{#if loading}
 					<div class="text-center py-8 text-black opacity-70">Loading portfolio holdings...</div>
-				{:else if !holdings || holdings.length === 0}
-					<div class="text-center py-8 text-black opacity-70">
-						<div class="text-4xl mb-2">📊</div>
-						<p>No holdings found</p>
-						<p class="text-sm mt-2">Start investing to see your portfolio here</p>
-						<!-- Debug info -->
-						<div class="text-xs mt-4 text-gray-400">
-							Debug: Holdings array: {JSON.stringify(holdings)}
-						</div>
-					</div>
-				{:else}
+				{:else if holdings && holdings.length > 0}
+					<!-- This should show when we have holdings -->
 					{#each holdings as holding}
 						{@const chartData = getPayoutChartData(holding)}
 						<Card hoverable showBorder>
@@ -435,6 +426,16 @@
 							</CardContent>
 						</Card>
 					{/each}
+				{:else}
+					<div class="text-center py-8 text-black opacity-70">
+						<div class="text-4xl mb-2">📊</div>
+						<p>No holdings found</p>
+						<p class="text-sm mt-2">Start investing to see your portfolio here</p>
+						<!-- Debug info -->
+						<div class="text-xs mt-4 text-gray-400">
+							Debug: Loading: {loading}, Holdings: {holdings ? holdings.length : 'null'}, Array: {holdings ? 'exists' : 'null'}
+						</div>
+					</div>
 				{/if}
 			</div>
 			
