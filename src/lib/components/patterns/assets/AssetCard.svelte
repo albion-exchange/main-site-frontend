@@ -133,7 +133,7 @@
 		<!-- Key Stats -->
 		<div class={highlightedStatsClasses}>
 			<div class={highlightStatClasses}>
-				<span class={highlightValueClasses}>{asset.production?.expectedRemainingProduction || 'TBD'}</span>
+				<span class={highlightValueClasses}>{asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0).toFixed(2) || 'TBD'}</span>
 				<span class={highlightLabelClasses}>Exp. Remaining</span>
 			</div>
 			{#if latestReport}
