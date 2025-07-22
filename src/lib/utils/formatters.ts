@@ -361,16 +361,11 @@ export function formatSmartReturn(
   // Convert percentage to multiplier (100% = 2x, 200% = 3x, etc.)
   const multiplier = (returnPercentage / 100) + 1;
   
-  // For very large multipliers, use K/M notation
-  if (multiplier >= 1000) {
-    return formatCompactNumber(multiplier, 1) + 'x';
+  // Cap display at >10x for any value 10x or greater
+  if (multiplier >= 10) {
+    return showPlus ? '+>10x' : '>10x';
   }
   
-  // For moderate multipliers, show with one decimal if needed
-  if (multiplier < 10) {
-    return `${multiplier.toFixed(1)}x`;
-  }
-  
-  // For larger multipliers, show as integer
-  return `${Math.round(multiplier)}x`;
+  // For multipliers below 10x, show with one decimal if needed
+  return `${multiplier.toFixed(1)}x`;
 }

@@ -353,9 +353,13 @@
 							<span class="hidden sm:inline">
 								<FormattedReturn value={calculatedReturns?.baseReturn} />
 							</span>
-							<span class="sm:hidden">
+							<span class="sm:hidden flex items-center gap-1">
 								{#if calculatedReturns?.baseReturn !== undefined && calculatedReturns?.bonusReturn !== undefined}
-									<FormattedReturn value={calculatedReturns.baseReturn} /> + <FormattedReturn value={calculatedReturns.bonusReturn} />
+									<span class="flex items-center gap-1 text-xs">
+										<FormattedReturn value={calculatedReturns.baseReturn} />
+										<span>+</span>
+										<FormattedReturn value={calculatedReturns.bonusReturn} />
+									</span>
 								{:else}
 									TBD
 								{/if}
