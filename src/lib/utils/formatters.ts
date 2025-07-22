@@ -263,3 +263,8 @@ export function isValidDate(date: unknown): boolean {
   const dateObj = date instanceof Date ? date : new Date(date as string);
   return !isNaN(dateObj.getTime());
 }
+
+export function formatAddress(address: string): string {
+	if (!address) return "";
+	return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
