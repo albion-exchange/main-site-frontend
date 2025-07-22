@@ -247,7 +247,7 @@
 							<h4 class="{footerSectionH4Classes} lg:text-right">Company</h4>
 							<ul class="{footerSectionUlClasses} lg:text-right">
 								<li class={footerSectionLiClasses}><a href="/about" class={footerSectionLinkClasses}>About</a></li>
-								<li class={footerSectionLiClasses}><a href="/contact" class={footerSectionLinkClasses}>Contact</a></li>
+								<li class={footerSectionLiClasses}><a href="/support" class={footerSectionLinkClasses}>Support</a></li>
 								<li class={footerSectionLiClasses}><a href="/legal" class={footerSectionLinkClasses}>Legal</a></li>
 							</ul>
 						</div>
