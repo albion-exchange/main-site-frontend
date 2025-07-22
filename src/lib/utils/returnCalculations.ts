@@ -3,6 +3,7 @@
  * Based on planned production data and token supply metrics
  */
 
+import type { TokenMetadata } from "$lib/types/MetaboardTypes";
 import type {
   Asset,
   Token,
@@ -25,7 +26,7 @@ export interface TokenReturns {
  */
 export function calculateTokenReturns(
   asset: Asset,
-  token: Token,
+  token: TokenMetadata,
 ): TokenReturns {
   if (!asset.plannedProduction || !token.sharePercentage) {
     return {
@@ -40,11 +41,13 @@ export function calculateTokenReturns(
   const { projections, oilPriceAssumption } = plannedProduction;
   const sharePercentage = token.sharePercentage / 100; // Convert to decimal
 
-  // Use converted supply numbers if available, otherwise convert from BigInt strings
-  const maxSupply = token.supplyNumbers?.maxSupply || 
-    Number(BigInt(token.supply.maxSupply) / BigInt(10 ** token.decimals));
-  const mintedSupply = token.supplyNumbers?.mintedSupply || 
-    Number(BigInt(token.supply.mintedSupply) / BigInt(10 ** token.decimals));
+  // Convert supply to numbers
+  const maxSupply = typeof token.supply?.maxSupply === 'string' 
+    ? Number(BigInt(token.supply.maxSupply) / BigInt(10 ** token.decimals))
+    : Number(token.supply?.maxSupply || 0);
+  const mintedSupply = typeof token.supply?.mintedSupply === 'string'
+    ? Number(BigInt(token.supply.mintedSupply) / BigInt(10 ** token.decimals))
+    : Number(token.supply?.mintedSupply || 0);
 
   // Calculate total production and revenue over the asset life
   let totalProduction = 0;
@@ -113,7 +116,7 @@ export function calculateTokenReturns(
  */
 const returnCache = new Map<string, TokenReturns>();
 
-export function getTokenReturns(asset: Asset, token: Token): TokenReturns {
+export function getTokenReturns(asset: Asset, token: TokenMetadata): TokenReturns {
   const cacheKey = `${asset.id}-${token.contractAddress}`;
 
   if (returnCache.has(cacheKey)) {
@@ -131,4 +134,33 @@ export function getTokenReturns(asset: Asset, token: Token): TokenReturns {
  */
 export function clearReturnsCache(): void {
   returnCache.clear();
+}
+
+export function getTokenSupply(token: Token) {
+  if (!token) return null;
+
+  const maxSupply = parseFloat(token.supply.maxSupply) / Math.pow(10, token.decimals);
+  const mintedSupply = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
+  const supplyUtilization = (mintedSupply / maxSupply) * 100;
+
+  return {
+    maxSupply,
+    mintedSupply,
+    supplyUtilization,
+    availableSupply: maxSupply - mintedSupply
+  };
+}
+
+export function getTokenPayoutHistory(token: TokenMetadata): { recentPayouts: any[] } | null {
+  if (!token || !token.payoutData) {
+    return null;
+  }
+  
+  return {
+    recentPayouts: token.payoutData.map(payout => ({
+      month: payout.month,
+      totalPayout: payout.tokenPayout.totalPayout,
+      payoutPerToken: payout.tokenPayout.payoutPerToken
+    }))
+  };
 }

@@ -4,6 +4,7 @@ import type { OffchainAssetReceiptVault } from '$lib/types/offchainAssetReceiptV
 import type { Asset, PlannedProduction, Token } from '$lib/types/uiTypes';
 import type { ISODateTimeString } from '$lib/types/sharedTypes';
 import { PINATA_GATEWAY } from '$lib/network';
+import type { TokenMetadata } from '$lib/types/MetaboardTypes';
 
 export const addSchemaToReceipts = (vault: OffchainAssetReceiptVault) => {
 	let tempSchema: { displayName: string; hash: string }[] = [];
@@ -70,6 +71,31 @@ export function generateTokenInstanceFromSft(sft: OffchainAssetReceiptVault, pin
 
 }
 
+export function generateTokenMetadataInstanceFromSft(sft: OffchainAssetReceiptVault, pinnedMetadata: any, sftMaxSharesSupply: string): TokenMetadata {
+
+	const tokenInstance: TokenMetadata = {
+		contractAddress: sft.id,
+		assetId: sft.id,
+		symbol: sft.symbol,
+		releaseName: pinnedMetadata.releaseName,
+		tokenType: pinnedMetadata.tokenType,
+		firstPaymentDate: pinnedMetadata.firstPaymentDate,
+		sharePercentage: pinnedMetadata.sharePercentage,
+		decimals: pinnedMetadata.decimals,
+		supply: {
+			maxSupply: sftMaxSharesSupply.toString(),
+			mintedSupply: sft.totalShares
+		},
+		payoutData: pinnedMetadata.payoutData,
+		asset: pinnedMetadata.asset,
+		metadata: pinnedMetadata.metadata
+	}
+
+	return tokenInstance
+
+}
+
+
 export function generateAssetInstanceFromSftMeta(sft: OffchainAssetReceiptVault, pinnedMetadata: any ): Asset {
    
 
@@ -84,6 +110,11 @@ export function generateAssetInstanceFromSftMeta(sft: OffchainAssetReceiptVault,
 		description: pinnedMetadata.asset.description,
 		coverImage: `${PINATA_GATEWAY}/${pinnedMetadata.asset.coverImage}`,
 		images: pinnedMetadata.asset.galleryImages.map((image: any) => ({
+			title: image.title,
+			url: `${PINATA_GATEWAY}/${image.url}`,
+			caption: image.caption
+		})),
+		galleryImages: pinnedMetadata.asset.galleryImages.map((image: any) => ({
 			title: image.title,
 			url: `${PINATA_GATEWAY}/${image.url}`,
 			caption: image.caption
@@ -114,8 +145,8 @@ export function generateAssetInstanceFromSftMeta(sft: OffchainAssetReceiptVault,
 			expectedEndDate: pinnedMetadata.asset.technical.expectedEndDate,
 			crudeBenchmark: pinnedMetadata.asset.technical.crudeBenchmark,
 			pricing: {
-				benchmarkPremium: pinnedMetadata.asset.technical.pricing.benchmarkPremium,
-				transportCosts: pinnedMetadata.asset.technical.pricing.transportCosts
+				benchmarkPremium: pinnedMetadata.asset.technical.pricing.benchmarkPremium.toString(),
+				transportCosts: pinnedMetadata.asset.technical.pricing.transportCosts.toString()
 			}
 		},
 		production: {
@@ -126,10 +157,15 @@ export function generateAssetInstanceFromSftMeta(sft: OffchainAssetReceiptVault,
 				revenue: pinnedMetadata.asset.production.units.revenue
 			}
 		},
+		terms: {
+			interestType: pinnedMetadata.asset.assetTerms.interestType,
+			amount: pinnedMetadata.asset.assetTerms.amount,
+			paymentFrequency: pinnedMetadata.asset.assetTerms.paymentFrequencyDays
+		},
 		assetTerms: {
 			interestType: pinnedMetadata.asset.assetTerms.interestType,
 			amount: pinnedMetadata.asset.assetTerms.amount,
-			paymentFrequency: pinnedMetadata.asset.assetTerms.paymentFrequency
+			paymentFrequency: pinnedMetadata.asset.assetTerms.paymentFrequencyDays
 		},
 		tokenContracts: [sft.id],
 		monthlyReports: pinnedMetadata.asset.receiptsData.map((report: any, i: number) => ({
@@ -141,6 +177,7 @@ export function generateAssetInstanceFromSftMeta(sft: OffchainAssetReceiptVault,
 			payoutPerToken: pinnedMetadata.payoutData[i].tokenPayout.payoutPerToken, // USD per token (optional for royalty assets)
 		})),
         plannedProduction: assetPlannedProduction,
+		operationalMetrics: pinnedMetadata.asset.operationalMetrics,
 		metadata: {
 			createdAt: new Date(Number(sft.deployTimestamp) * 1000).toISOString() as ISODateTimeString,
 			updatedAt: new Date(Number(sft.deployTimestamp) * 1000).toISOString() as ISODateTimeString

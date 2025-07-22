@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
-	import type { Asset } from '$lib/types/uiTypes';
+	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { useTokenService } from '$lib/services';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/components';
 	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
+    import { getTokenReturns } from '$lib/utils';
+    import type { TokenMetadata } from '$lib/types/MetaboardTypes';
 
 	export let asset: Asset;
+	export let token: TokenMetadata;
 	
 	const dispatch = createEventDispatcher();
 	const tokenService = useTokenService();
@@ -49,14 +52,10 @@
 	$: latestReport = asset.monthlyReports[asset.monthlyReports.length - 1] || null;
 
 	// Get the primary token for this asset (first active token found)
-	$: assetTokens = tokenService.getTokensByAssetId(asset.id);
-	$: primaryToken = assetTokens.length > 0 ? assetTokens[0] : null;
+	$: primaryToken = token;
 	
 	// Check if any tokens are available
-	$: hasAvailableTokens = assetTokens.some(token => {
-		const supply = tokenService.getTokenSupply(token.contractAddress);
-		return supply && supply.available > 0;
-	});
+	$: hasAvailableTokens = BigInt(token.supply.maxSupply) > BigInt(token.supply.mintedSupply);
 
 	// Extract token data with fallbacks
 	$: shareOfAsset = primaryToken?.sharePercentage ? `${primaryToken.sharePercentage}%` : 'TBD';
@@ -136,7 +135,7 @@
 		<!-- Key Stats -->
 		<div class={highlightedStatsClasses}>
 			<div class={highlightStatClasses}>
-				<span class={highlightValueClasses}>{asset.production?.expectedRemainingProduction || 'TBD'}</span>
+				<span class={highlightValueClasses}>{asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0).toFixed(2) || 'TBD'}</span>
 				<span class={highlightLabelClasses}>Exp. Remaining</span>
 			</div>
 			{#if latestReport}
@@ -164,10 +163,7 @@
 
 		<!-- Available Tokens Section - Mobile Responsive -->
 		{#if hasAvailableTokens}
-		{@const availableTokens = assetTokens.filter(token => {
-			const supply = tokenService.getTokenSupply(token.contractAddress);
-			return supply && supply.available > 0;
-		})}
+		{@const availableTokens = [token]}
 		<div class={tokensSectionClasses}>
 			<h4 class={tokensTitleClasses}>Available Tokens</h4>
 			<div class="flex flex-col">
@@ -189,7 +185,7 @@
 					on:scroll={handleScroll}
 					class="{availableTokens.length > 2 ? tokensListScrollableClasses : tokensListClasses}">
 					{#each availableTokens as token}
-					{@const calculatedReturns = tokenService.getTokenReturns(token.contractAddress)}
+					{@const calculatedReturns = getTokenReturns(asset, token)}
 					{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) : 0}
 					{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) : 0}
 					{@const firstPaymentMonth = token.firstPaymentDate || 'TBD'}

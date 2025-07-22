@@ -47,13 +47,12 @@
 						(meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
 					);
 					if(pinnedMetadata) {
-	
 						const sftMaxSharesSupply = await readContract($wagmiConfig, {
 							abi: authorizerAbi,
 							address: sft.activeAuthorizer?.address as Hex,
 							functionName: 'maxSharesSupply',
 							args: []
-						});
+						}) as bigint;
 						const tokenInstance = generateTokenInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
 						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
 						featuredTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
@@ -416,7 +415,7 @@
 					<div class={assetStatsClasses}>
 						<div class={statItemClasses}>
 							<div class={statLabelClasses}>Remaining Production</div>
-							<div class={statValueClasses}>{item.asset.production?.expectedRemainingProduction || 'TBD'}</div>
+							<div class={statValueClasses}>{item.asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0).toFixed(2) || 'TBD'}</div>
 						</div>
 					</div>
 
@@ -433,7 +432,7 @@
 					<h3 class={assetNameClasses}>{item.asset.name}</h3>
 					<div class="text-sm text-black opacity-70">
 						<span class="font-medium">Remaining Production:</span> 
-						<span>{item.asset.production?.expectedRemainingProduction || 'TBD'}</span>
+						<span>{item.asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0).toFixed(2) || 'TBD'}</span>
 					</div>
 				</div>
 							</div>
