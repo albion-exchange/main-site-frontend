@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
-	import type { Asset } from '$lib/types/uiTypes';
+	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { useTokenService } from '$lib/services';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/components';
 	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
 
 	export let asset: Asset;
+	export let token: Token;
 	
 	const dispatch = createEventDispatcher();
 	const tokenService = useTokenService();
@@ -49,14 +50,10 @@
 	$: latestReport = asset.monthlyReports[asset.monthlyReports.length - 1] || null;
 
 	// Get the primary token for this asset (first active token found)
-	$: assetTokens = tokenService.getTokensByAssetId(asset.id);
-	$: primaryToken = assetTokens.length > 0 ? assetTokens[0] : null;
+	$: primaryToken = token;
 	
 	// Check if any tokens are available
-	$: hasAvailableTokens = assetTokens.some(token => {
-		const supply = tokenService.getTokenSupply(token.contractAddress);
-		return supply && supply.available > 0;
-	});
+	$: hasAvailableTokens = BigInt(token.supply.maxSupply) > BigInt(token.supply.mintedSupply);
 
 	// Extract token data with fallbacks
 	$: shareOfAsset = primaryToken?.sharePercentage ? `${primaryToken.sharePercentage}%` : 'TBD';
@@ -164,10 +161,7 @@
 
 		<!-- Available Tokens Section - Mobile Responsive -->
 		{#if hasAvailableTokens}
-		{@const availableTokens = assetTokens.filter(token => {
-			const supply = tokenService.getTokenSupply(token.contractAddress);
-			return supply && supply.available > 0;
-		})}
+		{@const availableTokens = [token]}
 		<div class={tokensSectionClasses}>
 			<h4 class={tokensTitleClasses}>Available Tokens</h4>
 			<div class="flex flex-col">
