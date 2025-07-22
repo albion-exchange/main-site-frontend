@@ -174,9 +174,7 @@
 						<img src="/assets/footer.svg" alt="Albion" class={footerLogoClasses} style="margin-left: -0.18rem" />
 					</div>
 					<p class={footerSectionPClasses}>Tokenized oil field investments</p>
-					<div class="mt-auto pt-6 lg:pt-8">
-						<p class="text-black text-sm">&copy; 2025 Albion. All rights reserved.</p>
-					</div>
+					<p class="text-black text-sm mt-4">&copy; 2025 Albion. All rights reserved.</p>
 				</div>
 
 				<!-- Middle Column: Newsletter & Social -->
@@ -186,21 +184,27 @@
 					
 					<!-- MailChimp Newsletter Signup Form -->
 					<div id="mc_embed_signup" class="mt-4">
-						<form action="https://your-domain.us1.list-manage.com/subscribe/post?u=YOUR_USER_ID&id=YOUR_LIST_ID" 
-							  method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_blank">
+						<form action="https://exchange.us7.list-manage.com/subscribe/post?u=f3b19322aa5fe51455b292838&amp;id=6eaaa49162&amp;f_id=00fd53e0f0" 
+							  method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_self" novalidate="">
 							<div id="mc_embed_signup_scroll" class="flex gap-2">
 								<input type="email" value="" name="EMAIL" 
 									   placeholder="Enter email address"
 									   id="mce-EMAIL" required
 									   class="flex-1 px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black transition-colors duration-200 focus:outline-none focus:border-black"
 								/>
+								<!-- Hidden field for notification type -->
+								<input type="hidden" name="MMERGE9" value="newsletter" />
 								<!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
 								<div style="position: absolute; left: -5000px;" aria-hidden="true">
-									<input type="text" name="b_YOUR_USER_ID_YOUR_LIST_ID" tabindex="-1" value="">
+									<input type="text" name="b_f3b19322aa5fe51455b292838_6eaaa49162" tabindex="-1" value="">
 								</div>
 								<input type="submit" value="Sign up" name="subscribe" id="mc-embedded-subscribe"
 									   class="px-4 py-3 bg-black text-white border-none font-figtree font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary whitespace-nowrap"
 								/>
+							</div>
+							<div id="mce-responses" class="clear">
+								<div class="response" id="mce-error-response" style="display: none;"></div>
+								<div class="response" id="mce-success-response" style="display: none;"></div>
 							</div>
 						</form>
 					</div>
@@ -234,7 +238,7 @@
 
 				<!-- Right Column: Navigation -->
 				<div class="flex flex-col lg:order-3">
-					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6 lg:gap-8">
+					<div class="grid grid-cols-2 gap-6 lg:gap-8">
 						<div class="lg:text-right">
 							<h4 class="{footerSectionH4Classes} lg:text-right">Platform</h4>
 							<ul class="{footerSectionUlClasses} lg:text-right">

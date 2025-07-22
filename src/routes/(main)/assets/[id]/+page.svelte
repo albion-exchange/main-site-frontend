@@ -985,13 +985,13 @@
 						
 						<!-- MailChimp Token Notification Form -->
 						<div id="mc_embed_signup_token">
-							<form action="https://your-domain.us1.list-manage.com/subscribe/post?u=YOUR_USER_ID&id=YOUR_TOKEN_LIST_ID" 
-								  method="post" id="mc-embedded-subscribe-form-token" name="mc-embedded-subscribe-form-token" target="_blank">
+							<form action="https://exchange.us7.list-manage.com/subscribe/post?u=f3b19322aa5fe51455b292838&amp;id=6eaaa49162&amp;f_id=00fd53e0f0" 
+								  method="post" id="mc-embedded-subscribe-form-token" name="mc-embedded-subscribe-form-token" target="_self" novalidate="">
 								<div class="space-y-4">
 									<!-- Hidden fields for asset information -->
-									<input type="hidden" name="ASSET_ID" value={assetId} />
-									<input type="hidden" name="ASSET_NAME" value={assetData?.name || ''} />
-									<input type="hidden" name="NOTIFICATION_TYPE" value="token_release" />
+									<input type="hidden" name="MMERGE7" value={assetId} />
+									<input type="hidden" name="MMERGE8" value={assetData?.name || ''} />
+									<input type="hidden" name="MMERGE9" value="token_release" />
 									
 									<input type="email" value="" name="EMAIL" 
 										   placeholder="Enter your email address"
@@ -1001,7 +1001,12 @@
 									
 									<!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
 									<div style="position: absolute; left: -5000px;" aria-hidden="true">
-										<input type="text" name="b_YOUR_USER_ID_YOUR_TOKEN_LIST_ID" tabindex="-1" value="">
+										<input type="text" name="b_f3b19322aa5fe51455b292838_6eaaa49162" tabindex="-1" value="">
+									</div>
+									
+									<div id="mce-responses-token" class="clear">
+										<div class="response" id="mce-error-response-token" style="display: none;"></div>
+										<div class="response" id="mce-success-response-token" style="display: none;"></div>
 									</div>
 									
 									<PrimaryButton 
