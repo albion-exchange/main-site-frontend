@@ -322,7 +322,7 @@
 
 												<div class={tokenStatsClasses}>
 					<!-- Total Supply - hidden on mobile -->
-					<div class="{statItemClasses} hidden sm:flex">
+					<div class="{statItemClasses} hidden sm:block">
 						<div class={statLabelClasses}>Total Supply</div>
 						<div class={statValueClasses}>
 							<FormattedNumber 
@@ -368,7 +368,7 @@
 					</div>
 
 					<!-- Bonus Returns - hidden on mobile -->
-					<div class="{statItemClasses} hidden sm:flex">
+					<div class="{statItemClasses} hidden sm:block">
 						<div class={statLabelClasses}>Bonus Returns</div>
 						<div class={statValueClasses + ' text-primary'}>
 							<FormattedReturn value={calculatedReturns?.bonusReturn} showPlus={true} />

@@ -94,7 +94,7 @@
 	}
 
 	function isSoldOut(): boolean {
-		return supply ? supply.available <= 0 : false;
+		return supply ? supply.availableSupply <= 0 : false;
 	}
 
 
@@ -331,7 +331,7 @@
 								type="number" 
 								bind:value={investmentAmount}
 								min={1}
-								max={supply?.available || 999999}
+								max={formatEther(supply?.availableSupply || BigInt(999999))}
 								class={amountInputClasses}
 								disabled={isSoldOut()}
 							/>
@@ -339,10 +339,10 @@
 								{#if isSoldOut()}
 									<span class={soldOutClasses}>Sold Out</span>
 								{:else}
-									<span>Available: <FormattedNumber value={supply?.available || 0} type="token" /> tokens</span>
+									<span>Available: <FormattedNumber value={formatEther(supply?.availableSupply || BigInt(0))} type="token" /> tokens</span>
 								{/if}
 							</div>
-							{#if !isSoldOut() && supply?.available && investmentAmount > supply.available}
+							{#if !isSoldOut() && supply?.availableSupply && investmentAmount > Number(formatEther(supply.availableSupply))}
 								<div class={warningNoteClasses}>
 									Investment amount exceeds available supply.
 								</div>
