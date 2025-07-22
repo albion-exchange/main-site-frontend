@@ -123,14 +123,7 @@ class ConfigService {
     return this.config;
   }
 
-  /**
-   * Get market configuration
-   * @deprecated Market data is now handled by marketDataService
-   */
-  getMarketConfig(): null {
-    console.warn('getMarketConfig is deprecated. Use marketDataService instead.');
-    return null;
-  }
+
 
   /**
    * Get platform configuration
@@ -167,32 +160,7 @@ class ConfigService {
     return this.config.futureReleases.find(release => release.id === releaseId) || null;
   }
 
-  /**
-   * Get current oil price
-   * @deprecated Use marketDataService instead
-   */
-  getCurrentOilPrice(): number {
-    console.warn('getCurrentOilPrice is deprecated. Use marketDataService instead.');
-    return 0;
-  }
 
-  /**
-   * Get current gas price
-   * @deprecated Use marketDataService instead
-   */
-  getCurrentGasPrice(): number {
-    console.warn('getCurrentGasPrice is deprecated. Use marketDataService instead.');
-    return 0;
-  }
-
-  /**
-   * Get exchange rate for currency
-   * @deprecated Use marketDataService instead
-   */
-  getExchangeRate(currency: string): number {
-    console.warn('getExchangeRate is deprecated. Use marketDataService instead.');
-    return 1;
-  }
 
   /**
    * Get platform statistics
@@ -259,14 +227,7 @@ class ConfigService {
     return this.config.company.legal;
   }
 
-  /**
-   * Get market indicator value
-   * @deprecated Use marketDataService instead
-   */
-  getMarketIndicator(indicator: string): null {
-    console.warn('getMarketIndicator is deprecated. Use marketDataService instead.');
-    return null;
-  }
+
 
   /**
    * Check if data is stale (for cache invalidation)

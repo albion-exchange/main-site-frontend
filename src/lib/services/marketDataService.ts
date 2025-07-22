@@ -1,7 +1,7 @@
 interface MarketDataPoint {
-  price: number;
-  change: number;
-  changePercent: number;
+  price: number | null;
+  change: number | null;
+  changePercent: number | null;
   currency: string;
   unit: string;
   lastUpdated: string;
@@ -22,40 +22,27 @@ const SYMBOLS = {
   ttf: 'TTF=F'      // TTF Natural Gas
 };
 
-class MarketDataService {
-  private cache: MarketData | null = null;
-  private lastFetch: Date | null = null;
-  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+// Simple function to fetch market data once
+export async function fetchMarketData(): Promise<MarketData> {
+  try {
+    const promises = Object.entries(SYMBOLS).map(([key, symbol]) => 
+      fetchSymbolData(symbol, key as keyof MarketData)
+    );
 
-  async fetchMarketData(): Promise<MarketData> {
-    // Return cached data if it's still fresh
-    if (this.cache && this.lastFetch && 
-        Date.now() - this.lastFetch.getTime() < this.CACHE_DURATION) {
-      return this.cache;
-    }
-
-    try {
-      const promises = Object.entries(SYMBOLS).map(([key, symbol]) => 
-        this.fetchSymbolData(symbol, key as keyof MarketData)
-      );
-
-      const results = await Promise.all(promises);
-      
-      this.cache = results.reduce((acc, result) => {
-        acc[result.key] = result.data;
-        return acc;
-      }, {} as MarketData);
-
-      this.lastFetch = new Date();
-      return this.cache;
-    } catch (error) {
-      console.error('Failed to fetch market data:', error);
-      // Return fallback data if fetch fails
-      return this.getFallbackData();
-    }
+    const results = await Promise.all(promises);
+    
+    return results.reduce((acc, result) => {
+      acc[result.key] = result.data;
+      return acc;
+    }, {} as MarketData);
+  } catch (error) {
+    console.error('Failed to fetch market data:', error);
+    // Return N/A data if fetch fails
+    return getNAData();
   }
+}
 
-  private async fetchSymbolData(symbol: string, key: keyof MarketData): Promise<{key: keyof MarketData, data: MarketDataPoint}> {
+async function fetchSymbolData(symbol: string, key: keyof MarketData): Promise<{key: keyof MarketData, data: MarketDataPoint}> {
     try {
       // Add a small delay to avoid rate limiting
       await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
@@ -121,48 +108,32 @@ class MarketDataService {
       };
     } catch (error) {
       console.error(`Failed to fetch data for ${symbol}:`, error);
-      // Return fallback data for this symbol
+      // Return N/A data for this symbol
       return {
         key,
-        data: this.getFallbackDataForSymbol(key)
+        data: getNADataForSymbol(key)
       };
     }
   }
 
-  private getFallbackDataForSymbol(key: keyof MarketData): MarketDataPoint {
-    const fallbackData = {
-      wti: { price: 73.45, change: 1.2, changePercent: 1.66, currency: 'USD' },
-      brent: { price: 78.20, change: -0.8, changePercent: -1.01, currency: 'USD' },
-      henryHub: { price: 2.84, change: 0.05, changePercent: 1.79, currency: 'USD' },
-      ttf: { price:41.00, change: -1.20, changePercent: -2.85, currency: 'EUR' }
-    };
-
-    const data = fallbackData[key];
-    return {
-      price: data.price,
-      change: data.change,
-      changePercent: data.changePercent,
-      currency: data.currency,
-      unit: key === 'henryHub' || key === 'ttf' ? 'MMBtu' : 'barrel',
-      lastUpdated: new Date().toISOString()
-    };
-  }
-
-  private getFallbackData(): MarketData {
-    return {
-      wti: this.getFallbackDataForSymbol('wti'),
-      brent: this.getFallbackDataForSymbol('brent'),
-      henryHub: this.getFallbackDataForSymbol('henryHub'),
-      ttf: this.getFallbackDataForSymbol('ttf')
-    };
-  }
-
-  // Method to clear cache and force refresh
-  invalidateCache(): void {
-    this.cache = null;
-    this.lastFetch = null;
-  }
+function getNADataForSymbol(key: keyof MarketData): MarketDataPoint {
+  return {
+    price: null,
+    change: null,
+    changePercent: null,
+    currency: key === 'ttf' ? 'EUR' : 'USD',
+    unit: key === 'henryHub' || key === 'ttf' ? 'MMBtu' : 'barrel',
+    lastUpdated: new Date().toISOString()
+  };
 }
 
-export const marketDataService = new MarketDataService();
+function getNAData(): MarketData {
+  return {
+    wti: getNADataForSymbol('wti'),
+    brent: getNADataForSymbol('brent'),
+    henryHub: getNADataForSymbol('henryHub'),
+    ttf: getNADataForSymbol('ttf')
+  };
+}
+
 export type { MarketData, MarketDataPoint };

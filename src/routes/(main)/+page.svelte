@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { usePlatformStats } from '$lib/composables/usePlatformStats';
 	import FeaturedTokenCarousel from '$lib/components/patterns/carousel/FeaturedTokenCarousel.svelte';
@@ -8,7 +8,7 @@
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
 	import GridContainer from '$lib/components/components/GridContainer.svelte';
 	import { PageLayout, HeroSection, ContentSection, StatsSection } from '$lib/components/layout';
-	import { marketDataStore, formattedMarketData } from '$lib/stores/marketDataStore';
+	import { fetchMarketData, type MarketData } from '$lib/services/marketDataService';
 
 	// Composables
 	const { platformStats, formattedStats: sftsFormattedStats } = usePlatformStats();
@@ -18,13 +18,20 @@
 	let selectedTokenAddress: string | null = null;
 	let selectedAssetId: string | null = null;
 	
-	// Lifecycle management
-	onMount(() => {
-		marketDataStore.startAutoRefresh();
-	});
+	// Market data state
+	let marketData: MarketData | null = null;
+	let marketDataLoading = false;
 	
-	onDestroy(() => {
-		marketDataStore.stopAutoRefresh();
+	// Fetch market data on page load
+	onMount(async () => {
+		marketDataLoading = true;
+		try {
+			marketData = await fetchMarketData();
+		} catch (error) {
+			console.error('Failed to fetch market data:', error);
+		} finally {
+			marketDataLoading = false;
+		}
 	});
 	
 	function handleBuyTokensFromCarousel(event: CustomEvent) {
@@ -218,37 +225,69 @@
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
 			<div class="space-y-4 lg:space-y-6">
 				<h3 class="text-2xl lg:text-3xl font-extrabold mb-4 lg:mb-6 text-white">Market Indicators</h3>
-				{#if $marketDataStore.loading}
+				{#if marketDataLoading}
 					<div class="flex flex-col gap-3 lg:gap-4">
 						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
 							<span>Loading market data...</span>
 							<span class="text-primary font-extrabold">--</span>
 						</div>
 					</div>
-				{:else if $formattedMarketData}
+				{:else if marketData}
 					<div class="flex flex-col gap-3 lg:gap-4">
 						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
-							<span>{$formattedMarketData.wti.name}</span>
-							<span class="text-primary font-extrabold">{$formattedMarketData.wti.price} <span class="text-xs font-semibold ml-2 {$formattedMarketData.wti.isPositive ? 'text-primary' : 'text-red-500'}">{$formattedMarketData.wti.changeText}</span></span>
+							<span>WTI Crude Oil</span>
+							<span class="text-primary font-extrabold">
+								{marketData.wti.price !== null ? `${marketData.wti.currency === 'EUR' ? '€' : '$'}${marketData.wti.price}` : 'N/A'}
+								{#if marketData.wti.changePercent !== null}
+									<span class="text-xs font-semibold ml-2 {marketData.wti.changePercent >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.wti.changePercent >= 0 ? '+' : ''}{marketData.wti.changePercent}%</span>
+								{/if}
+							</span>
 						</div>
 						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
-							<span>{$formattedMarketData.brent.name}</span>
-							<span class="text-primary font-extrabold">{$formattedMarketData.brent.price} <span class="text-xs font-semibold ml-2 {$formattedMarketData.brent.isPositive ? 'text-primary' : 'text-red-500'}">{$formattedMarketData.brent.changeText}</span></span>
+							<span>Brent Crude</span>
+							<span class="text-primary font-extrabold">
+								{marketData.brent.price !== null ? `${marketData.brent.currency === 'EUR' ? '€' : '$'}${marketData.brent.price}` : 'N/A'}
+								{#if marketData.brent.changePercent !== null}
+									<span class="text-xs font-semibold ml-2 {marketData.brent.changePercent >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.brent.changePercent >= 0 ? '+' : ''}{marketData.brent.changePercent}%</span>
+								{/if}
+							</span>
 						</div>
 						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
-							<span>{$formattedMarketData.henryHub.name}</span>
-							<span class="text-primary font-extrabold">{$formattedMarketData.henryHub.price} <span class="text-xs font-semibold ml-2 {$formattedMarketData.henryHub.isPositive ? 'text-primary' : 'text-red-500'}">{$formattedMarketData.henryHub.changeText}</span></span>
+							<span>Henry Hub Natural Gas</span>
+							<span class="text-primary font-extrabold">
+								{marketData.henryHub.price !== null ? `${marketData.henryHub.currency === 'EUR' ? '€' : '$'}${marketData.henryHub.price}` : 'N/A'}
+								{#if marketData.henryHub.changePercent !== null}
+									<span class="text-xs font-semibold ml-2 {marketData.henryHub.changePercent >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.henryHub.changePercent >= 0 ? '+' : ''}{marketData.henryHub.changePercent}%</span>
+								{/if}
+							</span>
 						</div>
 						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
-							<span>{$formattedMarketData.ttf.name}</span>
-							<span class="text-primary font-extrabold">{$formattedMarketData.ttf.price} <span class="text-xs font-semibold ml-2 {$formattedMarketData.ttf.isPositive ? 'text-primary' : 'text-red-500'}">{$formattedMarketData.ttf.changeText}</span></span>
+							<span>TTF Natural Gas</span>
+							<span class="text-primary font-extrabold">
+								{marketData.ttf.price !== null ? `${marketData.ttf.currency === 'EUR' ? '€' : '$'}${marketData.ttf.price}` : 'N/A'}
+								{#if marketData.ttf.changePercent !== null}
+									<span class="text-xs font-semibold ml-2 {marketData.ttf.changePercent >= 0 ? 'text-primary' : 'text-red-500'}">{marketData.ttf.changePercent >= 0 ? '+' : ''}{marketData.ttf.changePercent}%</span>
+								{/if}
+							</span>
 						</div>
 					</div>
 				{:else}
 					<div class="flex flex-col gap-3 lg:gap-4">
 						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
-							<span>Market data unavailable</span>
-							<span class="text-primary font-extrabold">--</span>
+							<span>WTI Crude Oil</span>
+							<span class="text-primary font-extrabold">N/A</span>
+						</div>
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span>Brent Crude</span>
+							<span class="text-primary font-extrabold">N/A</span>
+						</div>
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span>Henry Hub Natural Gas</span>
+							<span class="text-primary font-extrabold">N/A</span>
+						</div>
+						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
+							<span>TTF Natural Gas</span>
+							<span class="text-primary font-extrabold">N/A</span>
 						</div>
 					</div>
 				{/if}
