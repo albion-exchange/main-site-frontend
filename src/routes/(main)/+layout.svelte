@@ -179,8 +179,7 @@
 
 				<!-- Middle Column: Newsletter & Social -->
 				<div class="flex flex-col lg:order-2">
-					<h4 class={footerSectionH4Classes}>Sign up for the Newsletter</h4>
-					<p class={footerSectionPClasses}>Get the latest updates on new token releases and platform news</p>
+					<h4 class={footerSectionH4Classes}>Sign up updates</h4>
 					
 					<!-- MailChimp Newsletter Signup Form -->
 					<div id="mc_embed_signup" class="mt-4">

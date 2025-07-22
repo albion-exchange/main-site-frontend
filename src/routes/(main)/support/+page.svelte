@@ -5,14 +5,14 @@
 
 <svelte:head>
 	<title>Support - Albion</title>
-	<meta name="description" content="Get help with the Albion platform, browse FAQs, and find support resources" />
+	<meta name="description" content="Get help with the Albion investment platform, browse our FAQs, and find support resources" />
 </svelte:head>
 
 <PageLayout>
 	<!-- Hero Section -->
 	<HeroSection 
 		title="Support Center"
-		subtitle="Find answers to your questions, browse our knowledge base, and get the help you need."
+		subtitle="Find the answers to your questions, browse our knowledge base, and get the help you need."
 		showBorder={true}
 	/>
 
@@ -24,22 +24,28 @@
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 			<div class="bg-white p-8 text-left">
 				<SectionTitle level="h3" size="small" uppercase>How do I start investing?</SectionTitle>
-				<p class="text-sm text-black">Create an account, complete KYC verification, connect your wallet, and browse available assets to make your first investment.</p>
+				<p class="text-sm text-black">Create an account by connecting your wallet, complete KYC verification, and browse available token releases to make your first investment.</p>
 			</div>
 			
+			<div class="bg-white p-8 text-left">
+				<SectionTitle level="h3" size="small" uppercase>How much do royalty tokens cost to mint</SectionTitle>
+				<p class="text-sm text-black">Royalty tokens are minted (created and bought) for 1 USDT</p>
+			</div>
 			<div class="bg-white p-8 text-left">
 				<SectionTitle level="h3" size="small" uppercase>What is the minimum investment?</SectionTitle>
-				<p class="text-sm text-black">Minimum investments vary by asset, typically ranging from $1,000 to $5,000 depending on the tranche selected.</p>
+				<p class="text-sm text-black">Thanks to web3 technologies, the minimum investment is a single token (1 USDT) plus a few cents for transaction costs (gas).</p>
 			</div>
-			
 			<div class="bg-white p-8 text-left">
 				<SectionTitle level="h3" size="small" uppercase>How often are payouts distributed?</SectionTitle>
-				<p class="text-sm text-black">Payouts are distributed monthly based on actual production revenue from the underlying oil & gas assets.</p>
+				<p class="text-sm text-black">Distribution frequency is asset-specific. We aim to encourage monthly payments wherever possible but payment frequency and other terms will be specified in the asset details page</p>
 			</div>
-			
 			<div class="bg-white p-8 text-left">
-				<SectionTitle level="h3" size="small" uppercase>Can I sell my tokens?</SectionTitle>
-				<p class="text-sm text-black">Secondary market trading will be available in Q2 2024. Currently, tokens can be held until asset maturity.</p>
+				<SectionTitle level="h3" size="small" uppercase>Can I sell my royalty tokens?</SectionTitle>
+				<p class="text-sm text-black">Yes all legal claims and rights are bound to the token itself. We are working with third parties to support secondary markets for royalty tokens</p>
+			</div>
+			<div class="bg-white p-8 text-left">
+				<SectionTitle level="h3" size="small" uppercase>What is the difference between an asset and token release?</SectionTitle>
+				<p class="text-sm text-black">An asset is an underlying source of cash flow. This cash flow can be divided across multiple token releases each with different terms</p>
 			</div>
 		</div>
 	</ContentSection>
@@ -47,9 +53,6 @@
 	<!-- Still Need Help Section -->
 	<ContentSection background="light-gray" padding="standard" centered>
 		<SectionTitle level="h2" size="section" center className="mb-8">Still need help?</SectionTitle>
-		<p class="text-lg text-black text-center mb-8 max-w-2xl mx-auto">
-			Our team is here to help. Reach out to us directly for personalized support.
-		</p>
 		<div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
 			<a href="mailto:contact@albion.labs" class="text-primary font-semibold text-lg no-underline hover:opacity-80 transition-opacity duration-200">
 				contact@albion.labs
@@ -68,27 +71,10 @@
 	<ContentSection background="secondary" padding="standard" centered>
 		<SectionTitle level="h2" size="section" center className="mb-12 text-white">Support Resources</SectionTitle>
 		
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-			<div class="bg-white/10 border border-white/20 p-8 text-center">
-				<div class="text-5xl mb-4">📚</div>
-				<SectionTitle level="h3" size="small" uppercase textColor="white">Knowledge Base</SectionTitle>
-				<p class="mb-6 opacity-90 text-sm">Comprehensive guides and tutorials</p>
-				<a href="/help" class="text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200">Browse Articles</a>
-			</div>
-			
-			<div class="bg-white/10 border border-white/20 p-8 text-center">
-				<div class="text-5xl mb-4">🎥</div>
-				<SectionTitle level="h3" size="small" uppercase textColor="white">Video Tutorials</SectionTitle>
-				<p class="mb-6 opacity-90 text-sm">Step-by-step platform walkthroughs</p>
-				<a href="/tutorials" class="text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200">Watch Videos</a>
-			</div>
-			
-			<div class="bg-white/10 border border-white/20 p-8 text-center">
-				<div class="text-5xl mb-4">💬</div>
-				<SectionTitle level="h3" size="small" uppercase textColor="white">Community Forum</SectionTitle>
-				<p class="mb-6 opacity-90 text-sm">Connect with other investors</p>
-				<a href="/community" class="text-primary no-underline font-semibold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity duration-200">Join Discussion</a>
-			</div>
+		<div class="grid grid-cols-1 gap-8">
+			<span></span>	
+			<div class="text-3xl mb-4">🚧 This section under construction</div>
+			<span></span>	
 		</div>
 	</ContentSection>
 </PageLayout>
