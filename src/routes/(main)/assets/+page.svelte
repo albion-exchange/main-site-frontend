@@ -11,13 +11,14 @@
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
     import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
 	import type { Hex } from 'viem';
-    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
+    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft, generateTokenMetadataInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
 	import authorizerAbi from '$lib/abi/authorizer.json';
+    import type { TokenMetadata } from '$lib/types/MetaboardTypes';
 	let loading = true;
 	// let allAssets: Asset[] = [];
 	let showSoldOutAssets = false;
-	let featuredTokensWithAssets: Array<{ token: Token; asset: Asset }> = [];
-	let filteredTokensWithAssets: Array<{ token: Token; asset: Asset }> = [];
+	let featuredTokensWithAssets: Array<{ token: TokenMetadata; asset: Asset }> = [];
+	let filteredTokensWithAssets: Array<{ token: TokenMetadata; asset: Asset }> = [];
 	
 	// Token purchase widget state
 	let showPurchaseWidget = false;
@@ -41,7 +42,7 @@
 							args: []
 						}) as bigint;
 						
-						const tokenInstance = generateTokenInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
+						const tokenInstance = generateTokenMetadataInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
 						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
 	
 						featuredTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
@@ -61,7 +62,7 @@
 	}
 
 	// Check if an asset has available tokens
-	function hasAvailableTokens(asset: { token: Token; asset: Asset }): boolean {
+	function hasAvailableTokens(asset: { token: TokenMetadata; asset: Asset }): boolean {
 		const hasAvailable = BigInt(asset.token.supply.maxSupply) > BigInt(asset.token.supply.mintedSupply);
 		return hasAvailable;
 	}

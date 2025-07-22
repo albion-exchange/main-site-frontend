@@ -4,9 +4,11 @@
 	import { useTokenService } from '$lib/services';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/components';
 	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
+    import { getTokenReturns } from '$lib/utils';
+    import type { TokenMetadata } from '$lib/types/MetaboardTypes';
 
 	export let asset: Asset;
-	export let token: Token;
+	export let token: TokenMetadata;
 	
 	const dispatch = createEventDispatcher();
 	const tokenService = useTokenService();
@@ -183,7 +185,7 @@
 					on:scroll={handleScroll}
 					class="{availableTokens.length > 2 ? tokensListScrollableClasses : tokensListClasses}">
 					{#each availableTokens as token}
-					{@const calculatedReturns = tokenService.getTokenReturns(token.contractAddress)}
+					{@const calculatedReturns = getTokenReturns(asset, token)}
 					{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) : 0}
 					{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) : 0}
 					{@const firstPaymentMonth = token.firstPaymentDate || 'TBD'}
