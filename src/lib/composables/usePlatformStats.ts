@@ -9,6 +9,7 @@ import { withSyncErrorHandling } from '$lib/utils/errorHandling';
 import { sfts } from '$lib/stores';
 import { formatEther } from 'ethers';
 import { ENERGY_FEILDS } from '$lib/network';
+import { formatSmartNumber } from '$lib/utils/formatters';
 
 interface PlatformStatsState {
   totalAssets: number;
@@ -47,7 +48,7 @@ export function usePlatformStats() {
       const stats = {
         loading: false,
         totalAssets: totalAssets,
-        totalInvested: Number(formatEther(totalInvested)) / 1000000, // Convert to millions
+        totalInvested: Number(formatEther(totalInvested)), // Keep as raw number
         activeInvestors: totalTokenHolders,
         totalRegions: totalRegions,
         monthlyGrowthRate: 2, // Don't know what this is yet
@@ -69,9 +70,15 @@ export function usePlatformStats() {
 
   // Formatted values for display
   const formattedStats = derived(platformStats, ($stats) => ({
-    totalInvested: `$${$stats.totalInvested.toFixed(1)}M`,
+    totalInvested: formatSmartNumber($stats.totalInvested, { 
+      prefix: '$', 
+      threshold: 1000000, 
+      forceCompact: true 
+    }),
     totalAssets: ($stats.totalAssets || 0).toString(),
-    activeInvestors: ($stats.activeInvestors || 0).toLocaleString(),
+    activeInvestors: formatSmartNumber($stats.activeInvestors || 0, { 
+      threshold: 1000 
+    }),
     regionsText: `Across ${$stats.totalRegions} regions`,
     growthTrend: {
       value: $stats.monthlyGrowthRate,

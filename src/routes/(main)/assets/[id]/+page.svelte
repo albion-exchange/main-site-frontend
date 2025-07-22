@@ -8,7 +8,7 @@
 	import TabButton from '$lib/components/components/TabButton.svelte';
 	import { PageLayout, ContentSection } from '$lib/components/layout';
 	import { getImageUrl } from '$lib/utils/imagePath';
-	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
+	import { formatCurrency, formatEndDate, formatSmartReturn } from '$lib/utils/formatters';
 	import { 
 		useAssetDetailData,
 		useDataExport, 
@@ -837,7 +837,7 @@
 																role="button"
 																tabindex="0">ⓘ</span>
 														</span>
-														<span class="text-xl font-extrabold text-primary">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</span>
+														<span class="text-xl font-extrabold text-primary">{formatSmartReturn(calculatedReturns?.baseReturn)}</span>
 														{#if showTooltip === 'base'}
 															<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
 																Conservative return estimate based on current production and oil prices
@@ -853,7 +853,7 @@
 																role="button"
 																tabindex="0">ⓘ</span>
 														</span>
-														<span class="text-xl font-extrabold text-primary">+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
+														<span class="text-xl font-extrabold text-primary">{calculatedReturns?.bonusReturn !== undefined ? '+' + formatSmartReturn(calculatedReturns.bonusReturn) : 'TBD'}</span>
 														{#if showTooltip === 'bonus'}
 															<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
 																Additional potential return from improved oil prices or production efficiency
@@ -862,7 +862,7 @@
 													</div>
 													<div class="text-center p-3 bg-white hidden sm:block">
 														<span class="text-xs font-medium text-black opacity-70 block mb-1 relative">Total Expected</span>
-														<span class="text-xl font-extrabold text-primary">{calculatedReturns ? Math.round(calculatedReturns.baseReturn + calculatedReturns.bonusReturn) + '%' : 'TBD'}</span>
+														<span class="text-xl font-extrabold text-primary">{calculatedReturns ? formatSmartReturn(calculatedReturns.baseReturn + calculatedReturns.bonusReturn) : 'TBD'}</span>
 													</div>
 												</div>
 											</div>

@@ -7,6 +7,7 @@
 	import { web3Modal, signerAddress, connected, loading, disconnectWagmi } from 'svelte-wagmi';
 	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
 	import { formatAddress } from '$lib/utils/formatters';
+	import { slide } from 'svelte/transition';
 	
 	$: currentPath = $page.url.pathname;
 	let mobileMenuOpen = false;
@@ -64,10 +65,7 @@
 	$: navLinksClasses = 'flex gap-6 lg:gap-8 items-center';
 	$: navLinkClasses = 'text-black no-underline font-medium py-2 relative transition-colors duration-200 hover:text-primary touch-target text-sm lg:text-base';
 	$: navLinkActiveClasses = 'text-primary after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary';
-	$: navActionsClasses = 'flex items-center gap-4';
-	$: walletIconClasses = 'text-base';
-	$: mobileNavClasses = 'md:hidden fixed top-16 sm:top-20 lg:top-24 left-0 right-0 bg-white border-b border-light-gray z-[99] transform -translate-y-full transition-transform duration-300 ease-out shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto';
-	$: mobileNavOpenClasses = 'transform translate-y-0';
+	$: mobileNavClasses = 'md:hidden fixed top-16 left-0 right-0 bg-white border-b border-light-gray z-[99] shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto';
 	$: mobileNavLinksClasses = 'flex flex-col p-0 gap-0';
 	$: mobileNavLinkClasses = 'text-black no-underline font-medium py-4 px-4 sm:px-6 border-b border-light-gray transition-colors duration-200 last:border-b-0 hover:text-primary hover:bg-light-gray touch-target text-base';
 	$: mobileNavLinkActiveClasses = 'text-primary bg-light-gray';
@@ -96,7 +94,7 @@
 	<header class={headerClasses}>
 		<nav>
 			<div class={navContainerClasses}>
-				<a href="/" class={logoClasses} on:click={closeMobileMenu}>
+				<a href="/" class="{logoClasses} z-[102]" on:click={closeMobileMenu}>
 					<div class="overflow-hidden">
 						<img src="/assets/logo.svg" alt="Albion Logo" class={logoImageClasses} style="margin-left: -0.3rem" />
 					</div>
@@ -110,66 +108,56 @@
 					<a href="/claims" class="{navLinkClasses} {currentPath === '/claims' ? navLinkActiveClasses : ''}">Claims</a>
 				</div>
 				
-				<!-- Right side: Desktop wallet button + Mobile menu button -->
-				<div class="flex items-center gap-4">
-					<!-- Desktop wallet button - small -->
-					<div class="{navActionsClasses} {desktopNavClasses}">
-						<button 
-							class="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-light-gray rounded hover:bg-light-gray hover:border-secondary transition-all duration-200"
-							on:click={connectWallet}
-							disabled={$loading}
-						>
-							{#if $loading}
-								<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-								</svg>
-								<span class="hidden sm:inline">Connecting...</span>
-							{:else if $connected && $signerAddress}
-								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-								</svg>
-								<span class="hidden sm:inline">{formatAddress($signerAddress)}</span>
-							{:else}
-								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-								</svg>
-								<span class="hidden sm:inline">Connect</span>
-							{/if}
-						</button>
-					</div>
+				<!-- Right side: Wallet button + Mobile menu button -->
+				<div class="flex items-center gap-2 flex-shrink-0">
+					<!-- Wallet button (responsive for both desktop and mobile) -->
+					<button 
+						class="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-xs sm:text-sm bg-white border border-light-gray rounded hover:bg-light-gray hover:border-secondary transition-all duration-200"
+						on:click={connectWallet}
+						disabled={$loading}
+					>
+						{#if $loading}
+							<svg class="w-3 h-3 sm:w-4 sm:h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+							</svg>
+							<span class="hidden sm:inline">Connecting...</span>
+							<span class="sm:hidden">...</span>
+						{:else if $connected && $signerAddress}
+							<svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+							</svg>
+							<span class="hidden sm:inline">{formatAddress($signerAddress)}</span>
+							<span class="sm:hidden">{formatAddress($signerAddress).split('...')[0]}...</span>
+						{:else}
+							<svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+							</svg>
+							<span>Connect</span>
+						{/if}
+					</button>
 					
 					<!-- Mobile menu button -->
-					<button class={mobileMenuButtonClasses} on:click={toggleMobileMenu} aria-label="Toggle menu">
-						<span class="{hamburgerClasses} {mobileMenuOpen ? hamburgerOpenClasses : ''} before:content-[''] before:absolute before:w-6 before:h-0.5 before:bg-black before:transition-all before:duration-300 before:ease-out before:-top-2 after:content-[''] after:absolute after:w-6 after:h-0.5 after:bg-black after:transition-all after:duration-300 after:ease-out after:top-2 {mobileMenuOpen ? 'before:rotate-45 before:top-0 after:-rotate-45 after:top-0' : ''}"></span>
+					<button class="md:hidden bg-transparent border-none cursor-pointer p-2 z-[101] relative flex-shrink-0 w-10 h-10 flex items-center justify-center" on:click={toggleMobileMenu} aria-label="Toggle menu">
+						<div class="w-6 h-5 relative flex flex-col justify-between">
+							<span class="block w-full h-0.5 bg-black transition-all duration-300 {mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}"></span>
+							<span class="block w-full h-0.5 bg-black transition-all duration-300 {mobileMenuOpen ? 'opacity-0' : ''}"></span>
+							<span class="block w-full h-0.5 bg-black transition-all duration-300 {mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}"></span>
+						</div>
 					</button>
 				</div>
 			</div>
 			
 			<!-- Mobile navigation menu -->
-			<div class="{mobileNavClasses} {mobileMenuOpen ? mobileNavOpenClasses : ''}">
+			{#if mobileMenuOpen}
+			<div class={mobileNavClasses} transition:slide={{ duration: 300 }}>
 				<div class={mobileNavLinksClasses}>
 					<a href="/" class="{mobileNavLinkClasses} {currentPath === '/' ? mobileNavLinkActiveClasses : ''}" on:click={closeMobileMenu}>Home</a>
 					<a href="/assets" class="{mobileNavLinkClasses} {currentPath.startsWith('/assets') ? mobileNavLinkActiveClasses : ''}" on:click={closeMobileMenu}>Invest</a>
 					<a href="/portfolio" class="{mobileNavLinkClasses} {currentPath === '/portfolio' ? mobileNavLinkActiveClasses : ''}" on:click={closeMobileMenu}>Portfolio</a>
 					<a href="/claims" class="{mobileNavLinkClasses} {currentPath === '/claims' ? mobileNavLinkActiveClasses : ''}" on:click={closeMobileMenu}>Claims</a>
 				</div>
-				<div class={mobileNavActionsClasses}>
-					<SecondaryButton 
-						on:click={connectWallet}
-						disabled={$loading}
-					>
-						{#if $loading}
-							Connecting...
-						{:else if $connected && $signerAddress}
-							<span class={walletIconClasses}>🔗</span>
-							{formatAddress($signerAddress)}
-						{:else}
-							<span class={walletIconClasses}>🔌</span>
-							Connect Wallet
-						{/if}
-					</SecondaryButton>
-				</div>
 			</div>
+			{/if}
 		</nav>
 	</header>
 

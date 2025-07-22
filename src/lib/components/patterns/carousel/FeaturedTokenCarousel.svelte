@@ -2,9 +2,9 @@
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Token, Asset } from '$lib/types/uiTypes';
-	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
+	import { PrimaryButton, SecondaryButton, FormattedNumber, FormattedReturn } from '$lib/components/components';
 	import { sftMetadata, sfts } from '$lib/stores';
-	import { formatCurrency } from '$lib/utils/formatters';
+	import { formatCurrency, formatTokenSupply, formatSmartReturn } from '$lib/utils/formatters';
 	import { meetsSupplyThreshold, formatSupplyAmount, getAvailableSupplyBigInt } from '$lib/utils/tokenSupplyUtils';
     import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
 	import { readContract } from '@wagmi/core';
@@ -188,10 +188,7 @@
 
 	function formatSupply(supply: string, decimals: number): string {
 		const formatted = formatSupplyAmount(supply, decimals);
-		return new Intl.NumberFormat('en-US', {
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 0
-		}).format(formatted);
+		return formatTokenSupply(formatted);
 	}
 
 	$: currentItem = featuredTokensWithAssets[currentIndex];
@@ -325,10 +322,13 @@
 
 												<div class={tokenStatsClasses}>
 					<!-- Total Supply - hidden on mobile -->
-					<div class="{statItemClasses} hidden sm:flex">
+					<div class="{statItemClasses} hidden sm:block">
 						<div class={statLabelClasses}>Total Supply</div>
 						<div class={statValueClasses}>
-							{formatSupply(item.token.supply.maxSupply, item.token.decimals)}
+							<FormattedNumber 
+								value={formatSupplyAmount(item.token.supply.maxSupply, item.token.decimals)} 
+								type="token"
+							/>
 						</div>
 					</div>
 
@@ -336,7 +336,10 @@
 					<div class={statItemClasses}>
 						<div class={statLabelClasses}>Available Supply</div>
 						<div class={statValueClasses}>
-							{formatSupply(getAvailableSupplyBigInt(item.token).toString(), item.token.decimals)}
+							<FormattedNumber 
+								value={formatSupplyAmount(getAvailableSupplyBigInt(item.token).toString(), item.token.decimals)} 
+								type="token"
+							/>
 						</div>
 					</div>
 
@@ -347,19 +350,29 @@
 							<span class="sm:hidden">Est. Return</span>
 						</div>
 						<div class={statValueClasses + ' text-primary'}>
-							<span class="hidden sm:inline">{calculatedReturns?.baseReturn !== undefined ? Math.round(calculatedReturns.baseReturn) + '%' : 'TBD'}</span>
-							<span class="sm:hidden">
-								{calculatedReturns?.baseReturn !== undefined && calculatedReturns?.bonusReturn !== undefined 
-									? `${Math.round(calculatedReturns.baseReturn)}% + ${Math.round(calculatedReturns.bonusReturn)}%`
-									: 'TBD'}
+							<span class="hidden sm:inline">
+								<FormattedReturn value={calculatedReturns?.baseReturn} />
+							</span>
+							<span class="sm:hidden flex items-center gap-1">
+								{#if calculatedReturns?.baseReturn !== undefined && calculatedReturns?.bonusReturn !== undefined}
+									<span class="flex items-center gap-1 text-xs">
+										<FormattedReturn value={calculatedReturns.baseReturn} />
+										<span>+</span>
+										<FormattedReturn value={calculatedReturns.bonusReturn} />
+									</span>
+								{:else}
+									TBD
+								{/if}
 							</span>
 						</div>
 					</div>
 
 					<!-- Bonus Returns - hidden on mobile -->
-					<div class="{statItemClasses} hidden sm:flex">
+					<div class="{statItemClasses} hidden sm:block">
 						<div class={statLabelClasses}>Bonus Returns</div>
-						<div class={statValueClasses + ' text-primary'}>+{calculatedReturns?.bonusReturn !== undefined ? Math.round(calculatedReturns.bonusReturn) + '%' : 'TBD'}</div>
+						<div class={statValueClasses + ' text-primary'}>
+							<FormattedReturn value={calculatedReturns?.bonusReturn} showPlus={true} />
+						</div>
 					</div>
 				</div>
 

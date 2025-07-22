@@ -209,8 +209,72 @@ export function formatCompactNumber(
 ): string {
   return new Intl.NumberFormat('en-US', {
     notation: 'compact',
+    minimumFractionDigits: decimals,
     maximumFractionDigits: decimals
   }).format(value);
+}
+
+/**
+ * Smart number formatting for UI display
+ * Automatically uses compact notation for large numbers to prevent overflow
+ * @param value - Number to format
+ * @param options - Formatting options
+ * @returns Formatted string with appropriate suffix
+ */
+export function formatSmartNumber(
+  value: number,
+  options: {
+    threshold?: number;      // When to switch to compact (default: 10000)
+    decimals?: number;       // Decimal places for compact format (default: 1)
+    forceCompact?: boolean;  // Always use compact notation
+    prefix?: string;         // Prefix like $ for currency
+    suffix?: string;         // Suffix like % for percentage
+  } = {}
+): string {
+  const {
+    threshold = 10000,
+    decimals = 1,
+    forceCompact = false,
+    prefix = '',
+    suffix = ''
+  } = options;
+
+  if (forceCompact || Math.abs(value) >= threshold) {
+    const formatted = formatCompactNumber(value, decimals);
+    return `${prefix}${formatted}${suffix}`;
+  }
+
+  // For smaller numbers, use regular formatting with commas
+  const formatted = formatNumber(value);
+  return `${prefix}${formatted}${suffix}`;
+}
+
+/**
+ * Format token supply amounts with smart abbreviation
+ * @param value - Token amount (already adjusted for decimals)
+ * @param options - Formatting options
+ * @returns Formatted token amount
+ */
+export function formatTokenSupply(
+  value: number | string,
+  options: {
+    decimals?: number;
+    forceCompact?: boolean;
+  } = {}
+): string {
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  
+  // For very large token supplies, always use compact
+  if (numValue >= 1000000) {
+    return formatCompactNumber(numValue, options.decimals ?? 1);
+  }
+  
+  // For medium amounts, use smart formatting
+  return formatSmartNumber(numValue, {
+    threshold: 10000,
+    decimals: options.decimals ?? 1,
+    forceCompact: options.forceCompact
+  });
 }
 
 /**
@@ -267,4 +331,41 @@ export function isValidDate(date: unknown): boolean {
 export function formatAddress(address: string): string {
 	if (!address) return "";
 	return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+/**
+ * Smart return formatting that switches from % to x multiplier for large values
+ * @param returnPercentage - Return value as percentage (e.g., 150 for 150%)
+ * @param options - Formatting options
+ * @returns Formatted return string
+ */
+export function formatSmartReturn(
+  returnPercentage: number | undefined,
+  options: {
+    threshold?: number;      // When to switch from % to x (default: 1000)
+    showPlus?: boolean;      // Show + sign for positive values
+  } = {}
+): string {
+  if (returnPercentage === undefined || returnPercentage === null) {
+    return 'TBD';
+  }
+
+  const { threshold = 1000, showPlus = false } = options;
+  
+  // For values below threshold, show as percentage
+  if (returnPercentage < threshold) {
+    const formatted = `${Math.round(returnPercentage)}%`;
+    return showPlus && returnPercentage > 0 ? `+${formatted}` : formatted;
+  }
+  
+  // Convert percentage to multiplier (100% = 2x, 200% = 3x, etc.)
+  const multiplier = (returnPercentage / 100) + 1;
+  
+  // Cap display at >10x for any value 10x or greater
+  if (multiplier >= 10) {
+    return '>10x';
+  }
+  
+  // For multipliers below 10x, show with one decimal if needed
+  return `${multiplier.toFixed(1)}x`;
 }
