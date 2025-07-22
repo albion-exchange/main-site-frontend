@@ -190,10 +190,34 @@
 						<li class={footerSectionLiClasses}><a href="/legal" class={footerSectionLinkClasses}>Legal</a></li>
 					</ul>
 				</div>
-				<div class="hidden lg:block">
-					<h4 class={footerSectionH4Classes}>Stay Connected</h4>
-					<p class={footerSectionPClasses}>Follow Albion for the latest updates on energy investments and platform news</p>
-					<div class={footerSocialButtonsClasses}>
+				<div class="lg:col-span-2">
+					<h4 class={footerSectionH4Classes}>Sign up for the Newsletter</h4>
+					<p class={footerSectionPClasses}>Get the latest updates on new token releases and platform news</p>
+					
+					<!-- MailChimp Newsletter Signup Form -->
+					<div id="mc_embed_signup" class="mt-4">
+						<form action="https://your-domain.us1.list-manage.com/subscribe/post?u=YOUR_USER_ID&id=YOUR_LIST_ID" 
+							  method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_blank">
+							<div id="mc_embed_signup_scroll" class="flex gap-2">
+								<input type="email" value="" name="EMAIL" 
+									   placeholder="Enter email address"
+									   id="mce-EMAIL" required
+									   class="flex-1 px-3 py-3 border border-light-gray font-figtree text-sm bg-white text-black transition-colors duration-200 focus:outline-none focus:border-black"
+								/>
+								<!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+								<div style="position: absolute; left: -5000px;" aria-hidden="true">
+									<input type="text" name="b_YOUR_USER_ID_YOUR_LIST_ID" tabindex="-1" value="">
+								</div>
+								<input type="submit" value="Sign up now" name="subscribe" id="mc-embedded-subscribe"
+									   class="px-6 py-3 bg-black text-white border-none font-figtree font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary whitespace-nowrap"
+								/>
+							</div>
+						</form>
+					</div>
+
+					<div class="mt-6">
+						<h4 class={footerSectionH4Classes}>Connect with us</h4>
+						<div class={footerSocialButtonsClasses}>
 						<a href="https://twitter.com/albion" target="_blank" rel="noopener noreferrer" class="{footerSocialBtnClasses} {footerSocialTwitterClasses}" aria-label="Follow Albion on Twitter">
 							<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
 								<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
