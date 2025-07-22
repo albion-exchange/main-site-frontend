@@ -52,7 +52,7 @@ export function generateTokenInstanceFromSft(sft: OffchainAssetReceiptVault, pin
 		isActive: true, // SFTs are always active
 		supply: {
 			maxSupply: sftMaxSharesSupply.toString(), // Needs to be edited.
-			mintedSupply: sft.totalShares
+			mintedSupply: sft.totalShares.toString()
 		},
 		holders: sft.tokenHolders.map((holder) => ({
 			address: holder.address,
