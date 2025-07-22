@@ -339,7 +339,7 @@
 								{#if isSoldOut()}
 									<span class={soldOutClasses}>Sold Out</span>
 								{:else}
-									<span>Available: <FormattedNumber value={formatEther(supply?.availableSupply || BigInt(0))} type="token" /> tokens</span>
+									<span>Available: <FormattedNumber value={formatEther(supply?.availableSupply || BigInt(0))} type="number" compact={false} /> tokens</span>
 								{/if}
 							</div>
 							{#if !isSoldOut() && supply?.availableSupply && investmentAmount > Number(formatEther(supply.availableSupply))}

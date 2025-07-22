@@ -363,7 +363,7 @@ export function formatSmartReturn(
   
   // Cap display at >10x for any value 10x or greater
   if (multiplier >= 10) {
-    return showPlus ? '+>10x' : '>10x';
+    return '>10x';
   }
   
   // For multipliers below 10x, show with one decimal if needed
