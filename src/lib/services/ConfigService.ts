@@ -15,40 +15,11 @@
  */
 
 // Import configuration data
-import marketData from "$lib/data/marketData.json";
 import platformStats from "$lib/data/platformStats.json";
 import companyInfo from "$lib/data/companyInfo.json";
 import futureReleasesData from "$lib/data/futureReleases.json";
 
-export interface MarketConfig {
-  commodityPrices: {
-    oil: {
-      current: number;
-      currency: string;
-      benchmark: string;
-      lastUpdated: string;
-    };
-    gas: {
-      current: number;
-      currency: string;
-      benchmark: string;
-      lastUpdated: string;
-    };
-  };
-  exchangeRates: {
-    [currency: string]: {
-      rate: number;
-      lastUpdated: string;
-    };
-  };
-  marketIndicators: {
-    [indicator: string]: {
-      value: number;
-      change: number;
-      lastUpdated: string;
-    };
-  };
-}
+
 
 export interface PlatformConfig {
   totalAssets: number;
@@ -98,7 +69,6 @@ export interface FutureRelease {
 }
 
 export interface AppConfig {
-  market: MarketConfig;
   platform: PlatformConfig;
   company: CompanyConfig;
   futureReleases: FutureRelease[];
@@ -109,7 +79,6 @@ class ConfigService {
 
   constructor() {
     this.config = {
-      market: marketData as MarketConfig,
       platform: platformStats as PlatformConfig,
       company: companyInfo as CompanyConfig,
       futureReleases: this.transformFutureReleasesData(futureReleasesData)
@@ -153,12 +122,7 @@ class ConfigService {
     return this.config;
   }
 
-  /**
-   * Get market configuration
-   */
-  getMarketConfig(): MarketConfig {
-    return this.config.market;
-  }
+
 
   /**
    * Get platform configuration
@@ -195,26 +159,7 @@ class ConfigService {
     return this.config.futureReleases.find(release => release.id === releaseId) || null;
   }
 
-  /**
-   * Get current oil price
-   */
-  getCurrentOilPrice(): number {
-    return this.config.market.commodityPrices.oil.current;
-  }
 
-  /**
-   * Get current gas price
-   */
-  getCurrentGasPrice(): number {
-    return this.config.market.commodityPrices.gas.current;
-  }
-
-  /**
-   * Get exchange rate for currency
-   */
-  getExchangeRate(currency: string): number {
-    return this.config.market.exchangeRates[currency]?.rate || 1;
-  }
 
   /**
    * Get platform statistics
@@ -281,16 +226,7 @@ class ConfigService {
     return this.config.company.legal;
   }
 
-  /**
-   * Get market indicator value
-   */
-  getMarketIndicator(indicator: string): {
-    value: number;
-    change: number;
-    lastUpdated: string;
-  } | null {
-    return this.config.market.marketIndicators[indicator] || null;
-  }
+
 
   /**
    * Check if data is stale (for cache invalidation)
@@ -309,7 +245,6 @@ class ConfigService {
     // In a real app, this might fetch from API
     // For now, we'll just re-import the JSON files
     this.config = {
-      market: marketData as MarketConfig,
       platform: platformStats as PlatformConfig,
       company: companyInfo as CompanyConfig,
       futureReleases: this.transformFutureReleasesData(futureReleasesData)
