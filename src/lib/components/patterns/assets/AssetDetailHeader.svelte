@@ -4,6 +4,7 @@
 	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
 	import { StatsCard } from '$lib/components/components';
 	import { getShareText, getShareUrls, shareViaWebAPI, copyToClipboard, type ShareData } from '$lib/utils/sharing';
+	import { createTrackableURL, extractAssetIdFromURL, trackShareEvent } from '$lib/utils/tracking';
 	import { onMount } from 'svelte';
 
 	export let asset: Asset;
@@ -31,6 +32,17 @@
 	function handleShare(platform: keyof ReturnType<typeof getShareUrls>) {
 		const shareData = getShareData();
 		const urls = getShareUrls(shareData);
+		const assetId = extractAssetIdFromURL(shareData.url);
+		
+		// Track the share event
+		trackShareEvent({
+			action: 'share_clicked',
+			platform,
+			asset_id: assetId,
+			url: urls[platform],
+			timestamp: new Date()
+		});
+		
 		window.open(urls[platform], '_blank');
 	}
 
@@ -54,7 +66,20 @@
 
 	async function handleCopyLink() {
 		try {
-			await copyToClipboard(window.location.href);
+			const assetId = extractAssetIdFromURL(window.location.href);
+			// Add UTM parameters for copy link tracking
+			const urlWithUTM = createTrackableURL(window.location.href, 'copy_link', assetId);
+			
+			// Track the copy event
+			trackShareEvent({
+				action: 'copy_link',
+				platform: 'copy_link',
+				asset_id: assetId,
+				url: urlWithUTM,
+				timestamp: new Date()
+			});
+			
+			await copyToClipboard(urlWithUTM);
 			// You could add a toast notification here
 			alert('Link copied to clipboard!');
 		} catch (error) {
