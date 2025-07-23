@@ -5,7 +5,7 @@ export interface ShareData {
 }
 
 export function getShareText(assetName: string): string {
-	return `Check out this energy investment: ${assetName}`;
+	return `Unlock fractional ownership in a real-world oil field with this tokenized RWA asset: ${assetName}`;
 }
 
 export function getShareUrls(shareData: ShareData) {
@@ -18,7 +18,7 @@ export function getShareUrls(shareData: ShareData) {
 		twitter: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
 		linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
 		telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`,
-		whatsapp: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
+		whatsapp: `https://api.whatsapp.com/send?text=${encodedText}%20${encodedUrl}`,
 		email: `mailto:?subject=${encodedTitle}&body=${encodedText}%0D%0A%0D%0A${encodedUrl}`,
 	};
 }
@@ -40,4 +40,12 @@ export async function shareViaWebAPI(shareData: ShareData): Promise<boolean> {
 
 export function copyToClipboard(text: string): Promise<void> {
 	return navigator.clipboard.writeText(text);
+}
+
+export function getEmailContent(shareData: ShareData): string {
+	return `Subject: ${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`;
+}
+
+export function isMacOS(): boolean {
+	return typeof navigator !== 'undefined' && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 }

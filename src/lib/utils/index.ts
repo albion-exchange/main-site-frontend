@@ -26,5 +26,7 @@ export {
   getShareUrls, 
   shareViaWebAPI, 
   copyToClipboard,
+  getEmailContent,
+  isMacOS,
   type ShareData 
 } from './sharing';
