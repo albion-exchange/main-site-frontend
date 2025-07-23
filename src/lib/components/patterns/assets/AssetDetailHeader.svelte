@@ -3,7 +3,7 @@
 	import { getImageUrl } from '$lib/utils/imagePath';
 	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
 	import { StatsCard } from '$lib/components/components';
-	import { getShareText, getShareUrls, shareViaWebAPI, copyToClipboard, type ShareData } from '$lib/utils/sharing';
+	import { getShareText, getShareUrls, shareViaWebAPI, copyToClipboard, addUtmParams, type ShareData } from '$lib/utils/sharing';
 	import { onMount } from 'svelte';
 
 	export let asset: Asset;
@@ -38,6 +38,8 @@
 
 	async function handleMobileShare() {
 		const shareData = getShareData();
+		// Append UTM parameters for native mobile share tracking
+		shareData.url = addUtmParams(shareData.url, 'mobile');
 		const success = await shareViaWebAPI(shareData);
 		
 		if (!success) {
