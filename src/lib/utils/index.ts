@@ -19,3 +19,12 @@ export { dateUtils } from './dateHelpers';
 
 // Re-export specific calculators
 export { getTokenReturns } from './returnCalculations';
+
+// Sharing utilities
+export { 
+  getShareText, 
+  getShareUrls, 
+  shareViaWebAPI, 
+  copyToClipboard,
+  type ShareData 
+} from './sharing';
