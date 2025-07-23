@@ -14,15 +14,17 @@
     import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft, generateTokenMetadataInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
 	import authorizerAbi from '$lib/abi/authorizer.json';
     import type { TokenMetadata } from '$lib/types/MetaboardTypes';
+	import { groupSftsByEnergyField, type GroupedEnergyField } from '$lib/utils/energyFieldGrouping';
+
 	let loading = true;
-	// let allAssets: Asset[] = [];
 	let showSoldOutAssets = false;
 	let featuredTokensWithAssets: Array<{ token: TokenMetadata; asset: Asset }> = [];
-	let filteredTokensWithAssets: Array<{ token: TokenMetadata; asset: Asset }> = [];
+	let groupedEnergyFields: GroupedEnergyField[] = [];
 	
 	// Token purchase widget state
 	let showPurchaseWidget = false;
 	let selectedAssetId: string | null = null;
+	let selectedTokenAddress: string | null = null;
 	
 	async function loadTokenAndAssets() {
 		try {
@@ -49,6 +51,9 @@
 					
 					}
 				}
+				
+				// Group the tokens and assets by energy field
+				groupedEnergyFields = groupSftsByEnergyField(featuredTokensWithAssets);
 			}
 			loading = false;
 
@@ -61,26 +66,37 @@
 		loadTokenAndAssets();
 	}
 
-	// Check if an asset has available tokens
-	function hasAvailableTokens(asset: { token: TokenMetadata; asset: Asset }): boolean {
-		const hasAvailable = BigInt(asset.token.supply.maxSupply) > BigInt(asset.token.supply.mintedSupply);
-		return hasAvailable;
+	// Check if an energy field group has available tokens
+	function hasAvailableTokens(group: GroupedEnergyField): boolean {
+		return group.tokens.some(token => {
+			const hasAvailable = BigInt(token.supply.maxSupply) > BigInt(token.supply.mintedSupply);
+			return hasAvailable;
+		});
 	}
 	
-	// Filter assets based on availability
+	// Filter and group assets based on availability
 	$: {
 		if (!loading) {
-			filteredTokensWithAssets = showSoldOutAssets 
+			const filteredTokensWithAssets = showSoldOutAssets 
 				? featuredTokensWithAssets 
-				: featuredTokensWithAssets.filter(asset => hasAvailableTokens(asset));
+				: featuredTokensWithAssets.filter(item => {
+					const hasAvailable = BigInt(item.token.supply.maxSupply) > BigInt(item.token.supply.mintedSupply);
+					return hasAvailable;
+				});
+			
+			groupedEnergyFields = groupSftsByEnergyField(filteredTokensWithAssets);
 		}
 	}
 	
 	// Count sold out assets
-	$: soldOutCount = featuredTokensWithAssets.filter(asset => !hasAvailableTokens(asset)).length;
+	$: soldOutCount = featuredTokensWithAssets.filter(item => {
+		const hasAvailable = BigInt(item.token.supply.maxSupply) > BigInt(item.token.supply.mintedSupply);
+		return !hasAvailable;
+	}).length;
 	
 	function handleBuyTokens(event: CustomEvent) {
 		selectedAssetId = event.detail.assetId;
+		selectedTokenAddress = event.detail.tokenAddress;
 		showPurchaseWidget = true;
 	}
 	
@@ -92,6 +108,7 @@
 	function handleWidgetClose() {
 		showPurchaseWidget = false;
 		selectedAssetId = null;
+		selectedTokenAddress = null;
 	}
 </script>
 
@@ -115,31 +132,33 @@
 		{:else}
 			<!-- Assets Grid -->
 			<div class="mt-12 sm:mt-16 lg:mt-24">
-				{#if filteredTokensWithAssets.length === 0 && !showSoldOutAssets}
+				{#if groupedEnergyFields.length === 0}
 					<!-- No Available Assets -->
 					<Card>
 						<CardContent>
 							<div class="text-center py-8">
 								<SectionTitle level="h3" size="card">No Available Assets</SectionTitle>
-								<p class="text-sm sm:text-base text-black leading-relaxed mt-4">All assets are currently sold out.</p>
-							</div>
-						</CardContent>
-					</Card>
-				{:else if filteredTokensWithAssets.length === 0}
-					<!-- No Assets Found -->
-					<Card>
-						<CardContent>
-							<div class="text-center py-8">
-								<SectionTitle level="h3" size="card">No Assets Found</SectionTitle>
-								<p class="text-sm sm:text-base text-black leading-relaxed mt-4">Try adjusting your search criteria or filters to find assets.</p>
+								<p class="text-sm sm:text-base text-black leading-relaxed mt-4">
+									{showSoldOutAssets ? 'No assets found.' : 'All assets are currently sold out.'}
+								</p>
 							</div>
 						</CardContent>
 					</Card>
 				{:else}
-					<!-- Assets Grid -->
-					<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 items-stretch">
-						{#each filteredTokensWithAssets as asset}
-							<AssetCard asset={asset.asset} token={asset.token} on:buyTokens={handleBuyTokens} />
+					<!-- Grouped Assets by Energy Field -->
+					<div class="space-y-12 lg:space-y-16">
+						{#each groupedEnergyFields as energyField}
+							<div class="space-y-6 lg:space-y-8">
+								<!-- Assets Grid for this Energy Field -->
+								<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+									<AssetCard 
+										asset={energyField.asset} 
+										token={energyField.tokens} 
+										energyFieldId={energyField.id}
+										on:buyTokens={handleBuyTokens} 
+									/>
+								</div>
+							</div>
 						{/each}
 					</div>
 				{/if}
@@ -148,7 +167,7 @@
 	</HeroSection>
 
 	<!-- View Sold Out Assets Toggle -->
-	{#if !loading && filteredTokensWithAssets.length > 0}
+	{#if !loading && featuredTokensWithAssets.length > 0}
 		{#if soldOutCount > 0 && !showSoldOutAssets}
 			<div class="text-center mt-8 sm:mt-12">
 				<SecondaryButton on:click={() => showSoldOutAssets = true}>
@@ -168,6 +187,7 @@
 <!-- Token Purchase Widget -->
 <TokenPurchaseWidget 
 	bind:isOpen={showPurchaseWidget}
+	tokenAddress={selectedTokenAddress}
 	assetId={selectedAssetId}
 	on:purchaseSuccess={handlePurchaseSuccess}
 	on:close={handleWidgetClose}

@@ -18,7 +18,7 @@ export const getSftMetadata = async (): Promise<MetaV1S[]> => {
   },
   orderBy: transaction__timestamp
   orderDirection: desc
-   first: 1
+   first: ${subjects.length}
   ) {
     id
     meta

@@ -15,6 +15,15 @@ export type EnergyField = {
 export const ENERGY_FEILDS: EnergyField[] = [
 	{
 		name: 'Bakken Horizon Field',
-		sftTokens: ['0xd5316Ca888491575bEFC0273a00dE2186C53f760'],
+		sftTokens: [
+			'0xd5316ca888491575befc0273a00de2186c53f760',
+			'0xea9a6f77483a07bc287dfb8dad151042376eb153'
+		],
+	},
+	{
+		name: 'Gulf of Mexico-4',
+		sftTokens: [
+			'0xae69a129b626b1e8fce196ef8e7d5faea3be753f'
+		]
 	}
 ]

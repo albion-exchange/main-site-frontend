@@ -16,6 +16,7 @@ import type { OffchainAssetReceiptVault } from '$lib/types/offchainAssetReceiptV
 import configService from '$lib/services/ConfigService';
 import type { Asset, Token } from '$lib/types/uiTypes';
 import type { TokenMetadata } from '$lib/types/MetaboardTypes';
+import { ENERGY_FEILDS } from '$lib/network';
 
 interface AssetDetailState {
   asset: Asset | null;
@@ -28,7 +29,7 @@ interface AssetDetailState {
 /**
  * Composable for managing asset detail data
  */
-export function useAssetDetailData(initialAssetId: string) {
+export function useAssetDetailData(initialEnergyFieldId: string) {
   // State management
   const state: Writable<AssetDetailState> = writable({
     asset: null,
@@ -38,9 +39,9 @@ export function useAssetDetailData(initialAssetId: string) {
     error: null
   });
 
-  // Load asset and related data
-  async function loadAssetData(assetId?: string) {
-    const id = assetId || initialAssetId;
+  // Load asset and related data for an energy field
+  async function loadAssetData(energyFieldId?: string) {
+    const id = energyFieldId || initialEnergyFieldId;
 
     state.update(s => ({ ...s, loading: true, error: null }));
     
@@ -49,46 +50,75 @@ export function useAssetDetailData(initialAssetId: string) {
       const currentSfts = get(sfts);
       const currentWagmiConfig = get(wagmiConfig);
 
-      
       if(!currentSftMetadata || !currentSfts) {
         throw new Error('SFT data not available');
       }
       
       const decodedMeta = currentSftMetadata.map((metaV1: MetaV1S) => decodeSftInformation(metaV1));
-      const sft = currentSfts.find((sft: OffchainAssetReceiptVault) => sft.id.toLowerCase() === id.toLowerCase());
       
-      if(!sft) {
-        throw new Error('Asset not found in SFT data');
+      // Find the energy field by ID
+      const energyField = ENERGY_FEILDS.find((field: any) => {
+        const fieldId = field.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        return fieldId === id;
+      });
+      
+      if(!energyField) {
+        throw new Error('Energy field not found');
       }
       
-      const pinnedMetadata: any = decodedMeta.find(
-        (meta: any) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
+      // Find all SFTs that belong to this energy field
+      const energyFieldSfts = currentSfts.filter((sft: OffchainAssetReceiptVault) => 
+        energyField.sftTokens.some((tokenAddress: string) => 
+          tokenAddress.toLowerCase() === sft.id.toLowerCase()
+        )
       );
       
-      if(!pinnedMetadata) {
-        throw new Error('Asset metadata not found');
+      if(energyFieldSfts.length === 0) {
+        throw new Error('No SFTs found for this energy field');
       }
       
-      const sftMaxSharesSupply = await readContract(currentWagmiConfig, {
-        abi: authorizerAbi,
-        address: sft.activeAuthorizer?.address as Hex,
-        functionName: 'maxSharesSupply',
-        args: []
-      }) as bigint;
+      // Load all tokens for this energy field
+      const tokens: TokenMetadata[] = [];
+      let assetInstance: Asset | null = null;
       
-      // const tokenInstance = generateTokenInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
-      const tokenInstance = generateTokenMetadataInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
-      const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
-    
-      console.log('assetInstance : ', JSON.stringify(assetInstance));
+      for (const sft of energyFieldSfts) {
+        const pinnedMetadata: any = decodedMeta.find(
+          (meta: any) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
+        );
+        
+        if(pinnedMetadata) {
+          const sftMaxSharesSupply = await readContract(currentWagmiConfig, {
+            abi: authorizerAbi,
+            address: sft.activeAuthorizer?.address as Hex,
+            functionName: 'maxSharesSupply',
+            args: []
+          }) as bigint;
+          
+          const tokenInstance = generateTokenMetadataInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
+          tokens.push(tokenInstance);
+          
+          // Use the first token's asset instance (they should all be the same)
+          if (!assetInstance) {
+            assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
+          }
+        }
+      }
+      
+      if(tokens.length === 0) {
+        throw new Error('No tokens found for this energy field');
+      }
+      
+      if(!assetInstance) {
+        throw new Error('Asset data not found');
+      }
 
-      // Load future releases for this asset
-      const futureReleases = configService.getFutureReleasesByAsset(id);
+      // Load future releases for this energy field
+      const futureReleases = configService.getFutureReleasesByAsset(energyField.name);
       
       state.update(s => ({
         ...s,
         asset: assetInstance,
-        tokens: [tokenInstance],
+        tokens,
         futureReleases,
         loading: false
       }));
@@ -96,15 +126,15 @@ export function useAssetDetailData(initialAssetId: string) {
       console.error(err);
       state.update(s => ({
         ...s,
-        error: err instanceof Error ? err.message : 'Failed to load asset data',
+        error: err instanceof Error ? err.message : 'Failed to load energy field data',
         loading: false
       }));
     }
   }
 
   // Get latest monthly report
-  function getLatestReport(assetId?: string) {
-    const id = assetId || initialAssetId;
+  function getLatestReport(energyFieldId?: string) {
+    const id = energyFieldId || initialEnergyFieldId;
     // This should now return data from the SFT asset instance
     const currentState = get(state);
     if (currentState.asset?.monthlyReports && currentState.asset.monthlyReports.length > 0) {
@@ -114,8 +144,8 @@ export function useAssetDetailData(initialAssetId: string) {
   }
 
   // Get average monthly revenue
-  function getAverageRevenue(assetId?: string) {
-    const id = assetId || initialAssetId;
+  function getAverageRevenue(energyFieldId?: string) {
+    const id = energyFieldId || initialEnergyFieldId;
     // This should now calculate from SFT asset data
     const currentState = get(state);
     if (currentState.asset?.monthlyReports && currentState.asset.monthlyReports.length > 0) {
@@ -126,8 +156,8 @@ export function useAssetDetailData(initialAssetId: string) {
   }
 
   // Get production timeline
-  function getProductionTimeline(assetId?: string) {
-    const id = assetId || initialAssetId;
+  function getProductionTimeline(energyFieldId?: string) {
+    const id = energyFieldId || initialEnergyFieldId;
     // This should now return data from the SFT asset instance
     const currentState = get(state);
     return currentState.asset?.monthlyReports || [];
@@ -147,7 +177,7 @@ export function useAssetDetailData(initialAssetId: string) {
   function getTokenPayoutHistory(tokenAddress: string) {
     const currentState = get(state);
     const token = currentState.tokens.find(t => t.contractAddress.toLowerCase() === tokenAddress.toLowerCase());
-    return token?.payoutHistory || [];
+    return token?.payoutData || []; // Use payoutData from TokenMetadata
   }
 
   // Refresh data
