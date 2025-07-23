@@ -160,7 +160,7 @@
 		<div class="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-8 text-center mb-6 lg:mb-8">
 			<StatsCard
 				title="Current Production"
-				value={asset?.production?.current ? asset.production.current.replace(' BOE/month', '') : '0'}
+				value={asset?.production?.current ? asset.production.current.replace(' BOE/month', '').replace(' boe/day', '') : '0'}
 				subtitle="BOE/month"
 				size="small"
 			/>

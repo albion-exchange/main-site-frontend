@@ -26,7 +26,7 @@ import type {
   AssetLocation as UIAssetLocation
 } from './uiTypes';
 import type { ISODateOnlyString, ISODateTimeString } from './sharedTypes';
-import { formatCurrency, formatNumber } from '../utils/formatters';
+import { formatCurrency, formatNumber, formatProductionValue } from '../utils/formatters';
 
 /**
  * Core domain types - pure data representation
@@ -328,9 +328,7 @@ export class TypeTransformations {
         production: {
           status: asset.production.status,
           statusDisplay: asset.production.status.charAt(0).toUpperCase() + asset.production.status.slice(1),
-          expectedRemainingProduction: asset.production.expectedRemainingProduction !== null
-            ? `${(asset.production.expectedRemainingProduction / 1000).toFixed(1)}k boe`
-            : 'TBD',
+                  expectedRemainingProduction: formatProductionValue(asset.production.expectedRemainingProduction),
           expectedEndDate: asset.production.expectedEndDate
             ? this.formatEndDate(asset.production.expectedEndDate)
             : 'TBD'
@@ -524,9 +522,7 @@ export class TypeTransformations {
         (sum, proj) => sum + proj.production, 
         0
       );
-      uiAsset.production.expectedRemainingProduction = totalPlannedProduction ? 
-        `${(totalPlannedProduction / 1000).toFixed(1)}k boe` : 
-        'TBD';
+      uiAsset.production.expectedRemainingProduction = formatProductionValue(totalPlannedProduction);
     }
     
     // Set current production from latest monthly report

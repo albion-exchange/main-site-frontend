@@ -369,3 +369,40 @@ export function formatSmartReturn(
   // For multipliers below 10x, show with one decimal if needed
   return `${multiplier.toFixed(1)}x`;
 }
+
+/**
+ * Formats production values with smart formatting and proper units
+ * @param value - Production value in BOE
+ * @param options - Formatting options
+ * @returns Formatted production string (e.g., "1,234 boe" or "12.5k boe")
+ */
+export function formatProductionValue(
+  value: number | undefined | null,
+  options: {
+    unit?: string;          // Unit to append (default: 'boe')
+    threshold?: number;     // When to switch to k format (default: 10000)
+    includeUnit?: boolean;  // Whether to include the unit (default: true)
+  } = {}
+): string {
+  if (value === undefined || value === null || isNaN(value)) {
+    return 'TBD';
+  }
+
+  const { 
+    unit = 'boe', 
+    threshold = 10000, 
+    includeUnit = true 
+  } = options;
+
+  let formatted: string;
+  
+  if (value >= threshold) {
+    // Use k format with 1 decimal place
+    formatted = `${(value / 1000).toFixed(1)}k`;
+  } else {
+    // Use regular format with commas
+    formatted = formatNumber(value);
+  }
+
+  return includeUnit ? `${formatted} ${unit}` : formatted;
+}

@@ -3,7 +3,7 @@
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { useTokenService } from '$lib/services';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/components';
-	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
+	import { formatCurrency, formatEndDate, formatProductionValue } from '$lib/utils/formatters';
     import { getTokenReturns } from '$lib/utils';
     import type { TokenMetadata } from '$lib/types/MetaboardTypes';
 
@@ -135,7 +135,7 @@
 		<!-- Key Stats -->
 		<div class={highlightedStatsClasses}>
 			<div class={highlightStatClasses}>
-				<span class={highlightValueClasses}>{asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0).toFixed(2) || 'TBD'}</span>
+				<span class={highlightValueClasses}>{formatProductionValue(asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0))}</span>
 				<span class={highlightLabelClasses}>Exp. Remaining</span>
 			</div>
 			{#if latestReport}
