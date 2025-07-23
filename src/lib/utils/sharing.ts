@@ -41,11 +41,3 @@ export async function shareViaWebAPI(shareData: ShareData): Promise<boolean> {
 export function copyToClipboard(text: string): Promise<void> {
 	return navigator.clipboard.writeText(text);
 }
-
-export function getEmailContent(shareData: ShareData): string {
-	return `Subject: ${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`;
-}
-
-export function isMacOS(): boolean {
-	return typeof navigator !== 'undefined' && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-}
