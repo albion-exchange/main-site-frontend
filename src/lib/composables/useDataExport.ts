@@ -7,6 +7,7 @@ import type { Asset, Token } from '$lib/types/uiTypes';
 import { useTokenService } from '$lib/services';
 import { withSyncErrorHandling } from '$lib/utils/errorHandling';
 import { formatCurrency, formatNumber } from '$lib/utils/formatters';
+import type { TokenMetadata } from '$lib/types/MetaboardTypes';
 
 export interface ExportOptions {
   filename?: string;
@@ -80,46 +81,31 @@ export function useDataExport() {
   /**
    * Export token payment history
    */
-  function exportPaymentHistory(tokens: Token[], options: ExportOptions = {}): void {
-    const tokenService = useTokenService();
-    
-    if (!tokens.length) {
-      console.warn('No tokens to export payment data for');
-      return;
-    }
-    
-    // Get payment data from the first token (they should all have same payment history)
-    const paymentData = withSyncErrorHandling(
-      () => tokenService.getTokenPayoutHistory(tokens[0].contractAddress),
-      { service: 'TokenService', operation: 'getTokenPayoutHistory' }
-    );
-    if (!paymentData?.recentPayouts?.length) {
-      console.warn('No payment history found');
-      return;
-    }
-    
-    const headers = [
-      'Month',
-      'Date',
-      'Total Payout (USD)',
-      'Payout Per Token (USD)',
-      'Oil Price (USD/bbl)',
-      'Gas Price (USD/MMBtu)',
-      'Production Volume (bbl)'
-    ];
-    
-    const data = paymentData.recentPayouts.map(payout => [
-      payout.month,
-      payout.date,
-      payout.totalPayout.toFixed(2),
-      payout.payoutPerToken.toFixed(4),
-      payout.oilPrice.toFixed(2),
-      payout.gasPrice.toFixed(2),
-      payout.productionVolume.toString()
-    ]);
-    
-    const filename = options.filename || `${tokens[0].assetId}-payment-history.csv`;
-    exportToCSV(data, headers, filename);
+  function exportPaymentHistory(tokens: TokenMetadata[], options: ExportOptions = {}): void {
+
+
+    const currentToken = tokens[0];
+
+  if (!currentToken || !currentToken.payoutData) {
+    return;
+  }
+
+  const headers = [
+    'Month',
+    'Date',
+    'Total Payout (USD)',
+    'Payout Per Token (USD)'
+  ];
+
+  const data = currentToken.payoutData.map(payout => [
+    payout.month,
+    payout.tokenPayout.date,
+    payout.tokenPayout.totalPayout.toFixed(2),
+    payout.tokenPayout.payoutPerToken.toFixed(4)
+  ]);
+
+  const filename = `${currentToken.assetId}-payment-history.csv`;
+  exportToCSV(data, headers, filename);
   }
   
   /**

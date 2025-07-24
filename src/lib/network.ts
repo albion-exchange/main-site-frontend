@@ -25,5 +25,11 @@ export const ENERGY_FEILDS: EnergyField[] = [
 		sftTokens: [
 			'0xae69a129b626b1e8fce196ef8e7d5faea3be753f'
 		]
+	},
+	{
+		name: 'Permian Basin-3 Release 1',
+		sftTokens: [
+			'0xc699575fe18f00104d926f0167cd858ce6d8b32e'
+		]
 	}
 ]

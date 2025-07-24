@@ -1,17 +1,15 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { useAssetService, useTokenService } from '$lib/services';
 	import { readContract } from '@wagmi/core';
-	import { signerAddress, wagmiConfig, chainId } from 'svelte-wagmi';
+	import { wagmiConfig } from 'svelte-wagmi';
 	import { sfts, sftMetadata } from '$lib/stores';
-	import type { Asset, Token } from '$lib/types/uiTypes';
+	import type { Asset } from '$lib/types/uiTypes';
 	import AssetCard from '$lib/components/patterns/assets/AssetCard.svelte';
 	import TokenPurchaseWidget from '$lib/components/patterns/TokenPurchaseWidget.svelte';
 	import { SecondaryButton, SectionTitle, Card, CardContent } from '$lib/components/components';
-	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
+	import { PageLayout, HeroSection } from '$lib/components/layout';
     import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
 	import type { Hex } from 'viem';
-    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft, generateTokenMetadataInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
+    import { generateAssetInstanceFromSftMeta, generateTokenMetadataInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
 	import authorizerAbi from '$lib/abi/authorizer.json';
     import type { TokenMetadata } from '$lib/types/MetaboardTypes';
 	import { groupSftsByEnergyField, type GroupedEnergyField } from '$lib/utils/energyFieldGrouping';
@@ -146,19 +144,14 @@
 					</Card>
 				{:else}
 					<!-- Grouped Assets by Energy Field -->
-					<div class="space-y-12 lg:space-y-16">
+					<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 items-stretch">
 						{#each groupedEnergyFields as energyField}
-							<div class="space-y-6 lg:space-y-8">
-								<!-- Assets Grid for this Energy Field -->
-								<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 items-stretch">
-									<AssetCard 
-										asset={energyField.asset} 
-										token={energyField.tokens} 
-										energyFieldId={energyField.id}
-										on:buyTokens={handleBuyTokens} 
-									/>
-								</div>
-							</div>
+							<AssetCard 
+								asset={energyField.asset} 
+								token={energyField.tokens} 
+								energyFieldId={energyField.id}
+								on:buyTokens={handleBuyTokens} 
+							/>
 						{/each}
 					</div>
 				{/if}
@@ -170,7 +163,7 @@
 	{#if !loading && featuredTokensWithAssets.length > 0}
 		{#if soldOutCount > 0 && !showSoldOutAssets}
 			<div class="text-center mt-8 sm:mt-12">
-				<SecondaryButton on:click={() => showSoldOutAssets = true}>
+				<SecondaryButton on:click={() => showSoldOutAssets 	= true}>
 					View Sold Out Assets ({soldOutCount})
 				</SecondaryButton>
 			</div>

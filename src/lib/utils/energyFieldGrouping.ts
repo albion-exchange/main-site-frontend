@@ -25,7 +25,7 @@ export function groupSftsByEnergyField(
 			id: fieldId,
 			name: field.name,
 			tokens: [],
-			asset: null as any // Will be set from first token
+			asset: null as any
 		};
 	});
 	
@@ -87,4 +87,20 @@ export function groupSftsByEnergyField(
 	
 	// Convert to array and filter out empty groups
 	return Object.values(grouped).filter(group => group.tokens.length > 0);
-} 
+}
+
+// Get energy field ID from token address
+export function getEnergyFieldId(tokenAddress: string): string {
+	const matchingField = ENERGY_FEILDS.find(field => 
+		field.sftTokens.some(tokenAddr => 
+			tokenAddr.toLowerCase() === tokenAddress.toLowerCase()
+		)
+	);
+	
+	if (matchingField) {
+		return matchingField.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+	}
+	
+	// Fallback to a default ID if no matching field found
+	return 'other-assets';
+}

@@ -4,6 +4,7 @@
  * to eliminate duplication across the codebase
  */
 
+import type { TokenMetadata } from '$lib/types/MetaboardTypes';
 import type { Token } from '$lib/types/uiTypes';
 
 export interface FormattedTokenSupply {
@@ -64,7 +65,7 @@ export function formatTokenBalance(balance: number, decimals: number): string {
 /**
  * Get available supply as BigInt
  */
-export function getAvailableSupplyBigInt(token: Token): bigint {
+export function getAvailableSupplyBigInt(token: TokenMetadata): bigint {
   return BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply);
 }
 

@@ -30,7 +30,6 @@
 	let selectedTokenAddress: string | null = null;
 	
 	// Use services
-	const tokenService = useTokenService();
 	const configService = useConfigService();
 	
 	// Get asset ID from URL params
@@ -129,20 +128,6 @@
 		}
 	}
 
-	function getAssetImage(assetData: Asset | null): string {
-		// Use the coverImage from the asset data
-		return assetData?.coverImage || '/images/eur-wr-cover.jpg';
-	}
-
-	function formatPricing(benchmarkPremium: string): string {
-		if (benchmarkPremium.startsWith('-')) {
-			return `${benchmarkPremium.substring(1)} discount`;
-		} else if (benchmarkPremium.startsWith('+')) {
-			return `${benchmarkPremium.substring(1)} premium`;
-		} else {
-			return `${benchmarkPremium} premium`;
-		}
-	}
 
 	function handleBuyTokens(tokenAddress: string) {
 		selectedTokenAddress = tokenAddress;
@@ -207,7 +192,7 @@
 		</div>
 	{:else}
 		<AssetDetailHeader 
-			asset={assetData} 
+			asset={assetData!} 
 			tokenCount={assetTokens.length} 
 			onTokenSectionClick={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })}
 		/>
@@ -218,7 +203,7 @@
         	<div class="lg:hidden space-y-4">
         		<!-- Overview in collapsible section -->
         		<CollapsibleSection title="Overview" isOpenByDefault={true} alwaysOpenOnDesktop={false}>
-        			<AssetOverviewTab asset={assetData} />
+        			<AssetOverviewTab asset={assetData!} />
         		</CollapsibleSection>
         		
         		<!-- Other sections in collapsible format -->
@@ -335,7 +320,7 @@
 								<div
 								   class="bg-white border border-light-gray overflow-hidden group cursor-pointer"
 								   on:click={() => window.open(getImageUrl(image.url), '_blank')}
-								   on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(getImageUrl(image.ipfs), '_blank'); } }}
+								   on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.open(getImageUrl(image.url), '_blank'); } }}
 								   role="button"
 								   tabindex="0"
 								>
@@ -417,9 +402,9 @@
 			<!-- Tab Content -->
 			<div class="p-8 min-h-[500px] flex flex-col">
 				{#if activeTab === 'overview'}
-					<AssetOverviewTab asset={assetData} />
+					<AssetOverviewTab asset={assetData!} />
 				{:else if activeTab === 'production'}
-					{@const productionReports = assetData?.historicalProduction || assetData?.monthlyReports || []}
+					{@const productionReports = assetData?.monthlyReports || []}
 					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map((r: any) => r.production)) : 100}
 					<div class="flex-1 flex flex-col">
 						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">
@@ -666,11 +651,11 @@
 											<div class="p-8 pt-6 space-y-4">
 												<div class="flex justify-between items-start">
 													<span class="text-base font-medium text-black opacity-70 relative font-figtree">Minted Supply </span>
-													<span class="text-base font-extrabold text-black text-right font-figtree">{formatEther(token.supply?.mintedSupply?.toLocaleString() || supply?.sold?.toLocaleString() || '0')}</span>
+													<span class="text-base font-extrabold text-black text-right font-figtree">{formatEther(BigInt(token.supply?.mintedSupply || 0))}</span>
 												</div>
 												<div class="flex justify-between items-start">
 													<span class="text-base font-medium text-black opacity-70 relative font-figtree">Max Supply</span>
-													<span class="text-base font-extrabold text-black text-right font-figtree">{formatEther(token.supply?.maxSupply?.toLocaleString() || supply?.total?.toLocaleString() || '0')}</span>
+													<span class="text-base font-extrabold text-black text-right font-figtree">{formatEther(BigInt(token.supply?.maxSupply || 0))}</span>
 												</div>
 												<div class="flex justify-between items-start relative">
 													<span class="text-base font-medium text-black opacity-70 relative font-figtree">

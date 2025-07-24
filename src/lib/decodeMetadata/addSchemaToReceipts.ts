@@ -84,7 +84,7 @@ export function generateTokenMetadataInstanceFromSft(sft: OffchainAssetReceiptVa
 		decimals: pinnedMetadata.decimals,
 		supply: {
 			maxSupply: sftMaxSharesSupply.toString(),
-			mintedSupply: sft.totalShares
+			mintedSupply: sft.totalShares.toString()
 		},
 		payoutData: pinnedMetadata.payoutData,
 		asset: pinnedMetadata.asset,
@@ -105,8 +105,8 @@ export function generateAssetInstanceFromSftMeta(sft: OffchainAssetReceiptVault,
         projections: pinnedMetadata.asset.plannedProduction.projections
     };
 	const assetInstance: Asset = {
-		id: sft.id,
-		name: sft.name,
+		id: pinnedMetadata.assetId,
+		name: pinnedMetadata.asset.assetName,
 		description: pinnedMetadata.asset.description,
 		coverImage: `${PINATA_GATEWAY}/${pinnedMetadata.asset.coverImage}`,
 		images: pinnedMetadata.asset.galleryImages.map((image: any) => ({
