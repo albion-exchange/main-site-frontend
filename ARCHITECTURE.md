@@ -36,10 +36,10 @@ Re-exports live in `components/index.ts` so the migration is incremental and non
 
 ## Testing Strategy
 
-* **Unit tests**: Vitest + Testing Library for components/composables. Specs live next to source (`.test.ts` / `.test.svelte`).
-* **Integration tests**: (future) Playwright for full-page flows.
-* Run all tests via `npm test`.
+- **Unit tests**: Vitest + Testing Library for components/composables. Specs live next to source (`.test.ts` / `.test.svelte`).
+- **Integration tests**: (future) Playwright for full-page flows.
+- Run all tests via `npm test`.
 
 ---
 
-> This document is part of **Phase 3 – Polish**.  Follow it when creating new code or refactoring legacy code.
+> This document is part of **Phase 3 – Polish**. Follow it when creating new code or refactoring legacy code.

@@ -3,10 +3,14 @@
  * Extracts asset-related business logic from components
  */
 
-import { derived, writable, type Readable, type Writable } from 'svelte/store';
-import { useAssetService, useTokenService } from '$lib/services';
-import { withSyncErrorHandling, createNotFoundError, errorReporter } from '$lib/utils/errorHandling';
-import type { Asset, Token } from '$lib/types/uiTypes';
+import { derived, writable, type Readable, type Writable } from "svelte/store";
+import { useAssetService, useTokenService } from "$lib/services";
+import {
+  withSyncErrorHandling,
+  createNotFoundError,
+  errorReporter,
+} from "$lib/utils/errorHandling";
+import type { Asset, Token } from "$lib/types/uiTypes";
 
 interface AssetDataState {
   asset: Asset | null;
@@ -27,142 +31,153 @@ export function useAssetData(assetId: string) {
     asset: null,
     tokens: [],
     loading: true,
-    error: null
+    error: null,
   });
 
   // Load asset data
   async function loadAsset() {
-    state.update(s => ({ ...s, loading: true, error: null }));
-    
+    state.update((s) => ({ ...s, loading: true, error: null }));
+
     try {
       const asset = withSyncErrorHandling(
         () => assetService.getAssetById(assetId),
-        { service: 'AssetService', operation: 'getAssetById' }
+        { service: "AssetService", operation: "getAssetById" },
       );
-      
+
       if (!asset) {
-        const error = createNotFoundError('Asset', assetId);
+        const error = createNotFoundError("Asset", assetId);
         errorReporter.handle(error);
         throw error;
       }
-      
-      const tokens = withSyncErrorHandling(
-        () => tokenService.getTokensByAssetId(assetId),
-        { service: 'TokenService', operation: 'getTokensByAssetId' }
-      ) || [];
-      
-      state.update(s => ({
+
+      const tokens =
+        withSyncErrorHandling(() => tokenService.getTokensByAssetId(assetId), {
+          service: "TokenService",
+          operation: "getTokensByAssetId",
+        }) || [];
+
+      state.update((s) => ({
         ...s,
         asset,
         tokens,
-        loading: false
+        loading: false,
       }));
     } catch (err) {
-      state.update(s => ({
+      state.update((s) => ({
         ...s,
-        error: err instanceof Error ? err.message : 'Failed to load asset',
-        loading: false
+        error: err instanceof Error ? err.message : "Failed to load asset",
+        loading: false,
       }));
     }
   }
 
   // Derived values
-  const hasAvailableTokens: Readable<boolean> = derived(state, $state => {
+  const hasAvailableTokens: Readable<boolean> = derived(state, ($state) => {
     if (!$state.tokens.length) return false;
-    
-    return $state.tokens.some(token => {
+
+    return $state.tokens.some((token) => {
       const supply = withSyncErrorHandling(
         () => tokenService.getTokenSupply(token.contractAddress),
-        { service: 'TokenService', operation: 'getTokenSupply' }
+        { service: "TokenService", operation: "getTokenSupply" },
       );
       return supply && supply.availableSupply > 0;
     });
   });
 
-  const primaryToken: Readable<Token | null> = derived(state, $state => {
+  const primaryToken: Readable<Token | null> = derived(state, ($state) => {
     return $state.tokens.length > 0 ? $state.tokens[0] : null;
   });
 
-  const latestReport = derived(state, $state => {
+  const latestReport = derived(state, ($state) => {
     if (!$state.asset?.monthlyReports?.length) return null;
     return $state.asset.monthlyReports[$state.asset.monthlyReports.length - 1];
   });
 
   // Production metrics calculations
-  const productionMetrics = derived(state, $state => {
+  const productionMetrics = derived(state, ($state) => {
     if (!$state.asset) return null;
-    
+
     const reports = $state.asset.monthlyReports || [];
     if (reports.length === 0) return null;
-    
+
     // Calculate total and average production
     const totalProduction = reports.reduce((sum, r) => sum + r.production, 0);
     const avgProduction = totalProduction / reports.length;
-    
+
     // Calculate growth rate
     let growthRate = 0;
     if (reports.length >= 2) {
       const recent = reports.slice(-3); // Last 3 months
       const older = reports.slice(-6, -3); // Previous 3 months
-      
+
       if (older.length > 0) {
-        const recentAvg = recent.reduce((sum, r) => sum + r.production, 0) / recent.length;
-        const olderAvg = older.reduce((sum, r) => sum + r.production, 0) / older.length;
+        const recentAvg =
+          recent.reduce((sum, r) => sum + r.production, 0) / recent.length;
+        const olderAvg =
+          older.reduce((sum, r) => sum + r.production, 0) / older.length;
         growthRate = ((recentAvg - olderAvg) / olderAvg) * 100;
       }
     }
-    
+
     return {
       totalProduction,
       avgProduction,
       growthRate,
-      reportCount: reports.length
+      reportCount: reports.length,
     };
   });
 
   // Revenue metrics
-  const revenueMetrics = derived(state, $state => {
+  const revenueMetrics = derived(state, ($state) => {
     if (!$state.asset?.monthlyReports?.length) return null;
-    
+
     const reports = $state.asset.monthlyReports;
     const totalRevenue = reports.reduce((sum, r) => sum + (r.revenue || 0), 0);
-    const totalNetIncome = reports.reduce((sum, r) => sum + (r.netIncome || 0), 0);
+    const totalNetIncome = reports.reduce(
+      (sum, r) => sum + (r.netIncome || 0),
+      0,
+    );
     const avgMonthlyRevenue = totalRevenue / reports.length;
-    
+
     // Calculate profit margin
-    const profitMargin = totalRevenue > 0 ? (totalNetIncome / totalRevenue) * 100 : 0;
-    
+    const profitMargin =
+      totalRevenue > 0 ? (totalNetIncome / totalRevenue) * 100 : 0;
+
     return {
       totalRevenue,
       totalNetIncome,
       avgMonthlyRevenue,
-      profitMargin
+      profitMargin,
     };
   });
 
   // Chart data generation
   function getProductionChartData() {
     let asset: Asset | null = null;
-    const unsubscribe = state.subscribe(s => { asset = s.asset; });
+    const unsubscribe = state.subscribe((s) => {
+      asset = s.asset;
+    });
     unsubscribe();
     if (!asset?.monthlyReports?.length) return [];
-    
-    return asset.monthlyReports.map(report => ({
+
+    return asset.monthlyReports.map((report) => ({
       date: report.month,
-      value: report.production
+      value: report.production,
     }));
   }
 
   function getRevenueChartData() {
     let asset: Asset | null = null;
-    const unsubscribe = state.subscribe(s => { asset = s.asset; });
+    const unsubscribe = state.subscribe((s) => {
+      asset = s.asset;
+    });
     unsubscribe();
     if (!asset?.monthlyReports?.length) return [];
-    
-    return asset.monthlyReports.map(report => ({
+
+    return asset.monthlyReports.map((report) => ({
       date: report.month,
       revenue: report.revenue || 0,
-      netIncome: report.netIncome || 0
+      netIncome: report.netIncome || 0,
     }));
   }
 
@@ -172,17 +187,17 @@ export function useAssetData(assetId: string) {
   return {
     // State
     state: { subscribe: state.subscribe },
-    
+
     // Derived values
     hasAvailableTokens,
     primaryToken,
     latestReport,
     productionMetrics,
     revenueMetrics,
-    
+
     // Methods
     loadAsset,
     getProductionChartData,
-    getRevenueChartData
+    getRevenueChartData,
   };
 }
