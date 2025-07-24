@@ -4,7 +4,7 @@
 	import type { Token, Asset } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton, FormattedNumber, FormattedReturn } from '$lib/components/components';
 	import { sftMetadata, sfts } from '$lib/stores';
-	import { formatCurrency, formatTokenSupply, formatSmartReturn, formatProductionValue } from '$lib/utils/formatters';
+	import { formatCurrency, formatTokenSupply, formatSmartReturn, formatSmartNumber } from '$lib/utils/formatters';
 	import { meetsSupplyThreshold, formatSupplyAmount, getAvailableSupplyBigInt } from '$lib/utils/tokenSupplyUtils';
     import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
 	import { readContract } from '@wagmi/core';
@@ -415,7 +415,7 @@
 					<div class={assetStatsClasses}>
 						<div class={statItemClasses}>
 							<div class={statLabelClasses}>Remaining Production</div>
-							<div class={statValueClasses}>{formatProductionValue(item.asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0))}</div>
+							<div class={statValueClasses}>{item.asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0) ? formatSmartNumber(item.asset.plannedProduction.projections.reduce((acc, curr) => acc + curr.production, 0), { suffix: ' boe' }) : 'TBD'}</div>
 						</div>
 					</div>
 
@@ -432,7 +432,7 @@
 					<h3 class={assetNameClasses}>{item.asset.name}</h3>
 					<div class="text-sm text-black opacity-70">
 						<span class="font-medium">Remaining Production:</span> 
-						<span>{formatProductionValue(item.asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0))}</span>
+						<span>{item.asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0) ? formatSmartNumber(item.asset.plannedProduction.projections.reduce((acc, curr) => acc + curr.production, 0), { suffix: ' boe' }) : 'TBD'}</span>
 					</div>
 				</div>
 							</div>
