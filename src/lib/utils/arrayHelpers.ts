@@ -1,6 +1,6 @@
 /**
  * @fileoverview Array utilities for common operations
- * 
+ *
  * This module provides utilities for frequently used array operations
  * to reduce code duplication and improve consistency.
  */
@@ -12,19 +12,19 @@ export const arrayUtils = {
   /**
    * Sums values from an array using a getter function
    */
-  sum: <T>(array: T[], getValue: (item: T) => number): number => 
+  sum: <T>(array: T[], getValue: (item: T) => number): number =>
     array.reduce((sum, item) => sum + getValue(item), 0),
 
   /**
    * Finds the maximum value in an array using a getter function
    */
-  max: <T>(array: T[], getValue: (item: T) => number): number => 
+  max: <T>(array: T[], getValue: (item: T) => number): number =>
     array.length > 0 ? Math.max(...array.map(getValue)) : 0,
 
   /**
    * Finds the minimum value in an array using a getter function
    */
-  min: <T>(array: T[], getValue: (item: T) => number): number => 
+  min: <T>(array: T[], getValue: (item: T) => number): number =>
     array.length > 0 ? Math.min(...array.map(getValue)) : 0,
 
   /**
@@ -39,10 +39,10 @@ export const arrayUtils = {
    * Sorts array by date field
    */
   sortByDate: <T>(
-    array: T[], 
-    getDate: (item: T) => string | Date, 
-    desc: boolean = true
-  ): T[] => 
+    array: T[],
+    getDate: (item: T) => string | Date,
+    desc: boolean = true,
+  ): T[] =>
     [...array].sort((a, b) => {
       const dateA = new Date(getDate(a)).getTime();
       const dateB = new Date(getDate(b)).getTime();
@@ -53,10 +53,10 @@ export const arrayUtils = {
    * Sorts array by timestamp field (optimized for timestamp strings)
    */
   sortByTimestamp: <T>(
-    array: T[], 
-    getTimestamp: (item: T) => string, 
-    desc: boolean = true
-  ): T[] => 
+    array: T[],
+    getTimestamp: (item: T) => string,
+    desc: boolean = true,
+  ): T[] =>
     [...array].sort((a, b) => {
       const timeA = new Date(getTimestamp(a)).getTime();
       const timeB = new Date(getTimestamp(b)).getTime();
@@ -75,5 +75,5 @@ export const arrayUtils = {
    * Filters array and ensures non-null values
    */
   filterDefined: <T>(array: (T | null | undefined)[]): T[] =>
-    array.filter((item): item is T => item != null)
+    array.filter((item): item is T => item != null),
 };

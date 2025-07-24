@@ -42,12 +42,14 @@ export function calculateTokenReturns(
   const sharePercentage = token.sharePercentage / 100; // Convert to decimal
 
   // Convert supply to numbers
-  const maxSupply = typeof token.supply?.maxSupply === 'string' 
-    ? Number(BigInt(token.supply.maxSupply) / BigInt(10 ** token.decimals))
-    : Number(token.supply?.maxSupply || 0);
-  const mintedSupply = typeof token.supply?.mintedSupply === 'string'
-    ? Number(BigInt(token.supply.mintedSupply) / BigInt(10 ** token.decimals))
-    : Number(token.supply?.mintedSupply || 0);
+  const maxSupply =
+    typeof token.supply?.maxSupply === "string"
+      ? Number(BigInt(token.supply.maxSupply) / BigInt(10 ** token.decimals))
+      : Number(token.supply?.maxSupply || 0);
+  const mintedSupply =
+    typeof token.supply?.mintedSupply === "string"
+      ? Number(BigInt(token.supply.mintedSupply) / BigInt(10 ** token.decimals))
+      : Number(token.supply?.mintedSupply || 0);
 
   // Calculate total production and revenue over the asset life
   let totalProduction = 0;
@@ -96,7 +98,8 @@ export function calculateTokenReturns(
   // This represents how many barrels of oil each $1 investment in the token represents
   // Formula: (Total barrels * share percentage) / (minted supply * $1 token price)
   // Since tokens are priced at $1, this simplifies to total barrels share / minted supply
-  const impliedBarrelsPerToken = (totalProduction * sharePercentage) / mintedSupply;
+  const impliedBarrelsPerToken =
+    (totalProduction * sharePercentage) / mintedSupply;
 
   // Calculate breakeven oil price (price needed to recover $1 per token)
   // This is the oil price where total revenue equals total token investment
@@ -116,7 +119,10 @@ export function calculateTokenReturns(
  */
 const returnCache = new Map<string, TokenReturns>();
 
-export function getTokenReturns(asset: Asset, token: TokenMetadata): TokenReturns {
+export function getTokenReturns(
+  asset: Asset,
+  token: TokenMetadata,
+): TokenReturns {
   const cacheKey = `${asset.id}-${token.contractAddress}`;
 
   if (returnCache.has(cacheKey)) {
@@ -136,31 +142,56 @@ export function clearReturnsCache(): void {
   returnCache.clear();
 }
 
-export function getTokenSupply(token: Token) {
+export function getTokenSupply(token: TokenMetadata) {
   if (!token) return null;
 
-  const maxSupply = parseFloat(token.supply.maxSupply) / Math.pow(10, token.decimals);
-  const mintedSupply = parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
+  const maxSupply =
+    parseFloat(token.supply.maxSupply) / Math.pow(10, token.decimals);
+  const mintedSupply =
+    parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
   const supplyUtilization = (mintedSupply / maxSupply) * 100;
 
   return {
     maxSupply,
     mintedSupply,
     supplyUtilization,
-    availableSupply: maxSupply - mintedSupply
+    availableSupply: maxSupply - mintedSupply,
   };
 }
 
-export function getTokenPayoutHistory(token: TokenMetadata): { recentPayouts: any[] } | null {
+export function getTokenPayoutHistory(
+  token: TokenMetadata,
+): { recentPayouts: any[] } | null {
   if (!token || !token.payoutData) {
     return null;
   }
-  
+
   return {
-    recentPayouts: token.payoutData.map(payout => ({
+    recentPayouts: token.payoutData.map((payout) => ({
       month: payout.month,
       totalPayout: payout.tokenPayout.totalPayout,
-      payoutPerToken: payout.tokenPayout.payoutPerToken
-    }))
+      payoutPerToken: payout.tokenPayout.payoutPerToken,
+    })),
   };
+}
+
+export function exportTokenPayoutHistory(token: TokenMetadata[]): void {
+  // const currentToken = token[0];
+  // if (!currentToken || !currentToken.payoutData) {
+  //   return;
+  // }
+  // const headers = [
+  //   'Month',
+  //   'Date',
+  //   'Total Payout (USD)',
+  //   'Payout Per Token (USD)'
+  // ];
+  // const data = currentToken.payoutData.map(payout => [
+  //   payout.month,
+  //   payout.tokenPayout.date,
+  //   payout.tokenPayout.totalPayout.toFixed(2),
+  //   payout.tokenPayout.payoutPerToken.toFixed(4)
+  // ]);
+  // const filename = `${currentToken.assetId}-payment-history.csv`;
+  // exportToCSV(data, headers, filename);
 }

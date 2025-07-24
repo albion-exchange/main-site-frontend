@@ -182,14 +182,16 @@ export interface Token {
   payoutHistory: TokenPayoutRecord[];
   sharePercentage?: number; // Percentage of asset ownership (for royalty tokens)
   firstPaymentDate?: string; // YYYY-MM format or "Month YYYY" format
-  metadata?: Metadata | {
-    description?: string;
-    image?: string;
-    external_url?: string;
-    attributes?: any[];
-    createdAt?: string;
-    updatedAt?: string;
-  };
+  metadata?:
+    | Metadata
+    | {
+        description?: string;
+        image?: string;
+        external_url?: string;
+        attributes?: any[];
+        createdAt?: string;
+        updatedAt?: string;
+      };
 }
 
 /**
