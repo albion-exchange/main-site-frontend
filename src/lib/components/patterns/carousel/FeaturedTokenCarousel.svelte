@@ -10,9 +10,11 @@
 	import { readContract } from '@wagmi/core';
 	import { signerAddress, wagmiConfig, chainId } from 'svelte-wagmi';
 	import type { Hex } from 'viem';
-    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
+    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft, generateTokenMetadataInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
     import { getTokenReturns } from '$lib/utils';
 	import authorizerAbi from '$lib/abi/authorizer.json';
+    import type { TokenMetadata } from '$lib/types/MetaboardTypes';
+    import { getEnergyFieldId } from '$lib/utils/energyFieldGrouping';
 
 	export let autoPlay = true;
 	export let autoPlayInterval = 5000;
@@ -22,7 +24,7 @@
 	const tokenService = useTokenService();
 
 	let currentIndex = 0;
-	let featuredTokensWithAssets: Array<{ token: Token; asset: Asset }> = [];
+	let featuredTokensWithAssets: Array<{ token: TokenMetadata; asset: Asset }> = [];
 	let loading = true;
 	let error: string | null = null;
 	let autoPlayTimer: ReturnType<typeof setTimeout> | null = null;
@@ -53,7 +55,7 @@
 							functionName: 'maxSharesSupply',
 							args: []
 						}) as bigint;
-						const tokenInstance = generateTokenInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
+						const tokenInstance = generateTokenMetadataInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
 						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
 						featuredTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
 					}
@@ -314,7 +316,7 @@
 							<div class={tokenSectionClasses}>
 								<div class={tokenHeaderClasses}>
 									<div class="mb-3">
-										<h3 class={tokenNameClasses}>{item.token.name}</h3>
+										<h3 class={tokenNameClasses}>{item.token.releaseName}</h3>
 									</div>
 									<div class={tokenContractClasses}>{item.token.contractAddress}</div>
 								</div>
@@ -379,7 +381,7 @@
 					<PrimaryButton on:click={() => handleBuyTokens(item.token.contractAddress)}>
 						Buy Tokens
 					</PrimaryButton>
-					<SecondaryButton href="/assets/{item.asset.id}">
+					<SecondaryButton href="/assets/{getEnergyFieldId(item.token.contractAddress)}" >
 						View Asset
 					</SecondaryButton>
 				</div>

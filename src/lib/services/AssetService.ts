@@ -1,12 +1,12 @@
 /**
  * @fileoverview Asset Service
  * Handles asset-related data operations and business logic
- * 
+ *
  * Responsibilities:
  * - Load and manage asset data
  * - Asset-specific transformations
  * - Asset-related calculations
- * 
+ *
  * Dependencies:
  * - CacheService for data caching
  * - TransformService for data transformation
@@ -47,11 +47,11 @@ class AssetService {
       eurWr3Metadata,
       eurWrLegacyMetadata,
       gomDw1Metadata,
-      perBv1Metadata
+      perBv1Metadata,
     ];
 
     this.assetMetadataMap = {};
-    
+
     // Group tokens by assetId to avoid duplicates
     const assetGroups = new Map<string, any[]>();
     tokenMetadataList.forEach((metadata: any) => {
@@ -59,15 +59,15 @@ class AssetService {
       existing.push(metadata);
       assetGroups.set(metadata.assetId, existing);
     });
-    
+
     // Create one asset per unique assetId, aggregating receiptsData from all tokens
     assetGroups.forEach((metadataList, assetId) => {
       // Use the first token's metadata as base
       const baseAssetData = this.createAssetData(metadataList[0]);
-      
+
       // Store token metadata for this asset (including receiptsData)
       this.tokensByAsset.set(assetId, metadataList);
-      
+
       this.assetMetadataMap[assetId] = baseAssetData;
     });
   }
@@ -78,24 +78,33 @@ class AssetService {
   private createAssetData(tokenMetadata: any): AssetData {
     const asset = tokenMetadata.asset;
     return {
-      assetName: tokenMetadata.assetName || asset.assetName || 'Unknown Asset',
-      description: asset.description || '',
+      assetName: tokenMetadata.assetName || asset.assetName || "Unknown Asset",
+      description: asset.description || "",
       location: asset.location,
       operator: asset.operator,
       technical: asset.technical,
       assetTerms: asset.assetTerms,
       production: asset.production,
-      plannedProduction: asset.plannedProduction || { oilPriceAssumption: 70, oilPriceAssumptionCurrency: 'USD', projections: [] },
+      plannedProduction: asset.plannedProduction || {
+        oilPriceAssumption: 70,
+        oilPriceAssumptionCurrency: "USD",
+        projections: [],
+      },
       historicalProduction: tokenMetadata.asset?.historicalProduction || [],
       receiptsData: tokenMetadata.asset?.receiptsData || [],
-      operationalMetrics: tokenMetadata.operationalMetrics || asset.operationalMetrics || {
-        uptime: { percentage: 0, unit: 'percent', period: 'N/A' },
-        dailyProduction: { current: 0, target: 0, unit: 'boe' },
-        hseMetrics: { incidentFreeDays: 0, lastIncidentDate: new Date().toISOString(), safetyRating: 'Unknown' }
-      },
+      operationalMetrics: tokenMetadata.operationalMetrics ||
+        asset.operationalMetrics || {
+          uptime: { percentage: 0, unit: "percent", period: "N/A" },
+          dailyProduction: { current: 0, target: 0, unit: "boe" },
+          hseMetrics: {
+            incidentFreeDays: 0,
+            lastIncidentDate: new Date().toISOString(),
+            safetyRating: "Unknown",
+          },
+        },
       documents: asset.documents || [],
-      coverImage: tokenMetadata.coverImage || asset.coverImage || '',
-      galleryImages: tokenMetadata.galleryImages || asset.galleryImages || []
+      coverImage: tokenMetadata.coverImage || asset.coverImage || "",
+      galleryImages: tokenMetadata.galleryImages || asset.galleryImages || [],
     };
   }
 
@@ -104,15 +113,21 @@ class AssetService {
    */
   getAllAssets(): Asset[] {
     // Always regenerate to avoid stale data during development
-    this.allAssets = Object.entries(this.assetMetadataMap).map(([assetId, assetData]) => {
-      const receiptsData = this.getReceiptsDataForAsset(assetId);
-      const uiAsset = TypeTransformations.assetToUI(assetData, assetId, receiptsData);
-      return uiAsset;
-    });
+    this.allAssets = Object.entries(this.assetMetadataMap).map(
+      ([assetId, assetData]) => {
+        const receiptsData = this.getReceiptsDataForAsset(assetId);
+        const uiAsset = TypeTransformations.assetToUI(
+          assetData,
+          assetId,
+          receiptsData,
+        );
+        return uiAsset;
+      },
+    );
 
     return this.allAssets;
   }
-  
+
   /**
    * Clear cache - useful for development
    */
@@ -125,12 +140,14 @@ class AssetService {
    */
   getReceiptsDataForAsset(assetId: string): any[] {
     const tokens = this.tokensByAsset.get(assetId) || [];
-    
+
     // Get receiptsData from the first token's asset data (should be the same for all tokens of the same asset)
     if (tokens.length > 0 && tokens[0].asset.receiptsData) {
-      return tokens[0].asset.receiptsData.sort((a, b) => a.month.localeCompare(b.month));
+      return tokens[0].asset.receiptsData.sort((a, b) =>
+        a.month.localeCompare(b.month),
+      );
     }
-    
+
     return [];
   }
 
@@ -143,13 +160,17 @@ class AssetService {
     if (assetData) {
       // Get receiptsData from tokens
       const receiptsData = this.getReceiptsDataForAsset(assetId);
-      const uiAsset = TypeTransformations.assetToUI(assetData, assetId, receiptsData);
+      const uiAsset = TypeTransformations.assetToUI(
+        assetData,
+        assetId,
+        receiptsData,
+      );
       return uiAsset;
     }
-    
+
     // Fallback to searching through all assets
     const assets = this.getAllAssets();
-    const found = assets.find(asset => asset.id === assetId);
+    const found = assets.find((asset) => asset.id === assetId);
     return found || null;
   }
 
@@ -158,7 +179,7 @@ class AssetService {
    */
   getAssetsByIds(assetIds: string[]): Asset[] {
     const assets = this.getAllAssets();
-    return assets.filter(asset => assetIds.includes(asset.id));
+    return assets.filter((asset) => assetIds.includes(asset.id));
   }
 
   /**
@@ -173,7 +194,7 @@ class AssetService {
    */
   getAssetsByStatus(status: string): Asset[] {
     const assets = this.getAllAssets();
-    return assets.filter(asset => asset.production?.status === status);
+    return assets.filter((asset) => asset.production?.status === status);
   }
 
   /**
@@ -181,9 +202,11 @@ class AssetService {
    */
   getAssetsByLocation(country: string, state?: string): Asset[] {
     const assets = this.getAllAssets();
-    return assets.filter(asset => {
+    return assets.filter((asset) => {
       if (state) {
-        return asset.location?.country === country && asset.location?.state === state;
+        return (
+          asset.location?.country === country && asset.location?.state === state
+        );
       }
       return asset.location?.country === country;
     });
@@ -199,7 +222,10 @@ class AssetService {
     }
 
     // Find the most recent report
-    return arrayUtils.latest(asset.monthlyReports, report => report.month + '-01');
+    return arrayUtils.latest(
+      asset.monthlyReports,
+      (report) => report.month + "-01",
+    );
   }
 
   /**
@@ -211,7 +237,10 @@ class AssetService {
       return 0;
     }
 
-    return arrayUtils.average(asset.monthlyReports, report => report.revenue ?? 0);
+    return arrayUtils.average(
+      asset.monthlyReports,
+      (report) => report.revenue ?? 0,
+    );
   }
 
   /**
@@ -225,8 +254,8 @@ class AssetService {
 
     // Sort by date
     return asset.monthlyReports.sort((a, b) => {
-      const dateA = new Date(a.month + '-01');
-      const dateB = new Date(b.month + '-01');
+      const dateA = new Date(a.month + "-01");
+      const dateB = new Date(b.month + "-01");
       return dateA.getTime() - dateB.getTime();
     });
   }
@@ -242,15 +271,15 @@ class AssetService {
     const lowercaseQuery = query.toLowerCase();
     const assets = this.getAllAssets();
 
-    return assets.filter(asset => 
-      asset.name?.toLowerCase().includes(lowercaseQuery) ||
-      asset.description?.toLowerCase().includes(lowercaseQuery) ||
-      asset.operator?.name?.toLowerCase().includes(lowercaseQuery) ||
-      asset.location?.state?.toLowerCase().includes(lowercaseQuery) ||
-      asset.location?.country?.toLowerCase().includes(lowercaseQuery)
+    return assets.filter(
+      (asset) =>
+        asset.name?.toLowerCase().includes(lowercaseQuery) ||
+        asset.description?.toLowerCase().includes(lowercaseQuery) ||
+        asset.operator?.name?.toLowerCase().includes(lowercaseQuery) ||
+        asset.location?.state?.toLowerCase().includes(lowercaseQuery) ||
+        asset.location?.country?.toLowerCase().includes(lowercaseQuery),
     );
   }
-
 }
 
 // Export singleton instance
