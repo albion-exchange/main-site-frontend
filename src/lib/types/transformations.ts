@@ -23,10 +23,10 @@ import { ProductionStatus as MetaboardProductionStatus } from "./MetaboardTypes"
 import type {
   Asset as UIAsset,
   Token as UIToken,
-  AssetLocation as UIAssetLocation,
-} from "./uiTypes";
-import type { ISODateOnlyString, ISODateTimeString } from "./sharedTypes";
-import { formatCurrency, formatNumber } from "../utils/formatters";
+  AssetLocation as UIAssetLocation
+} from './uiTypes';
+import type { ISODateOnlyString, ISODateTimeString } from './sharedTypes';
+import { formatCurrency, formatNumber, formatSmartNumber } from '../utils/formatters';
 
 /**
  * Core domain types - pure data representation
@@ -339,13 +339,8 @@ export class TypeTransformations {
         },
         production: {
           status: asset.production.status,
-          statusDisplay:
-            asset.production.status.charAt(0).toUpperCase() +
-            asset.production.status.slice(1),
-          expectedRemainingProduction:
-            asset.production.expectedRemainingProduction !== null
-              ? `${(asset.production.expectedRemainingProduction / 1000).toFixed(1)}k boe`
-              : "TBD",
+          statusDisplay: asset.production.status.charAt(0).toUpperCase() + asset.production.status.slice(1),
+                              expectedRemainingProduction: asset.production.expectedRemainingProduction !== null ? formatSmartNumber(asset.production.expectedRemainingProduction, { suffix: ' boe' }) : 'TBD',
           expectedEndDate: asset.production.expectedEndDate
             ? this.formatEndDate(asset.production.expectedEndDate)
             : "TBD",
@@ -568,14 +563,11 @@ export class TypeTransformations {
 
     // Calculate expected remaining production from planned production
     if (assetData.plannedProduction?.projections) {
-      const totalPlannedProduction =
-        assetData.plannedProduction.projections.reduce(
-          (sum, proj) => sum + proj.production,
-          0,
-        );
-      uiAsset.production.expectedRemainingProduction = totalPlannedProduction
-        ? `${(totalPlannedProduction / 1000).toFixed(1)}k boe`
-        : "TBD";
+      const totalPlannedProduction = assetData.plannedProduction.projections.reduce(
+        (sum, proj) => sum + proj.production, 
+        0
+      );
+      uiAsset.production.expectedRemainingProduction = totalPlannedProduction ? formatSmartNumber(totalPlannedProduction, { suffix: ' boe' }) : 'TBD';
     }
 
     // Set current production from latest monthly report
