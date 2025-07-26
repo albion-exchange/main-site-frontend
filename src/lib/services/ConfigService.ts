@@ -1,12 +1,12 @@
 /**
  * @fileoverview Configuration Service
  * Centralizes configuration management and provides typed access to app settings
- * 
+ *
  * Responsibilities:
  * - Load and manage configuration data
  * - Provide typed access to platform settings
  * - Handle environment-specific configurations
- * 
+ *
  * Data Sources:
  * - Market data and statistics
  * - Platform configuration
@@ -18,8 +18,6 @@
 import platformStats from "$lib/data/platformStats.json";
 import companyInfo from "$lib/data/companyInfo.json";
 import futureReleasesData from "$lib/data/futureReleases.json";
-
-
 
 export interface PlatformConfig {
   totalAssets: number;
@@ -81,7 +79,7 @@ class ConfigService {
     this.config = {
       platform: platformStats as PlatformConfig,
       company: companyInfo as CompanyConfig,
-      futureReleases: this.transformFutureReleasesData(futureReleasesData)
+      futureReleases: this.transformFutureReleasesData(futureReleasesData),
     };
   }
 
@@ -90,7 +88,7 @@ class ConfigService {
    */
   private transformFutureReleasesData(data: any): FutureRelease[] {
     const releases: FutureRelease[] = [];
-    
+
     // Iterate through assets
     for (const [assetId, tokens] of Object.entries(data)) {
       // Iterate through tokens for each asset
@@ -105,13 +103,13 @@ class ConfigService {
               description: release.description,
               emoji: release.emoji,
               estimatedTokens: release.estimatedTokens,
-              estimatedPrice: release.estimatedPrice
+              estimatedPrice: release.estimatedPrice,
             });
           });
         }
       }
     }
-    
+
     return releases;
   }
 
@@ -121,8 +119,6 @@ class ConfigService {
   getConfig(): AppConfig {
     return this.config;
   }
-
-
 
   /**
    * Get platform configuration
@@ -149,17 +145,20 @@ class ConfigService {
    * Get future releases for a specific asset
    */
   getFutureReleasesByAsset(assetId: string): FutureRelease[] {
-    return this.config.futureReleases.filter(release => release.assetId === assetId);
+    return this.config.futureReleases.filter(
+      (release) => release.assetId === assetId,
+    );
   }
 
   /**
    * Get future release by ID
    */
   getFutureReleaseById(releaseId: string): FutureRelease | null {
-    return this.config.futureReleases.find(release => release.id === releaseId) || null;
+    return (
+      this.config.futureReleases.find((release) => release.id === releaseId) ||
+      null
+    );
   }
-
-
 
   /**
    * Get platform statistics
@@ -178,11 +177,9 @@ class ConfigService {
       totalInvestors: stats.activeInvestors?.value || 1000,
       totalDistributed: stats.totalInvestmentVolume?.value || 127400000,
       averageReturn: stats.averagePayout?.value || 11.3,
-      totalHolders: stats.activeInvestors?.value || 1000
+      totalHolders: stats.activeInvestors?.value || 1000,
     };
   }
-
-
 
   /**
    * Get minimum investment amount
@@ -208,25 +205,23 @@ class ConfigService {
   /**
    * Get company contact information
    */
-  getContactInfo(): CompanyConfig['contact'] {
+  getContactInfo(): CompanyConfig["contact"] {
     return this.config.company.contact;
   }
 
   /**
    * Get social media links
    */
-  getSocialLinks(): CompanyConfig['social'] {
+  getSocialLinks(): CompanyConfig["social"] {
     return this.config.company.social;
   }
 
   /**
    * Get legal document links
    */
-  getLegalLinks(): CompanyConfig['legal'] {
+  getLegalLinks(): CompanyConfig["legal"] {
     return this.config.company.legal;
   }
-
-
 
   /**
    * Check if data is stale (for cache invalidation)
@@ -247,7 +242,7 @@ class ConfigService {
     this.config = {
       platform: platformStats as PlatformConfig,
       company: companyInfo as CompanyConfig,
-      futureReleases: this.transformFutureReleasesData(futureReleasesData)
+      futureReleases: this.transformFutureReleasesData(futureReleasesData),
     };
   }
 }

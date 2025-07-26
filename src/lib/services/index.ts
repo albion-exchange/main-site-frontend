@@ -3,30 +3,30 @@
  * Central export for all service classes and service infrastructure
  */
 
-export { default as WalletDataService } from './WalletDataService';
+export { default as WalletDataService } from "./WalletDataService";
 
 // Focused services
-export { default as AssetService } from './AssetService';
-export { default as TokenService } from './TokenService';
-export { default as ConfigService } from './ConfigService';
-export { marketDataService } from './MarketDataService';
+export { default as AssetService } from "./AssetService";
+export { default as TokenService } from "./TokenService";
+export { default as ConfigService } from "./ConfigService";
+export { marketDataService } from "./MarketDataService";
 
 // Service infrastructure
-export { 
+export {
   serviceContainer,
   useAssetService,
   useTokenService,
   useConfigService,
   useWalletDataService,
-  type ServiceContainer
-} from './ServiceContainer';
+  type ServiceContainer,
+} from "./ServiceContainer";
 
 // Re-export types
-export type { 
-  PlatformConfig, 
-  CompanyConfig, 
+export type {
+  PlatformConfig,
+  CompanyConfig,
   FutureRelease,
-  AppConfig 
-} from './ConfigService';
+  AppConfig,
+} from "./ConfigService";
 
-export type { MarketData, MarketIndicator } from './MarketDataService';
+export type { MarketData, MarketIndicator } from "./MarketDataService";

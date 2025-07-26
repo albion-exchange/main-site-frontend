@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { useTokenService, useConfigService } from '$lib/services';
+	import { sftMetadata, sfts } from '$lib/stores';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart, CollapsibleSection } from '$lib/components/components';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
@@ -17,6 +18,9 @@
 	} from '$lib/composables';
 	import AssetDetailHeader from '$lib/components/patterns/assets/AssetDetailHeader.svelte';
 	import AssetOverviewTab from '$lib/components/patterns/assets/AssetOverviewTab.svelte';
+    import { calculateTokenReturns, getTokenPayoutHistory, getTokenSupply } from '$lib/utils/returnCalculations';
+    import { formatEther } from 'viem';
+    import { PINATA_GATEWAY } from '$lib/network';
 
 	let activeTab = 'overview';
 	let unclaimedPayout = 0; // Will be calculated from actual token holdings
@@ -26,7 +30,6 @@
 	let selectedTokenAddress: string | null = null;
 	
 	// Use services
-	const tokenService = useTokenService();
 	const configService = useConfigService();
 	
 	// Get asset ID from URL params
@@ -37,8 +40,8 @@
 	const assetDetailState = assetDetailComposable.state;
 	const loadAssetData = assetDetailComposable.loadAssetData;
 	
-	// Load data when asset ID changes
-	$: if (assetId) {
+	// Load data when asset ID changes and SFT data is available
+	$: if (assetId && $sftMetadata && $sfts) {
 		loadAssetData(assetId);
 	}
 	const { exportProductionData: exportDataFunc, exportPaymentHistory } = useDataExport();
@@ -46,6 +49,24 @@
 	
 	// Reactive data from composable
 	$: ({ asset: assetData, tokens: assetTokens, loading, error } = $assetDetailState);
+	
+	async function downloadDocument(doc: any) {
+		try {
+			const response = await fetch(`${PINATA_GATEWAY}/${doc.ipfs}`);
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = doc.name || 'document';
+			document.body.appendChild(a);
+			a.click();
+			window.URL.revokeObjectURL(url);
+			document.body.removeChild(a);
+		} catch (error) {
+			console.error('Download failed:', error);
+			alert('Download failed. Please try again.');
+		}
+	}
 	
 	
 	function showTooltipWithDelay(tooltipId: string) {
@@ -104,20 +125,6 @@
 		}
 	}
 
-	function getAssetImage(assetData: Asset | null): string {
-		// Use the coverImage from the asset data
-		return assetData?.coverImage || '/images/eur-wr-cover.jpg';
-	}
-
-	function formatPricing(benchmarkPremium: string): string {
-		if (benchmarkPremium.startsWith('-')) {
-			return `${benchmarkPremium.substring(1)} discount`;
-		} else if (benchmarkPremium.startsWith('+')) {
-			return `${benchmarkPremium.substring(1)} premium`;
-		} else {
-			return `${benchmarkPremium} premium`;
-		}
-	}
 
 	function handleBuyTokens(tokenAddress: string) {
 		selectedTokenAddress = tokenAddress;
@@ -163,7 +170,7 @@
 		</div>
 	{:else}
 		<AssetDetailHeader 
-			asset={assetData} 
+			asset={assetData!} 
 			tokenCount={assetTokens.length} 
 			onTokenSectionClick={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })}
 		/>
@@ -174,7 +181,7 @@
         	<div class="lg:hidden space-y-4">
         		<!-- Overview in collapsible section -->
         		<CollapsibleSection title="Overview" isOpenByDefault={true} alwaysOpenOnDesktop={false}>
-        			<AssetOverviewTab asset={assetData} />
+        			<AssetOverviewTab asset={assetData!} />
         		</CollapsibleSection>
         		
         		<!-- Other sections in collapsible format -->
@@ -314,88 +321,22 @@
         		<CollapsibleSection title="Documents" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
         			<div class="space-y-3">
 						<!-- Legal Documents -->
-						<div class="bg-white border border-light-gray p-4">
-							<div class="flex items-center gap-3">
-								<div class="text-xl">📄</div>
-								<div class="flex-1">
-									<div class="font-semibold text-black text-sm">Asset Purchase Agreement</div>
-									<div class="text-xs text-black opacity-70">PDF • 2.4 MB</div>
+						{#each assetTokens[0].asset.documents || [] as document}
+							<div class="flex items-center justify-between p-4 border-b border-light-gray last:border-b-0">
+								<div class="flex items-center space-x-3">
+									<div class="w-8 h-8 bg-secondary rounded flex items-center justify-center">
+										📄
+									</div>
+									<div>
+										<h4 class="font-semibold text-black">{document.name || 'Document'}</h4>
+										<p class="text-sm text-gray-600">{document.type.toUpperCase() || 'No description available'}</p>
+									</div>
 								</div>
-								<SecondaryButton size="small">View</SecondaryButton>
+								<SecondaryButton
+								on:click={() => downloadDocument(document)}
+								>Download</SecondaryButton>
 							</div>
-						</div>
-						<div class="bg-white border border-light-gray p-4">
-							<div class="flex items-center gap-3">
-								<div class="text-xl">📄</div>
-								<div class="flex-1">
-									<div class="font-semibold text-black text-sm">Operating License PEDL 183</div>
-									<div class="text-xs text-black opacity-70">PDF • 1.8 MB</div>
-								</div>
-								<SecondaryButton size="small">View</SecondaryButton>
-							</div>
-						</div>
-						<div class="bg-white border border-light-gray p-4">
-							<div class="flex items-center gap-3">
-								<div class="text-xl">📄</div>
-								<div class="flex-1">
-									<div class="font-semibold text-black text-sm">Environmental Impact Assessment</div>
-									<div class="text-xs text-black opacity-70">PDF • 5.2 MB</div>
-								</div>
-								<SecondaryButton size="small">View</SecondaryButton>
-							</div>
-						</div>
-						<div class="bg-white border border-light-gray p-4">
-							<div class="flex items-center gap-3">
-								<div class="text-xl">📄</div>
-								<div class="flex-1">
-									<div class="font-semibold text-black text-sm">Token Terms & Conditions</div>
-									<div class="text-xs text-black opacity-70">PDF • 950 KB</div>
-								</div>
-								<SecondaryButton size="small">View</SecondaryButton>
-							</div>
-						</div>
-						
-						<!-- Technical Reports -->
-						<div class="bg-white border border-light-gray p-4">
-							<div class="flex items-center gap-3">
-								<div class="text-xl">📊</div>
-								<div class="flex-1">
-									<div class="font-semibold text-black text-sm">Geological Survey Report 2024</div>
-									<div class="text-xs text-black opacity-70">PDF • 12.1 MB</div>
-								</div>
-								<SecondaryButton size="small">View</SecondaryButton>
-							</div>
-						</div>
-						<div class="bg-white border border-light-gray p-4">
-							<div class="flex items-center gap-3">
-								<div class="text-xl">📊</div>
-								<div class="flex-1">
-									<div class="font-semibold text-black text-sm">Reserve Audit by Ryder Scott</div>
-									<div class="text-xs text-black opacity-70">PDF • 3.7 MB</div>
-								</div>
-								<SecondaryButton size="small">View</SecondaryButton>
-							</div>
-						</div>
-						<div class="bg-white border border-light-gray p-4">
-							<div class="flex items-center gap-3">
-								<div class="text-xl">📊</div>
-								<div class="flex-1">
-									<div class="font-semibold text-black text-sm">Production Forecast Model</div>
-									<div class="text-xs text-black opacity-70">PDF • 8.3 MB</div>
-								</div>
-								<SecondaryButton size="small">View</SecondaryButton>
-							</div>
-						</div>
-						<div class="bg-white border border-light-gray p-4">
-							<div class="flex items-center gap-3">
-								<div class="text-xl">📊</div>
-								<div class="flex-1">
-									<div class="font-semibold text-black text-sm">HSE Safety Report 2024</div>
-									<div class="text-xs text-black opacity-70">PDF • 2.1 MB</div>
-								</div>
-								<SecondaryButton size="small">View</SecondaryButton>
-							</div>
-						</div>
+						 {/each}
 					</div>
         		</CollapsibleSection>
         	</div>
@@ -439,9 +380,9 @@
 			<!-- Tab Content -->
 			<div class="p-8 min-h-[500px] flex flex-col">
 				{#if activeTab === 'overview'}
-					<AssetOverviewTab asset={assetData} />
+					<AssetOverviewTab asset={assetData!} />
 				{:else if activeTab === 'production'}
-					{@const productionReports = assetData?.historicalProduction || assetData?.monthlyReports || []}
+					{@const productionReports = assetData?.monthlyReports || []}
 					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map((r: any) => r.production)) : 100}
 					<div class="flex-1 flex flex-col">
 						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">
@@ -623,102 +564,27 @@
 						</div>
 					</div>
 				{:else if activeTab === 'documents'}
-					<div class="flex-1 flex flex-col">
-						<div class="grid md:grid-cols-2 grid-cols-1 gap-8">
-							<div>
-								<h4 class="text-lg font-extrabold text-black mb-6">Legal Documents</h4>
-								<div class="space-y-4">
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📄</div>
-											<div>
-												<div class="font-semibold text-black">Asset Purchase Agreement</div>
-												<div class="text-sm text-black opacity-70">PDF • 2.4 MB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📄</div>
-											<div class="">
-												<div class="font-semibold text-black">Operating License PEDL 183</div>
-												<div class="text-sm text-black opacity-70">PDF • 1.8 MB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📄</div>
-											<div class="">
-												<div class="font-semibold text-black">Environmental Impact Assessment</div>
-												<div class="text-sm text-black opacity-70">PDF • 5.2 MB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📄</div>
-											<div class="">
-												<div class="font-semibold text-black">Token Terms & Conditions</div>
-												<div class="text-sm text-black opacity-70">PDF • 950 KB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
-								</div>
-							</div>
+					{#each assetTokens[0].asset.documents || [] as document}
 
-							<div>
-								<h4 class="text-lg font-extrabold text-black mb-6">Technical Reports</h4>
-								<div class="space-y-4">
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📊</div>
-											<div class="">
-												<div class="font-semibold text-black">Geological Survey Report 2024</div>
-												<div class="text-sm text-black opacity-70">PDF • 12.1 MB</div>
-											</div>
+						<div class="grid md:grid-cols-2 grid-cols-1 gap-8">
+							<div class="space-y-4">
+								<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
+									<div class="flex items-center gap-3">
+										<div class="text-2xl">📄</div>
+										<div>
+											<div class="font-semibold text-black">{document.name}</div>
+											<div class="text-sm text-black opacity-70">{document.type.toUpperCase()}</div>
 										</div>
-										<SecondaryButton>Download</SecondaryButton>
 									</div>
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📊</div>
-											<div class="">
-												<div class="font-semibold text-black">Reserve Audit by Ryder Scott</div>
-												<div class="text-sm text-black opacity-70">PDF • 3.7 MB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📊</div>
-											<div class="">
-												<div class="font-semibold text-black">Production Forecast Model</div>
-												<div class="text-sm text-black opacity-70">PDF • 8.3 MB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
-									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-										<div class="flex items-center gap-3">
-											<div class="text-2xl">📊</div>
-											<div class="">
-												<div class="font-semibold text-black">HSE Safety Report 2024</div>
-												<div class="text-sm text-black opacity-70">PDF • 2.1 MB</div>
-											</div>
-										</div>
-										<SecondaryButton>Download</SecondaryButton>
-									</div>
+									<SecondaryButton
+									on:click={() => downloadDocument(document)}
+									>Download</SecondaryButton>
 								</div>
+
 							</div>
 						</div>
-					</div>
-							{/if}
+					{/each}
+				{/if}
 			</div>
 			</div>
 		</div>
@@ -731,11 +597,11 @@
 					<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 					{#each assetTokens as token}
-						{@const supply = tokenService.getTokenSupply(token.contractAddress)}
-						{@const hasAvailableSupply = supply && supply.available > 0}
-						{@const tokenPayoutData = tokenService.getTokenPayoutHistory(token.contractAddress)}
+						{@const supply = getTokenSupply(token)}
+						{@const hasAvailableSupply = supply && supply.availableSupply > 0}
+						{@const tokenPayoutData = getTokenPayoutHistory(token)}
 						{@const latestPayout = tokenPayoutData?.recentPayouts?.[0]}
-						{@const calculatedReturns = tokenService.getTokenReturns(token.contractAddress)}
+						{@const calculatedReturns = calculateTokenReturns(assetData!, token)}
 						{@const isFlipped = flippedCards.has(token.contractAddress)}
 						<div id="token-{token.contractAddress}">
 							<Card hoverable clickable paddingClass="p-0" on:click={() => handleCardClick(token.contractAddress)}>
@@ -751,7 +617,7 @@
 											<div class="p-8 pb-0 relative">
 												<div class="flex-1 mt-6">
 													<div class="flex justify-between items-start mb-3 gap-4">
-														<h4 class="text-2xl font-extrabold text-black font-figtree flex-1">{token.name}</h4>
+														<h4 class="text-2xl font-extrabold text-black font-figtree flex-1">{token.releaseName}</h4>
 														<div class="text-sm font-extrabold text-white bg-secondary px-3 py-1 tracking-wider rounded whitespace-nowrap">
 															{token.sharePercentage || 25}% of Asset
 														</div>
@@ -762,12 +628,12 @@
 								
 											<div class="p-8 pt-6 space-y-4">
 												<div class="flex justify-between items-start">
-													<span class="text-base font-medium text-black opacity-70 relative font-figtree">Minted Supply</span>
-													<span class="text-base font-extrabold text-black text-right font-figtree">{token.supplyNumbers?.mintedSupply?.toLocaleString() || supply?.sold?.toLocaleString() || '0'}</span>
+													<span class="text-base font-medium text-black opacity-70 relative font-figtree">Minted Supply </span>
+													<span class="text-base font-extrabold text-black text-right font-figtree">{formatEther(BigInt(token.supply?.mintedSupply || 0))}</span>
 												</div>
 												<div class="flex justify-between items-start">
 													<span class="text-base font-medium text-black opacity-70 relative font-figtree">Max Supply</span>
-													<span class="text-base font-extrabold text-black text-right font-figtree">{token.supplyNumbers?.maxSupply?.toLocaleString() || supply?.total?.toLocaleString() || '0'}</span>
+													<span class="text-base font-extrabold text-black text-right font-figtree">{formatEther(BigInt(token.supply?.maxSupply || 0))}</span>
 												</div>
 												<div class="flex justify-between items-start relative">
 													<span class="text-base font-medium text-black opacity-70 relative font-figtree">

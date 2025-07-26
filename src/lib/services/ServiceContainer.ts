@@ -3,10 +3,10 @@
  * Provides centralized access to all services and handles dependency management
  */
 
-import assetService from './AssetService';
-import tokenService from './TokenService';
-import configService from './ConfigService';
-import walletDataService from './WalletDataService';
+import assetService from "./AssetService";
+import tokenService from "./TokenService";
+import configService from "./ConfigService";
+import walletDataService from "./WalletDataService";
 
 export interface ServiceContainer {
   assetService: typeof assetService;
@@ -19,7 +19,7 @@ export const serviceContainer: ServiceContainer = {
   assetService,
   tokenService,
   configService,
-  walletDataService
+  walletDataService,
 };
 
 // Export convenience functions for direct access

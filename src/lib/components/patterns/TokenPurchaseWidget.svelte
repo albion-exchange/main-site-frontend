@@ -15,6 +15,8 @@
     import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
 	import authorizerAbi from '$lib/abi/authorizer.json';
 	import OffchainAssetReceiptVaultAbi from '$lib/abi/OffchainAssetReceiptVault.json';
+	import { ENERGY_FEILDS } from '$lib/network';
+    import { getEnergyFieldId } from '$lib/utils/energyFieldGrouping';
 
 	export let isOpen = false;
 	export let tokenAddress: string | null = null;
@@ -259,7 +261,7 @@
 							{/if}
 						</h2>
 						{#if tokenData && assetData}
-							<a href="/assets/{assetData.id}#token-{tokenData.contractAddress}" class={viewDetailsClasses}>
+							<a href="/assets/{getEnergyFieldId(tokenData.contractAddress)}" class={viewDetailsClasses}>
 								View Details →
 							</a>
 						{/if}

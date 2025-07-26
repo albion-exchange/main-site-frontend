@@ -3,19 +3,28 @@
  */
 
 // Formatting utilities
-export { 
-  formatCurrency, 
-  formatNumber, 
-  formatPercentage, 
-  formatDate, 
-  formatEndDate 
-} from './formatters';
+export {
+  formatCurrency,
+  formatNumber,
+  formatPercentage,
+  formatDate,
+  formatEndDate,
+} from "./formatters";
 
 // Array utilities
-export { arrayUtils } from './arrayHelpers';
+export { arrayUtils } from "./arrayHelpers";
 
 // Date utilities
-export { dateUtils } from './dateHelpers';
+export { dateUtils } from "./dateHelpers";
 
 // Re-export specific calculators
-export { getTokenReturns } from './returnCalculations';
+export { getTokenReturns } from "./returnCalculations";
+
+// Sharing utilities
+export {
+  getShareText,
+  getShareUrls,
+  shareViaWebAPI,
+  copyToClipboard,
+  type ShareData,
+} from "./sharing";

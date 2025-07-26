@@ -9,9 +9,7 @@ import { formatCurrency, formatPercentage } from "$lib/utils/formatters";
 // Example 1: Get total invested amount
 console.log("=== Total Investment ===");
 const totalInvested = walletDataService.getTotalInvested();
-console.log(
-  `Total Invested: ${formatCurrency(totalInvested)}`,
-);
+console.log(`Total Invested: ${formatCurrency(totalInvested)}`);
 
 // Example 2: Get total payouts earned
 console.log("\n=== Total Payouts ===");
@@ -28,25 +26,17 @@ console.log("\n=== Holdings by Asset ===");
 const holdings = walletDataService.getHoldingsByAsset();
 holdings.forEach((holding) => {
   console.log(`\nAsset: ${holding.assetName}`);
-  console.log(
-    `  Invested: ${formatCurrency(holding.totalInvested)}`,
-  );
-  console.log(
-    `  Earned: ${formatCurrency(holding.totalEarned)}`,
-  );
+  console.log(`  Invested: ${formatCurrency(holding.totalInvested)}`);
+  console.log(`  Earned: ${formatCurrency(holding.totalEarned)}`);
   console.log(`  ROI: ${formatPercentage(holding.roi)}`);
-  console.log(
-    `  Unclaimed: ${formatCurrency(holding.unclaimedAmount)}`,
-  );
+  console.log(`  Unclaimed: ${formatCurrency(holding.unclaimedAmount)}`);
 });
 
 // Example 5: Get monthly payout history
 console.log("\n=== Monthly Payout History ===");
 const monthlyPayouts = walletDataService.getMonthlyPayoutHistory();
 monthlyPayouts.forEach((payout) => {
-  console.log(
-    `${payout.month}: ${formatCurrency(payout.totalPayout)}`,
-  );
+  console.log(`${payout.month}: ${formatCurrency(payout.totalPayout)}`);
 });
 
 // Example 6: Get token allocation
@@ -61,12 +51,8 @@ allocation.forEach((token) => {
 // Example 7: Get wallet metrics
 console.log("\n=== Wallet Metrics ===");
 const metrics = walletDataService.getWalletMetrics();
-console.log(
-  `Total Portfolio Value: ${formatCurrency(metrics.totalValue)}`,
-);
-console.log(
-  `Total ROI: ${formatPercentage(metrics.totalROI)}`,
-);
+console.log(`Total Portfolio Value: ${formatCurrency(metrics.totalValue)}`);
+console.log(`Total ROI: ${formatPercentage(metrics.totalROI)}`);
 console.log(
   `Average Monthly Income: ${formatCurrency(metrics.averageMonthlyIncome)}`,
 );
@@ -84,13 +70,9 @@ console.log("\n=== Unclaimed Payouts by Asset ===");
 const unclaimedByAsset = walletDataService.getUnclaimedPayoutsByAsset();
 unclaimedByAsset.forEach((asset) => {
   console.log(`\n${asset.assetName}:`);
-  console.log(
-    `  Total Unclaimed: ${formatCurrency(asset.totalUnclaimed)}`,
-  );
+  console.log(`  Total Unclaimed: ${formatCurrency(asset.totalUnclaimed)}`);
   asset.unclaimedPayouts.forEach((payout) => {
-    console.log(
-      `  - ${payout.month}: ${formatCurrency(payout.amount)}`,
-    );
+    console.log(`  - ${payout.month}: ${formatCurrency(payout.amount)}`);
   });
 });
 
@@ -100,20 +82,14 @@ const performance = walletDataService.getAssetPerformanceComparison();
 performance.forEach((asset, index) => {
   console.log(`${index + 1}. ${asset.assetName}`);
   console.log(`   ROI: ${formatPercentage(asset.roi)}`);
-  console.log(
-    `   Total Earned: ${formatCurrency(asset.totalEarned)}`,
-  );
-  console.log(
-    `   Avg Monthly: ${formatCurrency(asset.averageMonthlyPayout)}`,
-  );
+  console.log(`   Total Earned: ${formatCurrency(asset.totalEarned)}`);
+  console.log(`   Avg Monthly: ${formatCurrency(asset.averageMonthlyPayout)}`);
 });
 
 // Example 10: Get estimated annual income
 console.log("\n=== Estimated Annual Income ===");
 const annualIncome = walletDataService.getEstimatedAnnualIncome();
-console.log(
-  `Estimated Annual Income: ${formatCurrency(annualIncome)}`,
-);
+console.log(`Estimated Annual Income: ${formatCurrency(annualIncome)}`);
 
 // Example 11: Get payout frequency analysis
 console.log("\n=== Payout Frequency Analysis ===");
@@ -129,9 +105,7 @@ console.log(
 console.log("\n=== Detailed Monthly Payouts ===");
 const detailedPayouts = walletDataService.getDetailedMonthlyPayouts();
 detailedPayouts.slice(-3).forEach((month) => {
-  console.log(
-    `\n${month.month}: ${formatCurrency(month.totalPayout)}`,
-  );
+  console.log(`\n${month.month}: ${formatCurrency(month.totalPayout)}`);
   month.assetBreakdown.forEach((asset) => {
     console.log(
       `  - ${asset.assetName}: ${formatCurrency(asset.amount)} (${asset.status})`,

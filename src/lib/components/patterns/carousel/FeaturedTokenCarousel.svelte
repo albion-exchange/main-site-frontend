@@ -4,15 +4,17 @@
 	import type { Token, Asset } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton, FormattedNumber, FormattedReturn } from '$lib/components/components';
 	import { sftMetadata, sfts } from '$lib/stores';
-	import { formatCurrency, formatTokenSupply, formatSmartReturn } from '$lib/utils/formatters';
+	import { formatCurrency, formatTokenSupply, formatSmartReturn, formatSmartNumber } from '$lib/utils/formatters';
 	import { meetsSupplyThreshold, formatSupplyAmount, getAvailableSupplyBigInt } from '$lib/utils/tokenSupplyUtils';
     import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
 	import { readContract } from '@wagmi/core';
 	import { signerAddress, wagmiConfig, chainId } from 'svelte-wagmi';
 	import type { Hex } from 'viem';
-    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
+    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft, generateTokenMetadataInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
     import { getTokenReturns } from '$lib/utils';
 	import authorizerAbi from '$lib/abi/authorizer.json';
+    import type { TokenMetadata } from '$lib/types/MetaboardTypes';
+    import { getEnergyFieldId } from '$lib/utils/energyFieldGrouping';
 
 	export let autoPlay = true;
 	export let autoPlayInterval = 5000;
@@ -22,7 +24,7 @@
 	const tokenService = useTokenService();
 
 	let currentIndex = 0;
-	let featuredTokensWithAssets: Array<{ token: Token; asset: Asset }> = [];
+	let featuredTokensWithAssets: Array<{ token: TokenMetadata; asset: Asset }> = [];
 	let loading = true;
 	let error: string | null = null;
 	let autoPlayTimer: ReturnType<typeof setTimeout> | null = null;
@@ -47,14 +49,13 @@
 						(meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
 					);
 					if(pinnedMetadata) {
-	
 						const sftMaxSharesSupply = await readContract($wagmiConfig, {
 							abi: authorizerAbi,
 							address: sft.activeAuthorizer?.address as Hex,
 							functionName: 'maxSharesSupply',
 							args: []
-						});
-						const tokenInstance = generateTokenInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
+						}) as bigint;
+						const tokenInstance = generateTokenMetadataInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
 						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
 						featuredTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
 					}
@@ -315,7 +316,7 @@
 							<div class={tokenSectionClasses}>
 								<div class={tokenHeaderClasses}>
 									<div class="mb-3">
-										<h3 class={tokenNameClasses}>{item.token.name}</h3>
+										<h3 class={tokenNameClasses}>{item.token.releaseName}</h3>
 									</div>
 									<div class={tokenContractClasses}>{item.token.contractAddress}</div>
 								</div>
@@ -380,7 +381,7 @@
 					<PrimaryButton on:click={() => handleBuyTokens(item.token.contractAddress)}>
 						Buy Tokens
 					</PrimaryButton>
-					<SecondaryButton href="/assets/{item.asset.id}">
+					<SecondaryButton href="/assets/{getEnergyFieldId(item.token.contractAddress)}" >
 						View Asset
 					</SecondaryButton>
 				</div>
@@ -416,7 +417,7 @@
 					<div class={assetStatsClasses}>
 						<div class={statItemClasses}>
 							<div class={statLabelClasses}>Remaining Production</div>
-							<div class={statValueClasses}>{item.asset.production?.expectedRemainingProduction || 'TBD'}</div>
+							<div class={statValueClasses}>{item.asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0) ? formatSmartNumber(item.asset.plannedProduction.projections.reduce((acc, curr) => acc + curr.production, 0), { suffix: ' boe' }) : 'TBD'}</div>
 						</div>
 					</div>
 
@@ -433,7 +434,7 @@
 					<h3 class={assetNameClasses}>{item.asset.name}</h3>
 					<div class="text-sm text-black opacity-70">
 						<span class="font-medium">Remaining Production:</span> 
-						<span>{item.asset.production?.expectedRemainingProduction || 'TBD'}</span>
+						<span>{item.asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0) ? formatSmartNumber(item.asset.plannedProduction.projections.reduce((acc, curr) => acc + curr.production, 0), { suffix: ' boe' }) : 'TBD'}</span>
 					</div>
 				</div>
 							</div>
