@@ -191,14 +191,23 @@
 			<a href="/assets" class="px-8 py-4 no-underline font-semibold text-sm uppercase tracking-wider transition-colors duration-200 inline-block bg-black text-white hover:bg-secondary inline-block">Back to Assets</a>
 		</div>
 	{:else}
-		<AssetDetailHeader 
-			asset={assetData!} 
-			tokenCount={assetTokens.length} 
-			onTokenSectionClick={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })}
-		/>
+		<!-- Mobile-only breadcrumb -->
+		<div class="lg:hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+			<nav class="mb-4 sm:mb-6 lg:mb-8 text-sm font-medium">
+				<a href="/assets" class="text-secondary no-underline hover:text-black">← Back to Assets</a>
+			</nav>
+		</div>
+		
+		<div class="hidden lg:block">
+			<AssetDetailHeader 
+				asset={assetData!} 
+				tokenCount={assetTokens.length} 
+				onTokenSectionClick={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })}
+			/>
+		</div>
 
-		<!-- Asset Details Content -->
-        <ContentSection background="white" padding="standard">
+		<!-- Asset Details Content - hidden on mobile -->
+        <ContentSection background="white" padding="standard" className="hidden lg:block">
         	<!-- Mobile: Collapsible sections -->
         	<div class="lg:hidden space-y-4">
         		<!-- Overview in collapsible section -->
@@ -206,8 +215,8 @@
         			<AssetOverviewTab asset={assetData!} />
         		</CollapsibleSection>
         		
-        		<!-- Other sections in collapsible format -->
-        		<CollapsibleSection title="Production Data" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
+        		<!-- Other sections in collapsible format - hide production data on mobile -->
+        		<CollapsibleSection title="Production Data" isOpenByDefault={false} alwaysOpenOnDesktop={false} className="hidden">
         			{@const productionReports = assetData?.productionHistory || assetData?.monthlyReports || []}
 					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map((r: any) => r.production)) : 100}
 					<div class="flex-1 flex flex-col">
@@ -613,8 +622,9 @@
 	</ContentSection>
 
 		<!-- Available Tokens Section -->
-		<ContentSection background="white" padding="compact">
-			<div class="bg-white border border-light-gray section-no-border" id="token-section">
+		<div class="lg:bg-white bg-transparent py-6 sm:py-8 lg:py-12">
+			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="lg:bg-white lg:border lg:border-light-gray bg-transparent border-none section-no-border" id="token-section">
 				<div class="py-6">
 					<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -631,6 +641,16 @@
 									<div class="relative preserve-3d transform-gpu transition-transform duration-500 {isFlipped ? 'rotate-y-180' : ''} min-h-[700px] sm:min-h-[600px]">
 										<!-- Front of card -->
 										<div class="absolute inset-0 backface-hidden">
+											<!-- Picture section - only on mobile, positioned above token release name -->
+											<div class="lg:hidden w-full h-48 overflow-hidden">
+												<img 
+													src={getImageUrl(assetData?.coverImage || '/images/eur-wr-cover.jpg')} 
+													alt={assetData?.name || 'Asset'}
+													loading="lazy"
+													class="w-full h-full object-cover"
+												/>
+											</div>
+											
 											<!-- Full width availability banner -->
 											<div class="{!hasAvailableSupply ? 'text-base font-extrabold text-white bg-black text-center py-3 uppercase tracking-wider' : 'text-base font-extrabold text-black bg-primary text-center py-3 uppercase tracking-wider'} w-full">
 												{hasAvailableSupply ? 'Available for Purchase' : 'Currently Sold Out'}
@@ -754,7 +774,7 @@
 													</div>
 												</div>
 											</div>
-									</div>
+										</div>
 									
 									<!-- Back of card -->
 									<div class="absolute inset-0 backface-hidden rotate-y-180 bg-white">
@@ -798,10 +818,12 @@
 											<div class="text-center py-8 text-black opacity-70">
 												<p class="text-sm">No distributions available yet.</p>
 												<p class="text-sm">First payout expected in {nextRelease?.whenRelease || 'Q1 2025'}.</p>
-																		</div>
-							{/if}
-						</div>
-					</CardContent>
+											</div>
+										{/if}
+									</div>
+								</div>
+							</div>
+						</CardContent>
 							</Card>
 						</div>
 					{/each}
@@ -842,7 +864,8 @@
 				</div>
 				</div>
 			</div>
-		</ContentSection>
+			</div>
+		</div>
 
 		<!-- Token Purchase Widget -->
 		{#if showPurchaseWidget}
