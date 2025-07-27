@@ -108,15 +108,11 @@
 		claiming = true;
 		try {
 			await new Promise(resolve => setTimeout(resolve, 2000));
+			// Simulate claiming - in a real app this would call blockchain
 			holdings.forEach(holding => {
 				if (holding.unclaimedAmount > 0) {
-					walletDataService.addTransaction({
-						type: 'claim',
-						address: holding.id,
-						amount: holding.unclaimedAmount,
-						txHash: `0x${Math.random().toString(16).substr(2, 64)}`,
-						timestamp: new Date().toISOString()
-					});
+					// In production, this would interact with smart contracts
+					console.log('Claiming', holding.unclaimedAmount, 'from', holding.id);
 				}
 			});
 			claimSuccess = true;
@@ -137,13 +133,8 @@
 			const holding = holdings.find(h => h.id === assetId);
 			if (!holding || holding.unclaimedAmount <= 0) return;
 			await new Promise(resolve => setTimeout(resolve, 1500));
-			walletDataService.addTransaction({
-				type: 'claim',
-				address: assetId,
-				amount: holding.unclaimedAmount,
-				txHash: `0x${Math.random().toString(16).substr(2, 64)}`,
-				timestamp: new Date().toISOString()
-			});
+			// Simulate claiming - in a real app this would call blockchain
+			console.log('Claiming', holding.unclaimedAmount, 'from', assetId);
 			claimSuccess = true;
 			loadClaimsData();
 			setTimeout(() => {
@@ -204,7 +195,7 @@
 		<!-- Header -->
 		<HeroSection 
 			title="Claims & Payouts"
-			subtitle="Claim your energy asset payouts and track your earnings"
+			subtitle="Claim your energy asset payouts and track your claims history"
 			showBorder={false}
 		>
 			<!-- Main Stats - Simplified for mobile -->

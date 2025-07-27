@@ -162,11 +162,13 @@
 			<a href="/assets" class="px-8 py-4 no-underline font-semibold text-sm uppercase tracking-wider transition-colors duration-200 inline-block bg-black text-white hover:bg-secondary inline-block">Back to Assets</a>
 		</div>
 	{:else}
-		<AssetDetailHeader 
-			asset={assetData} 
-			tokenCount={assetTokens.length} 
-			onTokenSectionClick={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })}
-		/>
+		{#if assetData}
+			<AssetDetailHeader 
+				asset={assetData} 
+				tokenCount={assetTokens.length} 
+				onTokenSectionClick={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })}
+			/>
+		{/if}
 
 		<!-- Asset Details Content -->
         <ContentSection background="white" padding="standard">
@@ -174,7 +176,9 @@
         	<div class="lg:hidden space-y-4">
         		<!-- Overview in collapsible section -->
         		<CollapsibleSection title="Overview" isOpenByDefault={true} alwaysOpenOnDesktop={false}>
-        			<AssetOverviewTab asset={assetData} />
+        			{#if assetData}
+        				<AssetOverviewTab asset={assetData} />
+        			{/if}
         		</CollapsibleSection>
         		
         		<!-- Other sections in collapsible format -->
@@ -192,7 +196,7 @@
 								</div>
 								{#if productionReports.length > 0}
 									<Chart
-										data={productionReports.map(report => ({
+										data={productionReports.map((report: any) => ({
 											label: report.month,
 											value: report.production
 										}))}
@@ -212,7 +216,7 @@
 								{/if}
 							</div>
 							<div class="bg-white border border-light-gray p-6">
-								<h4 class="text-lg font-extrabold text-black mb-6">Production Metrics</h4>
+								<h4 class="text-lg font-extrabold text-black mb-6">Key Metrics</h4>
 								<div class="grid grid-cols-1 gap-4">
 									<!-- Uptime -->
 									<div class="text-center p-3 bg-light-gray">
@@ -259,13 +263,13 @@
 					</div>
         		</CollapsibleSection>
         		
-        		<CollapsibleSection title="Past Payments" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
+        		<CollapsibleSection title="Revenue History" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
         			{@const monthlyReports = assetData?.monthlyReports || []}
 					{@const maxRevenue = monthlyReports.length > 0 ? Math.max(...monthlyReports.map(r => r.netIncome ?? 0)) : 1500}
 					<div class="space-y-4">
 						{#if monthlyReports.length > 0}
 							<div class="bg-white border border-light-gray p-4">
-								<h4 class="text-base font-bold text-black mb-4">Revenue History</h4>
+								<h4 class="text-base font-bold text-black mb-4">Received Revenue</h4>
 								<div class="space-y-2">
 									{#each monthlyReports.slice(-6) as report}
 										<div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
@@ -278,7 +282,7 @@
 						{:else}
 							<div class="text-center py-8 text-black opacity-70">
 								<div class="text-4xl mb-2">💰</div>
-								<p>No payment history available</p>
+								<p>No revenue history available</p>
 							</div>
 						{/if}
 					</div>
@@ -439,9 +443,11 @@
 			<!-- Tab Content -->
 			<div class="p-8 min-h-[500px] flex flex-col">
 				{#if activeTab === 'overview'}
-					<AssetOverviewTab asset={assetData} />
+					{#if assetData}
+						<AssetOverviewTab asset={assetData} />
+					{/if}
 				{:else if activeTab === 'production'}
-					{@const productionReports = assetData?.historicalProduction || assetData?.monthlyReports || []}
+					{@const productionReports = assetData?.productionHistory || assetData?.monthlyReports || []}
 					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map((r: any) => r.production)) : 100}
 					<div class="flex-1 flex flex-col">
 						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">
@@ -454,7 +460,7 @@
 								</div>
 								<div class="w-full">
 									<Chart
-										data={productionReports.map(report => {
+										data={productionReports.map((report: any) => {
 											// Handle different date formats
 											let dateStr = report.month || '';
 											if (dateStr && !dateStr.includes('-01')) {
@@ -866,6 +872,7 @@
 													</div>
 												</div>
 											</div>
+										</div>
 									</div>
 									
 									<!-- Back of card -->
@@ -910,12 +917,13 @@
 											<div class="text-center py-8 text-black opacity-70">
 												<p class="text-sm">No distributions available yet.</p>
 												<p class="text-sm">First payout expected in {nextRelease?.whenRelease || 'Q1 2025'}.</p>
-																		</div>
-							{/if}
-						</div>
-					</CardContent>
-							</Card>
-						</div>
+											</div>
+										{/if}
+									</div>
+								</div>
+						</CardContent>
+					</Card>
+				</div>
 					{/each}
 					<!-- Future Releases Cards -->
 					{#if assetData?.id}
@@ -986,7 +994,7 @@
 						<!-- MailChimp Token Notification Form -->
 						<div id="mc_embed_signup_token">
 							<form action="https://exchange.us7.list-manage.com/subscribe/post?u=f3b19322aa5fe51455b292838&amp;id=6eaaa49162&amp;f_id=00fd53e0f0" 
-								  method="post" id="mc-embedded-subscribe-form-token" name="mc-embedded-subscribe-form-token" target="_self" novalidate="">
+								  method="post" id="mc-embedded-subscribe-form-token" name="mc-embedded-subscribe-form-token" target="_self" novalidate>
 								<div class="space-y-4">
 									<!-- Hidden fields for asset information -->
 									<input type="hidden" name="MMERGE7" value={assetId} />
@@ -1011,7 +1019,6 @@
 									
 									<PrimaryButton 
 										type="submit" 
-										name="subscribe" 
 										id="mc-embedded-subscribe-token"
 										fullWidth
 									>
