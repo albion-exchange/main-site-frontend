@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
 	import { usePlatformStats } from '$lib/composables/usePlatformStats';
 	import FeaturedTokenCarousel from '$lib/components/patterns/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/patterns/TokenPurchaseWidget.svelte';
-	import { PrimaryButton, SecondaryButton, StatsCard, ButtonGroup } from '$lib/components/components';
+	import { PrimaryButton, SecondaryButton, StatsCard } from '$lib/components/components';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
-	import GridContainer from '$lib/components/components/GridContainer.svelte';
-	import { PageLayout, HeroSection, ContentSection, StatsSection } from '$lib/components/layout';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	import { marketDataService, type MarketData } from '$lib/services/MarketDataService';
 
 	// Composables
@@ -58,15 +56,15 @@
 </script>
 
 <svelte:head>
-	<title>Albion - Institutional Grade Oil & Gas DeFi</title>
-	<meta name="description" content="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality oil & gas investments through blockchain technology." />
+	<title>Albion - Institutional Grade Energy DeFi</title>
+	<meta name="description" content="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality enerfy investments through blockchain technology." />
 </svelte:head>
 
 <PageLayout>
 	<!-- Hero Section -->
 	<HeroSection 
 		title="Institutional Grade Oil & Gas DeFi"
-		subtitle="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality oil & gas investments through blockchain technology."
+		subtitle="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality energy investments through blockchain technology."
 		showBorder={true}
 		showButtons={false}
 	>
@@ -134,7 +132,7 @@
 	<ContentSection background="gray" padding="compact" centered className="block sm:hidden">
 		<div class="text-center">
 			<SectionTitle level="h2" size="section" className="mb-4">Ready to Start?</SectionTitle>
-			<p class="text-sm text-black mb-6">Browse available investment opportunities and start earning from oil & gas assets.</p>
+			<p class="text-sm text-black mb-6">Browse available investment opportunities and start earning from energy assets.</p>
 			<PrimaryButton href="/assets" fullWidth>View All Investments</PrimaryButton>
 		</div>
 	</ContentSection>
@@ -147,19 +145,19 @@
 			<div class="text-center">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">1</div>
 				<SectionTitle level="h3" size="small" className="mb-4">Browse Assets</SectionTitle>
-				<p class="text-sm sm:text-base text-black">Explore vetted oil & gas assets with transparent production and revenue data from established operators.</p>
+				<p class="text-sm sm:text-base text-black">Explore energy assets with transparent production and revenue data from established operators.</p>
 			</div>
 			
 			<div class="text-center">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">2</div>
 				<SectionTitle level="h3" size="small" className="mb-4">Buy Tokens</SectionTitle>
-				<p class="text-sm sm:text-base text-black">Purchase royalty tokens using our smart payment system with instant settlement.</p>
+				<p class="text-sm sm:text-base text-black">Purchase smart contact-powered royalty tokens entitling you to a share of real energy asset revenue.</p>
 			</div>
 			
 			<div class="text-center sm:col-span-2 lg:col-span-1">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">3</div>
 				<SectionTitle level="h3" size="small" className="mb-4">Earn Revenue Payouts</SectionTitle>
-				<p class="text-sm sm:text-base text-black">Receive stablecoin revenue from real oil & gas sales directly to your wallet. Transparent payouts and accounting.</p>
+				<p class="text-sm sm:text-base text-black">Receive regular stablecoin distributions from directly to your wallet. Transparent payouts and accounting.</p>
 			</div>
 		</div>
 	</ContentSection>
@@ -188,7 +186,7 @@
 					</svg>
 				</div>
 				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Real Assets</SectionTitle>
-				<p class="text-xs text-black opacity-70">Binding legal and contractual claims to real oil & gas revenue</p>
+				<p class="text-xs text-black opacity-70">Binding legal and contractual claims to real energy revenue</p>
 			</div>
 			
 			<div class="flex flex-col items-center text-center">
@@ -201,7 +199,7 @@
 					</svg>
 				</div>
 				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Institutional Grade</SectionTitle>
-				<p class="text-xs text-black opacity-70">Revenue from established oil and gas companies</p>
+				<p class="text-xs text-black opacity-70">Revenue from established energy companies</p>
 			</div>
 			
 			<div class="flex flex-col items-center text-center">
@@ -299,7 +297,7 @@
 			
 			<div class="text-center p-8 lg:p-12 bg-white/10 border border-white/20">
 				<h4 class="text-xl lg:text-2xl font-extrabold mb-3 lg:mb-4 text-white">Start Investing Today</h4>
-				<p class="mb-6 lg:mb-8 opacity-90 text-sm lg:text-base">Join {$sftsFormattedStats.activeInvestors} investors earning from oil and gas</p>
+				<p class="mb-6 lg:mb-8 opacity-90 text-sm lg:text-base">Join {$sftsFormattedStats.activeInvestors} investors earning from real energy assets</p>
 				<SecondaryButton href="/assets">Get Started Now</SecondaryButton>
 			</div>
 		</div>
