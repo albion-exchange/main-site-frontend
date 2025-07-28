@@ -20,7 +20,7 @@ import type { OffchainAssetReceiptVault } from "$lib/types/offchainAssetReceiptV
 import configService from "$lib/services/ConfigService";
 import type { Asset, Token } from "$lib/types/uiTypes";
 import type { TokenMetadata } from "$lib/types/MetaboardTypes";
-import { ENERGY_FEILDS } from "$lib/network";
+import { ENERGY_FEILDS, type SftToken } from "$lib/network";
 
 interface AssetDetailState {
   asset: Asset | null;
@@ -79,8 +79,8 @@ export function useAssetDetailData(initialEnergyFieldId: string) {
       const energyFieldSfts = currentSfts.filter(
         (sft: OffchainAssetReceiptVault) =>
           energyField.sftTokens.some(
-            (tokenAddress: string) =>
-              tokenAddress.toLowerCase() === sft.id.toLowerCase(),
+            (token: SftToken) =>
+              token.address.toLowerCase() === sft.id.toLowerCase(),
           ),
       );
 

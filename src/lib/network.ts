@@ -7,24 +7,50 @@ export const BASE_METADATA_SUBGRAPH_URL =
 export const TARGET_NETWORK = "base";
 export const PINATA_GATEWAY = "https://gateway.pinata.cloud/ipfs";
 
+export type Claim = {
+  orderHash: string;
+  csvLink: string;
+};
+
+export type SftToken = {
+  address: string;
+  claims: Claim[];
+};
+
 export type EnergyField = {
   name: string;
-  sftTokens: string[];
+  sftTokens: SftToken[];
 };
 export const ENERGY_FEILDS: EnergyField[] = [
   {
     name: "Bakken Horizon Field",
     sftTokens: [
-      "0xd5316ca888491575befc0273a00de2186c53f760",
-      "0xea9a6f77483a07bc287dfb8dad151042376eb153",
+      {
+        address: "0xd5316ca888491575befc0273a00de2186c53f760",
+        claims: [],
+      },
+      {
+        address: "0xea9a6f77483a07bc287dfb8dad151042376eb153",
+        claims: [],
+      },
     ],
   },
   {
     name: "Gulf of Mexico-4",
-    sftTokens: ["0xae69a129b626b1e8fce196ef8e7d5faea3be753f"],
+    sftTokens: [
+      {
+        address: "0xae69a129b626b1e8fce196ef8e7d5faea3be753f",
+        claims: [],
+      },
+    ],
   },
   {
     name: "Permian Basin-3 Release 1",
-    sftTokens: ["0xc699575fe18f00104d926f0167cd858ce6d8b32e"],
+    sftTokens: [
+      {
+        address: "0xc699575fe18f00104d926f0167cd858ce6d8b32e",
+        claims: [],
+      },
+    ],
   },
 ];
