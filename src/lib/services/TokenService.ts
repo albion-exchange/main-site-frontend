@@ -50,14 +50,14 @@ class TokenService {
     
     // Map each token metadata by its contract address
     const tokenMetadataList = [
-      bakHf1Metadata as TokenMetadata,
-      bakHf2Metadata as TokenMetadata,
-      eurWr1Metadata as TokenMetadata,
-      eurWr2Metadata as TokenMetadata,
-      eurWr3Metadata as TokenMetadata,
-      eurWrLegacyMetadata as TokenMetadata,
-      gomDw1Metadata as TokenMetadata,
-      perBv1Metadata as TokenMetadata,
+      bakHf1Metadata,
+      bakHf2Metadata,
+      eurWr1Metadata,
+      eurWr2Metadata,
+      eurWr3Metadata,
+      eurWrLegacyMetadata,
+      gomDw1Metadata,
+      perBv1Metadata,
     ];
     
     tokenMetadataList.forEach(metadata => {

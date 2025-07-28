@@ -51,7 +51,7 @@
 	</ContentSection>
 
 	<!-- Still Need Help Section -->
-	<ContentSection background="light-gray" padding="standard" centered>
+	<ContentSection background="gray" padding="standard" centered>
 		<SectionTitle level="h2" size="section" center className="mb-8">Still need help?</SectionTitle>
 		<div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
 			<a href="mailto:contact@albion.labs" class="text-primary font-semibold text-lg no-underline hover:opacity-80 transition-opacity duration-200">

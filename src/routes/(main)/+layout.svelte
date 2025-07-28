@@ -177,7 +177,7 @@
 					<!-- MailChimp Newsletter Signup Form -->
 					<div id="mc_embed_signup" class="mt-4">
 						<form action="https://exchange.us7.list-manage.com/subscribe/post?u=f3b19322aa5fe51455b292838&amp;id=6eaaa49162&amp;f_id=00fd53e0f0" 
-							  method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_self" novalidate=true>
+							  method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_self" novalidate>
 							<div id="mc_embed_signup_scroll" class="flex gap-2">
 								<input type="email" value="" name="EMAIL" 
 									   placeholder="Enter email address"

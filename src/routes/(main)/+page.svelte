@@ -57,13 +57,13 @@
 
 <svelte:head>
 	<title>Albion - Institutional Grade Energy DeFi</title>
-	<meta name="description" content="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality enerfy investments through blockchain technology." />
+	<meta name="description" content="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality energy investments through blockchain technology." />
 </svelte:head>
 
 <PageLayout>
 	<!-- Hero Section -->
 	<HeroSection 
-		title="Institutional Grade Oil & Gas DeFi"
+		title="Institutional Grade Energy DeFi"
 		subtitle="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality energy investments through blockchain technology."
 		showBorder={true}
 		showButtons={false}
@@ -151,7 +151,7 @@
 			<div class="text-center">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">2</div>
 				<SectionTitle level="h3" size="small" className="mb-4">Buy Tokens</SectionTitle>
-				<p class="text-sm sm:text-base text-black">Purchase smart contact-powered royalty tokens entitling you to a share of real energy asset revenue.</p>
+				<p class="text-sm sm:text-base text-black">Purchase smart contract-powered royalty tokens entitling you to a share of real energy asset revenue.</p>
 			</div>
 			
 			<div class="text-center sm:col-span-2 lg:col-span-1">
@@ -212,7 +212,7 @@
 					</svg>
 				</div>
 				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Transparent</SectionTitle>
-				<p class="text-xs text-black opacity-70">All inflows and outflows recorded on-chain with supporting information made public</p>
+				<p class="text-xs text-black opacity-70">All revenue flows recorded on-chain with real-time payout tracking and public audit trails</p>
 			</div>
 		</div>
 	</ContentSection>
@@ -243,7 +243,7 @@
 							<span>WTI Crude Oil</span>
 							<span class="text-primary font-extrabold">
 								{marketData.oilPrices.wti.price > 0 ? `$${marketDataService.formatPrice(marketData.oilPrices.wti.price)}` : 'N/A'}
-								{#if marketData.oilPrices.wti.change !== 0}
+								{#if marketData.oilPrices.wti.price > 0}
 									<span class="text-xs font-semibold ml-2 {marketData.oilPrices.wti.change >= 0 ? 'text-primary' : 'text-red-500'}">
 										{marketDataService.formatChange(marketData.oilPrices.wti.change)}
 									</span>
@@ -254,7 +254,7 @@
 							<span>Brent Crude</span>
 							<span class="text-primary font-extrabold">
 								{marketData.oilPrices.brent.price > 0 ? `$${marketDataService.formatPrice(marketData.oilPrices.brent.price)}` : 'N/A'}
-								{#if marketData.oilPrices.brent.change !== 0}
+								{#if marketData.oilPrices.brent.price > 0}
 									<span class="text-xs font-semibold ml-2 {marketData.oilPrices.brent.change >= 0 ? 'text-primary' : 'text-red-500'}">
 										{marketDataService.formatChange(marketData.oilPrices.brent.change)}
 									</span>
@@ -265,7 +265,7 @@
 							<span>Henry Hub Natural Gas</span>
 							<span class="text-primary font-extrabold">
 								{marketData.oilPrices.naturalGas.price > 0 ? `$${marketDataService.formatPrice(marketData.oilPrices.naturalGas.price)}` : 'N/A'}
-								{#if marketData.oilPrices.naturalGas.change !== 0}
+								{#if marketData.oilPrices.naturalGas.price > 0}
 									<span class="text-xs font-semibold ml-2 {marketData.oilPrices.naturalGas.change >= 0 ? 'text-primary' : 'text-red-500'}">
 										{marketDataService.formatChange(marketData.oilPrices.naturalGas.change)}
 									</span>

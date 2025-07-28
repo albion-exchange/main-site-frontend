@@ -210,10 +210,7 @@ class MarketDataService {
 	 * Format change percentage for display
 	 */
 	formatChange(change: number): string {
-		if (change === 0) {
-			return 'N/A';
-		}
-		const sign = change >= 0 ? '+' : '';
+		const sign = change > 0 ? '+' : '';
 		return `${sign}${change.toFixed(2)}%`;
 	}
 }

@@ -134,12 +134,12 @@ export function useDataExport() {
       ['Location', `${asset.location.state}, ${asset.location.country}`],
       ['Operator', asset.operator.name],
       ['Status', asset.production.status],
-      ['Depth', asset.geology.depth],
-      ['Type', asset.geology.type],
-      ['Interest Type', asset.terms.interestType],
-      ['Revenue Share', asset.terms.amount],
-      ['Payment Frequency', asset.terms.paymentFrequency],
-      ['Estimated Life', asset.geology.estimatedLife],
+      ['Depth', asset.geology?.depth || 'N/A'],
+      ['Type', asset.geology?.type || 'N/A'],
+      ['Interest Type', asset.terms?.interestType || 'N/A'],
+      ['Revenue Share', asset.terms?.amount || 'N/A'],
+      ['Payment Frequency', asset.terms?.paymentFrequency || 'N/A'],
+      ['Estimated Life', asset.geology?.estimatedLife || 'N/A'],
       ['Water Depth', asset.location.waterDepth || 'Onshore']
     ];
     
