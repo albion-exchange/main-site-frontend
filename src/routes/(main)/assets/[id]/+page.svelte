@@ -83,9 +83,6 @@
 	
 	// Email popup state
 	let showEmailPopup = false;
-	let emailAddress = '';
-	let isSubmittingEmail = false;
-	let emailSubmitted = false;
 	
 	// Track flipped state for each token card
 	let flippedCards = new Set();
@@ -151,25 +148,6 @@
 	
 	function handleCloseEmailPopup() {
 		showEmailPopup = false;
-		emailAddress = '';
-		emailSubmitted = false;
-	}
-	
-	async function handleEmailSubmit() {
-		if (!emailAddress || isSubmittingEmail) return;
-		
-		isSubmittingEmail = true;
-		
-		// Simulate API call
-		setTimeout(() => {
-			isSubmittingEmail = false;
-			emailSubmitted = true;
-			
-			// Auto-close after 2 seconds
-			setTimeout(() => {
-				handleCloseEmailPopup();
-			}, 2000);
-		}, 1000);
 	}
 
 </script>
@@ -869,29 +847,45 @@
 						<button class="text-2xl font-bold text-black bg-transparent border-none cursor-pointer p-0 leading-none hover:opacity-70" on:click={handleCloseEmailPopup}>×</button>
 					</div>
 					<div class="p-6">
-						{#if emailSubmitted}
-							<div class="text-center text-black font-medium">
-								Thank you! We'll notify you when the new token release is available.
-							</div>
-						{:else}
-							<p>Enter your email address to be notified when the next token release becomes available.</p>
-							<form class="mt-4 space-y-4" on:submit|preventDefault={handleEmailSubmit}>
-								<input
-									type="email"
-									class="w-full px-4 py-3 border border-light-gray bg-white text-black placeholder-black placeholder-opacity-50 focus:outline-none focus:border-primary disabled:opacity-50"
-									placeholder="Enter your email address"
-									bind:value={emailAddress}
-									required
-									disabled={isSubmittingEmail}
-								/>
-								<PrimaryButton 
-									type="submit" 
-									disabled={isSubmittingEmail || !emailAddress}
-								>
-									{isSubmittingEmail ? 'Submitting...' : 'Notify Me'}
-								</PrimaryButton>
+						<p class="mb-4">Enter your email address to be notified when the next token release becomes available.</p>
+						
+						<!-- MailChimp Token Notification Form -->
+						<div id="mc_embed_signup_token">
+							<form action="https://exchange.us7.list-manage.com/subscribe/post?u=f3b19322aa5fe51455b292838&amp;id=6eaaa49162&amp;f_id=00fd53e0f0" 
+								  method="post" id="mc-embedded-subscribe-form-token" name="mc-embedded-subscribe-form-token" target="_self" novalidate="">
+								<div class="space-y-4">
+									<!-- Hidden fields for asset information -->
+									<input type="hidden" name="MMERGE7" value={assetId} />
+									<input type="hidden" name="MMERGE8" value={assetData?.name || ''} />
+									<input type="hidden" name="MMERGE9" value="token_release" />
+									
+									<input type="email" value="" name="EMAIL" 
+										   placeholder="Enter your email address"
+										   id="mce-EMAIL-token" required
+										   class="w-full px-4 py-3 border border-light-gray bg-white text-black placeholder-black placeholder-opacity-50 focus:outline-none focus:border-primary"
+									/>
+									
+									<!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+									<div style="position: absolute; left: -5000px;" aria-hidden="true">
+										<input type="text" name="b_f3b19322aa5fe51455b292838_6eaaa49162" tabindex="-1" value="">
+									</div>
+									
+									<div id="mce-responses-token" class="clear">
+										<div class="response" id="mce-error-response-token" style="display: none;"></div>
+										<div class="response" id="mce-success-response-token" style="display: none;"></div>
+									</div>
+									
+									<PrimaryButton 
+										type="submit" 
+										name="subscribe" 
+										id="mc-embedded-subscribe-token"
+										fullWidth
+									>
+										Notify Me
+									</PrimaryButton>
+								</div>
 							</form>
-						{/if}
+						</div>
 					</div>
 				</div>
 			</div>

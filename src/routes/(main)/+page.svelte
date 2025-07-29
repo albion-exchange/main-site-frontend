@@ -73,7 +73,7 @@
 		<!-- Buttons Below Hero -->
 		<div class="flex flex-col sm:flex-row gap-4 justify-center mt-6 sm:mt-8">
 			<PrimaryButton href="/assets">Explore Investments</PrimaryButton>
-			<SecondaryButton href="/about" className="hidden sm:inline-flex">Learn How It Works</SecondaryButton>
+			<SecondaryButton href="/about">Learn How It Works</SecondaryButton>
 		</div>
 	</HeroSection>
 
@@ -135,7 +135,7 @@
 		<div class="text-center">
 			<SectionTitle level="h2" size="section" className="mb-4">Ready to Start?</SectionTitle>
 			<p class="text-sm text-black mb-6">Browse available oil & gas investments and start earning from energy assets.</p>
-			<PrimaryButton href="/assets" className="w-full">View All Investments</PrimaryButton>
+			<PrimaryButton href="/assets" fullWidth>View All Investments</PrimaryButton>
 		</div>
 	</ContentSection>
 
