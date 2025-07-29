@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
-	import { PrimaryButton } from '$lib/components/components';
+	import { PrimaryButton, SecondaryButton, SectionTitle } from '$lib/components/components';
 	
 	let redirectUrl = '/';
 	
@@ -68,41 +68,28 @@
 		showButtons={false}
 	/>
 	
-	<ContentSection background="white" padding="standard" centered>
-		<div class="max-w-2xl mx-auto text-center">
-			<div class="mb-8">
-				<svg class="w-24 h-24 mx-auto mb-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+	<ContentSection background="gray" padding="standard" centered>
+		<SectionTitle level="h2" size="section" center className="mb-8">Join Our Community</SectionTitle>
+		<p class="text-black opacity-70 mb-8 max-w-xl mx-auto">
+			Stay connected and get the latest updates on Albion
+		</p>
+		<div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+			<PrimaryButton href="https://t.me/albionlabs" size="medium">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="mr-2">
+					<path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
 				</svg>
-				
-				<h2 class="text-2xl lg:text-3xl font-extrabold text-black mb-4">You're All Set!</h2>
-				
-				<p class="text-lg text-black opacity-70 mb-6">
-					You'll receive an email confirmation shortly. In the meantime, feel free to explore our platform and available investment opportunities.
-				</p>
-				
-				<div class="bg-light-gray p-6 rounded-lg mb-8">
-					<h3 class="text-lg font-extrabold text-black mb-3">What's Next?</h3>
-					<ul class="text-left text-black opacity-70 space-y-2">
-						<li class="flex items-start">
-							<span class="text-primary mr-2">•</span>
-							<span>Check your email for a confirmation message</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-primary mr-2">•</span>
-							<span>Browse our available energy assets and token releases</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-primary mr-2">•</span>
-							<span>Join our community for exclusive updates and insights</span>
-						</li>
-					</ul>
-				</div>
-				
-				<PrimaryButton on:click={handleReturn} size="large">
-					Continue Browsing
-				</PrimaryButton>
-			</div>
+				Updates Channel
+			</PrimaryButton>
+			<span class="text-black">or</span>
+			<SecondaryButton href="https://t.me/+rw9m7NqlTfhhN2I8" size="medium">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="mr-2">
+					<path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+				</svg>
+				Community Chat
+			</SecondaryButton>
 		</div>
+		<PrimaryButton on:click={handleReturn} size="large">
+			Continue Browsing
+		</PrimaryButton>
 	</ContentSection>
 </PageLayout>
