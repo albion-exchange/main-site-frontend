@@ -15,46 +15,9 @@
  */
 
 // Import configuration data
-import platformStats from "$lib/data/platformStats.json";
-import companyInfo from "$lib/data/companyInfo.json";
 import futureReleasesData from "$lib/data/futureReleases.json";
 
-export interface PlatformConfig {
-  totalAssets: number;
-  totalInvestors: number;
-  totalDistributed: number;
-  averageReturn: number;
-  minimumInvestment: number;
-  supportedCurrencies: string[];
-  supportedNetworks: string[];
-}
 
-export interface CompanyConfig {
-  name: string;
-  tagline: string;
-  website: string;
-  contact: {
-    email: string;
-    phone: string;
-    address: {
-      street: string;
-      city: string;
-      state: string;
-      country: string;
-      postalCode: string;
-    };
-  };
-  social: {
-    twitter: string;
-    linkedin: string;
-    telegram: string;
-  };
-  legal: {
-    termsOfService: string;
-    privacyPolicy: string;
-    riskDisclosure: string;
-  };
-}
 
 export interface FutureRelease {
   id: string;
@@ -67,8 +30,6 @@ export interface FutureRelease {
 }
 
 export interface AppConfig {
-  platform: PlatformConfig;
-  company: CompanyConfig;
   futureReleases: FutureRelease[];
 }
 
@@ -77,8 +38,6 @@ class ConfigService {
 
   constructor() {
     this.config = {
-      platform: platformStats as PlatformConfig,
-      company: companyInfo as CompanyConfig,
       futureReleases: this.transformFutureReleasesData(futureReleasesData),
     };
   }
@@ -120,19 +79,7 @@ class ConfigService {
     return this.config;
   }
 
-  /**
-   * Get platform configuration
-   */
-  getPlatformConfig(): PlatformConfig {
-    return this.config.platform;
-  }
 
-  /**
-   * Get company information
-   */
-  getCompanyConfig(): CompanyConfig {
-    return this.config.company;
-  }
 
   /**
    * Get future releases
@@ -160,68 +107,7 @@ class ConfigService {
     );
   }
 
-  /**
-   * Get platform statistics
-   */
-  getPlatformStats(): {
-    totalAssets: number;
-    totalInvestors: number;
-    totalDistributed: number;
-    averageReturn: number;
-    totalHolders: number;
-  } {
-    // Map from the actual platformStats.json structure
-    const stats = this.config.platform as any;
-    return {
-      totalAssets: stats.activeAssets?.value || 4,
-      totalInvestors: stats.activeInvestors?.value || 1000,
-      totalDistributed: stats.totalInvestmentVolume?.value || 127400000,
-      averageReturn: stats.averagePayout?.value || 11.3,
-      totalHolders: stats.activeInvestors?.value || 1000,
-    };
-  }
 
-  /**
-   * Get minimum investment amount
-   */
-  getMinimumInvestment(): number {
-    return this.config.platform.minimumInvestment;
-  }
-
-  /**
-   * Check if currency is supported
-   */
-  isCurrencySupported(currency: string): boolean {
-    return this.config.platform.supportedCurrencies.includes(currency);
-  }
-
-  /**
-   * Check if network is supported
-   */
-  isNetworkSupported(network: string): boolean {
-    return this.config.platform.supportedNetworks.includes(network);
-  }
-
-  /**
-   * Get company contact information
-   */
-  getContactInfo(): CompanyConfig["contact"] {
-    return this.config.company.contact;
-  }
-
-  /**
-   * Get social media links
-   */
-  getSocialLinks(): CompanyConfig["social"] {
-    return this.config.company.social;
-  }
-
-  /**
-   * Get legal document links
-   */
-  getLegalLinks(): CompanyConfig["legal"] {
-    return this.config.company.legal;
-  }
 
   /**
    * Check if data is stale (for cache invalidation)
@@ -240,8 +126,6 @@ class ConfigService {
     // In a real app, this might fetch from API
     // For now, we'll just re-import the JSON files
     this.config = {
-      platform: platformStats as PlatformConfig,
-      company: companyInfo as CompanyConfig,
       futureReleases: this.transformFutureReleasesData(futureReleasesData),
     };
   }

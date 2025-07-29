@@ -1,40 +1,27 @@
-import { ENERGY_FEILDS, type EnergyField } from "$lib/network";
 import type { Asset } from "$lib/types/uiTypes";
 import type { TokenMetadata } from "$lib/types/MetaboardTypes";
+import { ENERGY_FIELDS } from "$lib/network";
 
 export interface GroupedEnergyField {
-  id: string; // URL-friendly identifier for the energy field
+  id: string; // URL-friendly identifier derived from asset name
   name: string;
   tokens: TokenMetadata[];
   asset: Asset;
 }
 
 /**
- * Groups SFTs by energy field names based on the ENERGY_FEILDS configuration
- * Each group contains all TokenMetadata for that energy field and one Asset instance
+ * Groups tokens by ENERGY_FIELDS configuration - the canonical way to identify tokens from the same field
+ * Each group contains all TokenMetadata that belong to the same energy field
  */
 export function groupSftsByEnergyField(
   tokensWithAssets: Array<{ token: TokenMetadata; asset: Asset }>,
 ): GroupedEnergyField[] {
-  const grouped: Record<string, GroupedEnergyField> = {};
+  const grouped: GroupedEnergyField[] = [];
 
-  // Initialize groups based on ENERGY_FEILDS configuration
-  ENERGY_FEILDS.forEach((field) => {
-    const fieldId = field.name
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "");
-    grouped[field.name] = {
-      id: fieldId,
-      name: field.name,
-      tokens: [],
-      asset: null as any,
-    };
-  });
-
-  // Group tokens by matching their contract addresses with the energy field tokens
-  tokensWithAssets.forEach((item) => {
-    const matchingField = ENERGY_FEILDS.find((field) =>
+  // Use ENERGY_FIELDS as the canonical source for grouping
+  ENERGY_FIELDS.forEach((field) => {
+    // Find all tokens that belong to this energy field
+    const fieldTokens = tokensWithAssets.filter((item) =>
       field.sftTokens.some(
         (token) =>
           token.address.toLowerCase() ===
@@ -42,41 +29,24 @@ export function groupSftsByEnergyField(
       ),
     );
 
-    if (matchingField) {
-      if (!grouped[matchingField.name]) {
-        const fieldId = matchingField.name
-          .toLowerCase()
-          .replace(/\s+/g, "-")
-          .replace(/[^a-z0-9-]/g, "");
-        grouped[matchingField.name] = {
-          id: fieldId,
-          name: matchingField.name,
-          tokens: [],
-          asset: null as any,
-        };
-      }
-      grouped[matchingField.name].tokens.push(item.token);
-    } else {
-      // If no matching field found, create a default group
-      const defaultGroupName = "Other Assets";
-      if (!grouped[defaultGroupName]) {
-        const fieldId = defaultGroupName
-          .toLowerCase()
-          .replace(/\s+/g, "-")
-          .replace(/[^a-z0-9-]/g, "");
-        grouped[defaultGroupName] = {
-          id: fieldId,
-          name: defaultGroupName,
-          tokens: [],
-          asset: null as any,
-        };
-      }
-      grouped[defaultGroupName].tokens.push(item.token);
+    if (fieldTokens.length > 0) {
+      // Create a URL-friendly ID from the field name
+      const fieldId = field.name
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+
+      grouped.push({
+        id: fieldId,
+        name: field.name,
+        tokens: fieldTokens.map((item) => item.token),
+        asset: fieldTokens[0].asset, // Will be updated below
+      });
     }
   });
 
-  // Set asset from the token with the latest updatedAt
-  Object.values(grouped).forEach((group) => {
+  // Update asset from the token with the latest updatedAt
+  grouped.forEach((group) => {
     if (group.tokens.length > 0) {
       // Find the token with the latest updatedAt
       const latestToken = group.tokens.reduce((latest, current) => {
@@ -98,25 +68,29 @@ export function groupSftsByEnergyField(
     }
   });
 
-  // Convert to array and filter out empty groups
-  return Object.values(grouped).filter((group) => group.tokens.length > 0);
+  return grouped;
 }
 
-// Get energy field ID from token address
-export function getEnergyFieldId(tokenAddress: string): string {
-  const matchingField = ENERGY_FEILDS.find((field) =>
+// Get energy field ID from contract address
+export function getEnergyFieldId(contractAddress: string): string {
+  // Find the energy field that contains this contract address
+  const field = ENERGY_FIELDS.find((field) =>
     field.sftTokens.some(
-      (token) => token.address.toLowerCase() === tokenAddress.toLowerCase(),
+      (token) => token.address.toLowerCase() === contractAddress.toLowerCase(),
     ),
   );
 
-  if (matchingField) {
-    return matchingField.name
+  if (field) {
+    // Return URL-friendly version of the field name
+    return field.name
       .toLowerCase()
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9-]/g, "");
   }
 
-  // Fallback to a default ID if no matching field found
-  return "other-assets";
+  // Fallback: return a URL-friendly version of the contract address
+  return contractAddress
+    .toLowerCase()
+    .replace(/^0x/, "")
+    .substring(0, 8);
 }

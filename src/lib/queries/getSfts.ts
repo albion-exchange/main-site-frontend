@@ -1,16 +1,9 @@
-import { BASE_SFT_SUBGRAPH_URL, ENERGY_FEILDS } from "$lib/network";
+import { BASE_SFT_SUBGRAPH_URL } from "$lib/network";
 
 export const getSfts = async (): Promise<any> => {
-  // Extract all SFT addresses from ENERGY_FEILDS
-  const sftAddresses = ENERGY_FEILDS.flatMap((field) =>
-    field.sftTokens.map((token) => token.address),
-  );
-
   const query = `
     {
- offchainAssetReceiptVaults(where: {
- id_in: [${sftAddresses.map((s) => `"${s.toString().toLowerCase()}"`).join(",")}]
- }) {
+ offchainAssetReceiptVaults {
 
     withdraws {
       id

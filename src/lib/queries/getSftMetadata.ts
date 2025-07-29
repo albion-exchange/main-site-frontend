@@ -1,10 +1,10 @@
 import type { MetaV1S } from "$lib/types/sftMetadataTypes";
-import { BASE_METADATA_SUBGRAPH_URL, ENERGY_FEILDS } from "$lib/network";
+import { BASE_METADATA_SUBGRAPH_URL, ENERGY_FIELDS } from "$lib/network";
 
 export const getSftMetadata = async (): Promise<MetaV1S[]> => {
   try {
-    // Extract all SFT addresses from ENERGY_FEILDS
-    const sftAddresses = ENERGY_FEILDS.flatMap((field) =>
+    // Extract all SFT addresses from ENERGY_FIELDS
+    const sftAddresses = ENERGY_FIELDS.flatMap((field) =>
       field.sftTokens.map((token) => token.address),
     );
 

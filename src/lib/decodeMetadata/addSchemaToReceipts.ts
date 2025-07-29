@@ -58,7 +58,6 @@ export function generateTokenInstanceFromSft(
     symbol: sft.symbol,
     decimals: 18, // All SFTs have default 18 decimals
     tokenType: "royalty", // SFTs are always royalty tokens, payment tokens are USDC, USDT or any other value token
-    assetId: sft.id, // SFT contract itself is unique
     isActive: true, // SFTs are always active
     supply: {
       maxSupply: sftMaxSharesSupply.toString(), // Needs to be edited.
@@ -91,7 +90,6 @@ export function generateTokenMetadataInstanceFromSft(
 ): TokenMetadata {
   const tokenInstance: TokenMetadata = {
     contractAddress: sft.id,
-    assetId: sft.id,
     symbol: sft.symbol,
     releaseName: pinnedMetadata.releaseName,
     tokenType: pinnedMetadata.tokenType,
@@ -122,7 +120,7 @@ export function generateAssetInstanceFromSftMeta(
     projections: pinnedMetadata.asset.plannedProduction.projections,
   };
   const assetInstance: Asset = {
-    id: pinnedMetadata.assetId,
+    id: sft.id, // Use contract address as ID since we're not using assetId
     name: pinnedMetadata.asset.assetName,
     description: pinnedMetadata.asset.description,
     coverImage: `${PINATA_GATEWAY}/${pinnedMetadata.asset.coverImage}`,

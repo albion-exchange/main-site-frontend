@@ -20,7 +20,7 @@ import type { OffchainAssetReceiptVault } from "$lib/types/offchainAssetReceiptV
 import configService from "$lib/services/ConfigService";
 import type { Asset, Token } from "$lib/types/uiTypes";
 import type { TokenMetadata } from "$lib/types/MetaboardTypes";
-import { ENERGY_FEILDS, type SftToken } from "$lib/network";
+import { ENERGY_FIELDS, type SftToken } from "$lib/network";
 
 interface AssetDetailState {
   asset: Asset | null;
@@ -63,7 +63,7 @@ export function useAssetDetailData(initialEnergyFieldId: string) {
       );
 
       // Find the energy field by ID
-      const energyField = ENERGY_FEILDS.find((field: any) => {
+      const energyField = ENERGY_FIELDS.find((field: any) => {
         const fieldId = field.name
           .toLowerCase()
           .replace(/\s+/g, "-")

@@ -33,7 +33,6 @@ export enum DocumentType {
 
 export interface TokenMetadata {
   contractAddress: string;
-  assetId: string;
   symbol: string;
   releaseName: string;
   tokenType: TokenType;

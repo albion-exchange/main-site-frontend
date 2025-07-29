@@ -8,8 +8,6 @@
 	import TabNavigation from '$lib/components/components/TabNavigation.svelte';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	
-	let platformStats: any = {};
-	let loading = true;
 	const configService = useConfigService();
 	
 	// Tab state for Why Albion section
@@ -18,16 +16,6 @@
 		{ id: 'investors', label: 'For Investors' },
 		{ id: 'companies', label: 'For Energy Companies' }
 	];
-
-	onMount(async () => {
-		try {
-			platformStats = configService.getPlatformStats();
-			loading = false;
-		} catch (error) {
-			console.error('Error loading platform stats:', error);
-			loading = false;
-		}
-	});
 </script>
 
 <svelte:head>
