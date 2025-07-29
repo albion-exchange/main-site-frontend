@@ -207,9 +207,9 @@
 	$: activeSlideClasses = 'opacity-100';
 	$: inactiveSlideClasses = 'opacity-100';
 	$: bannerCardClasses = 'grid grid-cols-1 lg:grid-cols-2 bg-white border border-light-gray overflow-hidden';
-	$: tokenSectionClasses = 'p-4 sm:p-6 lg:p-8 bg-white border-b lg:border-b-0 lg:border-r border-light-gray flex flex-col justify-between min-h-[300px] sm:min-h-[350px] lg:min-h-[400px]';
-	$: assetSectionClasses = 'p-4 sm:p-6 lg:p-8 bg-light-gray flex flex-col justify-between min-h-[300px] sm:min-h-[350px] lg:min-h-[400px]';
-	$: tokenHeaderClasses = 'mb-3 sm:mb-4 lg:mb-6';
+	$: tokenSectionClasses = 'p-4 sm:p-6 lg:p-8 bg-white border-b lg:border-b-0 lg:border-r border-light-gray flex flex-col justify-between min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] relative';
+	$: assetSectionClasses = 'p-4 sm:p-6 lg:p-8 bg-light-gray flex flex-col justify-between min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] hidden lg:flex';
+	$: tokenHeaderClasses = 'mb-3 sm:mb-4 lg:mb-6 z-10 relative';
 	$: tokenNameClasses = 'text-lg sm:text-xl lg:text-2xl font-bold text-black tracking-wider mb-2 leading-tight text-left';
 	$: tokenContractClasses = 'text-xs sm:text-sm font-medium text-secondary break-all leading-relaxed py-1 opacity-80 tracking-tight font-figtree text-left';
 	$: assetHeaderClasses = 'mb-3 sm:mb-4 lg:mb-6';
@@ -222,12 +222,12 @@
 	$: assetNameClasses = 'text-lg sm:text-xl lg:text-2xl font-bold text-black mb-2 leading-tight text-left';
 	$: assetLocationClasses = 'text-sm sm:text-base text-black leading-relaxed font-figtree text-left opacity-80';
 	$: assetDescriptionClasses = 'text-sm text-black leading-relaxed mb-4 sm:mb-6 font-figtree hidden lg:block';
-	$: tokenStatsClasses = 'grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 lg:mb-8';
+	$: tokenStatsClasses = 'grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 lg:mb-8 z-10 relative';
 	$: assetStatsClasses = 'grid grid-cols-1 gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 lg:mb-8';
 	$: statItemClasses = 'text-left';
 	$: statLabelClasses = 'text-xs font-medium text-gray-500 mb-1 font-figtree uppercase tracking-wide';
 	$: statValueClasses = 'text-sm sm:text-base lg:text-lg font-bold text-black';
-	$: tokenActionsClasses = 'flex flex-col gap-2 sm:gap-3 mt-auto';
+	$: tokenActionsClasses = 'flex flex-col gap-2 sm:gap-3 mt-auto z-10 relative';
 	$: assetMetaClasses = 'flex flex-col gap-2 mt-auto';
 	$: assetMetaItemClasses = 'flex gap-2';
 	$: assetMetaLabelClasses = 'text-xs font-medium text-gray-500 font-figtree';
@@ -237,9 +237,6 @@
 	$: navButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target items-center justify-center rounded-full';
 	$: prevButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target left-[-4rem] items-center justify-center rounded-full';
 	$: nextButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target right-[-4rem] items-center justify-center rounded-full';
-	$: indicatorsClasses = 'absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
-	$: indicatorClasses = 'w-3 h-3 border-none bg-white/50 cursor-pointer transition-all duration-200 hover:bg-white/80 touch-target rounded-full';
-	$: indicatorActiveClasses = 'w-3 h-3 border-none bg-white cursor-pointer transition-all duration-200 scale-125 shadow-lg touch-target rounded-full';
 
 	
 	// Get status-specific classes
@@ -314,6 +311,19 @@
 						<div class={bannerCardClasses}>
 							<!-- Token Section -->
 							<div class={tokenSectionClasses}>
+								<!-- Mobile: Background image overlay -->
+								{#if item.asset.coverImage}
+									<div class="absolute inset-0 lg:hidden">
+										<img 
+											src={item.asset.coverImage} 
+											alt={item.asset.name}
+											class="w-full h-full object-cover opacity-20"
+											loading="lazy"
+										/>
+										<div class="absolute inset-0 bg-white/70"></div>
+									</div>
+								{/if}
+								
 								<div class={tokenHeaderClasses}>
 									<div class="mb-3">
 										<h3 class={tokenNameClasses}>{item.token.releaseName}</h3>
@@ -443,12 +453,12 @@
 				{/each}
 			</div>
 
-			<!-- Indicators (remain inside carousel wrapper) -->
+			<!-- Indicators (desktop: inside carousel wrapper, mobile: below) -->
 			{#if featuredTokensWithAssets.length > 1}
-				<div class={indicatorsClasses}>
+				<div class="hidden lg:flex absolute bottom-4 left-1/2 transform -translate-x-1/2 gap-2 z-10">
 					{#each featuredTokensWithAssets as _, index}
 						<button 
-							class="{index === currentIndex ? indicatorActiveClasses : indicatorClasses}"
+							class="{index === currentIndex ? 'w-3 h-3 border-none bg-white cursor-pointer transition-all duration-200 scale-125 shadow-lg touch-target rounded-full' : 'w-3 h-3 border-none bg-white/50 cursor-pointer transition-all duration-200 hover:bg-white/80 touch-target rounded-full'}"
 							on:click={() => goToSlide(index)}
 							aria-label="Go to slide {index + 1}"
 						></button>
@@ -456,6 +466,19 @@
 				</div>
 			{/if}
 		</div>
+		
+		<!-- Mobile indicators below carousel -->
+		{#if featuredTokensWithAssets.length > 1}
+			<div class="flex lg:hidden justify-center gap-1 mt-3 z-10">
+				{#each featuredTokensWithAssets as _, index}
+					<button 
+						class="{index === currentIndex ? 'w-1.5 h-1.5 border-none bg-gray-600 cursor-pointer transition-all duration-200 touch-target rounded-full' : 'w-1.5 h-1.5 border-none bg-gray-400/80 cursor-pointer transition-all duration-200 hover:bg-gray-600 touch-target rounded-full'}"
+						on:click={() => goToSlide(index)}
+						aria-label="Go to slide {index + 1}"
+					></button>
+				{/each}
+			</div>
+		{/if}
 	{/if}
 </div>
 
