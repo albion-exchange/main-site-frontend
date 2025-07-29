@@ -12,7 +12,7 @@ export type EnergyField = {
 	name: string;
 	sftTokens: string[];
 }
-export const ENERGY_FEILDS: EnergyField[] = [
+export const ENERGY_FIELDS: EnergyField[] = [
 	{
 		name: 'Bakken Horizon Field',
 		sftTokens: ['0xd5316Ca888491575bEFC0273a00dE2186C53f760'],

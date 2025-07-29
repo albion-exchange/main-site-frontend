@@ -8,8 +8,8 @@ import { useConfigService, useAssetService, useTokenService } from '$lib/service
 import { withSyncErrorHandling } from '$lib/utils/errorHandling';
 import { sfts } from '$lib/stores';
 import { formatEther } from 'ethers';
-import { ENERGY_FEILDS } from '$lib/network';
 import { formatSmartNumber } from '$lib/utils/formatters';
+import { AssetService } from '$lib/services/AssetService';
 
 interface PlatformStatsState {
   totalAssets: number;
@@ -42,7 +42,15 @@ export function usePlatformStats() {
     try {
       const totalAssets = $sfts.length;
       const totalTokenHolders = $sfts.reduce((acc, sft) => acc + (sft.tokenHolders?.length || 0), 0);
-      const totalRegions = ENERGY_FEILDS.length;
+      // Get all assets and count distinct countries
+      const assetService = new AssetService();
+      const allAssets = assetService.getAllAssets();
+      const distinctCountries = new Set(
+        allAssets
+          .map(asset => asset.location?.country)
+          .filter(country => country && country.trim() !== '')
+      );
+      const totalRegions = distinctCountries.size;
       const totalInvested = $sfts.reduce((acc, sft) => acc + BigInt(sft.totalShares || 0), BigInt(0));
       
       const stats = {

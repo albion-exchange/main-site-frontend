@@ -1,9 +1,9 @@
-import { BASE_SFT_SUBGRAPH_URL, ENERGY_FEILDS } from "$lib/network";
+import { BASE_SFT_SUBGRAPH_URL, ENERGY_FIELDS } from "$lib/network";
 
 
 export const getSfts = async (): Promise<any> => {
-	// Extract all SFT addresses from ENERGY_FEILDS
-	const sftAddresses = ENERGY_FEILDS.flatMap(field => field.sftTokens);
+	// Extract all SFT addresses from ENERGY_FIELDS
+	const sftAddresses = ENERGY_FIELDS.flatMap(field => field.sftTokens);
 	
 	const query = `
     {
