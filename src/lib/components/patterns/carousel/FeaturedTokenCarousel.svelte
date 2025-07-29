@@ -453,8 +453,8 @@
 			</div>
 
 			<!-- Desktop indicators (only shown on large screens) -->
-			<div class="hidden lg:flex absolute bottom-4 left-1/2 transform -translate-x-1/2 gap-2 z-10">
-				{#if featuredTokensWithAssets.length > 1}
+			{#if featuredTokensWithAssets.length > 1}
+				<div class="hidden lg:flex absolute bottom-4 left-1/2 transform -translate-x-1/2 gap-2 z-10">
 					{#each featuredTokensWithAssets as _, index}
 						<button 
 							class="{index === currentIndex ? 'w-3 h-3 border-none bg-white cursor-pointer transition-all duration-200 scale-125 shadow-lg touch-target rounded-full' : 'w-3 h-3 border-none bg-white/50 cursor-pointer transition-all duration-200 hover:bg-white/80 touch-target rounded-full'}"
@@ -462,8 +462,8 @@
 							aria-label="Go to slide {index + 1}"
 						></button>
 					{/each}
-				{/if}
-			</div>
+				</div>
+			{/if}
 		</div>
 		
 		<!-- Mobile indicators below carousel -->
