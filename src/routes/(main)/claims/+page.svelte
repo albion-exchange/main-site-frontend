@@ -23,7 +23,7 @@
 
 	let estimatedGas = 0;
 
-	let holdings: ClaimSignedContext[] = [];
+	let holdings: { fieldName: string; totalAmount: number; holdings: ClaimSignedContext[] }[] = [];
 	let claimHistory: ClaimHistory[] = [];
 	let currentPage = 1;
 	const itemsPerPage = 20;
@@ -107,7 +107,31 @@
 										})
 										
 										claimHistory = [...claimHistory, ...sortedClaimsData.claims];
-										holdings = [...holdings, ...holdingsWithProofs];
+										
+										// Group holdings by energy field and aggregate amounts
+										const fieldName = field.name;
+										
+										// Find existing group for this field
+										let existingGroup = holdings.find(group => group.fieldName === fieldName);
+										
+										if (existingGroup) {
+											// Add new holdings to existing group
+											existingGroup.holdings = [...existingGroup.holdings, ...holdingsWithProofs];
+											// Recalculate total amount
+											existingGroup.totalAmount = existingGroup.holdings.reduce((sum, holding) => 
+												sum + Number(holding.unclaimedAmount), 0
+											);
+										} else {
+											// Create new group
+											const totalAmount = holdingsWithProofs.reduce((sum, holding) => 
+												sum + Number(holding.unclaimedAmount), 0
+											);
+											holdings = [...holdings, { 
+												fieldName, 
+												totalAmount, 
+												holdings: holdingsWithProofs 
+											}];
+										}
 										totalClaimed += Number(formatEther(sortedClaimsData.totalClaimedAmount));
 										totalEarned += Number(formatEther(sortedClaimsData.totalEarned));
 										unclaimedPayout += Number(formatEther(sortedClaimsData.totalUnclaimedAmount));
@@ -142,15 +166,20 @@
 	async function claimAllPayouts() {
 		claiming = true;
 		try {
-			let orders = []
-			for(const holding of holdings){
-				orders.push({
-					order: holding.order,
-					inputIOIndex: 0,
-					outputIOIndex: 0,
-					signedContext: [holding.signedContext]
-				})
+			let orders = [];
+			
+			// Collect all orders from all groups
+			for (const group of holdings) {
+				for (const holding of group.holdings) {
+					orders.push({
+						order: holding.order,
+						inputIOIndex: 0,
+						outputIOIndex: 0,
+						signedContext: [holding.signedContext]
+					});
+				}
 			}
+			
 			const takeOrdersConfig = {
 				minimumInput: 0n,
 				maximumInput: 2n ** 256n - 1n,
@@ -159,9 +188,10 @@
 				data: "0x"
 			};
 
+			// Single writeContract call with all orders
 			await writeContract($wagmiConfig, {
 				abi: orderbookAbi,
-				address: holdings[0].orderBookAddress as Hex,
+				address: holdings[0].holdings[0].orderBookAddress as Hex,
 				functionName: 'takeOrders2',
 				args: [takeOrdersConfig]
 			});
@@ -174,25 +204,33 @@
 		}
 	}
 
-	async function handleClaimSingle(holding: any) {
+	async function handleClaimSingle(group: any) {
 		claiming = true;
 		try {
-			const takeOrdersConfig = {
-				minimumInput: 0n,
-				maximumInput: 2n ** 256n - 1n,
-				maximumIORatio: 2n ** 256n - 1n,
-				orders: [{
+			let orders = [];
+			
+			// Collect all orders from this group
+			for (const holding of group.holdings) {
+				orders.push({
 					order: holding.order,
 					inputIOIndex: 0,
 					outputIOIndex: 0,
 					signedContext: [holding.signedContext]
-				}],
+				});
+			}
+			
+			const takeOrdersConfig = {
+				minimumInput: 0n,
+				maximumInput: 2n ** 256n - 1n,
+				maximumIORatio: 2n ** 256n - 1n,
+				orders: orders,
 				data: "0x"
 			};
 
+			// Single writeContract call with all orders from this group
 			await writeContract($wagmiConfig, {
 				abi: orderbookAbi,
-				address: holding.orderBookAddress as Hex,
+				address: group.holdings[0].orderBookAddress as Hex,
 				functionName: 'takeOrders2',
 				args: [takeOrdersConfig]
 			});
@@ -308,34 +346,35 @@
 				<SectionTitle level="h2" size="section" className="mb-6">Claims by Asset</SectionTitle>
 				
 				<div class="grid grid-cols-1 gap-4 lg:gap-6">
-					{#each holdings as holding}
+					{#each holdings as group}
 						<Card>
 							<CardContent paddingClass="p-4 lg:p-6">
 								<div class="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-5 gap-4 items-center">
 									<div class="sm:col-span-2">
-										<div class="font-extrabold text-black text-sm lg:text-base">{holding.name}</div>
+										<div class="font-extrabold text-black text-sm lg:text-base">{group.fieldName}</div>
+										<div class="text-xs lg:text-sm text-black opacity-70">{group.holdings.length} claims</div>
 									</div>
 									<div class="text-center sm:text-left lg:text-center">
 										<StatusBadge 
-											status={holding.status}
+											status="PRODUCING"
 											size="small"
 											showIcon={true}
 										/>
 									</div>
 									<div class="text-center">
 										<div class="text-lg lg:text-xl font-extrabold text-primary mb-1">
-											<FormattedNumber value={holding.unclaimedAmount} type="currency" compact={Number(holding.unclaimedAmount) >= 10000} />
+											<FormattedNumber value={group.totalAmount} type="currency" compact={group.totalAmount >= 10000} />
 										</div>
 										<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Available</div>
 									</div>
 									<div class="text-center">
 										<SecondaryButton 
 											size="small" 
-											disabled={claiming || Number(holding.unclaimedAmount) <= 0}
-											on:click={() => handleClaimSingle(holding)}
+											disabled={claiming || group.totalAmount <= 0}
+											on:click={() => handleClaimSingle(group)}
 											fullWidth
 										>
-											{Number(holding.unclaimedAmount) > 0 ? 'Claim' : 'No Claims'}
+											{group.totalAmount > 0 ? 'Claim' : 'No Claims'}
 										</SecondaryButton>
 									</div>
 								</div>
