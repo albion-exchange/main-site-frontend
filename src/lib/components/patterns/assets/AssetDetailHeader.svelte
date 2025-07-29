@@ -168,7 +168,7 @@
 				title="Last Revenue"
 				value={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.netIncome 
 					? formatCurrency(asset.monthlyReports[asset.monthlyReports.length - 1].netIncome)
-					: '$0'}
+					: 'US$0'}
 				subtitle={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.month 
 					? (() => {
 						const date = new Date(asset.monthlyReports[asset.monthlyReports.length - 1].month + '-01');

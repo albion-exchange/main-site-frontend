@@ -5,11 +5,19 @@
 	import PrimaryButton from '$lib/components/components/PrimaryButton.svelte';
 	import SecondaryButton from '$lib/components/components/SecondaryButton.svelte';
 	import Card from '$lib/components/components/Card.svelte';
+	import TabNavigation from '$lib/components/components/TabNavigation.svelte';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	
 	let platformStats: any = {};
 	let loading = true;
 	const configService = useConfigService();
+	
+	// Tab state for Why Albion section
+	let activeWhyTab = 'investors';
+	const whyTabs = [
+		{ id: 'investors', label: 'For Investors' },
+		{ id: 'companies', label: 'For Energy Companies' }
+	];
 
 	onMount(async () => {
 		try {
@@ -23,171 +31,222 @@
 </script>
 
 <svelte:head>
-	<title>About - Albion</title>
-	<meta name="description" content="Learn about Albion's institutional-grade oil & gas tokenization platform" />
+	<title>About - Albion Labs</title>
+	<meta name="description" content="Democratizing energy investment to power the future of energy infrastructure" />
 </svelte:head>
 
 <PageLayout>
 	<!-- Hero Section -->
 	<HeroSection 
-		title="About Albion"
-		subtitle="Revolutionizing energy investment through blockchain technology and institutional-grade asset tokenization."
+		title="About Albion Labs"
+		subtitle="Democratizing energy investment to power the future of energy infrastructure"
 		showBorder={false}
 	/>
 
-	<!-- Mission Section -->
+	<!-- Vision Section -->
 	<ContentSection background="gray" padding="standard" centered>
-		<SectionTitle level="h2" size="section" center className="mb-8">Our Mission</SectionTitle>
-		<p class="text-lg leading-relaxed text-black">We democratize access to institutional-quality oil & gas investments by leveraging blockchain technology to create transparent, liquid, and accessible energy assets for investors worldwide.</p>
-	</ContentSection>
-
-	<!-- How It Works -->
-	<ContentSection background="white" padding="standard" centered>
-			<SectionTitle level="h2" size="section" center className="mb-12">How Albion Works</SectionTitle>
-			
-			<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
-					<div class="text-center">
-						<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">1</div>
-						<SectionTitle level="h3" size="small" uppercase>Asset Acquisition</SectionTitle>
-						<p class="text-sm text-black">We acquire proven oil & gas assets with established production and clear revenue streams from institutional operators.</p>
-					</div>
-				</Card>
-				
-				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
-					<div class="text-center">
-						<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">2</div>
-						<SectionTitle level="h3" size="small" uppercase>Tokenization</SectionTitle>
-						<p class="text-sm text-black">Assets are tokenized on blockchain, creating fractional ownership opportunities with transparent smart contract governance.</p>
-					</div>
-				</Card>
-				
-				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
-					<div class="text-center">
-						<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">3</div>
-						<SectionTitle level="h3" size="small" uppercase>Investment Access</SectionTitle>
-						<p class="text-sm text-black">Investors can purchase royalty tokens representing fractional ownership in real oil & gas production revenue.</p>
-					</div>
-				</Card>
-				
-				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
-					<div class="text-center">
-						<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">4</div>
-						<SectionTitle level="h3" size="small" uppercase>Revenue Distribution</SectionTitle>
-						<p class="text-sm text-black">Monthly payouts are automatically distributed to token holders based on actual production and oil prices.</p>
-					</div>
-				</Card>
+		<SectionTitle level="h2" size="section" center className="mb-8">Our Vision</SectionTitle>
+		<div class="max-w-4xl mx-auto">
+			<p class="text-lg leading-relaxed text-black mb-6">At Albion Labs, we're making direct investment in energy infrastructure accessible, giving people access to new income streams while helping energy companies unlock new capital to finance the world's energy needs.</p>
+			<p class="text-lg leading-relaxed text-black">Our unique background—spanning digital innovation at global tech companies, successful web3 ventures, and the corporate actions for established energy companies—positions us to unlock new models of value creation in the energy sector through transparent, accessible, and efficient blockchain-native solutions.</p>
 		</div>
 	</ContentSection>
 
-	<!-- Platform Benefits -->
+	<!-- Why Albion with Tabs -->
+	<ContentSection background="white" padding="standard" centered>
+		<div class="max-w-4xl mx-auto">
+			<SectionTitle level="h2" size="section" center className="mb-8">Why Albion</SectionTitle>
+			
+			<!-- Tab Navigation -->
+			<div class="mb-8">
+				<TabNavigation 
+					tabs={whyTabs} 
+					bind:activeTab={activeWhyTab} 
+					variant="default"
+					size="medium"
+					centered={true}
+				/>
+			</div>
+			
+			<!-- Tab Content -->
+			<div class="mt-8">
+				{#if activeWhyTab === 'investors'}
+					<!-- For Investors Content -->
+					<div class="space-y-8">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<div class="p-6 bg-light-gray rounded-lg">
+								<div class="flex items-center gap-3 mb-3">
+									<div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-extrabold">$</div>
+									<h4 class="text-lg font-bold text-black">Start Small, Think Big</h4>
+								</div>
+								<p class="text-sm text-black leading-relaxed">Diversify your portfolio with energy assets starting from just US$1, giving you unparalleled flexibility.</p>
+							</div>
+							
+							<div class="p-6 bg-light-gray rounded-lg">
+								<div class="flex items-center gap-3 mb-3">
+									<div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-extrabold">⬆</div>
+									<h4 class="text-lg font-bold text-black">Institutional-Grade Access</h4>
+								</div>
+								<p class="text-sm text-black leading-relaxed">Invest in the same quality assets as major funds and institutions, previously reserved for the ultra-wealthy.</p>
+							</div>
+							
+							<div class="p-6 bg-light-gray rounded-lg">
+								<div class="flex items-center gap-3 mb-3">
+									<div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-extrabold">✓</div>
+									<h4 class="text-lg font-bold text-black">Complete Transparency</h4>
+								</div>
+								<p class="text-sm text-black leading-relaxed">Every payout recorded on-chain. Every transaction verifiable. Full audit trails publicly accessible 24/7.</p>
+							</div>
+							
+							<div class="p-6 bg-light-gray rounded-lg">
+								<div class="flex items-center gap-3 mb-3">
+									<div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-extrabold">↔</div>
+									<h4 class="text-lg font-bold text-black">Liquid When You Need It</h4>
+								</div>
+								<p class="text-sm text-black leading-relaxed">Trade your tokens on secondary markets anytime. No lock-up periods, no redemption gates.</p>
+							</div>
+							
+							<div class="p-6 bg-light-gray rounded-lg md:col-span-2 lg:col-span-1">
+								<div class="flex items-center gap-3 mb-3">
+									<div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-extrabold">%</div>
+									<h4 class="text-lg font-bold text-black">Real Revenue, Real Returns</h4>
+								</div>
+								<p class="text-sm text-black leading-relaxed">Earn from actual energy production and sales.</p>
+							</div>
+						</div>
+					</div>
+				{:else if activeWhyTab === 'companies'}
+					<!-- For Energy Companies Content -->
+					<div class="space-y-8">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<div class="p-6 bg-light-gray rounded-lg">
+								<div class="flex items-center gap-3 mb-3">
+									<div class="w-10 h-10 bg-secondary text-white rounded-full flex items-center justify-center font-extrabold">🌍</div>
+									<h4 class="text-lg font-bold text-black">Global Capital Access</h4>
+								</div>
+								<p class="text-sm text-black leading-relaxed">Access millions of retail and crypto investors worldwide. Tap new pools of capital for your projects.</p>
+							</div>
+							
+							<div class="p-6 bg-light-gray rounded-lg">
+								<div class="flex items-center gap-3 mb-3">
+									<div class="w-10 h-10 bg-secondary text-white rounded-full flex items-center justify-center font-extrabold">⚡</div>
+									<h4 class="text-lg font-bold text-black">Days, Not Months</h4>
+								</div>
+								<p class="text-sm text-black leading-relaxed">Complete fundraising rounds in days with streamlined digital processes. No roadshows or endless negotiations.</p>
+							</div>
+							
+							<div class="p-6 bg-light-gray rounded-lg">
+								<div class="flex items-center gap-3 mb-3">
+									<div class="w-10 h-10 bg-secondary text-white rounded-full flex items-center justify-center font-extrabold">⚙</div>
+									<h4 class="text-lg font-bold text-black">You're in Control</h4>
+								</div>
+								<p class="text-sm text-black leading-relaxed">Choose exactly which assets to tokenize and what percentage to offer. Maintain full operational control.</p>
+							</div>
+							
+							<div class="p-6 bg-light-gray rounded-lg">
+								<div class="flex items-center gap-3 mb-3">
+									<div class="w-10 h-10 bg-secondary text-white rounded-full flex items-center justify-center font-extrabold">-$</div>
+									<h4 class="text-lg font-bold text-black">Cut the Middleman</h4>
+								</div>
+								<p class="text-sm text-black leading-relaxed">Save 80-90% compared to traditional investment banking fees. More capital for your projects.</p>
+							</div>
+							
+							<div class="p-6 bg-light-gray rounded-lg md:col-span-2 lg:col-span-1">
+								<div class="flex items-center gap-3 mb-3">
+									<div class="w-10 h-10 bg-secondary text-white rounded-full flex items-center justify-center font-extrabold">=</div>
+									<h4 class="text-lg font-bold text-black">Keep Your Equity</h4>
+								</div>
+								<p class="text-sm text-black leading-relaxed">Non-dilutive financing preserves your ownership stake while providing growth capital.</p>
+							</div>
+						</div>
+					</div>
+				{/if}
+			</div>
+		</div>
+	</ContentSection>
+
+	<!-- Founding Heritage Section -->
 	<ContentSection background="gray" padding="standard" centered>
-		<SectionTitle level="h2" size="section" center className="mb-12">Platform Benefits</SectionTitle>
-		
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+		<SectionTitle level="h2" size="section" center className="mb-8">Leadership Team Highlights</SectionTitle>
+
+		<!-- Brand Experience Icons -->
+		<div class="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+			<Card hoverable={false} paddingClass="p-4" roundedClass="rounded-lg">
 				<div class="text-center">
-					<div class="text-5xl mb-4">🔒</div>
-					<SectionTitle level="h3" size="small" uppercase>Institutional Grade</SectionTitle>
-					<p class="text-sm text-black">All assets are vetted by professional operators with proven track records and regulatory compliance.</p>
+					<div class="w-full h-20 flex items-center justify-center mx-auto mb-3">
+						<img src="/images/google-logo.png" alt="Google" class="h-16 w-auto object-contain" />
+					</div>
+					<p class="text-xs text-gray-600">Led special projects and high impact initiatives</p>
 				</div>
 			</Card>
 			
-			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+			<Card hoverable={false} paddingClass="p-4" roundedClass="rounded-lg">
 				<div class="text-center">
-					<div class="text-5xl mb-4">💰</div>
-					<SectionTitle level="h3" size="small" uppercase>Direct Revenue Share</SectionTitle>
-					<p class="text-sm text-black">Token holders receive proportional revenue from real oil & gas production with transparent accounting.</p>
+					<div class="w-full h-20 flex items-center justify-center mx-auto mb-3">
+						<img src="/images/virgin-logo.png" alt="Virgin" class="h-16 w-auto object-contain" />
+					</div>
+					<p class="text-xs text-gray-600">Led special projects and high impact initiatives</p>
 				</div>
 			</Card>
 			
-			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+			<Card hoverable={false} paddingClass="p-4" roundedClass="rounded-lg">
 				<div class="text-center">
-					<div class="text-5xl mb-4">📊</div>
-					<SectionTitle level="h3" size="small" uppercase>Real-Time Transparency</SectionTitle>
-					<p class="text-sm text-black">Live production data, financial reporting, and market metrics provide complete investment visibility.</p>
+					<div class="w-full h-20 flex items-center justify-center mx-auto mb-3">
+						<img src="/images/holochain-logo.svg" alt="Holochain" class="h-20 w-auto object-contain" />
+					</div>
+					<p class="text-xs text-gray-600">Co-Founded</p>
 				</div>
 			</Card>
 			
-			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
+			<Card hoverable={false} paddingClass="p-2" roundedClass="rounded-lg">
 				<div class="text-center">
-					<div class="text-5xl mb-4">🌐</div>
-					<SectionTitle level="h3" size="small" uppercase>Global Access</SectionTitle>
-					<p class="text-sm text-black">Blockchain technology enables worldwide access to premium energy investments previously reserved for institutions.</p>
+					<div class="w-full h-24 flex items-center justify-center mx-auto mb-2">
+						<img src="/images/heritage-oil-logo.svg" alt="Heritage Oil" class="h-24 w-auto object-contain" />
+					</div>
+					<p class="text-xs text-gray-600">US$1.6Bn Sale to Qatar (2014)</p>
 				</div>
 			</Card>
 		</div>
 	</ContentSection>
 
-	<!-- Team Section -->
+	<!-- Core Expertise Section -->
 	<ContentSection background="white" padding="standard" centered>
-			<SectionTitle level="h2" size="section" center className="mb-12">Leadership Team</SectionTitle>
-			
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
-					<div class="text-center">
-						<div class="w-20 h-20 bg-secondary text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-4">JD</div>
-						<SectionTitle level="h3" size="small" uppercase className="mb-2">John Doe</SectionTitle>
-						<p class="text-sm text-primary font-semibold mb-4">CEO & Founder</p>
-						<p class="text-sm text-black">Former energy sector executive with 15+ years experience in oil & gas operations and financial markets.</p>
-					</div>
-				</Card>
-				
-				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
-					<div class="text-center">
-						<div class="w-20 h-20 bg-secondary text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-4">JS</div>
-						<SectionTitle level="h3" size="small" uppercase className="mb-2">Jane Smith</SectionTitle>
-						<p class="text-sm text-primary font-semibold mb-4">CTO</p>
-						<p class="text-sm text-black">Blockchain technology expert specializing in smart contract development and decentralized finance protocols.</p>
-					</div>
-				</Card>
-				
-				<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
-					<div class="text-center">
-						<div class="w-20 h-20 bg-secondary text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-4">MB</div>
-						<SectionTitle level="h3" size="small" uppercase className="mb-2">Mike Brown</SectionTitle>
-						<p class="text-sm text-primary font-semibold mb-4">Head of Operations</p>
-						<p class="text-sm text-black">Petroleum engineer with extensive experience in asset evaluation, production optimization, and regulatory compliance.</p>
-					</div>
-				</Card>
-		</div>
-	</ContentSection>
-
-	<!-- Company Stats -->
-	<ContentSection background="secondary" padding="standard" centered>
-		<SectionTitle level="h2" size="section" center className="mb-12 text-white">Platform Statistics</SectionTitle>
+		<SectionTitle level="h2" size="section" center className="mb-12">The Albion Advantage</SectionTitle>
 		
-		<div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
-			{#if loading}
-				<div class="text-center py-8 col-span-full">Loading statistics...</div>
-			{:else}
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
 				<div class="text-center">
-					<div class="text-4xl font-extrabold text-primary mb-2">{platformStats.totalInvestmentVolume?.formatted || 'N/A'}</div>
-					<div class="text-sm font-semibold opacity-90">Total Investment Volume</div>
+					<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-4">1</div>
+					<SectionTitle level="h3" size="small" uppercase>Digital Innovation</SectionTitle>
+					<p class="text-sm text-black">Pioneers in digital transformation and blockchain-based smart contract systems.</p>
 				</div>
+			</Card>
+			
+			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
 				<div class="text-center">
-					<div class="text-4xl font-extrabold text-primary mb-2">{platformStats.activeInvestors?.formatted || 'N/A'}</div>
-					<div class="text-sm font-semibold opacity-90">Active Investors</div>
+					<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-4">2</div>
+					<SectionTitle level="h3" size="small" uppercase>Energy Expertise</SectionTitle>
+					<p class="text-sm text-black">Deep understanding of energy markets and real-world asset management, rooted in the original "landman" tradition.</p>
 				</div>
+			</Card>
+			
+			<Card hoverable={false} paddingClass="p-8" roundedClass="rounded-lg">
 				<div class="text-center">
-					<div class="text-4xl font-extrabold text-primary mb-2">{platformStats.activeAssets?.formatted || 'N/A'}</div>
-					<div class="text-sm font-semibold opacity-90">Active Assets</div>
+					<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-4">3</div>
+					<SectionTitle level="h3" size="small" uppercase>Value Creation</SectionTitle>
+					<p class="text-sm text-black">Proven track record in building and exiting successful ventures</p>
 				</div>
-				<div class="text-center">
-					<div class="text-4xl font-extrabold text-primary mb-2">{platformStats.averagePayout?.formatted || 'N/A'}</div>
-					<div class="text-sm font-semibold opacity-90">Average Payout</div>
-				</div>
-			{/if}
+			</Card>
 		</div>
 	</ContentSection>
 
 	<!-- Contact CTA -->
 	<ContentSection background="white" padding="standard" centered>
-			<SectionTitle level="h2" size="section" center className="mb-4">Ready to Start Investing?</SectionTitle>
-			<p class="text-lg text-black mb-8">Join thousands of investors earning from institutional-grade energy assets.</p>
+			<SectionTitle level="h2" size="section" center className="mb-4">Join us in transforming energy investing</SectionTitle>
+			<p class="text-lg text-black mb-8">Be part of the next generation of energy investment infrastructure.</p>
 			<div class="flex md:flex-row flex-col gap-4 justify-center items-center">
-				<PrimaryButton href="/assets" size="large">Browse Assets</PrimaryButton>
-				<SecondaryButton href="/contact" size="large">Contact Us</SecondaryButton>
+				<PrimaryButton href="/assets" size="large">Explore Investments</PrimaryButton>
+				<SecondaryButton href="/contact" size="large">Partner with Us</SecondaryButton>
 		</div>
 	</ContentSection>
 </PageLayout>

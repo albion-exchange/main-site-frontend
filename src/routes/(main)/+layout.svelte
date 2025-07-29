@@ -4,8 +4,8 @@
 	import { getSftMetadata } from '$lib/queries/getSftMetadata';
 	import { getSfts } from '$lib/queries/getSfts';
 	import { sftMetadata, sfts } from '$lib/stores';
+	import { onMount } from 'svelte';
 	import { web3Modal, signerAddress, connected, loading, disconnectWagmi } from 'svelte-wagmi';
-	import { PrimaryButton, SecondaryButton } from '$lib/components/components';
 	import { formatAddress } from '$lib/utils/formatters';
 	import { slide } from 'svelte/transition';
 	
@@ -31,6 +31,27 @@
 	function closeMobileMenu() {
 		mobileMenuOpen = false;
 	}
+	
+	function handleSubscribeFormSubmit() {
+		// Store the current page path before form submission
+		sessionStorage.setItem('lastPageBeforeSubscribe', $page.url.pathname + $page.url.search);
+		// The form will handle the actual submission
+	}
+	
+	onMount(() => {
+		// Add event listener to the form
+		const form = document.getElementById('mc-embedded-subscribe-form');
+		if (form) {
+			form.addEventListener('submit', handleSubscribeFormSubmit);
+		}
+		
+		// Cleanup
+		return () => {
+			if (form) {
+				form.removeEventListener('submit', handleSubscribeFormSubmit);
+			}
+		};
+	});
 
 	$: query = createQuery({
 		queryKey: ['getSftMetadata'],
@@ -58,9 +79,6 @@
 	$: navContainerClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 sm:h-20 lg:h-24';
 	$: logoClasses = 'flex items-center gap-1';
 	$: logoImageClasses = 'h-12 sm:h-14 lg:h-16 w-auto';
-	$: mobileMenuButtonClasses = 'md:hidden bg-transparent border-none cursor-pointer p-2 z-[101] touch-target';
-	$: hamburgerClasses = 'block w-6 h-0.5 bg-black transition-all duration-300 ease-out relative';
-	$: hamburgerOpenClasses = 'bg-transparent';
 	$: desktopNavClasses = 'hidden md:flex';
 	$: navLinksClasses = 'flex gap-6 lg:gap-8 items-center';
 	$: navLinkClasses = 'text-black no-underline font-medium py-2 relative transition-colors duration-200 hover:text-primary touch-target text-sm lg:text-base';
@@ -69,7 +87,6 @@
 	$: mobileNavLinksClasses = 'flex flex-col p-0 gap-0';
 	$: mobileNavLinkClasses = 'text-black no-underline font-medium py-4 px-4 sm:px-6 border-b border-light-gray transition-colors duration-200 last:border-b-0 hover:text-primary hover:bg-light-gray touch-target text-base';
 	$: mobileNavLinkActiveClasses = 'text-primary bg-light-gray';
-	$: mobileNavActionsClasses = 'p-4 sm:p-6 border-t border-light-gray bg-light-gray';
 	$: mainContentClasses = 'flex-1';
 	$: footerClasses = 'bg-light-gray mt-8 sm:mt-12 lg:mt-16';
 	$: footerContainerClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 lg:pt-12 pb-4';
@@ -86,8 +103,6 @@
 	$: footerSocialLinkedinClasses = 'hover:border-[#0077b5] hover:text-[#0077b5]';
 	$: footerSocialTelegramClasses = 'hover:border-[#0088cc] hover:text-[#0088cc]';
 	$: footerSocialDiscordClasses = 'hover:border-[#5865f2] hover:text-[#5865f2]';
-	$: footerBottomClasses = 'pt-6 sm:pt-8 border-t border-white text-center';
-	$: footerBottomPClasses = 'text-black text-xs sm:text-sm';
 </script>
 
 <div class={appClasses}>
@@ -179,13 +194,12 @@
 
 				<!-- Middle Column: Newsletter & Social -->
 				<div class="flex flex-col lg:order-2">
-					<h4 class={footerSectionH4Classes}>Sign up for the Newsletter</h4>
-					<p class={footerSectionPClasses}>Get the latest updates on new token releases and platform news</p>
+					<h4 class={footerSectionH4Classes}>Sign up updates</h4>
 					
 					<!-- MailChimp Newsletter Signup Form -->
 					<div id="mc_embed_signup" class="mt-4">
 						<form action="https://exchange.us7.list-manage.com/subscribe/post?u=f3b19322aa5fe51455b292838&amp;id=6eaaa49162&amp;f_id=00fd53e0f0" 
-							  method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_self" novalidate="">
+							  method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_self" novalidate>
 							<div id="mc_embed_signup_scroll" class="flex gap-2">
 								<input type="email" value="" name="EMAIL" 
 									   placeholder="Enter email address"

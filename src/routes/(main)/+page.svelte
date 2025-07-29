@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
 	import { usePlatformStats } from '$lib/composables/usePlatformStats';
 	import FeaturedTokenCarousel from '$lib/components/patterns/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/patterns/TokenPurchaseWidget.svelte';
-	import { PrimaryButton, SecondaryButton, StatsCard, ButtonGroup } from '$lib/components/components';
+	import { PrimaryButton, SecondaryButton, StatsCard } from '$lib/components/components';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
-	import GridContainer from '$lib/components/components/GridContainer.svelte';
-	import { PageLayout, HeroSection, ContentSection, StatsSection } from '$lib/components/layout';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	import { marketDataService, type MarketData } from '$lib/services/MarketDataService';
 
 	// Composables
@@ -58,15 +56,15 @@
 </script>
 
 <svelte:head>
-	<title>Albion - Institutional Grade Oil & Gas DeFi</title>
-	<meta name="description" content="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality oil & gas investments through blockchain technology." />
+	<title>Albion - Institutional Grade Energy DeFi</title>
+	<meta name="description" content="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality energy investments through blockchain technology." />
 </svelte:head>
 
 <PageLayout>
 	<!-- Hero Section -->
 	<HeroSection 
-		title="Institutional Grade Oil & Gas DeFi"
-		subtitle="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality oil & gas investments through blockchain technology."
+		title="Institutional Grade Energy DeFi"
+		subtitle="Real-world energy assets. Tokenized ownership. Transparent operations. Access institutional-quality energy investments through blockchain technology."
 		showBorder={true}
 		showButtons={false}
 	>
@@ -134,7 +132,7 @@
 	<ContentSection background="gray" padding="compact" centered className="block sm:hidden">
 		<div class="text-center">
 			<SectionTitle level="h2" size="section" className="mb-4">Ready to Start?</SectionTitle>
-			<p class="text-sm text-black mb-6">Browse available oil & gas investments and start earning from energy assets.</p>
+			<p class="text-sm text-black mb-6">Browse available investment opportunities and start earning from energy assets.</p>
 			<PrimaryButton href="/assets" fullWidth>View All Investments</PrimaryButton>
 		</div>
 	</ContentSection>
@@ -147,74 +145,92 @@
 			<div class="text-center">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">1</div>
 				<SectionTitle level="h3" size="small" className="mb-4">Browse Assets</SectionTitle>
-				<p class="text-sm sm:text-base text-black">Explore vetted oil & gas assets with transparent production data, geological reports, and comprehensive performance metrics from institutional operators.</p>
+				<p class="text-sm sm:text-base text-black">Explore energy assets with transparent production and revenue data from established operators.</p>
 			</div>
 			
 			<div class="text-center">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">2</div>
 				<SectionTitle level="h3" size="small" className="mb-4">Buy Tokens</SectionTitle>
-				<p class="text-sm sm:text-base text-black">Purchase royalty tokens using our smart payment system with automatic collateral management and instant settlement.</p>
+				<p class="text-sm sm:text-base text-black">Purchase smart contract-powered royalty tokens entitling you to a share of real energy asset revenue.</p>
 			</div>
 			
 			<div class="text-center sm:col-span-2 lg:col-span-1">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">3</div>
-				<SectionTitle level="h3" size="small" className="mb-4">Earn Payout</SectionTitle>
-				<p class="text-sm sm:text-base text-black">Receive proportional revenue from real oil & gas production directly to your wallet. Monthly payouts, transparent accounting.</p>
+				<SectionTitle level="h3" size="small" className="mb-4">Earn Revenue Payouts</SectionTitle>
+				<p class="text-sm sm:text-base text-black">Receive regular stablecoin distributions directly to your wallet. Transparent payouts and accounting.</p>
 			</div>
 		</div>
 	</ContentSection>
 
 	<!-- Trust Indicators - Hidden on mobile -->
 	<ContentSection background="white" padding="standard" centered className="hidden lg:block">
-		<SectionTitle level="h2" size="section" center className="mb-6 lg:mb-8">Why Choose Albion</SectionTitle>
+		<SectionTitle level="h2" size="section" center className="mb-6 lg:mb-8">Built for Trust & Performance</SectionTitle>
 		<div class="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
 			<div class="flex flex-col items-center text-center">
-				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-12 h-12 lg:w-16 lg:h-16 relative">
-					<svg width="32" height="32" class="lg:w-12 lg:h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M24 2L30 14H42L32 22L36 34L24 26L12 34L16 22L6 14H18L24 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-						<circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="2"/>
+				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 relative">
+					<!-- Shield with checkmark for regulation -->
+					<svg width="48" height="48" class="lg:w-16 lg:h-16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M24 4L8 12V24C8 33 13 41 24 44C35 41 40 33 40 24V12L24 4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+						<path d="M16 24L21 29L32 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
 				</div>
-				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">SEC Compliant</SectionTitle>
-				<p class="text-xs text-black opacity-70">Full regulatory compliance</p>
+				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Germany Regulated</SectionTitle>
+				<p class="text-xs text-black opacity-70">Full regulatory compliance with EU laws</p>
 			</div>
 			
 			<div class="flex flex-col items-center text-center">
-				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-12 h-12 lg:w-16 lg:h-16 relative">
-					<svg width="32" height="32" class="lg:w-12 lg:h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M20 28L28 20M20 28L16 32L20 28ZM28 20L32 16L28 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
-						<path d="M15 24C15 24 18 30 24 30C30 30 33 24 33 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 relative">
+					<!-- Energy production assets - wind turbine, solar panel, and oil derrick -->
+					<svg width="48" height="48" class="lg:w-16 lg:h-16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<!-- Wind turbine (left) -->
+						<path d="M8 44V28" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<circle cx="8" cy="28" r="1.5" stroke="currentColor" stroke-width="2"/>
+						<path d="M8 28L8 22M8 28L14 34M8 28L2 34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						
+						<!-- Solar panel (angled/perspective view) -->
+						<path d="M16 36L32 32L32 38L16 42Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+						<path d="M20 35L20 41M24 34L24 40M28 33L28 39" stroke="currentColor" stroke-width="2"/>
+						<path d="M24 38V44" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						
+						<!-- Oil derrick - trapezoid structure (right) -->
+						<path d="M36 44L38 16L44 16L46 44" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+						<path d="M38.5 24H43.5M37.5 32H44.5M36.5 40H45.5" stroke="currentColor" stroke-width="2"/>
+						<path d="M41 16V12M41 12V44" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<path d="M38 12H44" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 					</svg>
 				</div>
-				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Audited Assets</SectionTitle>
-				<p class="text-xs text-black opacity-70">Third-party verified</p>
+				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Real Assets</SectionTitle>
+				<p class="text-xs text-black opacity-70">Binding legal and contractual claims to real energy revenue</p>
 			</div>
 			
 			<div class="flex flex-col items-center text-center">
-				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-12 h-12 lg:w-16 lg:h-16 relative">
-					<svg width="32" height="32" class="lg:w-12 lg:h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<rect x="8" y="12" width="32" height="28" stroke="currentColor" stroke-width="2"/>
-						<path d="M8 20H40" stroke="currentColor" stroke-width="2"/>
-						<path d="M16 8V12M32 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-						<path d="M16 28H24M16 32H32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 relative">
+					<!-- Tall buildings/skyline for institutional -->
+					<svg width="48" height="48" class="lg:w-16 lg:h-16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M8 44H40" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<path d="M16 44V12H32V44" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+						<path d="M8 44V24H16" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+						<path d="M32 44V20H40V44" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+						<path d="M20 16H24M24 16H28M20 20H24M24 20H28M20 24H24M24 24H28M20 28H24M24 28H28M20 32H24M24 32H28M20 36H24M24 36H28M20 40H24M24 40H28" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<path d="M12 28V30M12 32V34M12 36V38M12 40V42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<path d="M36 24V26M36 28V30M36 32V34M36 36V38M36 40V42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 					</svg>
 				</div>
 				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Institutional Grade</SectionTitle>
-				<p class="text-xs text-black opacity-70">Professional operators</p>
+				<p class="text-xs text-black opacity-70">Revenue from established energy companies</p>
 			</div>
 			
 			<div class="flex flex-col items-center text-center">
-				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-12 h-12 lg:w-16 lg:h-16 relative">
-					<svg width="32" height="32" class="lg:w-12 lg:h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
-						<path d="M24 24L32 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-						<circle cx="24" cy="24" r="3" fill="currentColor"/>
-						<path d="M12 28L16 24L20 26L28 20L36 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 relative">
+					<!-- Eye icon for transparency -->
+					<svg width="48" height="48" class="lg:w-16 lg:h-16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M24 14C14 14 6 24 6 24C6 24 14 34 24 34C34 34 42 24 42 24C42 24 34 14 24 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						<circle cx="24" cy="24" r="6" stroke="currentColor" stroke-width="2"/>
+						<circle cx="24" cy="24" r="2" fill="currentColor"/>
 					</svg>
 				</div>
 				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Transparent</SectionTitle>
-				<p class="text-xs text-black opacity-70">Real-time reporting</p>
+				<p class="text-xs text-black opacity-70">All revenue flows recorded on-chain with real-time payout tracking and public audit trails</p>
 			</div>
 		</div>
 	</ContentSection>
@@ -244,8 +260,8 @@
 						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
 							<span>WTI Crude Oil</span>
 							<span class="text-primary font-extrabold">
-								{marketData.oilPrices.wti.price > 0 ? `$${marketDataService.formatPrice(marketData.oilPrices.wti.price)}` : 'N/A'}
-								{#if marketData.oilPrices.wti.change !== 0}
+								{marketData.oilPrices.wti.price > 0 ? `US$${marketDataService.formatPrice(marketData.oilPrices.wti.price)}` : 'N/A'}
+								{#if marketData.oilPrices.wti.price > 0}
 									<span class="text-xs font-semibold ml-2 {marketData.oilPrices.wti.change >= 0 ? 'text-primary' : 'text-red-500'}">
 										{marketDataService.formatChange(marketData.oilPrices.wti.change)}
 									</span>
@@ -255,8 +271,8 @@
 						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
 							<span>Brent Crude</span>
 							<span class="text-primary font-extrabold">
-								{marketData.oilPrices.brent.price > 0 ? `$${marketDataService.formatPrice(marketData.oilPrices.brent.price)}` : 'N/A'}
-								{#if marketData.oilPrices.brent.change !== 0}
+								{marketData.oilPrices.brent.price > 0 ? `US$${marketDataService.formatPrice(marketData.oilPrices.brent.price)}` : 'N/A'}
+								{#if marketData.oilPrices.brent.price > 0}
 									<span class="text-xs font-semibold ml-2 {marketData.oilPrices.brent.change >= 0 ? 'text-primary' : 'text-red-500'}">
 										{marketDataService.formatChange(marketData.oilPrices.brent.change)}
 									</span>
@@ -266,8 +282,8 @@
 						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
 							<span>Henry Hub Natural Gas</span>
 							<span class="text-primary font-extrabold">
-								{marketData.oilPrices.naturalGas.price > 0 ? `$${marketDataService.formatPrice(marketData.oilPrices.naturalGas.price)}` : 'N/A'}
-								{#if marketData.oilPrices.naturalGas.change !== 0}
+								{marketData.oilPrices.naturalGas.price > 0 ? `US$${marketDataService.formatPrice(marketData.oilPrices.naturalGas.price)}` : 'N/A'}
+								{#if marketData.oilPrices.naturalGas.price > 0}
 									<span class="text-xs font-semibold ml-2 {marketData.oilPrices.naturalGas.change >= 0 ? 'text-primary' : 'text-red-500'}">
 										{marketDataService.formatChange(marketData.oilPrices.naturalGas.change)}
 									</span>
@@ -299,7 +315,7 @@
 			
 			<div class="text-center p-8 lg:p-12 bg-white/10 border border-white/20">
 				<h4 class="text-xl lg:text-2xl font-extrabold mb-3 lg:mb-4 text-white">Start Investing Today</h4>
-				<p class="mb-6 lg:mb-8 opacity-90 text-sm lg:text-base">Join {$sftsFormattedStats.activeInvestors} investors earning from energy assets</p>
+				<p class="mb-6 lg:mb-8 opacity-90 text-sm lg:text-base">Join {$sftsFormattedStats.activeInvestors} investors earning from real energy assets</p>
 				<SecondaryButton href="/assets">Get Started Now</SecondaryButton>
 			</div>
 		</div>

@@ -143,7 +143,7 @@ class AssetService {
 
     // Get receiptsData from the first token's asset data (should be the same for all tokens of the same asset)
     if (tokens.length > 0 && tokens[0].asset.receiptsData) {
-      return tokens[0].asset.receiptsData.sort((a, b) =>
+      return tokens[0].asset.receiptsData.sort((a: any, b: any) =>
         a.month.localeCompare(b.month),
       );
     }

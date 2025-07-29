@@ -12,7 +12,6 @@
 	export let valueSuffix: string = '';
 	export let title: string = '';
 	export let showValues: boolean = false;
-	export let animate: boolean = true;
 	export let showGrid: boolean = true;
 	export let series1Name: string = '';
 	export let series2Name: string = '';
