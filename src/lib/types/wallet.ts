@@ -27,7 +27,7 @@ export interface PayoutsSummary {
 }
 
 export interface WalletHolding {
-  assetId: string;
+  energyField: string; // Energy field name from ENERGY_FIELDS
   assetName: string;
   contractAddress: string;
   symbol: string;
@@ -43,7 +43,7 @@ export interface WalletHolding {
 }
 
 export interface PortfolioAllocation {
-  assetId: string;
+  energyField: string; // Energy field name from ENERGY_FIELDS
   assetName: string;
   percentage: number;
   value: number;
@@ -98,7 +98,7 @@ export interface WalletData {
 // Additional utility types for the service
 
 export interface AssetPayoutInfo {
-  assetId: string;
+  energyField: string; // Energy field name from ENERGY_FIELDS
   assetName: string;
   totalInvested: number;
   totalEarned: number;
@@ -129,7 +129,7 @@ export interface WalletMetrics {
 
 export interface TokenAllocation {
   tokenSymbol: string;
-  assetId: string;
+  energyField: string; // Energy field name from ENERGY_FIELDS
   assetName: string;
   tokensOwned: number;
   percentageOfPortfolio: number;

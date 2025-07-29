@@ -17,6 +17,7 @@ import type {
 import assetService from "./AssetService";
 import tokenService from "./TokenService";
 import type { Asset, Token } from "$lib/types/uiTypes";
+import { ENERGY_FIELDS } from "$lib/network";
 
 // Import mock wallet data
 import walletDataJson from "$lib/data/mockWallet/wallet.json";
@@ -105,15 +106,29 @@ class WalletDataService {
     this.rawData.transactions
       .filter((tx) => tx.type === "mint")
       .forEach((tx) => {
-        const token = this.tokenService.getTokenByAddress(tx.address);
-        if (token) {
-          const asset = this.assetService.getAssetById(token.assetId);
-          if (
-            asset &&
-            (asset.production.status === "producing" ||
-              asset.production.status === "funding")
-          ) {
-            activeAssets.add(token.assetId);
+        // Find which energy field this token belongs to
+        const energyField = ENERGY_FIELDS.find(field =>
+          field.sftTokens.some(tokenAddr => 
+            tokenAddr.toLowerCase() === tx.address.toLowerCase()
+          )
+        );
+        
+        if (energyField) {
+          const token = this.tokenService.getTokenByAddress(tx.address);
+          if (token) {
+            // Use the energy field name as the asset identifier
+            const assetId = energyField.name
+              .toLowerCase()
+              .replace(/\s+/g, "-")
+              .replace(/[^a-z0-9-]/g, "");
+            const asset = this.assetService.getAssetById(assetId);
+            if (
+              asset &&
+              (asset.production.status === "producing" ||
+                asset.production.status === "funding")
+            ) {
+              activeAssets.add(energyField.name);
+            }
           }
         }
       });
@@ -168,9 +183,26 @@ class WalletDataService {
         return;
       }
 
-      const asset = this.assetService.getAssetById(token.assetId);
+      // Find which energy field this token belongs to
+      const energyField = ENERGY_FIELDS.find(field =>
+        field.sftTokens.some(tokenAddr => 
+          tokenAddr.toLowerCase() === contractAddress.toLowerCase()
+        )
+      );
+      
+      if (!energyField) {
+        console.warn(`Energy field not found for contract address: ${contractAddress}`);
+        return;
+      }
+      
+      // Use the energy field name to get the asset
+      const assetId = energyField.name
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+      const asset = this.assetService.getAssetById(assetId);
       if (!asset) {
-        console.warn(`Asset not found for token assetId: ${token.assetId}`);
+        console.warn(`Asset not found for energy field: ${energyField.name}`);
         return;
       }
 
@@ -268,7 +300,7 @@ class WalletDataService {
         monthlyPayouts[monthlyPayouts.length - 1] || 0;
 
       holdings.push({
-        assetId: token.assetId,
+        energyField: energyField.name, // Energy field name from ENERGY_FIELDS
         assetName: asset.name,
         contractAddress,
         symbol: token.symbol,
@@ -342,7 +374,7 @@ class WalletDataService {
 
     // Calculate portfolio allocation
     const portfolioAllocation = holdings.map((holding) => ({
-      assetId: holding.assetId,
+      energyField: holding.energyField,
       assetName: holding.assetName,
       percentage:
         totalInvested > 0
@@ -395,8 +427,8 @@ class WalletDataService {
           : 0;
 
       // Find last claim transaction for this asset
-      const token = this.tokenService.getTokensByAssetId(holding.assetId)[0];
-      const contractAddress = token?.contractAddress;
+      // Since holding already has contractAddress, we can use it directly
+      const contractAddress = holding.contractAddress;
       const lastClaim = contractAddress
         ? this.rawData.transactions
             .filter(
@@ -410,7 +442,7 @@ class WalletDataService {
         : null;
 
       return {
-        assetId: holding.assetId,
+        energyField: holding.energyField,
         assetName: holding.assetName,
         totalInvested: holding.investmentAmount,
         totalEarned: holding.payoutsSummary.totalEarned,
@@ -490,8 +522,19 @@ class WalletDataService {
 
       const assetBreakdown = monthPayouts.map((payout) => {
         const token = this.tokenService.getTokenByAddress(payout.address);
-        const asset = token
-          ? this.assetService.getAssetById(token.assetId)
+        // Find energy field for this token
+        const energyField = ENERGY_FIELDS.find(field =>
+          field.sftTokens.some(tokenAddr => 
+            tokenAddr.toLowerCase() === payout.address.toLowerCase()
+          )
+        );
+        const asset = energyField
+          ? this.assetService.getAssetById(
+              energyField.name
+                .toLowerCase()
+                .replace(/\s+/g, "-")
+                .replace(/[^a-z0-9-]/g, "")
+            )
           : null;
 
         // Check if claimed
@@ -558,7 +601,7 @@ class WalletDataService {
 
         return {
           tokenSymbol: holding.symbol,
-          assetId: holding.assetId,
+          energyField: holding.energyField,
           assetName: holding.assetName,
           tokensOwned: holding.formattedBalance,
           percentageOfPortfolio: validPercentage,
@@ -684,7 +727,7 @@ class WalletDataService {
         );
 
         return {
-          assetId: holding.assetId,
+          energyField: holding.energyField,
           assetName: holding.assetName,
           contractAddress: holding.contractAddress,
           unclaimedPayouts,
@@ -736,7 +779,12 @@ class WalletDataService {
     const holdings = this.computeHoldings();
 
     return holdings.map((holding) => {
-      const asset = this.assetService.getAssetById(holding.assetId);
+      // Convert energy field name to asset ID format
+      const assetId = holding.energyField
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+      const asset = this.assetService.getAssetById(assetId);
       const token = this.tokenService.getTokenByAddress(
         holding.contractAddress,
       );
@@ -827,8 +875,19 @@ class WalletDataService {
 
     return claimTransactions.map((tx) => {
       const token = this.tokenService.getTokenByAddress(tx.address);
-      const asset = token
-        ? this.assetService.getAssetById(token.assetId)
+      // Find energy field for this token
+      const energyField = ENERGY_FIELDS.find(field =>
+        field.sftTokens.some(tokenAddr => 
+          tokenAddr.toLowerCase() === tx.address.toLowerCase()
+        )
+      );
+      const asset = energyField
+        ? this.assetService.getAssetById(
+            energyField.name
+              .toLowerCase()
+              .replace(/\s+/g, "-")
+              .replace(/[^a-z0-9-]/g, "")
+          )
         : null;
 
       return {

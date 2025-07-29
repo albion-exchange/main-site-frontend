@@ -8,7 +8,7 @@
 	import { formatCurrency, formatPercentage, formatNumber, formatSmartNumber } from '$lib/utils/formatters';
 	import { useTooltip, useCardFlip } from '$lib/composables';
     import { sftMetadata, sfts } from '$lib/stores';
-    import { ENERGY_FEILDS } from '$lib/network';
+    import { ENERGY_FIELDS } from '$lib/network';
     import { decodeOrder, getLeaf, getMerkleTree, getProofForLeaf, signContext, sortClaimsData, type ClaimHistory } from '$lib/utils/claims';
     import { getTradesForClaims } from '$lib/queries/getTrades';
     import { getOrder } from '$lib/queries/getOrder';
@@ -125,7 +125,7 @@
 
 	async function loadAllClaimsData() {
 		// Process each individual SFT token instead of grouping by energy fields
-		for (const field of ENERGY_FEILDS) {
+		for (const field of ENERGY_FIELDS) {
 			for (const token of field.sftTokens) {
 				if (token.claims && token.claims.length > 0) {
 					for (const claim of token.claims) {
@@ -334,10 +334,10 @@
 					
 					// Calculate payouts from CSV data for this specific SFT
 					// The CSV data contains the actual payout amounts for each SFT
-					for (const field of ENERGY_FEILDS) {
+					for (const field of ENERGY_FIELDS) {
 						for (const token of field.sftTokens) {
 							if (token.address.toLowerCase() === sft.id.toLowerCase()) {
-								console.log('Found matching token in ENERGY_FEILDS:', token.address);
+								console.log('Found matching token in ENERGY_FIELDS:', token.address);
 								if (token.claims && token.claims.length > 0) {
 									console.log('Token has claims:', token.claims.length);
 									for (const claim of token.claims) {
@@ -430,7 +430,7 @@
 			const monthlyPayoutsMap = new Map();
 			
 			// Process CSV data for all SFTs to get actual payout amounts
-			for (const field of ENERGY_FEILDS) {
+			for (const field of ENERGY_FIELDS) {
 				for (const token of field.sftTokens) {
 					if (token.claims && token.claims.length > 0) {
 						for (const claim of token.claims) {

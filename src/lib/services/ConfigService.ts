@@ -21,7 +21,7 @@ import futureReleasesData from "$lib/data/futureReleases.json";
 
 export interface FutureRelease {
   id: string;
-  assetId: string;
+  energyField: string; // Energy field name from ENERGY_FIELDS
   whenRelease: string;
   description: string;
   emoji?: string;
@@ -48,16 +48,16 @@ class ConfigService {
   private transformFutureReleasesData(data: any): FutureRelease[] {
     const releases: FutureRelease[] = [];
 
-    // Iterate through assets
-    for (const [assetId, tokens] of Object.entries(data)) {
-      // Iterate through tokens for each asset
+    // Iterate through energy fields
+    for (const [energyField, tokens] of Object.entries(data)) {
+      // Iterate through tokens for each energy field
       for (const [tokenId, tokenReleases] of Object.entries(tokens as any)) {
         // Add each release with proper structure
         if (Array.isArray(tokenReleases)) {
           tokenReleases.forEach((release, index) => {
             releases.push({
-              id: `${assetId}-${tokenId}-${index}`,
-              assetId,
+              id: `${energyField}-${tokenId}-${index}`,
+              energyField,
               whenRelease: release.whenRelease,
               description: release.description,
               emoji: release.emoji,
@@ -89,11 +89,13 @@ class ConfigService {
   }
 
   /**
-   * Get future releases for a specific asset
+   * Get future releases for a specific energy field
    */
-  getFutureReleasesByAsset(assetId: string): FutureRelease[] {
+  getFutureReleasesByAsset(energyFieldOrAssetId: string): FutureRelease[] {
+    // Support both energy field names and URL-friendly asset IDs
     return this.config.futureReleases.filter(
-      (release) => release.assetId === assetId,
+      (release) => release.energyField === energyFieldOrAssetId ||
+                   release.energyField.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === energyFieldOrAssetId,
     );
   }
 

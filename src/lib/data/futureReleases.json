@@ -1,13 +1,5 @@
 {
-  "europa-wressle-release-1": {
-    "eur_wr4": [
-      {
-        "whenRelease": "Q2 2025",
-        "description": "Additional Wressle release"
-      }
-    ]
-  },
-  "bakken-horizon-field": {
+  "Bakken Horizon Field": {
     "bak_hf3": [
       {
         "whenRelease": "Q3 2025",
@@ -15,19 +7,19 @@
       }
     ]
   },
-  "permian-basin-venture": {
-    "per_bv2": [
-      {
-        "whenRelease": "Q4 2025",
-        "description": "Additional Permian release"
-      }
-    ]
-  },
-  "gulf-mexico-deep-water": {
-    "gom_dw2": [
+  "Gulf of Mexico-4": {
+    "gom_4": [
       {
         "whenRelease": "Q1 2026",
         "description": "Additional Gulf of Mexico release"
+      }
+    ]
+  },
+  "Permian Basin-3 Release 1": {
+    "per_b3": [
+      {
+        "whenRelease": "Q4 2025",
+        "description": "Additional Permian release"
       }
     ]
   }

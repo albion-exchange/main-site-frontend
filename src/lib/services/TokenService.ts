@@ -166,11 +166,15 @@ class TokenService {
     }
 
     // Get associated asset for calculations
-    const assetId = this.getAssetIdForToken(tokenAddress);
-    if (!assetId) {
+    const energyFieldName = this.getEnergyFieldForToken(tokenAddress);
+    if (!energyFieldName) {
       return null;
     }
 
+    const assetId = energyFieldName
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
     const asset = assetService.getAssetById(assetId);
     if (!asset) {
       return null;

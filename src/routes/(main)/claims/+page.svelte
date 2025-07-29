@@ -6,7 +6,7 @@
 	import { formatCurrency } from '$lib/utils/formatters';
 	import { dateUtils } from '$lib/utils/dateHelpers';
 	import { arrayUtils } from '$lib/utils/arrayHelpers';
-    import { ENERGY_FEILDS, type Claim } from '$lib/network';
+    import { ENERGY_FIELDS, type Claim } from '$lib/network';
     import { getTradesForClaims } from '$lib/queries/getTrades';
     import { decodeOrder, getLeaf, getMerkleTree, signContext, sortClaimsData, getProofForLeaf, type ClaimHistory, type ClaimSignedContext } from '$lib/utils/claims';
     import { formatEther, parseEther, type Hex } from 'viem';
@@ -75,7 +75,7 @@
 		}
 
 		async function loadAllClaimsData() {
-			for (const field of ENERGY_FEILDS) {
+			for (const field of ENERGY_FIELDS) {
 				for (const token of field.sftTokens) {
 					if (token.claims && token.claims.length > 0) {
 						for (const claim of token.claims) {

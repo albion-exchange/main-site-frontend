@@ -11,6 +11,7 @@ import {
   errorReporter,
 } from "$lib/utils/errorHandling";
 import type { Asset, Token } from "$lib/types/uiTypes";
+import { ENERGY_FIELDS } from "$lib/network";
 
 interface AssetDataState {
   asset: Asset | null;
@@ -22,7 +23,7 @@ interface AssetDataState {
 /**
  * Composable for managing asset data and related operations
  */
-export function useAssetData(assetId: string) {
+export function useAssetData(assetIdOrEnergyField: string) {
   const assetService = useAssetService();
   const tokenService = useTokenService();
 
@@ -39,6 +40,16 @@ export function useAssetData(assetId: string) {
     state.update((s) => ({ ...s, loading: true, error: null }));
 
     try {
+      // Check if this is an energy field name or an asset ID
+      const energyField = ENERGY_FIELDS.find(field => 
+        field.name === assetIdOrEnergyField ||
+        field.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === assetIdOrEnergyField
+      );
+      
+      const assetId = energyField 
+        ? energyField.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+        : assetIdOrEnergyField;
+        
       const asset = withSyncErrorHandling(
         () => assetService.getAssetById(assetId),
         { service: "AssetService", operation: "getAssetById" },
@@ -50,11 +61,13 @@ export function useAssetData(assetId: string) {
         throw error;
       }
 
-      const tokens =
-        withSyncErrorHandling(() => tokenService.getTokensByAssetId(assetId), {
-          service: "TokenService",
-          operation: "getTokensByAssetId",
-        }) || [];
+      // Get tokens by energy field name if available, otherwise empty array
+      const tokens = energyField
+        ? withSyncErrorHandling(() => tokenService.getTokensByEnergyField(energyField.name), {
+            service: "TokenService",
+            operation: "getTokensByEnergyField",
+          }) || []
+        : [];
 
       state.update((s) => ({
         ...s,
