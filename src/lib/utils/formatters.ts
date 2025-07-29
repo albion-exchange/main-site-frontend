@@ -37,20 +37,22 @@ export function formatCurrency(
   } = options;
 
   if (compact && Math.abs(amount) >= 1000000) {
-    return new Intl.NumberFormat('en-US', {
+    const formatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       notation: 'compact',
       maximumFractionDigits: 1
     }).format(amount);
+    return formatted.replace('$', 'US$');
   }
 
-  return new Intl.NumberFormat('en-US', {
+  const formatted = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits,
     maximumFractionDigits
   }).format(amount);
+  return formatted.replace('$', 'US$');
 }
 
 /**

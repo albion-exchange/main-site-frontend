@@ -573,7 +573,7 @@
 									<div class="text-center p-3 bg-white">
 										<div class="text-3xl font-extrabold text-black mb-1">
 											{#if latestReport?.netIncome !== undefined}
-												${latestReport.netIncome.toFixed(0)}
+												US${latestReport.netIncome.toFixed(0)}
 											{:else}
 												<span class="text-gray-400">N/A</span>
 											{/if}
@@ -584,7 +584,7 @@
 								<div class="text-center p-4 bg-white">
 									<div class="text-4xl font-extrabold text-black mb-2">
 										{#if avgRevenue > 0}
-											${avgRevenue.toFixed(0)}
+											US${avgRevenue.toFixed(0)}
 										{:else}
 											<span class="text-gray-400">N/A</span>
 										{/if}
@@ -800,7 +800,7 @@
 															role="button"
 															tabindex="0">ⓘ</span>
 													</span>
-													<span class="text-base font-extrabold text-black text-right">${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
+													<span class="text-base font-extrabold text-black text-right">US${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
 													{#if showTooltip === 'breakeven'}
 														<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
 															Oil price required to cover operational costs and maintain profitability
@@ -898,8 +898,8 @@
 													{#each tokenPayoutData.recentPayouts.slice(-6) as payout}
 														<div class="grid grid-cols-3 gap-2 text-sm">
 															<div class="text-left font-medium text-black">{payout.month}</div>
-															<div class="text-center font-semibold text-black">${payout.totalPayout.toLocaleString()}</div>
-															<div class="text-right font-semibold text-black">${payout.payoutPerToken.toFixed(5)}</div>
+															<div class="text-center font-semibold text-black">US${payout.totalPayout.toLocaleString()}</div>
+															<div class="text-right font-semibold text-black">US${payout.payoutPerToken.toFixed(5)}</div>
 														</div>
 													{/each}
 												</div>
@@ -907,8 +907,8 @@
 												<div class="mt-auto">
 													<div class="grid grid-cols-3 gap-2 text-sm font-extrabold">
 														<div class="text-left text-black">Total</div>
-														<div class="text-center text-black">${tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.totalPayout, 0).toLocaleString()}</div>
-														<div class="text-right text-black">${(tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.payoutPerToken, 0)).toFixed(5)}</div>
+														<div class="text-center text-black">US${tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.totalPayout, 0).toLocaleString()}</div>
+														<div class="text-right text-black">US${(tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.payoutPerToken, 0)).toFixed(5)}</div>
 													</div>
 												</div>
 											</div>

@@ -79,7 +79,7 @@
 									<div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-extrabold">$</div>
 									<h4 class="text-lg font-bold text-black">Start Small, Think Big</h4>
 								</div>
-								<p class="text-sm text-black leading-relaxed">Diversify your portfolio with energy assets starting from just $1. No accredited investor requirements or minimum investment barriers.</p>
+								<p class="text-sm text-black leading-relaxed">Diversify your portfolio with energy assets starting from just US$1. No accredited investor requirements or minimum investment barriers.</p>
 							</div>
 							
 							<div class="p-6 bg-light-gray rounded-lg">

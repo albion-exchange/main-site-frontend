@@ -242,7 +242,7 @@
 						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
 							<span>WTI Crude Oil</span>
 							<span class="text-primary font-extrabold">
-								{marketData.oilPrices.wti.price > 0 ? `$${marketDataService.formatPrice(marketData.oilPrices.wti.price)}` : 'N/A'}
+								{marketData.oilPrices.wti.price > 0 ? `US$${marketDataService.formatPrice(marketData.oilPrices.wti.price)}` : 'N/A'}
 								{#if marketData.oilPrices.wti.price > 0}
 									<span class="text-xs font-semibold ml-2 {marketData.oilPrices.wti.change >= 0 ? 'text-primary' : 'text-red-500'}">
 										{marketDataService.formatChange(marketData.oilPrices.wti.change)}
@@ -253,7 +253,7 @@
 						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
 							<span>Brent Crude</span>
 							<span class="text-primary font-extrabold">
-								{marketData.oilPrices.brent.price > 0 ? `$${marketDataService.formatPrice(marketData.oilPrices.brent.price)}` : 'N/A'}
+								{marketData.oilPrices.brent.price > 0 ? `US$${marketDataService.formatPrice(marketData.oilPrices.brent.price)}` : 'N/A'}
 								{#if marketData.oilPrices.brent.price > 0}
 									<span class="text-xs font-semibold ml-2 {marketData.oilPrices.brent.change >= 0 ? 'text-primary' : 'text-red-500'}">
 										{marketDataService.formatChange(marketData.oilPrices.brent.change)}
@@ -264,7 +264,7 @@
 						<div class="flex justify-between items-center font-semibold text-sm lg:text-base">
 							<span>Henry Hub Natural Gas</span>
 							<span class="text-primary font-extrabold">
-								{marketData.oilPrices.naturalGas.price > 0 ? `$${marketDataService.formatPrice(marketData.oilPrices.naturalGas.price)}` : 'N/A'}
+								{marketData.oilPrices.naturalGas.price > 0 ? `US$${marketDataService.formatPrice(marketData.oilPrices.naturalGas.price)}` : 'N/A'}
 								{#if marketData.oilPrices.naturalGas.price > 0}
 									<span class="text-xs font-semibold ml-2 {marketData.oilPrices.naturalGas.change >= 0 ? 'text-primary' : 'text-red-500'}">
 										{marketDataService.formatChange(marketData.oilPrices.naturalGas.change)}
