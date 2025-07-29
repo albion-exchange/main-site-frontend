@@ -43,7 +43,13 @@
 		if (!success) {
 			// Fallback to copying link if Web Share API fails
 			try {
-				await copyToClipboard(shareData.url);
+				// Add UTM parameters for mobile share fallback
+				const urlObj = new URL(shareData.url);
+				urlObj.searchParams.set('utm_source', 'mobile');
+				urlObj.searchParams.set('utm_medium', 'mobile_share');
+				urlObj.searchParams.set('utm_campaign', 'asset_sharing');
+				urlObj.searchParams.set('utm_content', 'social_share');
+				await copyToClipboard(urlObj.toString());
 				// You could add a toast notification here
 				alert('Link copied to clipboard!');
 			} catch (error) {
@@ -54,7 +60,13 @@
 
 	async function handleCopyLink() {
 		try {
-			await copyToClipboard(window.location.href);
+			// Add UTM parameters for copy link
+			const urlObj = new URL(window.location.href);
+			urlObj.searchParams.set('utm_source', 'direct');
+			urlObj.searchParams.set('utm_medium', 'copy_link');
+			urlObj.searchParams.set('utm_campaign', 'asset_sharing');
+			urlObj.searchParams.set('utm_content', 'social_share');
+			await copyToClipboard(urlObj.toString());
 			// You could add a toast notification here
 			alert('Link copied to clipboard!');
 		} catch (error) {
