@@ -37,7 +37,6 @@ export const getOrder = async (orderHash: string): Promise<any> => {
     }
 
     const result = await response.json();
-    console.log("orders : ", result);
 
     if (result.errors) {
       return null;

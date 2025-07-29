@@ -58,7 +58,6 @@ export const getTradesForClaims = async (
     }
 
     const result = await response.json();
-    console.log("trades : ", result);
 
     if (result.errors) {
       console.error("GraphQL errors:", result.errors);
