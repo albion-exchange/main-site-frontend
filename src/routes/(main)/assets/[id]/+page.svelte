@@ -161,13 +161,14 @@
 		// Add event listener to the form
 		const form = document.getElementById('mc-embedded-subscribe-form');
 		if (form) {
-			form.addEventListener('submit', handleSubscribeFormSubmit);
+			// Use capture phase to ensure our handler runs first
+			form.addEventListener('submit', handleSubscribeFormSubmit, true);
 		}
 		
 		// Cleanup
 		return () => {
 			if (form) {
-				form.removeEventListener('submit', handleSubscribeFormSubmit);
+				form.removeEventListener('submit', handleSubscribeFormSubmit, true);
 			}
 		};
 	});
@@ -204,7 +205,7 @@
         	<!-- Mobile: Collapsible sections -->
         	<div class="lg:hidden space-y-4">
         		<!-- Overview in collapsible section -->
-        		<CollapsibleSection title="Overview" isOpenByDefault={true} alwaysOpenOnDesktop={false}>
+        		<CollapsibleSection title="Overview" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
         			{#if assetData}
         				<AssetOverviewTab asset={assetData} />
         			{/if}
@@ -657,11 +658,11 @@
 											<div class="p-8 pt-6 space-y-4">
 												<div class="flex justify-between items-start">
 													<span class="text-base font-medium text-black opacity-70 relative font-figtree">Minted Supply </span>
-													<span class="text-base font-extrabold text-black text-right font-figtree">{formatEther(BigInt(token.supply?.mintedSupply || 0))}</span>
+													<span class="text-base font-extrabold text-black text-right font-figtree">{Math.floor(Number(formatEther(BigInt(token.supply?.mintedSupply || 0))))}</span>
 												</div>
 												<div class="flex justify-between items-start">
 													<span class="text-base font-medium text-black opacity-70 relative font-figtree">Max Supply</span>
-													<span class="text-base font-extrabold text-black text-right font-figtree">{formatEther(BigInt(token.supply?.maxSupply || 0))}</span>
+													<span class="text-base font-extrabold text-black text-right font-figtree">{Math.floor(Number(formatEther(BigInt(token.supply?.maxSupply || 0))))}</span>
 												</div>
 												<div class="flex justify-between items-start relative">
 													<span class="text-base font-medium text-black opacity-70 relative font-figtree">
@@ -725,7 +726,7 @@
 																role="button"
 																tabindex="0">ⓘ</span>
 														</span>
-														<span class="text-xl font-extrabold text-primary">{calculatedReturns?.bonusReturn !== undefined ? '+' + formatSmartReturn(calculatedReturns.bonusReturn) : 'TBD'}</span>
+														<span class="text-xl font-extrabold text-primary">{calculatedReturns?.bonusReturn !== undefined ? (formatSmartReturn(calculatedReturns.bonusReturn).startsWith('>') ? formatSmartReturn(calculatedReturns.bonusReturn) : '+' + formatSmartReturn(calculatedReturns.bonusReturn)) : 'TBD'}</span>
 														{#if showTooltip === 'bonus'}
 															<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
 																Additional potential return from improved oil prices or production efficiency
@@ -871,12 +872,12 @@
 			<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[200] p-4" on:click={handleCloseEmailPopup}>
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<!-- svelte-ignore a11y-no-static-element-interactions -->
-				<div class="bg-white border border-light-gray max-w-md w-full max-h-[90vh] overflow-y-auto" on:click|stopPropagation role="dialog" aria-modal="true" tabindex="0">
-					<div class="flex justify-between items-center p-6 border-b border-light-gray">
+				<div class="bg-white border border-light-gray max-w-md w-full flex flex-col" style="max-height: 95vh; min-height: 500px;" on:click|stopPropagation role="dialog" aria-modal="true" tabindex="0">
+					<div class="flex justify-between items-center p-6 border-b border-light-gray flex-shrink-0">
 						<h3 class="text-xl font-extrabold text-black">Get Notified</h3>
 						<button class="text-2xl font-bold text-black bg-transparent border-none cursor-pointer p-0 leading-none hover:opacity-70" on:click={handleCloseEmailPopup}>×</button>
 					</div>
-					<div class="p-6">
+					<div class="p-6 overflow-y-auto">
 						<p class="mb-4">Enter your email address to be notified when the next token release becomes available.</p>
 						
 						<!-- MailChimp Token Notification Form -->
@@ -888,7 +889,7 @@
 										<h2 class="text-lg font-extrabold text-black mb-4">Subscribe for Token Updates</h2>
 										<div class="text-sm text-black opacity-70 mb-4">Get notified when this token becomes available</div>
 										
-										<div class="mc-field-group">
+										<div class="mc-field-group mb-6">
 											<label for="mce-EMAIL" class="block text-sm font-medium text-black mb-2">
 												Email Address <span class="asterisk text-red-500">*</span>
 											</label>
@@ -910,11 +911,18 @@
 											<input type="text" name="b_f3b19322aa5fe51455b292838_6eaaa49162" tabindex="-1" value="">
 										</div>
 										
-										<div class="clear mt-4">
-											<input type="submit" name="subscribe" id="mc-embedded-subscribe" 
-												   class="button w-full px-4 py-3 bg-black text-white font-extrabold uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary"
-												   value="Subscribe"
-											/>
+										<!-- Spacer -->
+										<div style="height: 2rem;"></div>
+										
+										<div class="mt-8 mb-4">
+											<button 
+												type="submit" 
+												class="w-full px-8 py-4 bg-black text-white font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary border-0"
+												style="display: block; visibility: visible;"
+												on:click={() => sessionStorage.setItem('lastPageBeforeSubscribe', $page.url.pathname + $page.url.search)}
+											>
+												Subscribe
+											</button>
 										</div>
 									</div>
 								</form>
