@@ -992,40 +992,45 @@
 						<p class="mb-4">Enter your email address to be notified when the next token release becomes available.</p>
 						
 						<!-- MailChimp Token Notification Form -->
-						<div id="mc_embed_signup_token">
-							<form action="https://exchange.us7.list-manage.com/subscribe/post?u=f3b19322aa5fe51455b292838&amp;id=6eaaa49162&amp;f_id=00fd53e0f0" 
-								  method="post" id="mc-embedded-subscribe-form-token" name="mc-embedded-subscribe-form-token" target="_self" novalidate>
-								<div class="space-y-4">
-									<!-- Hidden fields for asset information -->
-									<input type="hidden" name="MMERGE7" value={assetId} />
-									<input type="hidden" name="MMERGE8" value={assetData?.name || ''} />
-									<input type="hidden" name="MMERGE9" value="token_release" />
-									
-									<input type="email" value="" name="EMAIL" 
-										   placeholder="Enter your email address"
-										   id="mce-EMAIL-token" required
-										   class="w-full px-4 py-3 border border-light-gray bg-white text-black placeholder-black placeholder-opacity-50 focus:outline-none focus:border-primary"
-									/>
-									
-									<!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-									<div style="position: absolute; left: -5000px;" aria-hidden="true">
-										<input type="text" name="b_f3b19322aa5fe51455b292838_6eaaa49162" tabindex="-1" value="">
+						<div id="mc_embed_shell">
+							<div id="mc_embed_signup">
+								<form action="https://exchange.us7.list-manage.com/subscribe/post?u=f3b19322aa5fe51455b292838&amp;id=6eaaa49162&amp;f_id=00fc53e0f0" 
+									  method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_self" novalidate>
+									<div id="mc_embed_signup_scroll">
+										<h2 class="text-lg font-extrabold text-black mb-4">Subscribe for Token Updates</h2>
+										<div class="text-sm text-black opacity-70 mb-4">Get notified when this token becomes available</div>
+										
+										<div class="mc-field-group">
+											<label for="mce-EMAIL" class="block text-sm font-medium text-black mb-2">
+												Email Address <span class="asterisk text-red-500">*</span>
+											</label>
+											<input type="email" name="EMAIL" 
+												   class="required email w-full px-4 py-3 border border-light-gray bg-white text-black placeholder-black placeholder-opacity-50 focus:outline-none focus:border-primary" 
+												   id="mce-EMAIL" required value=""
+												   placeholder="Enter your email address"
+											/>
+										</div>
+										
+										<div hidden><input type="hidden" name="tags" value="3587473"></div>
+										
+										<div id="mce-responses" class="clear mt-4">
+											<div class="response" id="mce-error-response" style="display: none;"></div>
+											<div class="response" id="mce-success-response" style="display: none;"></div>
+										</div>
+										
+										<div aria-hidden="true" style="position: absolute; left: -5000px;">
+											<input type="text" name="b_f3b19322aa5fe51455b292838_6eaaa49162" tabindex="-1" value="">
+										</div>
+										
+										<div class="clear mt-4">
+											<input type="submit" name="subscribe" id="mc-embedded-subscribe" 
+												   class="button w-full px-4 py-3 bg-black text-white font-extrabold uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary"
+												   value="Subscribe"
+											/>
+										</div>
 									</div>
-									
-									<div id="mce-responses-token" class="clear">
-										<div class="response" id="mce-error-response-token" style="display: none;"></div>
-										<div class="response" id="mce-success-response-token" style="display: none;"></div>
-									</div>
-									
-									<PrimaryButton 
-										type="submit" 
-										id="mc-embedded-subscribe-token"
-										fullWidth
-									>
-										Notify Me
-									</PrimaryButton>
-								</div>
-							</form>
+								</form>
+							</div>
 						</div>
 					</div>
 				</div>
