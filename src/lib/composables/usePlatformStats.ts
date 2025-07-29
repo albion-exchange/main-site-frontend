@@ -9,7 +9,6 @@ import { withSyncErrorHandling } from '$lib/utils/errorHandling';
 import { sfts } from '$lib/stores';
 import { formatEther } from 'ethers';
 import { formatSmartNumber } from '$lib/utils/formatters';
-import { AssetService } from '$lib/services/AssetService';
 
 interface PlatformStatsState {
   totalAssets: number;
@@ -40,11 +39,17 @@ export function usePlatformStats() {
     }
 
     try {
-      const totalAssets = $sfts.length;
       const totalTokenHolders = $sfts.reduce((acc, sft) => acc + (sft.tokenHolders?.length || 0), 0);
-      // Get all assets and count distinct countries
-      const assetService = new AssetService();
+      
+      // Get all assets from the asset service
+      const assetService = useAssetService();
       const allAssets = assetService.getAllAssets();
+      
+      // Count unique assets that have active SFTs
+      // For now, use the number of assets from assetService
+      const totalAssets = allAssets.length;
+      
+      // Count distinct countries from these assets
       const distinctCountries = new Set(
         allAssets
           .map(asset => asset.location?.country)

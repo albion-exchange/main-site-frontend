@@ -15,6 +15,7 @@
 		useTooltip, 
 		useEmailNotification
 	} from '$lib/composables';
+	import { onMount } from 'svelte';
 	import AssetDetailHeader from '$lib/components/patterns/assets/AssetDetailHeader.svelte';
 	import AssetOverviewTab from '$lib/components/patterns/assets/AssetOverviewTab.svelte';
 
@@ -142,6 +143,27 @@
 	function handleCloseEmailPopup() {
 		showEmailPopup = false;
 	}
+	
+	function handleSubscribeFormSubmit() {
+		// Store the current page path before form submission
+		sessionStorage.setItem('lastPageBeforeSubscribe', $page.url.pathname + $page.url.search);
+		// The form will handle the actual submission
+	}
+	
+	onMount(() => {
+		// Add event listener to the form
+		const form = document.getElementById('mc-embedded-subscribe-form');
+		if (form) {
+			form.addEventListener('submit', handleSubscribeFormSubmit);
+		}
+		
+		// Cleanup
+		return () => {
+			if (form) {
+				form.removeEventListener('submit', handleSubscribeFormSubmit);
+			}
+		};
+	});
 
 </script>
 

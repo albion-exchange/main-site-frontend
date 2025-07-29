@@ -79,7 +79,7 @@
 									<div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-extrabold">$</div>
 									<h4 class="text-lg font-bold text-black">Start Small, Think Big</h4>
 								</div>
-								<p class="text-sm text-black leading-relaxed">Diversify your portfolio with energy assets starting from just US$1. No accredited investor requirements or minimum investment barriers.</p>
+								<p class="text-sm text-black leading-relaxed">Diversify your portfolio with energy assets starting from just US$1, giving you unparalleled flexibility.</p>
 							</div>
 							
 							<div class="p-6 bg-light-gray rounded-lg">
@@ -111,7 +111,7 @@
 									<div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-extrabold">%</div>
 									<h4 class="text-lg font-bold text-black">Real Revenue, Real Returns</h4>
 								</div>
-								<p class="text-sm text-black leading-relaxed">Earn from actual energy production and sales, not market speculation or complex derivatives.</p>
+								<p class="text-sm text-black leading-relaxed">Earn from actual energy production and sales.</p>
 							</div>
 						</div>
 					</div>
@@ -124,7 +124,7 @@
 									<div class="w-10 h-10 bg-secondary text-white rounded-full flex items-center justify-center font-extrabold">🌍</div>
 									<h4 class="text-lg font-bold text-black">Global Capital Access</h4>
 								</div>
-								<p class="text-sm text-black leading-relaxed">Access millions of retail investors worldwide. Transform local projects into global investment opportunities.</p>
+								<p class="text-sm text-black leading-relaxed">Access millions of retail and crypto investors worldwide. Tap new pools of capital for your projects.</p>
 							</div>
 							
 							<div class="p-6 bg-light-gray rounded-lg">
@@ -218,7 +218,7 @@
 				<div class="text-center">
 					<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-4">1</div>
 					<SectionTitle level="h3" size="small" uppercase>Digital Innovation</SectionTitle>
-					<p class="text-sm text-black">Pioneering blockchain solutions and smart contract architecture from our experience at leading technology companies and successful blockchain ventures.</p>
+					<p class="text-sm text-black">Pioneers in digital transformation and blockchain-based smart contract systems.</p>
 				</div>
 			</Card>
 			
@@ -226,7 +226,7 @@
 				<div class="text-center">
 					<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-4">2</div>
 					<SectionTitle level="h3" size="small" uppercase>Energy Expertise</SectionTitle>
-					<p class="text-sm text-black">Deep understanding of energy markets and real-world asset management, rooted in the original "landman" tradition and institutional-grade operations.</p>
+					<p class="text-sm text-black">Deep understanding of energy markets and real-world asset management, rooted in the original "landman" tradition.</p>
 				</div>
 			</Card>
 			

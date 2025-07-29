@@ -4,6 +4,7 @@
 	import { getSftMetadata } from '$lib/queries/getSftMetadata';
 	import { getSfts } from '$lib/queries/getSfts';
 	import { sftMetadata, sfts } from '$lib/stores';
+	import { onMount } from 'svelte';
 	import { web3Modal, signerAddress, connected, loading, disconnectWagmi } from 'svelte-wagmi';
 	import { formatAddress } from '$lib/utils/formatters';
 	import { slide } from 'svelte/transition';
@@ -30,6 +31,27 @@
 	function closeMobileMenu() {
 		mobileMenuOpen = false;
 	}
+	
+	function handleSubscribeFormSubmit() {
+		// Store the current page path before form submission
+		sessionStorage.setItem('lastPageBeforeSubscribe', $page.url.pathname + $page.url.search);
+		// The form will handle the actual submission
+	}
+	
+	onMount(() => {
+		// Add event listener to the form
+		const form = document.getElementById('mc-embedded-subscribe-form');
+		if (form) {
+			form.addEventListener('submit', handleSubscribeFormSubmit);
+		}
+		
+		// Cleanup
+		return () => {
+			if (form) {
+				form.removeEventListener('submit', handleSubscribeFormSubmit);
+			}
+		};
+	});
 
 	$: query = createQuery({
 		queryKey: ['getSftMetadata'],
