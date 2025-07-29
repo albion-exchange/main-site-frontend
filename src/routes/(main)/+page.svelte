@@ -157,20 +157,21 @@
 			<div class="text-center sm:col-span-2 lg:col-span-1">
 				<div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-6">3</div>
 				<SectionTitle level="h3" size="small" className="mb-4">Earn Revenue Payouts</SectionTitle>
-				<p class="text-sm sm:text-base text-black">Receive regular stablecoin distributions from directly to your wallet. Transparent payouts and accounting.</p>
+				<p class="text-sm sm:text-base text-black">Receive regular stablecoin distributions directly to your wallet. Transparent payouts and accounting.</p>
 			</div>
 		</div>
 	</ContentSection>
 
 	<!-- Trust Indicators - Hidden on mobile -->
 	<ContentSection background="white" padding="standard" centered className="hidden lg:block">
-		<SectionTitle level="h2" size="section" center className="mb-6 lg:mb-8">Why Choose Albion</SectionTitle>
+		<SectionTitle level="h2" size="section" center className="mb-6 lg:mb-8">Built for Trust & Performance</SectionTitle>
 		<div class="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
 			<div class="flex flex-col items-center text-center">
-				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-12 h-12 lg:w-16 lg:h-16 relative">
-					<svg width="32" height="32" class="lg:w-12 lg:h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M24 2L30 14H42L32 22L36 34L24 26L12 34L16 22L6 14H18L24 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-						<circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="2"/>
+				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 relative">
+					<!-- Shield with checkmark for regulation -->
+					<svg width="48" height="48" class="lg:w-16 lg:h-16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M24 4L8 12V24C8 33 13 41 24 44C35 41 40 33 40 24V12L24 4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+						<path d="M16 24L21 29L32 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
 				</div>
 				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Germany Regulated</SectionTitle>
@@ -178,11 +179,24 @@
 			</div>
 			
 			<div class="flex flex-col items-center text-center">
-				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-12 h-12 lg:w-16 lg:h-16 relative">
-					<svg width="32" height="32" class="lg:w-12 lg:h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M20 28L28 20M20 28L16 32L20 28ZM28 20L32 16L28 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
-						<path d="M15 24C15 24 18 30 24 30C30 30 33 24 33 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 relative">
+					<!-- Energy production assets - wind turbine, solar panel, and oil derrick -->
+					<svg width="48" height="48" class="lg:w-16 lg:h-16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<!-- Wind turbine (left) -->
+						<path d="M8 44V28" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<circle cx="8" cy="28" r="1.5" stroke="currentColor" stroke-width="2"/>
+						<path d="M8 28L8 22M8 28L14 34M8 28L2 34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						
+						<!-- Solar panel (angled/perspective view) -->
+						<path d="M16 36L32 32L32 38L16 42Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+						<path d="M20 35L20 41M24 34L24 40M28 33L28 39" stroke="currentColor" stroke-width="2"/>
+						<path d="M24 38V44" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						
+						<!-- Oil derrick - trapezoid structure (right) -->
+						<path d="M36 44L38 16L44 16L46 44" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+						<path d="M38.5 24H43.5M37.5 32H44.5M36.5 40H45.5" stroke="currentColor" stroke-width="2"/>
+						<path d="M41 16V12M41 12V44" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<path d="M38 12H44" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 					</svg>
 				</div>
 				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Real Assets</SectionTitle>
@@ -190,12 +204,16 @@
 			</div>
 			
 			<div class="flex flex-col items-center text-center">
-				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-12 h-12 lg:w-16 lg:h-16 relative">
-					<svg width="32" height="32" class="lg:w-12 lg:h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<rect x="8" y="12" width="32" height="28" stroke="currentColor" stroke-width="2"/>
-						<path d="M8 20H40" stroke="currentColor" stroke-width="2"/>
-						<path d="M16 8V12M32 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-						<path d="M16 28H24M16 32H32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 relative">
+					<!-- Tall buildings/skyline for institutional -->
+					<svg width="48" height="48" class="lg:w-16 lg:h-16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M8 44H40" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<path d="M16 44V12H32V44" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+						<path d="M8 44V24H16" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+						<path d="M32 44V20H40V44" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+						<path d="M20 16H24M24 16H28M20 20H24M24 20H28M20 24H24M24 24H28M20 28H24M24 28H28M20 32H24M24 32H28M20 36H24M24 36H28M20 40H24M24 40H28" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<path d="M12 28V30M12 32V34M12 36V38M12 40V42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<path d="M36 24V26M36 28V30M36 32V34M36 36V38M36 40V42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 					</svg>
 				</div>
 				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Institutional Grade</SectionTitle>
@@ -203,12 +221,12 @@
 			</div>
 			
 			<div class="flex flex-col items-center text-center">
-				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-12 h-12 lg:w-16 lg:h-16 relative">
-					<svg width="32" height="32" class="lg:w-12 lg:h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="2"/>
-						<path d="M24 24L32 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-						<circle cx="24" cy="24" r="3" fill="currentColor"/>
-						<path d="M12 28L16 24L20 26L28 20L36 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+				<div class="mb-4 lg:mb-6 text-black flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 relative">
+					<!-- Eye icon for transparency -->
+					<svg width="48" height="48" class="lg:w-16 lg:h-16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M24 14C14 14 6 24 6 24C6 24 14 34 24 34C34 34 42 24 42 24C42 24 34 14 24 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						<circle cx="24" cy="24" r="6" stroke="currentColor" stroke-width="2"/>
+						<circle cx="24" cy="24" r="2" fill="currentColor"/>
 					</svg>
 				</div>
 				<SectionTitle level="h3" size="small" className="mb-2 text-xs sm:text-sm lg:text-base">Transparent</SectionTitle>

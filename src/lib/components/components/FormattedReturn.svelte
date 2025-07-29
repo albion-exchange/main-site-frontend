@@ -26,8 +26,17 @@
 	class="relative inline-block cursor-help"
 	on:mouseenter={handleMouseEnter}
 	on:mouseleave={handleMouseLeave}
-	role="text"
+	role="button"
+	tabindex="0"
 	aria-label={shouldShowTooltip ? fullValue : displayValue}
+	on:keydown={(e) => {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			if (shouldShowTooltip) {
+				showTooltip = !showTooltip;
+			}
+		}
+	}}
 >
 	{displayValue}
 	
