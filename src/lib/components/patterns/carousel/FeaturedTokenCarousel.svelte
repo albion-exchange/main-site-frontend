@@ -468,10 +468,10 @@
 		
 		<!-- Mobile indicators below carousel -->
 		{#if featuredTokensWithAssets.length > 1}
-			<div class="flex lg:hidden justify-center gap-0.5 mt-2 z-10">
+			<div class="flex lg:hidden justify-center gap-1 mt-2 z-10">
 				{#each featuredTokensWithAssets as _, index}
 					<div 
-						class="{index === currentIndex ? 'w-1 h-1 bg-gray-800 rounded-full' : 'w-1 h-1 bg-gray-300 rounded-full'}"
+						class="{index === currentIndex ? 'w-2 h-2 bg-gray-800 rounded-full' : 'w-2 h-2 bg-gray-300 rounded-full'}"
 					></div>
 				{/each}
 			</div>
