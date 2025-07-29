@@ -6,6 +6,7 @@ export const BASE_METADATA_SUBGRAPH_URL =
   "https://api.goldsky.com/api/public/project_clv14x04y9kzi01saerx7bxpg/subgraphs/metadata-base/2025-07-06-594f/gn";
 export const TARGET_NETWORK = "base";
 export const PINATA_GATEWAY = "https://gateway.pinata.cloud/ipfs";
+export const ORDERBOOK_CONTRACT_ADDRESS = "0xd2938E7c9fe3597F78832CE780Feb61945c377d7";
 
 export type Claim = {
   orderHash: string;
@@ -40,7 +41,12 @@ export const ENERGY_FEILDS: EnergyField[] = [
     sftTokens: [
       {
         address: "0xae69a129b626b1e8fce196ef8e7d5faea3be753f",
-        claims: [],
+        claims: [
+          {
+            orderHash: "0xa4d540c50f8409d2cafb6ae0cbff0bd8fb18c666981cf02269524215f16da4ac",
+            csvLink: "https://gateway.pinata.cloud/ipfs/bafkreihov36lw43igwx6fcy7iguconfi4vzjnbdppoqt4zb72ydygtvfey",
+          },
+        ],
       },
     ],
   },

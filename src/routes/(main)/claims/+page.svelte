@@ -1,17 +1,18 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { useAssetService, useTokenService } from '$lib/services';
-	import walletDataService from '$lib/services/WalletDataService';
-	import type { Asset } from '$lib/types/uiTypes';
-	import { web3Modal, signerAddress, connected, loading } from 'svelte-wagmi';
-	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, DataTable, TableRow, TabNavigation, TabButton, ActionCard, CollapsibleSection, FormattedNumber } from '$lib/components/components';
-	import { PageLayout, HeroSection, ContentSection, FullWidthSection, StatsSection } from '$lib/components/layout';
-	import { formatCurrency, formatSmartNumber } from '$lib/utils/formatters';
+	import { writeContract } from '@wagmi/core';
+	import { web3Modal, signerAddress, wagmiConfig, connected } from 'svelte-wagmi';
+	import { Card, CardContent, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, CollapsibleSection, FormattedNumber } from '$lib/components/components';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
+	import { formatCurrency } from '$lib/utils/formatters';
 	import { dateUtils } from '$lib/utils/dateHelpers';
 	import { arrayUtils } from '$lib/utils/arrayHelpers';
-	
-	const assetService = useAssetService();
-	const tokenService = useTokenService();
+    import { ENERGY_FEILDS, type Claim } from '$lib/network';
+    import { getTradesForClaims } from '$lib/queries/getTrades';
+    import { decodeOrder, getLeaf, getMerkleTree, signContext, sortClaimsData, getProofForLeaf, type ClaimHistory, type ClaimSignedContext } from '$lib/utils/claims';
+    import { formatEther, parseEther, type Hex } from 'viem';
+	import orderbookAbi from '$lib/abi/orderbook.json';
+    import { getOrder } from '$lib/queries/getOrder';
 
 	let totalEarned = 0;
 	let totalClaimed = 0;
@@ -20,74 +21,110 @@
 	let claiming = false;
 	let claimSuccess = false;
 
-	let claimMethod = 'wallet';
 	let estimatedGas = 0;
 
-	let holdings: any[] = [];
-	let claimHistory: any[] = [];
+	let holdings: ClaimSignedContext[] = [];
+	let claimHistory: ClaimHistory[] = [];
 	let currentPage = 1;
 	const itemsPerPage = 20;
-	let showClaimModal = false;
-	let claimModalMode: 'claim' | 'reinvest' = 'claim';
-	let claimAssets: string[] = [];
 
-	function loadClaimsData() {
-		try {
-			estimatedGas = 1.25;
-			totalEarned = walletDataService.getTotalPayoutsEarned();
-			unclaimedPayout = walletDataService.getUnclaimedPayouts();
-			const allTransactions = walletDataService.getAllTransactions();
-			const claimTransactions = allTransactions.filter(tx => tx.type === 'claim');
-			totalClaimed = claimTransactions.reduce((sum, tx) => sum + tx.amount, 0);
-			const assetPayouts = walletDataService.getHoldingsByAsset();
-			holdings = assetPayouts.map(assetPayout => {
-				const asset = assetService.getAssetById(assetPayout.assetId);
-				if (!asset) return null;
-				const lastPayoutMonth = assetPayout.monthlyPayouts
-					.filter(p => p.amount > 0)
-					.sort((a, b) => b.month.localeCompare(a.month))[0];
-				const tokens = tokenService.getTokensByAssetId(assetPayout.assetId);
-				const contractAddress = tokens.length > 0 ? tokens[0].contractAddress : null;
-				const lastClaim = contractAddress ? claimTransactions
-					.filter(tx => tx.address === contractAddress)
-					.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0] : null;
-				return {
-					id: assetPayout.assetId,
-					name: assetPayout.assetName,
-					location: asset ? `${asset.location.state}, ${asset.location.country}` : '',
-					unclaimedAmount: assetPayout.unclaimedAmount,
-					totalEarned: assetPayout.totalEarned,
-					lastPayout: lastPayoutMonth ? lastPayoutMonth.month : null,
-					lastClaimDate: lastClaim ? lastClaim.timestamp : null,
-					status: asset ? asset.production.status : 'unknown'
-				};
-			}).filter(Boolean);
-			claimHistory = claimTransactions.map(tx => {
-				const token = tokenService.getTokenByAddress(tx.address);
-				const asset = token ? assetService.getAssetById(token.assetId) : null;
-				return {
-					date: tx.timestamp,
-					amount: tx.amount,
-					asset: asset ? asset.name : 'Unknown Asset',
-					txHash: tx.txHash,
-					status: 'completed'
-				};
-			});
-			pageLoading = false;
-		} catch (error) {
-			console.error('Error loading claims data:', error);
-			pageLoading = false;
-		}
+	// Reset data when wallet changes
+	$: if ($signerAddress) {
+		// Clear existing data when wallet changes
+		totalEarned = 0;
+		totalClaimed = 0;
+		unclaimedPayout = 0;
+		holdings = [];
+		claimHistory = [];
+		currentPage = 1;
+		pageLoading = true;
+		claimSuccess = false;
 	}
 
-	onMount(async () => {
-		if (!$connected || !$signerAddress) {
-			$web3Modal.open();
-			return;
-		}
+	// Load claims data when wallet is connected and page is loading
+	$: if ($connected && $signerAddress && pageLoading) {
 		loadClaimsData();
-	});
-	
+	}
+
+	function loadClaimsData(){
+		async function fetchCsvData(csvLink: string) {
+			try {
+				const response = await fetch(csvLink);
+				if (!response.ok) {
+					throw new Error(`Failed to fetch CSV: ${response.status}`);
+				}
+				const csvText = await response.text();
+				return csvText;
+			} catch (error) {
+				console.error('Error fetching CSV data:', error);
+				return null;
+			}
+		}
+
+		async function parseCsvData(csvText: string) {
+			const lines = csvText.split('\n');
+			const headers = lines[0].split(',').map(h => h.trim());
+			const data = lines.slice(1).filter(line => line.trim()).map(line => {
+				const values = line.split(',').map(v => v.trim());
+				const row: any = {};
+				headers.forEach((header, index) => {
+					row[header] = values[index] || '';
+				});
+				return row;
+			});
+			return data;
+		}
+
+		async function loadAllClaimsData() {
+			for (const field of ENERGY_FEILDS) {
+				for (const token of field.sftTokens) {
+					if (token.claims && token.claims.length > 0) {
+						for (const claim of token.claims) {
+							if (claim.csvLink) {
+								const csvText = await fetchCsvData(claim.csvLink);
+								if (csvText) {
+									const parsedData = await parseCsvData(csvText);
+									const merkleTree = getMerkleTree(parsedData);
+									
+									const trades = await getTradesForClaims(claim.orderHash, $signerAddress || '', field.name);
+									const orderDetails = await getOrder(claim.orderHash)
+									if(orderDetails && orderDetails.length > 0){
+										const orderBookAddress = orderDetails[0].orderbook.id;
+										const decodedOrder = decodeOrder(orderDetails[0].orderBytes)
+										const sortedClaimsData = await sortClaimsData(parsedData, trades, $signerAddress || '', field.name);
+										const holdingsWithProofs = sortedClaimsData.holdings.map(holding => {
+											const leaf = getLeaf(holding.id, $signerAddress || '', holding.unclaimedAmount);
+											const proofForLeaf = getProofForLeaf(merkleTree, leaf);
+											const holdingSignedContext = signContext(
+												[holding.id, parseEther(holding.unclaimedAmount.toString()), ...proofForLeaf.proof].map(i => BigInt(i))
+											)
+											return {
+												...holding,
+												order: decodedOrder,
+												signedContext: holdingSignedContext,
+												orderBookAddress: orderBookAddress
+											}
+										})
+										
+										claimHistory = [...claimHistory, ...sortedClaimsData.claims];
+										holdings = [...holdings, ...holdingsWithProofs];
+										totalClaimed += Number(formatEther(sortedClaimsData.totalClaimedAmount));
+										totalEarned += Number(formatEther(sortedClaimsData.totalEarned));
+										unclaimedPayout += Number(formatEther(sortedClaimsData.totalUnclaimedAmount));
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			pageLoading = false;
+		}
+
+		// Load the data when the function is called
+		loadAllClaimsData();
+	}
+
 	function formatDate(dateString: string): string {
 		return new Date(dateString).toLocaleDateString('en-US', {
 			year: 'numeric',
@@ -97,60 +134,72 @@
 	}
 
 	async function connectWallet() {
-		$web3Modal.open();
-	}
-
-	async function handleWalletConnect() {
-		loadClaimsData();
+		if ($web3Modal) {
+			$web3Modal.open();
+		}
 	}
 
 	async function claimAllPayouts() {
 		claiming = true;
 		try {
-			await new Promise(resolve => setTimeout(resolve, 2000));
-			holdings.forEach(holding => {
-				if (holding.unclaimedAmount > 0) {
-					walletDataService.addTransaction({
-						type: 'claim',
-						address: holding.id,
-						amount: holding.unclaimedAmount,
-						txHash: `0x${Math.random().toString(16).substr(2, 64)}`,
-						timestamp: new Date().toISOString()
-					});
-				}
+			let orders = []
+			for(const holding of holdings){
+				orders.push({
+					order: holding.order,
+					inputIOIndex: 0,
+					outputIOIndex: 0,
+					signedContext: [holding.signedContext]
+				})
+			}
+			const takeOrdersConfig = {
+				minimumInput: 0n,
+				maximumInput: 2n ** 256n - 1n,
+				maximumIORatio: 2n ** 256n - 1n,
+				orders: orders,
+				data: "0x"
+			};
+
+			await writeContract($wagmiConfig, {
+				abi: orderbookAbi,
+				address: holdings[0].orderBookAddress as Hex,
+				functionName: 'takeOrders2',
+				args: [takeOrdersConfig]
 			});
 			claimSuccess = true;
-			loadClaimsData();
-			setTimeout(() => {
-				claimSuccess = false;
-			}, 3000);
-		} catch (error) {
-			console.error('Claim failed:', error);
+
+		} catch {
+			claimSuccess = false;
 		} finally {
 			claiming = false;
 		}
 	}
 
-	async function handleClaimSingle(assetId: string) {
+	async function handleClaimSingle(holding: any) {
 		claiming = true;
 		try {
-			const holding = holdings.find(h => h.id === assetId);
-			if (!holding || holding.unclaimedAmount <= 0) return;
-			await new Promise(resolve => setTimeout(resolve, 1500));
-			walletDataService.addTransaction({
-				type: 'claim',
-				address: assetId,
-				amount: holding.unclaimedAmount,
-				txHash: `0x${Math.random().toString(16).substr(2, 64)}`,
-				timestamp: new Date().toISOString()
+			const takeOrdersConfig = {
+				minimumInput: 0n,
+				maximumInput: 2n ** 256n - 1n,
+				maximumIORatio: 2n ** 256n - 1n,
+				orders: [{
+					order: holding.order,
+					inputIOIndex: 0,
+					outputIOIndex: 0,
+					signedContext: [holding.signedContext]
+				}],
+				data: "0x"
+			};
+
+			await writeContract($wagmiConfig, {
+				abi: orderbookAbi,
+				address: holding.orderBookAddress as Hex,
+				functionName: 'takeOrders2',
+				args: [takeOrdersConfig]
 			});
 			claimSuccess = true;
-			loadClaimsData();
-			setTimeout(() => {
-				claimSuccess = false;
-			}, 3000);
-		} catch (error) {
-			console.error('Individual claim failed:', error);
+
+		} catch {
+			claimSuccess = false;
 		} finally {
 			claiming = false;
 		}
@@ -265,7 +314,6 @@
 								<div class="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-5 gap-4 items-center">
 									<div class="sm:col-span-2">
 										<div class="font-extrabold text-black text-sm lg:text-base">{holding.name}</div>
-										<div class="text-xs lg:text-sm text-black opacity-70">{holding.location}</div>
 									</div>
 									<div class="text-center sm:text-left lg:text-center">
 										<StatusBadge 
@@ -276,18 +324,18 @@
 									</div>
 									<div class="text-center">
 										<div class="text-lg lg:text-xl font-extrabold text-primary mb-1">
-											<FormattedNumber value={holding.unclaimedAmount} type="currency" compact={holding.unclaimedAmount >= 10000} />
+											<FormattedNumber value={holding.unclaimedAmount} type="currency" compact={Number(holding.unclaimedAmount) >= 10000} />
 										</div>
 										<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Available</div>
 									</div>
 									<div class="text-center">
 										<SecondaryButton 
 											size="small" 
-											on:click={() => handleClaimSingle(holding.id)}
-											disabled={claiming || holding.unclaimedAmount <= 0}
+											disabled={claiming || Number(holding.unclaimedAmount) <= 0}
+											on:click={() => handleClaimSingle(holding)}
 											fullWidth
 										>
-											{holding.unclaimedAmount > 0 ? 'Claim' : 'No Claims'}
+											{Number(holding.unclaimedAmount) > 0 ? 'Claim' : 'No Claims'}
 										</SecondaryButton>
 									</div>
 								</div>
@@ -304,18 +352,17 @@
 				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
 					<StatsCard
 						title="Total Payouts"
-						value={walletDataService.getMonthlyPayoutHistory().length.toString()}
+						value={claimHistory.length.toString()}
 						subtitle="This year"
 						size="medium"
 					/>
 					<StatsCard
 						title="Days Since Last Claim"
 						value={(() => {
-							const claimTxs = walletDataService.getAllTransactions().filter(tx => tx.type === 'claim');
-							if (claimTxs.length === 0) return 'N/A';
-							const lastClaim = arrayUtils.latest(claimTxs, tx => tx.timestamp);
+							if (claimHistory.length === 0) return 'N/A';
+							const lastClaim = arrayUtils.latest(claimHistory, claim => claim.date);
 							if (!lastClaim) return 'N/A';
-							const daysSince = dateUtils.daysBetween(lastClaim.timestamp, new Date());
+							const daysSince = dateUtils.daysBetween(new Date(lastClaim.date), new Date());
 							return Math.max(0, daysSince).toString();
 						})()}
 						subtitle="Since last withdrawal"
@@ -364,7 +411,7 @@
 											<td class="p-3 lg:p-4 text-sm text-black">{formatDate(claim.date)}</td>
 											<td class="p-3 lg:p-4 text-sm text-black">{claim.asset}</td>
 											<td class="p-3 lg:p-4 text-sm text-black font-semibold">
-												<FormattedNumber value={claim.amount} type="currency" compact={claim.amount >= 10000} />
+												<FormattedNumber value={claim.amount} type="currency" compact={Number(claim.amount) >= 10000} />
 											</td>
 											<td class="p-3 lg:p-4 text-center hidden sm:table-cell">
 												<a 
