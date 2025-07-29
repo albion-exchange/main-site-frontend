@@ -1,11 +1,16 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
-	import type { Asset } from '$lib/types/uiTypes';
+	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { useTokenService } from '$lib/services';
 	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/components';
-	import { formatCurrency, formatEndDate } from '$lib/utils/formatters';
+	import { formatCurrency, formatEndDate, formatSmartNumber } from '$lib/utils/formatters';
+    import { getTokenReturns } from '$lib/utils';
+    import type { TokenMetadata } from '$lib/types/MetaboardTypes';
+    import FormattedReturn from '$lib/components/components/FormattedReturn.svelte';
 
 	export let asset: Asset;
+	export let token: TokenMetadata[];
+	export let energyFieldId: string | undefined = undefined; // Add energy field ID for navigation
 	
 	const dispatch = createEventDispatcher();
 	const tokenService = useTokenService();
@@ -48,21 +53,23 @@
 	// Use asset data directly from the data store
 	$: latestReport = asset.monthlyReports[asset.monthlyReports.length - 1] || null;
 
-	// Get the primary token for this asset (first active token found)
-	$: assetTokens = tokenService.getTokensByAssetId(asset.id);
-	$: primaryToken = assetTokens.length > 0 ? assetTokens[0] : null;
+	// Use tokens array directly
+	$: tokensArray = token;
+	$: primaryToken = tokensArray.length > 0 ? tokensArray[0] : null;
 	
 	// Check if any tokens are available
-	$: hasAvailableTokens = assetTokens.some(token => {
-		const supply = tokenService.getTokenSupply(token.contractAddress);
-		return supply && supply.available > 0;
-	});
+	$: hasAvailableTokens = tokensArray.some(t => BigInt(t.supply.maxSupply) > BigInt(t.supply.mintedSupply));
 
 	// Extract token data with fallbacks
 	$: shareOfAsset = primaryToken?.sharePercentage ? `${primaryToken.sharePercentage}%` : 'TBD';
 	
-	function handleBuyTokens() {
-		dispatch('buyTokens', { assetId: asset.id });
+	function handleBuyTokens(tokenAddress?: string) {
+		// If a specific token address is provided, use it; otherwise use the first available token
+		const targetTokenAddress = tokenAddress || (tokensArray.length > 0 ? tokensArray[0].contractAddress : null);
+		dispatch('buyTokens', { 
+			assetId: asset.id,
+			tokenAddress: targetTokenAddress
+		});
 	}
 	
 	// Mobile-responsive class mappings
@@ -101,7 +108,7 @@
 
 </script>
 
-<Card hoverable clickable heightClass="h-full flex flex-col" on:click={() => window.location.href = `/assets/${asset.id}`}>
+<Card hoverable clickable heightClass="h-full flex flex-col" on:click={() => window.location.href = `/assets/${energyFieldId || asset.id}`}>
 	<!-- Universal: Image with overlay for all viewports -->
 	<div class="relative">
 		<div class="relative overflow-hidden">
@@ -136,7 +143,7 @@
 		<!-- Key Stats -->
 		<div class={highlightedStatsClasses}>
 			<div class={highlightStatClasses}>
-				<span class={highlightValueClasses}>{asset.production?.expectedRemainingProduction || 'TBD'}</span>
+				<span class={highlightValueClasses}>{asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0) ? formatSmartNumber(asset.plannedProduction.projections.reduce((acc, curr) => acc + curr.production, 0), { suffix: ' boe' }) : 'TBD'}</span>
 				<span class={highlightLabelClasses}>Exp. Remaining</span>
 			</div>
 			{#if latestReport}
@@ -164,14 +171,10 @@
 
 		<!-- Available Tokens Section - Mobile Responsive -->
 		{#if hasAvailableTokens}
-		{@const availableTokens = assetTokens.filter(token => {
-			const supply = tokenService.getTokenSupply(token.contractAddress);
-			return supply && supply.available > 0;
-		})}
 		<div class={tokensSectionClasses}>
 			<h4 class={tokensTitleClasses}>Available Tokens</h4>
 			<div class="flex flex-col">
-				{#if availableTokens.length > 2 && canScrollUp}
+				{#if tokensArray.length > 2 && canScrollUp}
 					<!-- Top scroll indicator - hidden on mobile -->
 					<button 
 						class="hidden lg:flex w-full py-1 items-center justify-center hover:bg-gray-50 transition-colors"
@@ -187,36 +190,40 @@
 				<div 
 					bind:this={scrollContainer}
 					on:scroll={handleScroll}
-					class="{availableTokens.length > 2 ? tokensListScrollableClasses : tokensListClasses}">
-					{#each availableTokens as token}
-					{@const calculatedReturns = tokenService.getTokenReturns(token.contractAddress)}
+					class="{tokensArray.length > 2 ? tokensListScrollableClasses : tokensListClasses}">
+					{#each tokensArray as tokenItem}
+					{@const calculatedReturns = getTokenReturns(asset, tokenItem)}
 					{@const baseReturn = calculatedReturns?.baseReturn ? Math.round(calculatedReturns.baseReturn) : 0}
 					{@const bonusReturn = calculatedReturns?.bonusReturn ? Math.round(calculatedReturns.bonusReturn) : 0}
-					{@const firstPaymentMonth = token.firstPaymentDate || 'TBD'}
+					{@const firstPaymentMonth = tokenItem.firstPaymentDate || 'TBD'}
 					<button 
 						class={tokenButtonClasses} 
-						on:click|stopPropagation={() => handleBuyTokens()}
+						on:click|stopPropagation={() => handleBuyTokens(tokenItem.contractAddress)}
 					>
 						<!-- Desktop: Full token info -->
 						<div class="hidden sm:flex w-full justify-between items-center">
 							<div class={tokenButtonLeftClasses}>
 								<div class="flex items-center gap-2 w-full">
-									<span class={tokenSymbolClasses}>{token.symbol}</span>
-									<span class="text-xs font-extrabold text-white bg-secondary px-2 py-1 tracking-wider rounded whitespace-nowrap">{token.sharePercentage ? `${token.sharePercentage}%` : shareOfAsset} of Asset</span>
+									<span class={tokenSymbolClasses}>{tokenItem.symbol}</span>
+									<span class="text-xs font-extrabold text-white bg-secondary px-2 py-1 tracking-wider rounded whitespace-nowrap">{tokenItem.sharePercentage ? `${tokenItem.sharePercentage}%` : shareOfAsset} of Asset</span>
 								</div>
-								<span class={tokenNameClasses}>{token.name}</span>
+								<span class={tokenNameClasses}>{tokenItem.releaseName}</span>
 								<span class={tokenPaymentDateClasses}>First payment: {firstPaymentMonth}</span>
 							</div>
 							<div class={tokenButtonRightClasses}>
 								<div class={returnsDisplayClasses}>
 									<div class={returnItemClasses}>
 										<span class={returnLabelClasses}>Base</span>
-										<span class={returnValueClasses}>{baseReturn}%</span>
+										<span class={returnValueClasses}>
+											<FormattedReturn value={baseReturn} />
+										</span>
 									</div>
 									<div class={returnDividerClasses}>+</div>
 									<div class={returnItemClasses}>
 										<span class={returnLabelClasses}>Bonus</span>
-										<span class={returnValueClasses}>{bonusReturn}%</span>
+										<span class={returnValueClasses}>
+											<FormattedReturn value={bonusReturn} />
+										</span>
 									</div>
 								</div>
 								<span class={buyCtaClasses}>Buy →</span>
@@ -226,7 +233,7 @@
 						<!-- Mobile: Simplified token info -->
 						<div class="sm:hidden flex justify-between items-center w-full">
 							<div class="flex-1">
-								<span class={tokenSymbolClasses}>{token.symbol}</span>
+								<span class={tokenSymbolClasses}>{tokenItem.symbol}</span>
 							</div>
 							<div class="flex items-center gap-3">
 								<div class="text-center">
@@ -239,7 +246,7 @@
 				{/each}
 				</div>
 				
-				{#if availableTokens.length > 2 && canScrollDown}
+				{#if tokensArray.length > 2 && canScrollDown}
 					<!-- Bottom scroll indicator - hidden on mobile -->
 					<button 
 						class="hidden lg:flex w-full py-1 items-center justify-center hover:bg-gray-50 transition-colors"

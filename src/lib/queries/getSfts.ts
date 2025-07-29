@@ -1,14 +1,13 @@
-import { BASE_SFT_SUBGRAPH_URL, ENERGY_FIELDS } from "$lib/network";
-
+import { BASE_SFT_SUBGRAPH_URL, ENERGY_FEILDS } from "$lib/network";
 
 export const getSfts = async (): Promise<any> => {
-	// Extract all SFT addresses from ENERGY_FIELDS
-	const sftAddresses = ENERGY_FIELDS.flatMap(field => field.sftTokens);
-	
-	const query = `
+  // Extract all SFT addresses from ENERGY_FEILDS
+  const sftAddresses = ENERGY_FEILDS.flatMap((field) => field.sftTokens);
+
+  const query = `
     {
  offchainAssetReceiptVaults(where: {
- id_in: [${sftAddresses.map((s) => `"${s.toString().toLowerCase()}"`).join(',')}]
+ id_in: [${sftAddresses.map((s) => `"${s.toString().toLowerCase()}"`).join(",")}]
  }) {
 
     withdraws {
@@ -215,13 +214,13 @@ export const getSfts = async (): Promise<any> => {
           }
     `;
 
-	const response = await fetch(BASE_SFT_SUBGRAPH_URL, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ query })
-	});
+  const response = await fetch(BASE_SFT_SUBGRAPH_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
 
-	const json = await response.json();
+  const json = await response.json();
 
-	return json.data.offchainAssetReceiptVaults;
+  return json.data.offchainAssetReceiptVaults;
 };

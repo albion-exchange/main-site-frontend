@@ -1,12 +1,12 @@
 /**
  * @fileoverview Token Service
  * Handles token-related data operations and business logic
- * 
+ *
  * Responsibilities:
  * - Load and manage token data
  * - Token-specific transformations
  * - Token-related calculations
- * 
+ *
  * Dependencies:
  * - AssetService for asset data
  * - TransformService for data transformation
@@ -47,7 +47,7 @@ class TokenService {
   constructor() {
     // Initialize token metadata map using contract addresses as keys
     this.tokenMetadataMap = {};
-    
+
     // Map each token metadata by its contract address
     const tokenMetadataList = [
       bakHf1Metadata,
@@ -59,8 +59,8 @@ class TokenService {
       gomDw1Metadata,
       perBv1Metadata,
     ];
-    
-    tokenMetadataList.forEach(metadata => {
+
+    tokenMetadataList.forEach((metadata) => {
       this.tokenMetadataMap[metadata.contractAddress] = metadata;
     });
 
@@ -75,8 +75,8 @@ class TokenService {
       return this.allTokens;
     }
 
-    this.allTokens = Object.values(this.tokenMetadataMap).map(tokenData => 
-      TypeTransformations.tokenToUI(tokenData)
+    this.allTokens = Object.values(this.tokenMetadataMap).map((tokenData) =>
+      TypeTransformations.tokenToUI(tokenData),
     );
 
     return this.allTokens;
@@ -104,7 +104,7 @@ class TokenService {
     }
 
     return assetInfo.tokens
-      .map(address => this.getTokenByAddress(address))
+      .map((address) => this.getTokenByAddress(address))
       .filter((token): token is Token => token !== null);
   }
 
@@ -119,7 +119,9 @@ class TokenService {
    * Get asset ID for a token
    */
   getAssetIdForToken(tokenAddress: string): string | null {
-    for (const [assetId, assetInfo] of Object.entries(this.assetTokenMapping.assets)) {
+    for (const [assetId, assetInfo] of Object.entries(
+      this.assetTokenMapping.assets,
+    )) {
       if (assetInfo.tokens.includes(tokenAddress)) {
         return assetId;
       }
@@ -155,7 +157,7 @@ class TokenService {
    */
   getTokensByType(tokenType: string): Token[] {
     const tokens = this.getAllTokens();
-    return tokens.filter(token => token.tokenType === tokenType);
+    return tokens.filter((token) => token.tokenType === tokenType);
   }
 
   /**
@@ -163,13 +165,13 @@ class TokenService {
    */
   getAvailableTokens(): Token[] {
     const tokens = this.getAllTokens();
-    return tokens.filter(token => 
-      token.isActive && token.supply && 
-      (BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply)) > 0n
+    return tokens.filter(
+      (token) =>
+        token.isActive &&
+        token.supply &&
+        BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply) > 0n,
     );
   }
-
-
 
   /**
    * Search tokens by name or symbol
@@ -182,9 +184,10 @@ class TokenService {
     const lowercaseQuery = query.toLowerCase();
     const tokens = this.getAllTokens();
 
-    return tokens.filter(token => 
-      token.name?.toLowerCase().includes(lowercaseQuery) ||
-      token.symbol?.toLowerCase().includes(lowercaseQuery)
+    return tokens.filter(
+      (token) =>
+        token.name?.toLowerCase().includes(lowercaseQuery) ||
+        token.symbol?.toLowerCase().includes(lowercaseQuery),
     );
   }
 
@@ -205,7 +208,7 @@ class TokenService {
     const maxSupply = BigInt(token.supply.maxSupply);
     const mintedSupply = BigInt(token.supply.mintedSupply);
     const availableSupply = maxSupply - mintedSupply;
-    
+
     const total = Number(maxSupply) / Math.pow(10, token.decimals);
     const available = Number(availableSupply) / Math.pow(10, token.decimals);
     const sold = Number(mintedSupply) / Math.pow(10, token.decimals);
@@ -215,7 +218,7 @@ class TokenService {
       total,
       available,
       sold,
-      percentageSold
+      percentageSold,
     };
   }
 
@@ -228,7 +231,8 @@ class TokenService {
       return false;
     }
 
-    const availableSupply = BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply);
+    const availableSupply =
+      BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply);
     return token.isActive && availableSupply > 0n;
   }
 
@@ -240,13 +244,13 @@ class TokenService {
     if (!token || !token.payoutHistory) {
       return null;
     }
-    
+
     return {
-      recentPayouts: token.payoutHistory.map(payout => ({
+      recentPayouts: token.payoutHistory.map((payout) => ({
         month: payout.month,
         totalPayout: payout.totalPayout,
-        payoutPerToken: payout.payoutPerToken
-      }))
+        payoutPerToken: payout.payoutPerToken,
+      })),
     };
   }
 

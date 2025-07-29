@@ -4,15 +4,17 @@
 	import type { Token, Asset } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton, FormattedNumber, FormattedReturn } from '$lib/components/components';
 	import { sftMetadata, sfts } from '$lib/stores';
-	import { formatCurrency, formatTokenSupply, formatSmartReturn } from '$lib/utils/formatters';
+	import { formatCurrency, formatTokenSupply, formatSmartReturn, formatSmartNumber } from '$lib/utils/formatters';
 	import { meetsSupplyThreshold, formatSupplyAmount, getAvailableSupplyBigInt } from '$lib/utils/tokenSupplyUtils';
     import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
 	import { readContract } from '@wagmi/core';
 	import { signerAddress, wagmiConfig, chainId } from 'svelte-wagmi';
 	import type { Hex } from 'viem';
-    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
+    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft, generateTokenMetadataInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
     import { getTokenReturns } from '$lib/utils';
 	import authorizerAbi from '$lib/abi/authorizer.json';
+    import type { TokenMetadata } from '$lib/types/MetaboardTypes';
+    import { getEnergyFieldId } from '$lib/utils/energyFieldGrouping';
 
 	export let autoPlay = true;
 	export let autoPlayInterval = 5000;
@@ -22,7 +24,7 @@
 	const tokenService = useTokenService();
 
 	let currentIndex = 0;
-	let featuredTokensWithAssets: Array<{ token: Token; asset: Asset }> = [];
+	let featuredTokensWithAssets: Array<{ token: TokenMetadata; asset: Asset }> = [];
 	let loading = true;
 	let error: string | null = null;
 	let autoPlayTimer: ReturnType<typeof setTimeout> | null = null;
@@ -47,14 +49,13 @@
 						(meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
 					);
 					if(pinnedMetadata) {
-	
 						const sftMaxSharesSupply = await readContract($wagmiConfig, {
 							abi: authorizerAbi,
 							address: sft.activeAuthorizer?.address as Hex,
 							functionName: 'maxSharesSupply',
 							args: []
-						});
-						const tokenInstance = generateTokenInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
+						}) as bigint;
+						const tokenInstance = generateTokenMetadataInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
 						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
 						featuredTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
 					}
@@ -207,7 +208,7 @@
 	$: inactiveSlideClasses = 'opacity-100';
 	$: bannerCardClasses = 'grid grid-cols-1 lg:grid-cols-2 bg-white border border-light-gray overflow-hidden';
 	$: tokenSectionClasses = 'p-4 sm:p-6 lg:p-8 bg-white border-b lg:border-b-0 lg:border-r border-light-gray flex flex-col justify-between min-h-[300px] sm:min-h-[350px] lg:min-h-[400px]';
-	$: assetSectionClasses = 'p-4 sm:p-6 lg:p-8 bg-light-gray flex flex-col justify-between min-h-[300px] sm:min-h-[350px] lg:min-h-[400px]';
+	$: assetSectionClasses = 'p-4 sm:p-6 lg:p-8 bg-light-gray flex flex-col justify-between min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] hidden lg:flex';
 	$: tokenHeaderClasses = 'mb-3 sm:mb-4 lg:mb-6';
 	$: tokenNameClasses = 'text-lg sm:text-xl lg:text-2xl font-bold text-black tracking-wider mb-2 leading-tight text-left';
 	$: tokenContractClasses = 'text-xs sm:text-sm font-medium text-secondary break-all leading-relaxed py-1 opacity-80 tracking-tight font-figtree text-left';
@@ -236,9 +237,6 @@
 	$: navButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target items-center justify-center rounded-full';
 	$: prevButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target left-[-4rem] items-center justify-center rounded-full';
 	$: nextButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target right-[-4rem] items-center justify-center rounded-full';
-	$: indicatorsClasses = 'absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
-	$: indicatorClasses = 'w-3 h-3 border-none bg-white/50 cursor-pointer transition-all duration-200 hover:bg-white/80 touch-target rounded-full';
-	$: indicatorActiveClasses = 'w-3 h-3 border-none bg-white cursor-pointer transition-all duration-200 scale-125 shadow-lg touch-target rounded-full';
 
 	
 	// Get status-specific classes
@@ -313,9 +311,21 @@
 						<div class={bannerCardClasses}>
 							<!-- Token Section -->
 							<div class={tokenSectionClasses}>
+								<!-- Mobile: Image at the top -->
+								{#if item.asset.coverImage}
+									<div class="lg:hidden mb-4 -mx-4 -mt-4">
+										<img 
+											src={item.asset.coverImage} 
+											alt={item.asset.name}
+											class="w-full h-40 object-cover"
+											loading="lazy"
+										/>
+									</div>
+								{/if}
+								
 								<div class={tokenHeaderClasses}>
 									<div class="mb-3">
-										<h3 class={tokenNameClasses}>{item.token.name}</h3>
+										<h3 class={tokenNameClasses}>{item.token.releaseName}</h3>
 									</div>
 									<div class={tokenContractClasses}>{item.token.contractAddress}</div>
 								</div>
@@ -380,7 +390,7 @@
 					<PrimaryButton on:click={() => handleBuyTokens(item.token.contractAddress)}>
 						Buy Tokens
 					</PrimaryButton>
-					<SecondaryButton href="/assets/{item.asset.id}">
+					<SecondaryButton href="/assets/{getEnergyFieldId(item.token.contractAddress)}" >
 						View Asset
 					</SecondaryButton>
 				</div>
@@ -416,7 +426,7 @@
 					<div class={assetStatsClasses}>
 						<div class={statItemClasses}>
 							<div class={statLabelClasses}>Remaining Production</div>
-							<div class={statValueClasses}>{item.asset.production?.expectedRemainingProduction || 'TBD'}</div>
+							<div class={statValueClasses}>{item.asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0) ? formatSmartNumber(item.asset.plannedProduction.projections.reduce((acc, curr) => acc + curr.production, 0), { suffix: ' boe' }) : 'TBD'}</div>
 						</div>
 					</div>
 
@@ -433,7 +443,7 @@
 					<h3 class={assetNameClasses}>{item.asset.name}</h3>
 					<div class="text-sm text-black opacity-70">
 						<span class="font-medium">Remaining Production:</span> 
-						<span>{item.asset.production?.expectedRemainingProduction || 'TBD'}</span>
+						<span>{item.asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0) ? formatSmartNumber(item.asset.plannedProduction.projections.reduce((acc, curr) => acc + curr.production, 0), { suffix: ' boe' }) : 'TBD'}</span>
 					</div>
 				</div>
 							</div>
@@ -442,19 +452,18 @@
 				{/each}
 			</div>
 
-			<!-- Indicators (remain inside carousel wrapper) -->
-			{#if featuredTokensWithAssets.length > 1}
-				<div class={indicatorsClasses}>
-					{#each featuredTokensWithAssets as _, index}
-						<button 
-							class="{index === currentIndex ? indicatorActiveClasses : indicatorClasses}"
-							on:click={() => goToSlide(index)}
-							aria-label="Go to slide {index + 1}"
-						></button>
-					{/each}
-				</div>
-			{/if}
 		</div>
+		
+		<!-- Indicators below carousel (both mobile and desktop) -->
+		{#if featuredTokensWithAssets.length > 1}
+			<div class="flex justify-center gap-1 mt-2 z-10">
+				{#each featuredTokensWithAssets as _, index}
+					<div 
+						class="{index === currentIndex ? 'w-2 h-2 bg-gray-800 rounded-full' : 'w-2 h-2 bg-gray-300 rounded-full'}"
+					></div>
+				{/each}
+			</div>
+		{/if}
 	{/if}
 </div>
 

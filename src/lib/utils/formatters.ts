@@ -1,13 +1,13 @@
 /**
  * @fileoverview Centralized formatting utilities
- * 
+ *
  * This module provides consistent formatting functions used throughout the application.
  * Only complex or business-specific formatting logic should be centralized here.
- * 
+ *
  * For simple cases, prefer native JavaScript methods:
  * - Use `value.toLocaleString()` for basic number formatting with commas
  * - Use `value.toFixed(n)` for simple decimal formatting
- * 
+ *
  * This module focuses on:
  * - Currency: Complex USD formatting with options (minimumFractionDigits, compact notation)
  * - Business-specific dates: Converting "YYYY-MM" to "MMM YYYY" format
@@ -28,31 +28,31 @@ export function formatCurrency(
     minimumFractionDigits?: number;
     maximumFractionDigits?: number;
     compact?: boolean;
-  } = {}
+  } = {},
 ): string {
-  const { 
-    minimumFractionDigits = (amount % 1 === 0 ? 0 : 2), 
+  const {
+    minimumFractionDigits = amount % 1 === 0 ? 0 : 2,
     maximumFractionDigits = 2,
-    compact = false 
+    compact = false,
   } = options;
 
   if (compact && Math.abs(amount) >= 1000000) {
-    const formatted = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      notation: 'compact',
-      maximumFractionDigits: 1
+    const formatted = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      notation: "compact",
+      maximumFractionDigits: 1,
     }).format(amount);
-    return formatted.replace('$', 'US$');
+    return formatted.replace("$", "US$");
   }
 
-  const formatted = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  const formatted = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits,
-    maximumFractionDigits
+    maximumFractionDigits,
   }).format(amount);
-  return formatted.replace('$', 'US$');
+  return formatted.replace("$", "US$");
 }
 
 /**
@@ -61,20 +61,30 @@ export function formatCurrency(
  * @returns Formatted date string (e.g., "Jan 2024")
  */
 export function formatEndDate(dateStr: string): string {
-  if (!dateStr || dateStr === 'undefined') return 'TBD';
-  
-  const parts = dateStr.split('-');
-  if (parts.length < 2) return 'TBD';
-  
+  if (!dateStr || dateStr === "undefined") return "TBD";
+
+  const parts = dateStr.split("-");
+  if (parts.length < 2) return "TBD";
+
   const [year, month] = parts;
   const monthNames = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ];
-  
+
   const monthIndex = parseInt(month) - 1;
-  if (monthIndex < 0 || monthIndex >= 12) return 'TBD';
-  
+  if (monthIndex < 0 || monthIndex >= 12) return "TBD";
+
   return `${monthNames[monthIndex]} ${year}`;
 }
 
@@ -86,19 +96,31 @@ export function formatEndDate(dateStr: string): string {
  */
 export function formatDate(
   date: Date | string,
-  format: 'short' | 'medium' | 'long' = 'medium'
+  format: "short" | "medium" | "long" = "medium",
 ): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
-  if (isNaN(dateObj.getTime())) return 'Invalid Date';
-  
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) return "Invalid Date";
+
   const options: Intl.DateTimeFormatOptions = {
-    short: { month: 'numeric' as const, day: 'numeric' as const, year: 'numeric' as const },
-    medium: { month: 'short' as const, day: 'numeric' as const, year: 'numeric' as const },
-    long: { month: 'long' as const, day: 'numeric' as const, year: 'numeric' as const }
+    short: {
+      month: "numeric" as const,
+      day: "numeric" as const,
+      year: "numeric" as const,
+    },
+    medium: {
+      month: "short" as const,
+      day: "numeric" as const,
+      year: "numeric" as const,
+    },
+    long: {
+      month: "long" as const,
+      day: "numeric" as const,
+      year: "numeric" as const,
+    },
   }[format];
-  
-  return new Intl.DateTimeFormat('en-US', options).format(dateObj);
+
+  return new Intl.DateTimeFormat("en-US", options).format(dateObj);
 }
 
 /**
@@ -113,17 +135,17 @@ export function formatNumber(
     decimals?: number;
     minimumFractionDigits?: number;
     maximumFractionDigits?: number;
-  } = {}
+  } = {},
 ): string {
-  const { 
+  const {
     decimals,
     minimumFractionDigits = decimals ?? 0,
-    maximumFractionDigits = decimals ?? 0
+    maximumFractionDigits = decimals ?? 0,
   } = options;
-  
-  return new Intl.NumberFormat('en-US', {
+
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits,
-    maximumFractionDigits
+    maximumFractionDigits,
   }).format(value);
 }
 
@@ -139,29 +161,32 @@ export function formatPercentage(
     decimals?: number;
     showSign?: boolean;
     isAlreadyPercentage?: boolean;
-  } = {}
+  } = {},
 ): string {
-  const { 
-    decimals = 2, 
+  const {
+    decimals = 2,
     showSign = false,
-    isAlreadyPercentage = false 
+    isAlreadyPercentage = false,
   } = options;
-  
+
   // If value is already a percentage (e.g., 12.34 instead of 0.1234)
   const percentValue = isAlreadyPercentage ? value / 100 : value;
-  
+
   if (showSign && value > 0) {
-    return '+' + new Intl.NumberFormat('en-US', {
-      style: 'percent',
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals
-    }).format(percentValue);
+    return (
+      "+" +
+      new Intl.NumberFormat("en-US", {
+        style: "percent",
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      }).format(percentValue)
+    );
   }
-  
-  return new Intl.NumberFormat('en-US', {
-    style: 'percent',
+
+  return new Intl.NumberFormat("en-US", {
+    style: "percent",
     minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
+    maximumFractionDigits: decimals,
   }).format(percentValue);
 }
 
@@ -173,7 +198,7 @@ export function formatPercentage(
  */
 export function formatSimplePercentage(
   value: number,
-  decimals: number = 1
+  decimals: number = 1,
 ): string {
   return `${value.toFixed(decimals)}%`;
 }
@@ -186,16 +211,16 @@ export function formatSimplePercentage(
  */
 export function formatTokenAmount(
   amount: string | number,
-  decimals: number = 18
+  decimals: number = 18,
 ): string {
-  const value = typeof amount === 'string' ? parseFloat(amount) : amount;
+  const value = typeof amount === "string" ? parseFloat(amount) : amount;
   const adjustedValue = value / Math.pow(10, decimals);
-  
-  return new Intl.NumberFormat('en-US', {
+
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 6,
     // Remove trailing zeros
-    trailingZeroDisplay: 'stripIfInteger'
+    trailingZeroDisplay: "stripIfInteger",
   } as Intl.NumberFormatOptions).format(adjustedValue);
 }
 
@@ -207,12 +232,12 @@ export function formatTokenAmount(
  */
 export function formatCompactNumber(
   value: number,
-  decimals: number = 1
+  decimals: number = 1,
 ): string {
-  return new Intl.NumberFormat('en-US', {
-    notation: 'compact',
+  return new Intl.NumberFormat("en-US", {
+    notation: "compact",
     minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
+    maximumFractionDigits: decimals,
   }).format(value);
 }
 
@@ -226,19 +251,19 @@ export function formatCompactNumber(
 export function formatSmartNumber(
   value: number,
   options: {
-    threshold?: number;      // When to switch to compact (default: 10000)
-    decimals?: number;       // Decimal places for compact format (default: 1)
-    forceCompact?: boolean;  // Always use compact notation
-    prefix?: string;         // Prefix like $ for currency
-    suffix?: string;         // Suffix like % for percentage
-  } = {}
+    threshold?: number; // When to switch to compact (default: 10000)
+    decimals?: number; // Decimal places for compact format (default: 1)
+    forceCompact?: boolean; // Always use compact notation
+    prefix?: string; // Prefix like $ for currency
+    suffix?: string; // Suffix like % for percentage
+  } = {},
 ): string {
   const {
     threshold = 10000,
     decimals = 1,
     forceCompact = false,
-    prefix = '',
-    suffix = ''
+    prefix = "",
+    suffix = "",
   } = options;
 
   if (forceCompact || Math.abs(value) >= threshold) {
@@ -262,20 +287,20 @@ export function formatTokenSupply(
   options: {
     decimals?: number;
     forceCompact?: boolean;
-  } = {}
+  } = {},
 ): string {
-  const numValue = typeof value === 'string' ? parseFloat(value) : value;
-  
+  const numValue = typeof value === "string" ? parseFloat(value) : value;
+
   // For very large token supplies, always use compact
   if (numValue >= 1000000) {
     return formatCompactNumber(numValue, options.decimals ?? 1);
   }
-  
+
   // For medium amounts, use smart formatting
   return formatSmartNumber(numValue, {
     threshold: 10000,
     decimals: options.decimals ?? 1,
-    forceCompact: options.forceCompact
+    forceCompact: options.forceCompact,
   });
 }
 
@@ -289,13 +314,12 @@ export function formatTokenSupply(
  */
 export function formatWithAffixes(
   value: string | number,
-  prefix: string = '',
-  suffix: string = ''
+  prefix: string = "",
+  suffix: string = "",
 ): string {
-  const formattedValue = typeof value === 'number' 
-    ? value.toLocaleString('en-US') 
-    : value;
-    
+  const formattedValue =
+    typeof value === "number" ? value.toLocaleString("en-US") : value;
+
   return `${prefix}${formattedValue}${suffix}`;
 }
 
@@ -321,7 +345,7 @@ export function formatDollarAmount(amount: number): string {
  * Utility type guards for safe formatting
  */
 export function isValidNumber(value: unknown): value is number {
-  return typeof value === 'number' && !isNaN(value) && isFinite(value);
+  return typeof value === "number" && !isNaN(value) && isFinite(value);
 }
 
 export function isValidDate(date: unknown): boolean {
@@ -331,8 +355,8 @@ export function isValidDate(date: unknown): boolean {
 }
 
 export function formatAddress(address: string): string {
-	if (!address) return "";
-	return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  if (!address) return "";
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
 /**
@@ -344,30 +368,31 @@ export function formatAddress(address: string): string {
 export function formatSmartReturn(
   returnPercentage: number | undefined,
   options: {
-    threshold?: number;      // When to switch from % to x (default: 1000)
-    showPlus?: boolean;      // Show + sign for positive values
-  } = {}
+    threshold?: number; // When to switch from % to x (default: 1000)
+    showPlus?: boolean; // Show + sign for positive values
+  } = {},
 ): string {
   if (returnPercentage === undefined || returnPercentage === null) {
-    return 'TBD';
+    return "TBD";
   }
 
   const { threshold = 1000, showPlus = false } = options;
-  
+
   // For values below threshold, show as percentage
   if (returnPercentage < threshold) {
     const formatted = `${Math.round(returnPercentage)}%`;
     return showPlus && returnPercentage > 0 ? `+${formatted}` : formatted;
   }
-  
+
   // Convert percentage to multiplier (100% = 2x, 200% = 3x, etc.)
-  const multiplier = (returnPercentage / 100) + 1;
-  
+  const multiplier = returnPercentage / 100 + 1;
+
   // Cap display at >10x for any value 10x or greater
   if (multiplier >= 10) {
-    return '>10x';
+    return ">10x";
   }
-  
+
   // For multipliers below 10x, show with one decimal if needed
   return `${multiplier.toFixed(1)}x`;
 }
+
