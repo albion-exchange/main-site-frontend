@@ -54,8 +54,8 @@
 	<ContentSection background="gray" padding="standard" centered>
 		<SectionTitle level="h2" size="section" center className="mb-8">Still need help?</SectionTitle>
 		<div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
-			<a href="mailto:contact@albion.labs" class="text-primary font-semibold text-lg no-underline hover:opacity-80 transition-opacity duration-200">
-				contact@albion.labs
+			<a href="mailto:contact@albionlabs.org" class="text-primary font-semibold text-lg no-underline hover:opacity-80 transition-opacity duration-200">
+				contact@albionlabs.org
 			</a>
 			<span class="text-black">or</span>
 			<a href="https://t.me/+rw9m7NqlTfhhN2I8" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-semibold no-underline rounded-lg hover:bg-secondary transition-colors duration-200">

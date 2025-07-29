@@ -15,7 +15,7 @@ export function getShareUrls(shareData: ShareData) {
   const encodedTitle = encodeURIComponent(title);
 
   return {
-    twitter: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
+    twitter: `https://x.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
     telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`,
     whatsapp: `https://api.whatsapp.com/send?text=${encodedText}%20${encodedUrl}`,
