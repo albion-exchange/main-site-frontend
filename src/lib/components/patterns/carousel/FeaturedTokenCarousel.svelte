@@ -317,10 +317,10 @@
 										<img 
 											src={item.asset.coverImage} 
 											alt={item.asset.name}
-											class="w-full h-full object-cover opacity-20"
+											class="w-full h-full object-cover opacity-60"
 											loading="lazy"
 										/>
-										<div class="absolute inset-0 bg-white/70"></div>
+										<div class="absolute inset-0 bg-white/40"></div>
 									</div>
 								{/if}
 								
@@ -472,7 +472,7 @@
 			<div class="flex lg:hidden justify-center gap-1 mt-3 z-10">
 				{#each featuredTokensWithAssets as _, index}
 					<button 
-						class="{index === currentIndex ? 'w-1.5 h-1.5 border-none bg-gray-600 cursor-pointer transition-all duration-200 touch-target rounded-full' : 'w-1.5 h-1.5 border-none bg-gray-400/80 cursor-pointer transition-all duration-200 hover:bg-gray-600 touch-target rounded-full'}"
+						class="{index === currentIndex ? 'w-2 h-2 border-none bg-gray-700 cursor-pointer transition-all duration-200 touch-target rounded-full' : 'w-2 h-2 border-none bg-gray-400 cursor-pointer transition-all duration-200 hover:bg-gray-600 touch-target rounded-full'}"
 						on:click={() => goToSlide(index)}
 						aria-label="Go to slide {index + 1}"
 					></button>
