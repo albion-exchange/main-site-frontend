@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { useAssetService, useTokenService } from '$lib/services';
 	import { writeContract } from '@wagmi/core';
 	import { web3Modal, signerAddress, wagmiConfig, connected } from 'svelte-wagmi';
 	import { Card, CardContent, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, CollapsibleSection, FormattedNumber } from '$lib/components/components';

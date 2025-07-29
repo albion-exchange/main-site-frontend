@@ -28,11 +28,25 @@ export const ENERGY_FEILDS: EnergyField[] = [
     sftTokens: [
       {
         address: "0xd5316ca888491575befc0273a00de2186c53f760",
-        claims: [],
+        claims: [
+          {
+            orderHash: "0xac3f693a57a43f04c76d62b5e8335084fe0d5c9b4b205c35f61ed748ebe7c7ec",
+            csvLink: "https://gateway.pinata.cloud/ipfs/bafkreiceeasgwffk27kvrgfh4dihiekb7iiznqyjpbabavjrucymv2pobe",
+          },
+          {
+            orderHash: "0x055ccf387c414d256a79e8fbd00ba9d2d15305cebc4616e57a57b88c9751dda4",
+            csvLink: "https://gateway.pinata.cloud/ipfs/bafkreidtqov24bkl6ylcjqbt2pjhx5ya7glezwnnnln7hwu7cyq6jhxnzi",
+          }
+        ],
       },
       {
         address: "0xea9a6f77483a07bc287dfb8dad151042376eb153",
-        claims: [],
+        claims: [
+          {
+            orderHash: "0xd64151706bf941d444324d0c8adebff154419ed471d69ddb299b05eb69a568de",
+            csvLink: "https://gateway.pinata.cloud/ipfs/bafkreiea3bziwveo2nhbcui4jdxx4m42b3fs3ekyu45n7hdabhadqpf3ki",
+          }
+        ],
       },
     ],
   },
@@ -55,7 +69,12 @@ export const ENERGY_FEILDS: EnergyField[] = [
     sftTokens: [
       {
         address: "0xc699575fe18f00104d926f0167cd858ce6d8b32e",
-        claims: [],
+        claims: [
+          {
+            orderHash: "0x48f7af9ea6c9caeb742fa6a772fce7c4b2eace510dc9bdcf019c029306434ad2",
+            csvLink: "https://gateway.pinata.cloud/ipfs/bafkreicjcemmypds6d5c4lonwp56xb2ilzhkk7hty3y6fo4nvdkxnaibgu",
+          }
+        ],
       },
     ],
   },
