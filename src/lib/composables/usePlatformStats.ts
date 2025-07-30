@@ -42,10 +42,21 @@ export function usePlatformStats() {
     }
 
     try {
-      const totalTokenHolders = $sfts.reduce(
-        (acc, sft) => acc + (sft.tokenHolders?.length || 0),
-        0,
-      );
+      // Collect unique addresses across all contracts
+      const uniqueHolders = new Set<string>();
+      
+      $sfts.forEach(sft => {
+        if (sft.tokenHolders && Array.isArray(sft.tokenHolders)) {
+          sft.tokenHolders.forEach(holder => {
+            if (holder.address) {
+              // Add lowercase address to ensure uniqueness regardless of case
+              uniqueHolders.add(holder.address.toLowerCase());
+            }
+          });
+        }
+      });
+      
+      const totalTokenHolders = uniqueHolders.size;
       
       // Use ENERGY_FIELDS as canonical source for asset counting
       const totalAssets = ENERGY_FIELDS.length;
