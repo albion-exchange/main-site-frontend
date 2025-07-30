@@ -100,26 +100,31 @@ export function useAssetDetailData(initialEnergyFieldId: string) {
         );
 
         if (pinnedMetadata) {
-          const sftMaxSharesSupply = (await readContract(currentWagmiConfig, {
-            abi: authorizerAbi,
-            address: sft.activeAuthorizer?.address as Hex,
-            functionName: "maxSharesSupply",
-            args: [],
-          })) as bigint;
+          try {
+            const sftMaxSharesSupply = (await readContract(currentWagmiConfig, {
+              abi: authorizerAbi,
+              address: sft.activeAuthorizer?.address as Hex,
+              functionName: "maxSharesSupply",
+              args: [],
+            })) as bigint;
 
-          const tokenInstance = generateTokenMetadataInstanceFromSft(
-            sft,
-            pinnedMetadata,
-            sftMaxSharesSupply.toString(),
-          );
-          tokens.push(tokenInstance);
-
-          // Use the first token's asset instance (they should all be the same)
-          if (!assetInstance) {
-            assetInstance = generateAssetInstanceFromSftMeta(
+            const tokenInstance = generateTokenMetadataInstanceFromSft(
               sft,
               pinnedMetadata,
+              sftMaxSharesSupply.toString(),
             );
+            tokens.push(tokenInstance);
+
+            // Use the first token's asset instance (they should all be the same)
+            if (!assetInstance) {
+              assetInstance = generateAssetInstanceFromSftMeta(
+                sft,
+                pinnedMetadata,
+              );
+            }
+          } catch (error) {
+            console.error(`Failed to load token data for SFT ${sft.id}:`, error);
+            // Continue with next token instead of breaking the entire load
           }
         }
       }

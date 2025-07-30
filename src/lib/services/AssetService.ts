@@ -54,10 +54,15 @@ class AssetService {
       );
       
       if (pinnedMetadata && pinnedMetadata.asset) {
-        const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
-        assets.push(assetInstance);
-        // Cache by asset ID
-        this.assetCache[assetInstance.id] = assetInstance;
+        try {
+          const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
+          assets.push(assetInstance);
+          // Cache by asset ID
+          this.assetCache[assetInstance.id] = assetInstance;
+        } catch (error) {
+          console.error(`Failed to load asset for SFT ${sft.id}:`, error);
+          // Continue with next asset instead of breaking the entire load
+        }
       }
     }
     
