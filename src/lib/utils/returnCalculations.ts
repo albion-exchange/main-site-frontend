@@ -174,24 +174,3 @@ export function getTokenPayoutHistory(
     })),
   };
 }
-
-export function exportTokenPayoutHistory(token: TokenMetadata[]): void {
-  // const currentToken = token[0];
-  // if (!currentToken || !currentToken.payoutData) {
-  //   return;
-  // }
-  // const headers = [
-  //   'Month',
-  //   'Date',
-  //   'Total Payout (USD)',
-  //   'Payout Per Token (USD)'
-  // ];
-  // const data = currentToken.payoutData.map(payout => [
-  //   payout.month,
-  //   payout.tokenPayout.date,
-  //   payout.tokenPayout.totalPayout.toFixed(2),
-  //   payout.tokenPayout.payoutPerToken.toFixed(4)
-  // ]);
-  // const filename = `${currentToken.assetId}-payment-history.csv`;
-  // exportToCSV(data, headers, filename);
-}

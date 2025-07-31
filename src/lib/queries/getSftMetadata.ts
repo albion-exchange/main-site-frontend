@@ -4,7 +4,9 @@ import { BASE_METADATA_SUBGRAPH_URL, ENERGY_FEILDS } from "$lib/network";
 export const getSftMetadata = async (): Promise<MetaV1S[]> => {
   try {
     // Extract all SFT addresses from ENERGY_FEILDS
-    const sftAddresses = ENERGY_FEILDS.flatMap((field) => field.sftTokens);
+    const sftAddresses = ENERGY_FEILDS.flatMap((field) =>
+      field.sftTokens.map((token) => token.address),
+    );
 
     // Create the subjects array for the GraphQL query
     const subjects = sftAddresses.map(

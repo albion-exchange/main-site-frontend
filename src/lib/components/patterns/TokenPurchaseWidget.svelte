@@ -15,7 +15,6 @@
     import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
 	import authorizerAbi from '$lib/abi/authorizer.json';
 	import OffchainAssetReceiptVaultAbi from '$lib/abi/OffchainAssetReceiptVault.json';
-	import { ENERGY_FEILDS } from '$lib/network';
     import { getEnergyFieldId } from '$lib/utils/energyFieldGrouping';
 
 	export let isOpen = false;

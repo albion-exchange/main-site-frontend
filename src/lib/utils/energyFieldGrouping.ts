@@ -36,8 +36,8 @@ export function groupSftsByEnergyField(
   tokensWithAssets.forEach((item) => {
     const matchingField = ENERGY_FEILDS.find((field) =>
       field.sftTokens.some(
-        (tokenAddress) =>
-          tokenAddress.toLowerCase() ===
+        (token) =>
+          token.address.toLowerCase() ===
           item.token.contractAddress.toLowerCase(),
       ),
     );
@@ -106,7 +106,7 @@ export function groupSftsByEnergyField(
 export function getEnergyFieldId(tokenAddress: string): string {
   const matchingField = ENERGY_FEILDS.find((field) =>
     field.sftTokens.some(
-      (tokenAddr) => tokenAddr.toLowerCase() === tokenAddress.toLowerCase(),
+      (token) => token.address.toLowerCase() === tokenAddress.toLowerCase(),
     ),
   );
 
