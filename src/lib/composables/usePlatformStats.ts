@@ -29,7 +29,11 @@ interface PlatformStatsState {
 export function usePlatformStats() {
   // Return a derived store that calculates platform stats from sfts and metadata
   const platformStats = derived([sfts, sftMetadata], ([$sfts, $sftMetadata]) => {
+    console.log('=== Platform Stats Calculation ===');
+    console.log('$sfts data:', $sfts);
+    
     if (!$sfts || $sfts.length === 0 || !$sftMetadata) {
+      console.log('No data yet, returning loading state');
       return {
         loading: true,
         totalAssets: 0,
@@ -44,16 +48,34 @@ export function usePlatformStats() {
     try {
       // Collect unique addresses across all contracts
       const uniqueHolders = new Set<string>();
+      const holderDetails = new Map<string, string[]>(); // Map of holder address to array of contract addresses
       
       $sfts.forEach(sft => {
         if (sft.tokenHolders && Array.isArray(sft.tokenHolders)) {
           sft.tokenHolders.forEach(holder => {
-            if (holder.address) {
-              // Add lowercase address to ensure uniqueness regardless of case
-              uniqueHolders.add(holder.address.toLowerCase());
+            if (holder.address && holder.balance && Number(holder.balance) > 0) {
+              const holderAddr = holder.address.toLowerCase();
+              // Add to unique holders set
+              uniqueHolders.add(holderAddr);
+              
+              // Track which contracts this holder has tokens in
+              if (!holderDetails.has(holderAddr)) {
+                holderDetails.set(holderAddr, []);
+              }
+              holderDetails.get(holderAddr)!.push(sft.address || sft.id);
             }
           });
         }
+      });
+      
+      // Log all unique holders with their contract holdings
+      console.log(`Total unique investors: ${uniqueHolders.size}`);
+      console.log('Investor details:');
+      holderDetails.forEach((contracts, holder) => {
+        console.log(`  ${holder}:`);
+        contracts.forEach(contract => {
+          console.log(`    - ${contract}`);
+        });
       });
       
       const totalTokenHolders = uniqueHolders.size;
