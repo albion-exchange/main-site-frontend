@@ -34,6 +34,7 @@
 	$: iconClasses = `text-[0.8em] ${computedVariant === 'producing' ? 'animate-[pulse-status_2s_infinite] motion-reduce:animate-none' : ''}`;
 
 	function getVariantFromStatus(status: string): typeof variant {
+		if (!status) return 'default';
 		const statusLower = status.toLowerCase();
 		if (statusLower.includes('producing')) return 'producing';
 		if (statusLower.includes('funding')) return 'funding';
@@ -64,6 +65,6 @@
 	{#if showIcon}
 		<span class={iconClasses}>{getIcon(computedVariant)}</span>
 	{/if}
-	{uppercase ? status.toUpperCase() : status}
+	{uppercase ? (status || '').toUpperCase() : (status || '')}
 </span>
 
