@@ -16,6 +16,7 @@
 		useTooltip, 
 		useEmailNotification
 	} from '$lib/composables';
+	import { onMount } from 'svelte';
 	import AssetDetailHeader from '$lib/components/patterns/assets/AssetDetailHeader.svelte';
 	import AssetOverviewTab from '$lib/components/patterns/assets/AssetOverviewTab.svelte';
     import { calculateTokenReturns, getTokenPayoutHistory, getTokenSupply } from '$lib/utils/returnCalculations';
@@ -149,6 +150,28 @@
 	function handleCloseEmailPopup() {
 		showEmailPopup = false;
 	}
+	
+	function handleSubscribeFormSubmit() {
+		// Store the current page path before form submission
+		sessionStorage.setItem('lastPageBeforeSubscribe', $page.url.pathname + $page.url.search);
+		// The form will handle the actual submission
+	}
+	
+	onMount(() => {
+		// Add event listener to the form
+		const form = document.getElementById('mc-embedded-subscribe-form');
+		if (form) {
+			// Use capture phase to ensure our handler runs first
+			form.addEventListener('submit', handleSubscribeFormSubmit, true);
+		}
+		
+		// Cleanup
+		return () => {
+			if (form) {
+				form.removeEventListener('submit', handleSubscribeFormSubmit, true);
+			}
+		};
+	});
 
 </script>
 
@@ -169,19 +192,23 @@
 			<a href="/assets" class="px-8 py-4 no-underline font-semibold text-sm uppercase tracking-wider transition-colors duration-200 inline-block bg-black text-white hover:bg-secondary inline-block">Back to Assets</a>
 		</div>
 	{:else}
-		<AssetDetailHeader 
-			asset={assetData!} 
-			tokenCount={assetTokens.length} 
-			onTokenSectionClick={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })}
-		/>
+		{#if assetData}
+			<AssetDetailHeader 
+				asset={assetData} 
+				tokenCount={assetTokens.length} 
+				onTokenSectionClick={() => document.getElementById('token-section')?.scrollIntoView({ behavior: 'smooth' })}
+			/>
+		{/if}
 
 		<!-- Asset Details Content -->
         <ContentSection background="white" padding="standard">
         	<!-- Mobile: Collapsible sections -->
         	<div class="lg:hidden space-y-4">
         		<!-- Overview in collapsible section -->
-        		<CollapsibleSection title="Overview" isOpenByDefault={true} alwaysOpenOnDesktop={false}>
-        			<AssetOverviewTab asset={assetData!} />
+        		<CollapsibleSection title="Overview" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
+        			{#if assetData}
+        				<AssetOverviewTab asset={assetData} />
+        			{/if}
         		</CollapsibleSection>
         		
         		<!-- Other sections in collapsible format -->
@@ -199,7 +226,7 @@
 								</div>
 								{#if productionReports.length > 0}
 									<Chart
-										data={productionReports.map(report => ({
+										data={productionReports.map((report: any) => ({
 											label: report.month,
 											value: report.production
 										}))}
@@ -219,7 +246,7 @@
 								{/if}
 							</div>
 							<div class="bg-white border border-light-gray p-6">
-								<h4 class="text-lg font-extrabold text-black mb-6">Production Metrics</h4>
+								<h4 class="text-lg font-extrabold text-black mb-6">Key Metrics</h4>
 								<div class="grid grid-cols-1 gap-4">
 									<!-- Uptime -->
 									<div class="text-center p-3 bg-light-gray">
@@ -266,13 +293,13 @@
 					</div>
         		</CollapsibleSection>
         		
-        		<CollapsibleSection title="Past Payments" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
+        		<CollapsibleSection title="Revenue History" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
         			{@const monthlyReports = assetData?.monthlyReports || []}
 					{@const maxRevenue = monthlyReports.length > 0 ? Math.max(...monthlyReports.map(r => r.netIncome ?? 0)) : 1500}
 					<div class="space-y-4">
 						{#if monthlyReports.length > 0}
 							<div class="bg-white border border-light-gray p-4">
-								<h4 class="text-base font-bold text-black mb-4">Revenue History</h4>
+								<h4 class="text-base font-bold text-black mb-4">Received Revenue</h4>
 								<div class="space-y-2">
 									{#each monthlyReports.slice(-6) as report}
 										<div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
@@ -285,7 +312,7 @@
 						{:else}
 							<div class="text-center py-8 text-black opacity-70">
 								<div class="text-4xl mb-2">💰</div>
-								<p>No payment history available</p>
+								<p>No revenue history available</p>
 							</div>
 						{/if}
 					</div>
@@ -380,9 +407,11 @@
 			<!-- Tab Content -->
 			<div class="p-8 min-h-[500px] flex flex-col">
 				{#if activeTab === 'overview'}
-					<AssetOverviewTab asset={assetData!} />
+					{#if assetData}
+						<AssetOverviewTab asset={assetData} />
+					{/if}
 				{:else if activeTab === 'production'}
-					{@const productionReports = assetData?.monthlyReports || []}
+					{@const productionReports = assetData?.productionHistory || assetData?.monthlyReports || []}
 					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map((r: any) => r.production)) : 100}
 					<div class="flex-1 flex flex-col">
 						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">
@@ -395,7 +424,7 @@
 								</div>
 								<div class="w-full">
 									<Chart
-										data={productionReports.map(report => {
+										data={productionReports.map((report: any) => {
 											// Handle different date formats
 											let dateStr = report.month || '';
 											if (dateStr && !dateStr.includes('-01')) {
@@ -508,7 +537,7 @@
 									<div class="text-center p-3 bg-white">
 										<div class="text-3xl font-extrabold text-black mb-1">
 											{#if latestReport?.netIncome !== undefined}
-												${latestReport.netIncome.toFixed(0)}
+												US${latestReport.netIncome.toFixed(0)}
 											{:else}
 												<span class="text-gray-400">N/A</span>
 											{/if}
@@ -519,7 +548,7 @@
 								<div class="text-center p-4 bg-white">
 									<div class="text-4xl font-extrabold text-black mb-2">
 										{#if avgRevenue > 0}
-											${avgRevenue.toFixed(0)}
+											US${avgRevenue.toFixed(0)}
 										{:else}
 											<span class="text-gray-400">N/A</span>
 										{/if}
@@ -629,11 +658,11 @@
 											<div class="p-8 pt-6 space-y-4">
 												<div class="flex justify-between items-start">
 													<span class="text-base font-medium text-black opacity-70 relative font-figtree">Minted Supply </span>
-													<span class="text-base font-extrabold text-black text-right font-figtree">{formatEther(BigInt(token.supply?.mintedSupply || 0))}</span>
+													<span class="text-base font-extrabold text-black text-right font-figtree">{Math.floor(Number(formatEther(BigInt(token.supply?.mintedSupply || 0))))}</span>
 												</div>
 												<div class="flex justify-between items-start">
 													<span class="text-base font-medium text-black opacity-70 relative font-figtree">Max Supply</span>
-													<span class="text-base font-extrabold text-black text-right font-figtree">{formatEther(BigInt(token.supply?.maxSupply || 0))}</span>
+													<span class="text-base font-extrabold text-black text-right font-figtree">{Math.floor(Number(formatEther(BigInt(token.supply?.maxSupply || 0))))}</span>
 												</div>
 												<div class="flex justify-between items-start relative">
 													<span class="text-base font-medium text-black opacity-70 relative font-figtree">
@@ -660,7 +689,7 @@
 															role="button"
 															tabindex="0">ⓘ</span>
 													</span>
-													<span class="text-base font-extrabold text-black text-right">${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
+													<span class="text-base font-extrabold text-black text-right">US${calculatedReturns?.breakEvenOilPrice?.toFixed(2) || '0.00'}</span>
 													{#if showTooltip === 'breakeven'}
 														<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
 															Oil price required to cover operational costs and maintain profitability
@@ -697,7 +726,7 @@
 																role="button"
 																tabindex="0">ⓘ</span>
 														</span>
-														<span class="text-xl font-extrabold text-primary">{calculatedReturns?.bonusReturn !== undefined ? '+' + formatSmartReturn(calculatedReturns.bonusReturn) : 'TBD'}</span>
+														<span class="text-xl font-extrabold text-primary">{calculatedReturns?.bonusReturn !== undefined ? (formatSmartReturn(calculatedReturns.bonusReturn).startsWith('>') ? formatSmartReturn(calculatedReturns.bonusReturn) : '+' + formatSmartReturn(calculatedReturns.bonusReturn)) : 'TBD'}</span>
 														{#if showTooltip === 'bonus'}
 															<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
 																Additional potential return from improved oil prices or production efficiency
@@ -732,6 +761,7 @@
 													</div>
 												</div>
 											</div>
+										</div>
 									</div>
 									
 									<!-- Back of card -->
@@ -757,8 +787,8 @@
 													{#each tokenPayoutData.recentPayouts.slice(-6) as payout}
 														<div class="grid grid-cols-3 gap-2 text-sm">
 															<div class="text-left font-medium text-black">{payout.month}</div>
-															<div class="text-center font-semibold text-black">${payout.totalPayout.toLocaleString()}</div>
-															<div class="text-right font-semibold text-black">${payout.payoutPerToken.toFixed(5)}</div>
+															<div class="text-center font-semibold text-black">US${payout.totalPayout.toLocaleString()}</div>
+															<div class="text-right font-semibold text-black">US${payout.payoutPerToken.toFixed(5)}</div>
 														</div>
 													{/each}
 												</div>
@@ -766,8 +796,8 @@
 												<div class="mt-auto">
 													<div class="grid grid-cols-3 gap-2 text-sm font-extrabold">
 														<div class="text-left text-black">Total</div>
-														<div class="text-center text-black">${tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.totalPayout, 0).toLocaleString()}</div>
-														<div class="text-right text-black">${(tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.payoutPerToken, 0)).toFixed(5)}</div>
+														<div class="text-center text-black">US${tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.totalPayout, 0).toLocaleString()}</div>
+														<div class="text-right text-black">US${(tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.payoutPerToken, 0)).toFixed(5)}</div>
 													</div>
 												</div>
 											</div>
@@ -776,12 +806,13 @@
 											<div class="text-center py-8 text-black opacity-70">
 												<p class="text-sm">No distributions available yet.</p>
 												<p class="text-sm">First payout expected in {nextRelease?.whenRelease || 'Q1 2025'}.</p>
-																		</div>
-							{/if}
-						</div>
-					</CardContent>
-							</Card>
-						</div>
+											</div>
+										{/if}
+									</div>
+								</div>
+						</CardContent>
+					</Card>
+				</div>
 					{/each}
 					<!-- Future Releases Cards -->
 					{#if assetData?.id}
@@ -841,50 +872,61 @@
 			<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[200] p-4" on:click={handleCloseEmailPopup}>
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<!-- svelte-ignore a11y-no-static-element-interactions -->
-				<div class="bg-white border border-light-gray max-w-md w-full max-h-[90vh] overflow-y-auto" on:click|stopPropagation role="dialog" aria-modal="true" tabindex="0">
-					<div class="flex justify-between items-center p-6 border-b border-light-gray">
+				<div class="bg-white border border-light-gray max-w-md w-full flex flex-col" style="max-height: 95vh; min-height: 500px;" on:click|stopPropagation role="dialog" aria-modal="true" tabindex="0">
+					<div class="flex justify-between items-center p-6 border-b border-light-gray flex-shrink-0">
 						<h3 class="text-xl font-extrabold text-black">Get Notified</h3>
 						<button class="text-2xl font-bold text-black bg-transparent border-none cursor-pointer p-0 leading-none hover:opacity-70" on:click={handleCloseEmailPopup}>×</button>
 					</div>
-					<div class="p-6">
+					<div class="p-6 overflow-y-auto">
 						<p class="mb-4">Enter your email address to be notified when the next token release becomes available.</p>
 						
 						<!-- MailChimp Token Notification Form -->
-						<div id="mc_embed_signup_token">
-							<form action="https://exchange.us7.list-manage.com/subscribe/post?u=f3b19322aa5fe51455b292838&amp;id=6eaaa49162&amp;f_id=00fd53e0f0" 
-								  method="post" id="mc-embedded-subscribe-form-token" name="mc-embedded-subscribe-form-token" target="_self" novalidate="">
-								<div class="space-y-4">
-									<!-- Hidden fields for asset information -->
-									<input type="hidden" name="MMERGE7" value={assetId} />
-									<input type="hidden" name="MMERGE8" value={assetData?.name || ''} />
-									<input type="hidden" name="MMERGE9" value="token_release" />
-									
-									<input type="email" value="" name="EMAIL" 
-										   placeholder="Enter your email address"
-										   id="mce-EMAIL-token" required
-										   class="w-full px-4 py-3 border border-light-gray bg-white text-black placeholder-black placeholder-opacity-50 focus:outline-none focus:border-primary"
-									/>
-									
-									<!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-									<div style="position: absolute; left: -5000px;" aria-hidden="true">
-										<input type="text" name="b_f3b19322aa5fe51455b292838_6eaaa49162" tabindex="-1" value="">
+						<div id="mc_embed_shell">
+							<div id="mc_embed_signup">
+								<form action="https://exchange.us7.list-manage.com/subscribe/post?u=f3b19322aa5fe51455b292838&amp;id=6eaaa49162&amp;f_id=00fc53e0f0" 
+									  method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_self" novalidate>
+									<div id="mc_embed_signup_scroll">
+										<h2 class="text-lg font-extrabold text-black mb-4">Subscribe for Token Updates</h2>
+										<div class="text-sm text-black opacity-70 mb-4">Get notified when this token becomes available</div>
+										
+										<div class="mc-field-group mb-6">
+											<label for="mce-EMAIL" class="block text-sm font-medium text-black mb-2">
+												Email Address <span class="asterisk text-red-500">*</span>
+											</label>
+											<input type="email" name="EMAIL" 
+												   class="required email w-full px-4 py-3 border border-light-gray bg-white text-black placeholder-black placeholder-opacity-50 focus:outline-none focus:border-primary" 
+												   id="mce-EMAIL" required value=""
+												   placeholder="Enter your email address"
+											/>
+										</div>
+										
+										<div hidden><input type="hidden" name="tags" value="3587473"></div>
+										
+										<div id="mce-responses" class="clear mt-4">
+											<div class="response" id="mce-error-response" style="display: none;"></div>
+											<div class="response" id="mce-success-response" style="display: none;"></div>
+										</div>
+										
+										<div aria-hidden="true" style="position: absolute; left: -5000px;">
+											<input type="text" name="b_f3b19322aa5fe51455b292838_6eaaa49162" tabindex="-1" value="">
+										</div>
+										
+										<!-- Spacer -->
+										<div style="height: 2rem;"></div>
+										
+										<div class="mt-8 mb-4">
+											<button 
+												type="submit" 
+												class="w-full px-8 py-4 bg-black text-white font-extrabold text-sm uppercase tracking-wider cursor-pointer transition-colors duration-200 hover:bg-secondary border-0"
+												style="display: block; visibility: visible;"
+												on:click={() => sessionStorage.setItem('lastPageBeforeSubscribe', $page.url.pathname + $page.url.search)}
+											>
+												Subscribe
+											</button>
+										</div>
 									</div>
-									
-									<div id="mce-responses-token" class="clear">
-										<div class="response" id="mce-error-response-token" style="display: none;"></div>
-										<div class="response" id="mce-success-response-token" style="display: none;"></div>
-									</div>
-									
-									<PrimaryButton 
-										type="submit" 
-										name="subscribe" 
-										id="mc-embedded-subscribe-token"
-										fullWidth
-									>
-										Notify Me
-									</PrimaryButton>
-								</div>
-							</form>
+								</form>
+							</div>
 						</div>
 					</div>
 				</div>

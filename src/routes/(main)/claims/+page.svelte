@@ -290,7 +290,7 @@
 		<!-- Header -->
 		<HeroSection 
 			title="Claims & Payouts"
-			subtitle="Claim your energy asset payouts and track your earnings"
+			subtitle="Claim your energy asset payouts and track your claims history"
 			showBorder={false}
 		>
 			<!-- Main Stats - Simplified for mobile -->
@@ -328,7 +328,7 @@
 					>
 						{claiming ? 'Processing...' : `Claim ${formatCurrency(unclaimedPayout)}`}
 					</PrimaryButton>
-					<p class="text-sm text-gray-600 mt-2">Estimated gas fee: ${estimatedGas.toFixed(2)}</p>
+					<p class="text-sm text-gray-600 mt-2">Estimated gas fee: US${estimatedGas.toFixed(2)}</p>
 				</div>
 			{/if}
 

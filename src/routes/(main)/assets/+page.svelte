@@ -119,7 +119,7 @@
 	<!-- Header Section -->
 	<HeroSection 
 		title="Available Assets"
-		subtitle="Discover tokenized oil field investments"
+		subtitle="Browse live energy investment opportunities with real-time production data and transparent returns"
 		showBorder={false}
 	>
 		{#if loading}

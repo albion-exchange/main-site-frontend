@@ -208,7 +208,7 @@
 	$: inactiveSlideClasses = 'opacity-100';
 	$: bannerCardClasses = 'grid grid-cols-1 lg:grid-cols-2 bg-white border border-light-gray overflow-hidden';
 	$: tokenSectionClasses = 'p-4 sm:p-6 lg:p-8 bg-white border-b lg:border-b-0 lg:border-r border-light-gray flex flex-col justify-between min-h-[300px] sm:min-h-[350px] lg:min-h-[400px]';
-	$: assetSectionClasses = 'p-4 sm:p-6 lg:p-8 bg-light-gray flex flex-col justify-between min-h-[300px] sm:min-h-[350px] lg:min-h-[400px]';
+	$: assetSectionClasses = 'p-4 sm:p-6 lg:p-8 bg-light-gray flex flex-col justify-between min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] hidden lg:flex';
 	$: tokenHeaderClasses = 'mb-3 sm:mb-4 lg:mb-6';
 	$: tokenNameClasses = 'text-lg sm:text-xl lg:text-2xl font-bold text-black tracking-wider mb-2 leading-tight text-left';
 	$: tokenContractClasses = 'text-xs sm:text-sm font-medium text-secondary break-all leading-relaxed py-1 opacity-80 tracking-tight font-figtree text-left';
@@ -237,9 +237,6 @@
 	$: navButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target items-center justify-center rounded-full';
 	$: prevButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target left-[-4rem] items-center justify-center rounded-full';
 	$: nextButtonClasses = 'hidden lg:flex absolute top-1/2 transform -translate-y-1/2 w-12 h-12 bg-black/70 text-white border-none text-xl cursor-pointer transition-all duration-200 z-10 hover:bg-black hover:scale-110 hover:shadow-lg touch-target right-[-4rem] items-center justify-center rounded-full';
-	$: indicatorsClasses = 'absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10';
-	$: indicatorClasses = 'w-3 h-3 border-none bg-white/50 cursor-pointer transition-all duration-200 hover:bg-white/80 touch-target rounded-full';
-	$: indicatorActiveClasses = 'w-3 h-3 border-none bg-white cursor-pointer transition-all duration-200 scale-125 shadow-lg touch-target rounded-full';
 
 	
 	// Get status-specific classes
@@ -314,6 +311,18 @@
 						<div class={bannerCardClasses}>
 							<!-- Token Section -->
 							<div class={tokenSectionClasses}>
+								<!-- Mobile: Image at the top -->
+								{#if item.asset.coverImage}
+									<div class="lg:hidden mb-4 -mx-4 -mt-4">
+										<img 
+											src={item.asset.coverImage} 
+											alt={item.asset.name}
+											class="w-full h-40 object-cover"
+											loading="lazy"
+										/>
+									</div>
+								{/if}
+								
 								<div class={tokenHeaderClasses}>
 									<div class="mb-3">
 										<h3 class={tokenNameClasses}>{item.token.releaseName}</h3>
@@ -443,19 +452,18 @@
 				{/each}
 			</div>
 
-			<!-- Indicators (remain inside carousel wrapper) -->
-			{#if featuredTokensWithAssets.length > 1}
-				<div class={indicatorsClasses}>
-					{#each featuredTokensWithAssets as _, index}
-						<button 
-							class="{index === currentIndex ? indicatorActiveClasses : indicatorClasses}"
-							on:click={() => goToSlide(index)}
-							aria-label="Go to slide {index + 1}"
-						></button>
-					{/each}
-				</div>
-			{/if}
 		</div>
+		
+		<!-- Indicators below carousel (both mobile and desktop) -->
+		{#if featuredTokensWithAssets.length > 1}
+			<div class="flex justify-center gap-1 mt-2 z-10">
+				{#each featuredTokensWithAssets as _, index}
+					<div 
+						class="{index === currentIndex ? 'w-2 h-2 bg-gray-800 rounded-full' : 'w-2 h-2 bg-gray-300 rounded-full'}"
+					></div>
+				{/each}
+			</div>
+		{/if}
 	{/if}
 </div>
 

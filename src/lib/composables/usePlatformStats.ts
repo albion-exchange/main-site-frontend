@@ -4,21 +4,13 @@
  */
 
 import {
-  writable,
   derived,
-  type Readable,
-  type Writable,
-  get,
 } from "svelte/store";
 import {
-  useConfigService,
   useAssetService,
-  useTokenService,
 } from "$lib/services";
-import { withSyncErrorHandling } from "$lib/utils/errorHandling";
 import { sfts } from "$lib/stores";
 import { formatEther } from "ethers";
-import { ENERGY_FEILDS } from "$lib/network";
 import { formatSmartNumber } from "$lib/utils/formatters";
 
 interface PlatformStatsState {
@@ -50,17 +42,28 @@ export function usePlatformStats() {
     }
 
     try {
-      const totalAssets = $sfts.length;
       const totalTokenHolders = $sfts.reduce(
         (acc, sft) => acc + (sft.tokenHolders?.length || 0),
         0,
       );
-      const totalRegions = ENERGY_FEILDS.length;
+      
+      // Get all assets from the asset service for accurate count
+      const assetService = useAssetService();
+      const allAssets = assetService.getAllAssets();
+      const totalAssets = allAssets.length;
+      
+      // Count distinct countries from these assets
+      const distinctCountries = new Set(
+        allAssets
+          .map(asset => asset.location?.country)
+          .filter(country => country && country.trim() !== '')
+      );
+      const totalRegions = distinctCountries.size;
+      
       const totalInvested = $sfts.reduce(
         (acc, sft) => acc + BigInt(sft.totalShares || 0),
         BigInt(0),
       );
-
       const stats = {
         loading: false,
         totalAssets: totalAssets,
@@ -96,7 +99,7 @@ export function usePlatformStats() {
     activeInvestors: formatSmartNumber($stats.activeInvestors || 0, {
       threshold: 1000,
     }),
-    regionsText: `Across ${$stats.totalRegions} regions`,
+    regionsText: `Across ${$stats.totalRegions} countries`,
     growthTrend: {
       value: $stats.monthlyGrowthRate,
       positive: $stats.monthlyGrowthRate >= 0,
