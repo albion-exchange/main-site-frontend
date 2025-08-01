@@ -69,7 +69,9 @@
 			return getSfts();
 		}
 	});
-	$: sfts.set($vaultQuery.data);
+	$: if ($vaultQuery && $vaultQuery.data) {
+		sfts.set($vaultQuery.data);
+	}
 	
 
 	

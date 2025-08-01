@@ -7,7 +7,7 @@ import {
   derived,
 } from "svelte/store";
 import { sfts, sftMetadata } from "$lib/stores";
-import { formatEther } from "ethers";
+import { formatEther } from "viem";
 import { formatSmartNumber } from "$lib/utils/formatters";
 import { decodeSftInformation } from "$lib/decodeMetadata/helpers";
 import { generateAssetInstanceFromSftMeta } from "$lib/decodeMetadata/addSchemaToReceipts";
@@ -29,11 +29,7 @@ interface PlatformStatsState {
 export function usePlatformStats() {
   // Return a derived store that calculates platform stats from sfts and metadata
   const platformStats = derived([sfts, sftMetadata], ([$sfts, $sftMetadata]) => {
-    console.log('=== Platform Stats Calculation ===');
-    console.log('$sfts data:', $sfts);
-    
     if (!$sfts || $sfts.length === 0 || !$sftMetadata) {
-      console.log('No data yet, returning loading state');
       return {
         loading: true,
         totalAssets: 0,
@@ -46,11 +42,24 @@ export function usePlatformStats() {
     }
 
     try {
-      // Collect unique addresses across all contracts
+      // Get list of valid token addresses from ENERGY_FIELDS
+      const validTokenAddresses = new Set<string>();
+      for (const field of ENERGY_FIELDS) {
+        for (const tokenInfo of field.sftTokens) {
+          validTokenAddresses.add(tokenInfo.address.toLowerCase());
+        }
+      }
+      
+      // Collect unique addresses across ENERGY_FIELDS contracts only
       const uniqueHolders = new Set<string>();
       const holderDetails = new Map<string, string[]>(); // Map of holder address to array of contract addresses
       
       $sfts.forEach(sft => {
+        // Only process SFTs that are in ENERGY_FIELDS
+        if (!validTokenAddresses.has(sft.id.toLowerCase())) {
+          return; // Skip this SFT
+        }
+        
         if (sft.tokenHolders && Array.isArray(sft.tokenHolders)) {
           sft.tokenHolders.forEach(holder => {
             if (holder.address && holder.balance && Number(holder.balance) > 0) {
@@ -69,7 +78,7 @@ export function usePlatformStats() {
       });
       
       // Log all unique holders with their contract holdings
-      console.log(`Total unique investors: ${uniqueHolders.size}`);
+      console.log(`Total unique investors (ENERGY_FIELDS only): ${uniqueHolders.size}`);
       console.log('Investor details:');
       holderDetails.forEach((contracts, holder) => {
         console.log(`  ${holder}:`);
@@ -77,6 +86,7 @@ export function usePlatformStats() {
           console.log(`    - ${contract}`);
         });
       });
+      console.log('Valid ENERGY_FIELDS tokens:', Array.from(validTokenAddresses));
       
       const totalTokenHolders = uniqueHolders.size;
       
@@ -89,8 +99,9 @@ export function usePlatformStats() {
       
       // Only process tokens that are in ENERGY_FIELDS
       for (const field of ENERGY_FIELDS) {
-        for (const tokenAddress of field.sftTokens) {
-          const sft = $sfts.find(s => s.id.toLowerCase() === tokenAddress.toLowerCase());
+        for (const tokenInfo of field.sftTokens) {
+          const tokenAddress = tokenInfo.address.toLowerCase();
+          const sft = $sfts.find(s => s.id.toLowerCase() === tokenAddress);
           if (sft) {
             const pinnedMetadata = decodedMeta.find(
               (meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
@@ -108,14 +119,26 @@ export function usePlatformStats() {
       
       const totalRegions = countries.size;
       
-      const totalInvested = $sfts.reduce(
-        (acc, sft) => acc + BigInt(sft.totalShares || 0),
-        BigInt(0),
-      );
+      // Calculate total invested by summing totalShares from ENERGY_FIELDS tokens only
+      // Since each token costs $1 USDT, total invested = total minted tokens
+      let totalInvested = 0;
+      
+      // Only count tokens that are in ENERGY_FIELDS (active assets)
+      for (const field of ENERGY_FIELDS) {
+        for (const tokenInfo of field.sftTokens) {
+          const tokenAddress = tokenInfo.address.toLowerCase();
+          const sft = $sfts.find(s => s.id.toLowerCase() === tokenAddress);
+          if (sft && sft.totalShares && sft.totalShares !== "0") {
+            // totalShares is in wei format (18 decimals), convert to USD
+            const shares = Number(formatEther(sft.totalShares));
+            totalInvested += shares;
+          }
+        }
+      }
       const stats = {
         loading: false,
         totalAssets: totalAssets,
-        totalInvested: Number(formatEther(totalInvested)), // Keep as raw number
+        totalInvested: totalInvested, // Already converted to number
         activeInvestors: totalTokenHolders,
         totalRegions: totalRegions,
         monthlyGrowthRate: 2, // Don't know what this is yet
@@ -147,7 +170,7 @@ export function usePlatformStats() {
     activeInvestors: formatSmartNumber($stats.activeInvestors || 0, {
       threshold: 1000,
     }),
-    regionsText: `Across ${$stats.totalRegions} countries`,
+    regionsText: `Across ${$stats.totalRegions} ${$stats.totalRegions === 1 ? 'country' : 'countries'}`,
     growthTrend: {
       value: $stats.monthlyGrowthRate,
       positive: $stats.monthlyGrowthRate >= 0,
