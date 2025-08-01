@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { useAssetService, useTokenService } from '$lib/services';
-	import walletDataService from '$lib/services/WalletDataService';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { web3Modal, signerAddress, connected, loading } from 'svelte-wagmi';
 	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, TabNavigation, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart, CollapsibleSection, FormattedNumber } from '$lib/components/components';
@@ -824,13 +823,16 @@
 			<!-- Mobile: Collapsible Performance Section -->
 			<div class="mt-8">
 				<CollapsibleSection title="Performance Analysis" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
-					{@const allTransactions = walletDataService.getAllTransactions()}
-					{@const recentPerformance = allTransactions.filter(tx => {
-						const txDate = new Date(tx.timestamp);
+					{@const recentPerformance = (() => {
 						const monthsAgo = new Date();
 						monthsAgo.setMonth(monthsAgo.getMonth() - 3);
-						return txDate >= monthsAgo;
-					})}
+						
+						// Filter monthly payouts to get recent data
+						return monthlyPayouts.filter(payout => {
+							const payoutDate = new Date(payout.date);
+							return payoutDate >= monthsAgo;
+						});
+					})()}
 					
 				<div class="grid grid-cols-2 gap-4 mb-6">
 					<StatsCard

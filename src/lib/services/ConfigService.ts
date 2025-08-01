@@ -14,8 +14,8 @@
  * - Future release schedules
  */
 
-// Import configuration data
-import futureReleasesData from "$lib/data/futureReleases.json";
+import { ENERGY_FIELDS } from "$lib/network";
+import tokenService from "./TokenService";
 
 
 
@@ -38,38 +38,44 @@ class ConfigService {
 
   constructor() {
     this.config = {
-      futureReleases: this.transformFutureReleasesData(futureReleasesData),
+      futureReleases: [], // Will be dynamically generated
     };
   }
 
   /**
-   * Transform nested future releases data into flat array
+   * Calculate total share percentage for an energy field
    */
-  private transformFutureReleasesData(data: any): FutureRelease[] {
-    const releases: FutureRelease[] = [];
-
-    // Iterate through energy fields
-    for (const [energyField, tokens] of Object.entries(data)) {
-      // Iterate through tokens for each energy field
-      for (const [tokenId, tokenReleases] of Object.entries(tokens as any)) {
-        // Add each release with proper structure
-        if (Array.isArray(tokenReleases)) {
-          tokenReleases.forEach((release, index) => {
-            releases.push({
-              id: `${energyField}-${tokenId}-${index}`,
-              energyField,
-              whenRelease: release.whenRelease,
-              description: release.description,
-              emoji: release.emoji,
-              estimatedTokens: release.estimatedTokens,
-              estimatedPrice: release.estimatedPrice,
-            });
-          });
-        }
-      }
+  async getTotalSharePercentage(energyFieldName: string): Promise<number> {
+    try {
+      // Get all tokens for this energy field
+      const tokens = tokenService.getTokensByEnergyField(energyFieldName);
+      if (!tokens || tokens.length === 0) return 0;
+      
+      // Get metadata for each token to access share percentage
+      const tokenMetadataPromises = tokens.map(token => 
+        tokenService.getTokenMetadataByAddress(token.contractAddress)
+      );
+      
+      const tokenMetadata = await Promise.all(tokenMetadataPromises);
+      
+      // Calculate total share percentage
+      const totalSharePercentage = tokenMetadata.reduce((sum, metadata) => {
+        return sum + (metadata?.sharePercentage || 0);
+      }, 0);
+      
+      return totalSharePercentage;
+    } catch (error) {
+      console.error(`Error calculating share percentage for ${energyFieldName}:`, error);
+      return 0;
     }
+  }
 
-    return releases;
+  /**
+   * Check if an energy field has future releases (< 100% shares allocated)
+   */
+  async hasIncompleteReleases(energyFieldName: string): Promise<boolean> {
+    const totalSharePercentage = await this.getTotalSharePercentage(energyFieldName);
+    return totalSharePercentage < 100;
   }
 
   /**
@@ -82,21 +88,54 @@ class ConfigService {
 
 
   /**
-   * Get future releases
+   * Get future releases (dynamically generated)
    */
-  getFutureReleases(): FutureRelease[] {
-    return this.config.futureReleases;
+  async getFutureReleases(): Promise<FutureRelease[]> {
+    const releases: FutureRelease[] = [];
+    
+    // Check each energy field
+    for (const field of ENERGY_FIELDS) {
+      const hasIncomplete = await this.hasIncompleteReleases(field.name);
+      if (hasIncomplete) {
+        releases.push({
+          id: `${field.name}-future`,
+          energyField: field.name,
+          whenRelease: "",
+          description: "Additional token releases planned",
+          emoji: "🚀"
+        });
+      }
+    }
+    
+    return releases;
   }
 
   /**
    * Get future releases for a specific energy field
    */
-  getFutureReleasesByAsset(energyFieldOrAssetId: string): FutureRelease[] {
-    // Support both energy field names and URL-friendly asset IDs
-    return this.config.futureReleases.filter(
-      (release) => release.energyField === energyFieldOrAssetId ||
-                   release.energyField.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === energyFieldOrAssetId,
+  async getFutureReleasesByAsset(energyFieldOrAssetId: string): Promise<FutureRelease[]> {
+    // Find the matching energy field
+    const energyField = ENERGY_FIELDS.find(field => 
+      field.name === energyFieldOrAssetId ||
+      field.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === energyFieldOrAssetId
     );
+    
+    if (!energyField) return [];
+    
+    const hasIncomplete = await this.hasIncompleteReleases(energyField.name);
+    if (hasIncomplete) {
+      const totalSharePercentage = await this.getTotalSharePercentage(energyField.name);
+      const remainingPercentage = 100 - totalSharePercentage;
+      
+      return [{
+        id: `${energyField.name}-future`,
+        energyField: energyField.name,
+        whenRelease: "",
+        description: `${remainingPercentage.toFixed(1)}% of tokens remaining for future releases`,
+        emoji: "🚀"
+      }];
+    }
+    return [];
   }
 
   /**
@@ -109,13 +148,23 @@ class ConfigService {
     );
   }
 
-
+  /**
+   * Get market statistics (if needed for legacy support)
+   */
+  getMarketStats() {
+    return {
+      totalInvestedMillions: 0,
+      totalAssetsCount: 0,
+      averageROI: 0,
+      lastUpdated: new Date().toISOString(),
+    };
+  }
 
   /**
-   * Check if data is stale (for cache invalidation)
+   * Check if market data needs refresh (placeholder for future API integration)
    */
-  isDataStale(lastUpdated: string, maxAgeHours: number = 24): boolean {
-    const lastUpdate = new Date(lastUpdated);
+  isMarketDataStale(maxAgeHours: number = 24): boolean {
+    const lastUpdate = new Date(this.getMarketStats().lastUpdated);
     const now = new Date();
     const ageHours = (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60);
     return ageHours > maxAgeHours;
@@ -125,10 +174,9 @@ class ConfigService {
    * Reload configuration (useful for development)
    */
   reloadConfig(): void {
-    // In a real app, this might fetch from API
-    // For now, we'll just re-import the JSON files
+    // Reset config
     this.config = {
-      futureReleases: this.transformFutureReleasesData(futureReleasesData),
+      futureReleases: [], // Will be dynamically generated
     };
   }
 }

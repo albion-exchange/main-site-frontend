@@ -36,6 +36,7 @@ interface TokenMetadataMap {
 
 class TokenService {
   private tokenCache: Map<string, Token> = new Map();
+  private tokenMetadataCache: Map<string, TokenMetadata> = new Map();
   private allTokens: Token[] | null = null;
 
   constructor() {
@@ -74,7 +75,8 @@ class TokenService {
           const tokenInstance = generateTokenMetadataInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
           tokens.push(tokenInstance);
           
-          // Cache the UI token
+          // Cache both the full metadata and UI token
+          this.tokenMetadataCache.set(sft.id.toLowerCase(), tokenInstance);
           const uiToken = TypeTransformations.tokenToUI(tokenInstance);
           this.tokenCache.set(sft.id.toLowerCase(), uiToken);
         } catch (error) {
@@ -205,6 +207,23 @@ class TokenService {
   }
 
   /**
+   * Get token metadata by address
+   */
+  async getTokenMetadataByAddress(tokenAddress: string): Promise<TokenMetadata | null> {
+    const normalizedAddress = tokenAddress.toLowerCase();
+    
+    // Check cache first
+    const cached = this.tokenMetadataCache.get(normalizedAddress);
+    if (cached) {
+      return cached;
+    }
+    
+    // Load if not cached
+    await this.loadTokensFromStores();
+    return this.tokenMetadataCache.get(normalizedAddress) || null;
+  }
+
+  /**
    * Search tokens by name or symbol
    */
   searchTokens(query: string): Token[] {
@@ -290,6 +309,8 @@ class TokenService {
    */
   clearCache(): void {
     this.allTokens = null;
+    this.tokenCache.clear();
+    this.tokenMetadataCache.clear();
   }
 }
 

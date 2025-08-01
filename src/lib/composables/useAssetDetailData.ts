@@ -138,7 +138,7 @@ export function useAssetDetailData(initialEnergyFieldId: string) {
       }
 
       // Load future releases for this energy field
-      const futureReleases = configService.getFutureReleasesByAsset(
+      const futureReleases = await configService.getFutureReleasesByAsset(
         energyField.name,
       );
 

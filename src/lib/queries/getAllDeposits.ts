@@ -1,12 +1,12 @@
 import {
     BASE_SFT_SUBGRAPH_URL,
-    ENERGY_FEILDS,
+    ENERGY_FIELDS,
   } from "$lib/network";
   
   export const getAllDeposits = async (
     ownerAddress: string,
   ): Promise<any> => {
-    const sftAddresses = ENERGY_FEILDS.flatMap((field) =>
+    const sftAddresses = ENERGY_FIELDS.flatMap((field) =>
         field.sftTokens.map((token) => token.address),
     );
   
