@@ -26,6 +26,9 @@
 	let claimHistory: ClaimHistory[] = [];
 	let currentPage = 1;
 	const itemsPerPage = 20;
+	
+	// CSV cache to avoid re-fetching
+	const csvCache = new Map<string, string>();
 
 	// Reset data when wallet changes
 	$: if ($signerAddress) {
@@ -47,12 +50,19 @@
 
 	function loadClaimsData(){
 		async function fetchCsvData(csvLink: string) {
+			// Check cache first
+			if (csvCache.has(csvLink)) {
+				return csvCache.get(csvLink)!;
+			}
+			
 			try {
 				const response = await fetch(csvLink);
 				if (!response.ok) {
 					throw new Error(`Failed to fetch CSV: ${response.status}`);
 				}
 				const csvText = await response.text();
+				// Cache the result
+				csvCache.set(csvLink, csvText);
 				return csvText;
 			} catch (error) {
 				console.error('Error fetching CSV data:', error);
@@ -75,69 +85,86 @@
 		}
 
 		async function loadAllClaimsData() {
+			// Collect all CSV fetch promises
+			const csvFetchPromises = [];
+			
 			for (const field of ENERGY_FIELDS) {
 				for (const token of field.sftTokens) {
 					if (token.claims && token.claims.length > 0) {
 						for (const claim of token.claims) {
 							if (claim.csvLink) {
-								const csvText = await fetchCsvData(claim.csvLink);
-								if (csvText) {
-									const parsedData = await parseCsvData(csvText);
-									const merkleTree = getMerkleTree(parsedData);
-									
-									const trades = await getTradesForClaims(claim.orderHash, $signerAddress || '', field.name);
-									const orderDetails = await getOrder(claim.orderHash)
-									if(orderDetails && orderDetails.length > 0){
-										const orderBookAddress = orderDetails[0].orderbook.id;
-										const decodedOrder = decodeOrder(orderDetails[0].orderBytes)
-										const sortedClaimsData = await sortClaimsData(parsedData, trades, $signerAddress || '', field.name);
-										const holdingsWithProofs = sortedClaimsData.holdings.map(holding => {
-											const leaf = getLeaf(holding.id, $signerAddress || '', holding.unclaimedAmount);
-											const proofForLeaf = getProofForLeaf(merkleTree, leaf);
-											const holdingSignedContext = signContext(
-												[holding.id, parseEther(holding.unclaimedAmount.toString()), ...proofForLeaf.proof].map(i => BigInt(i))
-											)
-											return {
-												...holding,
-												order: decodedOrder,
-												signedContext: holdingSignedContext,
-												orderBookAddress: orderBookAddress
-											}
-										})
-										
-										claimHistory = [...claimHistory, ...sortedClaimsData.claims];
-										
-										// Group holdings by energy field and aggregate amounts
-										const fieldName = field.name;
-										
-										// Find existing group for this field
-										let existingGroup = holdings.find(group => group.fieldName === fieldName);
-										
-										if (existingGroup) {
-											// Add new holdings to existing group
-											existingGroup.holdings = [...existingGroup.holdings, ...holdingsWithProofs];
-											// Recalculate total amount
-											existingGroup.totalAmount = existingGroup.holdings.reduce((sum, holding) => 
-												sum + Number(holding.unclaimedAmount), 0
-											);
-										} else {
-											// Create new group
-											const totalAmount = holdingsWithProofs.reduce((sum, holding) => 
-												sum + Number(holding.unclaimedAmount), 0
-											);
-											holdings = [...holdings, { 
-												fieldName, 
-												totalAmount, 
-												holdings: holdingsWithProofs 
-											}];
-										}
-										totalClaimed += Number(formatEther(sortedClaimsData.totalClaimedAmount));
-										totalEarned += Number(formatEther(sortedClaimsData.totalEarned));
-										unclaimedPayout += Number(formatEther(sortedClaimsData.totalUnclaimedAmount));
-									}
-								}
+								csvFetchPromises.push(
+									fetchCsvData(claim.csvLink).then(csvText => ({
+										csvText,
+										claim,
+										field,
+										token
+									}))
+								);
 							}
 						}
+					}
+				}
+			}
+			
+			// Fetch all CSVs in parallel
+			const csvResults = await Promise.all(csvFetchPromises);
+			
+			// Process results
+			for (const { csvText, claim, field, token } of csvResults) {
+				if (csvText) {
+					const parsedData = await parseCsvData(csvText);
+					const merkleTree = getMerkleTree(parsedData);
+					
+					const trades = await getTradesForClaims(claim.orderHash, $signerAddress || '', field.name);
+					const orderDetails = await getOrder(claim.orderHash)
+					if(orderDetails && orderDetails.length > 0){
+						const orderBookAddress = orderDetails[0].orderbook.id;
+						const decodedOrder = decodeOrder(orderDetails[0].orderBytes)
+						const sortedClaimsData = await sortClaimsData(parsedData, trades, $signerAddress || '', field.name);
+						const holdingsWithProofs = sortedClaimsData.holdings.map(holding => {
+							const leaf = getLeaf(holding.id, $signerAddress || '', holding.unclaimedAmount);
+							const proofForLeaf = getProofForLeaf(merkleTree, leaf);
+							const holdingSignedContext = signContext(
+								[holding.id, parseEther(holding.unclaimedAmount.toString()), ...proofForLeaf.proof].map(i => BigInt(i))
+							)
+							return {
+								...holding,
+								order: decodedOrder,
+								signedContext: holdingSignedContext,
+								orderBookAddress: orderBookAddress
+							}
+						})
+						
+						claimHistory = [...claimHistory, ...sortedClaimsData.claims];
+						
+						// Group holdings by energy field and aggregate amounts
+						const fieldName = field.name;
+						
+						// Find existing group for this field
+						let existingGroup = holdings.find(group => group.fieldName === fieldName);
+						
+						if (existingGroup) {
+							// Add new holdings to existing group
+							existingGroup.holdings = [...existingGroup.holdings, ...holdingsWithProofs];
+							// Recalculate total amount
+							existingGroup.totalAmount = existingGroup.holdings.reduce((sum, holding) => 
+								sum + Number(holding.unclaimedAmount), 0
+							);
+						} else {
+							// Create new group
+							const totalAmount = holdingsWithProofs.reduce((sum, holding) => 
+								sum + Number(holding.unclaimedAmount), 0
+							);
+							holdings = [...holdings, { 
+								fieldName, 
+								totalAmount, 
+								holdings: holdingsWithProofs 
+							}];
+						}
+						totalClaimed += Number(formatEther(sortedClaimsData.totalClaimedAmount));
+						totalEarned += Number(formatEther(sortedClaimsData.totalEarned));
+						unclaimedPayout += Number(formatEther(sortedClaimsData.totalUnclaimedAmount));
 					}
 				}
 			}
