@@ -16,7 +16,7 @@ const PASS = process.env.BASIC_AUTH_PASS ?? '';
 
 export const config = {
   // Protect everything except static assets
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|images|.*\\.(?:svg|png|jpg|jpeg|gif|ico|webp|js|css|woff|woff2|ttf|otf)).*)',],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|images|.*\\.(?:svg|png|jpg|jpeg|gif|ico|webp|js|css|woff|woff2|ttf|otf|webmanifest)).*)',],
 };
 
 export default function middleware(req: Request) {
