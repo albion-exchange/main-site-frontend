@@ -42,11 +42,24 @@ export function usePlatformStats() {
     }
 
     try {
-      // Collect unique addresses across all contracts
+      // Get list of valid token addresses from ENERGY_FIELDS
+      const validTokenAddresses = new Set<string>();
+      for (const field of ENERGY_FIELDS) {
+        for (const tokenInfo of field.sftTokens) {
+          validTokenAddresses.add(tokenInfo.address.toLowerCase());
+        }
+      }
+      
+      // Collect unique addresses across ENERGY_FIELDS contracts only
       const uniqueHolders = new Set<string>();
       const holderDetails = new Map<string, string[]>(); // Map of holder address to array of contract addresses
       
       $sfts.forEach(sft => {
+        // Only process SFTs that are in ENERGY_FIELDS
+        if (!validTokenAddresses.has(sft.id.toLowerCase())) {
+          return; // Skip this SFT
+        }
+        
         if (sft.tokenHolders && Array.isArray(sft.tokenHolders)) {
           sft.tokenHolders.forEach(holder => {
             if (holder.address && holder.balance && Number(holder.balance) > 0) {
@@ -65,7 +78,7 @@ export function usePlatformStats() {
       });
       
       // Log all unique holders with their contract holdings
-      console.log(`Total unique investors: ${uniqueHolders.size}`);
+      console.log(`Total unique investors (ENERGY_FIELDS only): ${uniqueHolders.size}`);
       console.log('Investor details:');
       holderDetails.forEach((contracts, holder) => {
         console.log(`  ${holder}:`);
@@ -73,6 +86,7 @@ export function usePlatformStats() {
           console.log(`    - ${contract}`);
         });
       });
+      console.log('Valid ENERGY_FIELDS tokens:', Array.from(validTokenAddresses));
       
       const totalTokenHolders = uniqueHolders.size;
       
