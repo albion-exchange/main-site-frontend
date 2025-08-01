@@ -802,10 +802,10 @@
 												</div>
 											</div>
 										{:else}
-											{@const nextRelease = configService.getFutureReleasesByAsset(assetData?.id || '')?.[0]}
-											<div class="text-center py-8 text-black opacity-70">
-												<p class="text-sm">No distributions available yet.</p>
-												<p class="text-sm">First payout expected in {nextRelease?.whenRelease || 'Q1 2025'}.</p>
+											<div class="text-center py-8 text-black opacity-70 flex-1 flex flex-col justify-center">
+												<p class="text-sm font-semibold mb-2">No distributions yet</p>
+												<p class="text-xs">This token hasn't generated any distributions.</p>
+												<p class="text-xs">Distributions will appear here once payouts begin.</p>
 											</div>
 										{/if}
 									</div>
