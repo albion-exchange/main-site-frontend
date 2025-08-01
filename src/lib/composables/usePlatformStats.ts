@@ -7,7 +7,7 @@ import {
   derived,
 } from "svelte/store";
 import { sfts, sftMetadata } from "$lib/stores";
-import { formatEther } from "ethers";
+import { formatEther } from "viem";
 import { formatSmartNumber } from "$lib/utils/formatters";
 import { decodeSftInformation } from "$lib/decodeMetadata/helpers";
 import { generateAssetInstanceFromSftMeta } from "$lib/decodeMetadata/addSchemaToReceipts";
@@ -31,6 +31,9 @@ export function usePlatformStats() {
   const platformStats = derived([sfts, sftMetadata], ([$sfts, $sftMetadata]) => {
     console.log('=== Platform Stats Calculation ===');
     console.log('$sfts data:', $sfts);
+    console.log('$sfts length:', $sfts?.length);
+    console.log('$sftMetadata:', $sftMetadata);
+    console.log('ENERGY_FIELDS:', ENERGY_FIELDS);
     
     if (!$sfts || $sfts.length === 0 || !$sftMetadata) {
       console.log('No data yet, returning loading state');
@@ -89,8 +92,9 @@ export function usePlatformStats() {
       
       // Only process tokens that are in ENERGY_FIELDS
       for (const field of ENERGY_FIELDS) {
-        for (const tokenAddress of field.sftTokens) {
-          const sft = $sfts.find(s => s.id.toLowerCase() === tokenAddress.toLowerCase());
+        for (const tokenInfo of field.sftTokens) {
+          const tokenAddress = tokenInfo.address.toLowerCase();
+          const sft = $sfts.find(s => s.id.toLowerCase() === tokenAddress);
           if (sft) {
             const pinnedMetadata = decodedMeta.find(
               (meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
@@ -108,14 +112,50 @@ export function usePlatformStats() {
       
       const totalRegions = countries.size;
       
-      const totalInvested = $sfts.reduce(
-        (acc, sft) => acc + BigInt(sft.totalShares || 0),
-        BigInt(0),
-      );
+      console.log('=== STARTING TOTAL INVESTED CALCULATION ===');
+      console.log('Number of SFTs:', $sfts.length);
+      console.log('Energy fields to check:', ENERGY_FIELDS.map(f => f.name));
+      
+      // Calculate total invested by summing totalShares from ENERGY_FIELDS tokens only
+      // Since each token costs $1 USDT, total invested = total minted tokens
+      let totalInvested = 0;
+      
+      console.log('Calculating total invested...');
+      
+      // Only count tokens that are in ENERGY_FIELDS (active assets)
+      for (const field of ENERGY_FIELDS) {
+        console.log(`Checking field: ${field.name}`);
+        for (const tokenInfo of field.sftTokens) {
+          const tokenAddress = tokenInfo.address.toLowerCase();
+          console.log(`  Looking for token: ${tokenAddress}`);
+          
+          const sft = $sfts.find(s => s.id.toLowerCase() === tokenAddress);
+          if (sft) {
+            console.log(`  Found SFT:`, {
+              id: sft.id,
+              name: sft.name,
+              totalShares: sft.totalShares,
+              hasDeposits: sft.deposits?.length > 0
+            });
+            
+            if (sft.totalShares && sft.totalShares !== "0") {
+              // totalShares is in wei format (18 decimals), convert to USD
+              const shares = Number(formatEther(sft.totalShares));
+              totalInvested += shares;
+              console.log(`  ✓ Added ${shares} USD from ${sft.name}`);
+            } else {
+              console.log(`  ✗ No totalShares for ${sft.name}`);
+            }
+          } else {
+            console.log(`  ✗ SFT not found in data`);
+          }
+        }
+      }
+      console.log('Total invested across platform:', totalInvested, 'USD');
       const stats = {
         loading: false,
         totalAssets: totalAssets,
-        totalInvested: Number(formatEther(totalInvested)), // Keep as raw number
+        totalInvested: totalInvested, // Already converted to number
         activeInvestors: totalTokenHolders,
         totalRegions: totalRegions,
         monthlyGrowthRate: 2, // Don't know what this is yet
@@ -147,7 +187,7 @@ export function usePlatformStats() {
     activeInvestors: formatSmartNumber($stats.activeInvestors || 0, {
       threshold: 1000,
     }),
-    regionsText: `Across ${$stats.totalRegions} countries`,
+    regionsText: `Across ${$stats.totalRegions} ${$stats.totalRegions === 1 ? 'country' : 'countries'}`,
     growthTrend: {
       value: $stats.monthlyGrowthRate,
       positive: $stats.monthlyGrowthRate >= 0,

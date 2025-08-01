@@ -33,6 +33,9 @@
 	// Use services
 	const configService = useConfigService();
 	
+	// Future releases state
+	let futureReleases: any[] = [];
+	
 	// Get asset ID from URL params
 	$: assetId = $page.params.id;
 	
@@ -50,6 +53,13 @@
 	
 	// Reactive data from composable
 	$: ({ asset: assetData, tokens: assetTokens, loading, error } = $assetDetailState);
+	
+	// Load future releases when asset data is available
+	$: if (assetData?.id) {
+		configService.getFutureReleasesByAsset(assetData.id).then(releases => {
+			futureReleases = releases;
+		});
+	}
 	
 	async function downloadDocument(doc: any) {
 		try {
@@ -388,7 +398,7 @@
                                 active={activeTab === 'payments'}
                                 on:click={() => activeTab = 'payments'}
                         >
-                                Past Payments
+                                Received Revenue
                         </TabButton>
                         <TabButton
                                 active={activeTab === 'gallery'}
@@ -499,7 +509,7 @@
 						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">
 							<div class="bg-white border border-light-gray p-6 md:col-span-3">
 								<div class="flex justify-between items-center mb-6">
-									<h4 class="text-lg font-extrabold text-black mb-0">Past Payments</h4>
+									<h4 class="text-lg font-extrabold text-black mb-0">Received Revenue</h4>
 									<SecondaryButton on:click={exportPaymentsData}>
 										📊 Export Data
 									</SecondaryButton>
@@ -804,7 +814,7 @@
 										{:else}
 											<div class="text-center py-8 text-black opacity-70 flex-1 flex flex-col justify-center">
 												<p class="text-sm font-semibold mb-2">No distributions yet</p>
-												<p class="text-xs">This token hasn't generated any distributions.</p>
+												<p class="text-xs">No distributions have been made yet.</p>
 												<p class="text-xs">Distributions will appear here once payouts begin.</p>
 											</div>
 										{/if}
@@ -816,7 +826,6 @@
 					{/each}
 					<!-- Future Releases Cards -->
 					{#if assetData?.id}
-						{@const futureReleases = configService.getFutureReleasesByAsset(assetData.id)}
 						{#each futureReleases as release, index}
 					<Card hoverable>
 						<CardContent paddingClass="p-0">
