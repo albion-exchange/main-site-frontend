@@ -15,8 +15,8 @@ const USER = process.env.BASIC_AUTH_USER ?? '';
 const PASS = process.env.BASIC_AUTH_PASS ?? '';
 
 export const config = {
-  // Protect absolutely everything—including static assets and API routes
-  matcher: '/:path*',
+  // Protect everything except static assets
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|images|.*\\.(?:svg|png|jpg|jpeg|gif|ico|webp|js|css|woff|woff2|ttf|otf)).*)',],
 };
 
 export default function middleware(req: Request) {
