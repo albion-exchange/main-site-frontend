@@ -29,14 +29,7 @@ interface PlatformStatsState {
 export function usePlatformStats() {
   // Return a derived store that calculates platform stats from sfts and metadata
   const platformStats = derived([sfts, sftMetadata], ([$sfts, $sftMetadata]) => {
-    console.log('=== Platform Stats Calculation ===');
-    console.log('$sfts data:', $sfts);
-    console.log('$sfts length:', $sfts?.length);
-    console.log('$sftMetadata:', $sftMetadata);
-    console.log('ENERGY_FIELDS:', ENERGY_FIELDS);
-    
     if (!$sfts || $sfts.length === 0 || !$sftMetadata) {
-      console.log('No data yet, returning loading state');
       return {
         loading: true,
         totalAssets: 0,
@@ -112,46 +105,22 @@ export function usePlatformStats() {
       
       const totalRegions = countries.size;
       
-      console.log('=== STARTING TOTAL INVESTED CALCULATION ===');
-      console.log('Number of SFTs:', $sfts.length);
-      console.log('Energy fields to check:', ENERGY_FIELDS.map(f => f.name));
-      
       // Calculate total invested by summing totalShares from ENERGY_FIELDS tokens only
       // Since each token costs $1 USDT, total invested = total minted tokens
       let totalInvested = 0;
       
-      console.log('Calculating total invested...');
-      
       // Only count tokens that are in ENERGY_FIELDS (active assets)
       for (const field of ENERGY_FIELDS) {
-        console.log(`Checking field: ${field.name}`);
         for (const tokenInfo of field.sftTokens) {
           const tokenAddress = tokenInfo.address.toLowerCase();
-          console.log(`  Looking for token: ${tokenAddress}`);
-          
           const sft = $sfts.find(s => s.id.toLowerCase() === tokenAddress);
-          if (sft) {
-            console.log(`  Found SFT:`, {
-              id: sft.id,
-              name: sft.name,
-              totalShares: sft.totalShares,
-              hasDeposits: sft.deposits?.length > 0
-            });
-            
-            if (sft.totalShares && sft.totalShares !== "0") {
-              // totalShares is in wei format (18 decimals), convert to USD
-              const shares = Number(formatEther(sft.totalShares));
-              totalInvested += shares;
-              console.log(`  ✓ Added ${shares} USD from ${sft.name}`);
-            } else {
-              console.log(`  ✗ No totalShares for ${sft.name}`);
-            }
-          } else {
-            console.log(`  ✗ SFT not found in data`);
+          if (sft && sft.totalShares && sft.totalShares !== "0") {
+            // totalShares is in wei format (18 decimals), convert to USD
+            const shares = Number(formatEther(sft.totalShares));
+            totalInvested += shares;
           }
         }
       }
-      console.log('Total invested across platform:', totalInvested, 'USD');
       const stats = {
         loading: false,
         totalAssets: totalAssets,
