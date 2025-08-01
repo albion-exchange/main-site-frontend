@@ -3,8 +3,6 @@
  * Central export for all service classes and service infrastructure
  */
 
-export { default as WalletDataService } from "./WalletDataService";
-
 // Focused services
 export { default as AssetService } from "./AssetService";
 export { default as TokenService } from "./TokenService";
@@ -17,7 +15,6 @@ export {
   useAssetService,
   useTokenService,
   useConfigService,
-  useWalletDataService,
   type ServiceContainer,
 } from "./ServiceContainer";
 

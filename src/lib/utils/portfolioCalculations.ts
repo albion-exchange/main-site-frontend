@@ -7,7 +7,7 @@ import type { Asset, Token } from "$lib/types/uiTypes";
 import { useAssetService } from "$lib/services";
 
 export interface PortfolioHolding {
-  assetId: string;
+  energyField: string; // Energy field name from ENERGY_FIELDS
   tokenAddress: string;
   tokensOwned: number;
   investmentAmount: number;
@@ -65,8 +65,8 @@ export function calculatePortfolioSummary(
 export function getMockPortfolioHoldings(): PortfolioHolding[] {
   return [
     {
-      assetId: "europa-wressle-release-1",
-      tokenAddress: "0x2a7e3f8b921a6c4e8d5f9c2b1a8e7d6c5b4a3f2e",
+      energyField: "Bakken Horizon Field",
+      tokenAddress: "0xd5316ca888491575befc0273a00de2186c53f760",
       tokensOwned: 18750,
       investmentAmount: 18750,
       currentValue: 19125,
@@ -75,8 +75,8 @@ export function getMockPortfolioHoldings(): PortfolioHolding[] {
       lastPayout: "2024-12-15",
     },
     {
-      assetId: "bakken-horizon-field",
-      tokenAddress: "0x3456789012cdef012345678901bcdef034567890",
+      energyField: "Bakken Horizon Field",
+      tokenAddress: "0xea9a6f77483a07bc287dfb8dad151042376eb153",
       tokensOwned: 12500,
       investmentAmount: 12500,
       currentValue: 12875,
@@ -85,8 +85,8 @@ export function getMockPortfolioHoldings(): PortfolioHolding[] {
       lastPayout: "2024-12-10",
     },
     {
-      assetId: "permian-basin-venture",
-      tokenAddress: "0x456789abcdef123456789abcdef123456789abc",
+      energyField: "Gulf of Mexico-4",
+      tokenAddress: "0xae69a129b626b1e8fce196ef8e7d5faea3be753f",
       tokensOwned: 8750,
       investmentAmount: 8750,
       currentValue: 9062.5,
@@ -95,8 +95,8 @@ export function getMockPortfolioHoldings(): PortfolioHolding[] {
       lastPayout: "2024-12-20",
     },
     {
-      assetId: "gulf-mexico-deep-water",
-      tokenAddress: "0x567890abcdef123456789abcdef1234567890123",
+      energyField: "Permian Basin-3 Release 1",
+      tokenAddress: "0xc699575fe18f00104d926f0167cd858ce6d8b32e",
       tokensOwned: 2000,
       investmentAmount: 2000,
       currentValue: 2180,
@@ -113,7 +113,7 @@ export function getMockPortfolioHoldings(): PortfolioHolding[] {
  */
 export function calculateUnclaimedPayout(
   userAddress: string,
-  assetId: string,
+  energyField: string,
 ): number {
   // Mock calculation - in reality this would check:
   // 1. User's token balance for the asset
@@ -122,7 +122,7 @@ export function calculateUnclaimedPayout(
   // 4. User's share of each payout
 
   const mockHoldings = getMockPortfolioHoldings();
-  const holding = mockHoldings.find((h) => h.assetId === assetId);
+  const holding = mockHoldings.find((h) => h.energyField === energyField);
   return holding?.unclaimedAmount || 0;
 }
 

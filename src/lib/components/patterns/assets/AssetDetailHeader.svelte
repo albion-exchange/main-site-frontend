@@ -17,7 +17,7 @@
 	});
 
 	function getAssetImage(assetData: Asset | null): string {
-		return assetData?.coverImage || '/images/eur-wr-cover.jpg';
+		return assetData?.coverImage || '/images/placeholder-asset.jpg';
 	}
 
 	function getShareData(): ShareData {

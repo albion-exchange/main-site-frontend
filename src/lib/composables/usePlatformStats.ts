@@ -6,12 +6,12 @@
 import {
   derived,
 } from "svelte/store";
-import {
-  useAssetService,
-} from "$lib/services";
-import { sfts } from "$lib/stores";
+import { sfts, sftMetadata } from "$lib/stores";
 import { formatEther } from "ethers";
 import { formatSmartNumber } from "$lib/utils/formatters";
+import { decodeSftInformation } from "$lib/decodeMetadata/helpers";
+import { generateAssetInstanceFromSftMeta } from "$lib/decodeMetadata/addSchemaToReceipts";
+import { ENERGY_FIELDS } from "$lib/network";
 
 interface PlatformStatsState {
   totalAssets: number;
@@ -27,9 +27,13 @@ interface PlatformStatsState {
  * Composable for platform statistics that uses sfts data
  */
 export function usePlatformStats() {
-  // Return a derived store that calculates platform stats from sfts data
-  const platformStats = derived(sfts, ($sfts) => {
-    if (!$sfts || $sfts.length === 0) {
+  // Return a derived store that calculates platform stats from sfts and metadata
+  const platformStats = derived([sfts, sftMetadata], ([$sfts, $sftMetadata]) => {
+    console.log('=== Platform Stats Calculation ===');
+    console.log('$sfts data:', $sfts);
+    
+    if (!$sfts || $sfts.length === 0 || !$sftMetadata) {
+      console.log('No data yet, returning loading state');
       return {
         loading: true,
         totalAssets: 0,
@@ -42,23 +46,67 @@ export function usePlatformStats() {
     }
 
     try {
-      const totalTokenHolders = $sfts.reduce(
-        (acc, sft) => acc + (sft.tokenHolders?.length || 0),
-        0,
-      );
+      // Collect unique addresses across all contracts
+      const uniqueHolders = new Set<string>();
+      const holderDetails = new Map<string, string[]>(); // Map of holder address to array of contract addresses
       
-      // Get all assets from the asset service for accurate count
-      const assetService = useAssetService();
-      const allAssets = assetService.getAllAssets();
-      const totalAssets = allAssets.length;
+      $sfts.forEach(sft => {
+        if (sft.tokenHolders && Array.isArray(sft.tokenHolders)) {
+          sft.tokenHolders.forEach(holder => {
+            if (holder.address && holder.balance && Number(holder.balance) > 0) {
+              const holderAddr = holder.address.toLowerCase();
+              // Add to unique holders set
+              uniqueHolders.add(holderAddr);
+              
+              // Track which contracts this holder has tokens in
+              if (!holderDetails.has(holderAddr)) {
+                holderDetails.set(holderAddr, []);
+              }
+              holderDetails.get(holderAddr)!.push(sft.address || sft.id);
+            }
+          });
+        }
+      });
       
-      // Count distinct countries from these assets
-      const distinctCountries = new Set(
-        allAssets
-          .map(asset => asset.location?.country)
-          .filter(country => country && country.trim() !== '')
-      );
-      const totalRegions = distinctCountries.size;
+      // Log all unique holders with their contract holdings
+      console.log(`Total unique investors: ${uniqueHolders.size}`);
+      console.log('Investor details:');
+      holderDetails.forEach((contracts, holder) => {
+        console.log(`  ${holder}:`);
+        contracts.forEach(contract => {
+          console.log(`    - ${contract}`);
+        });
+      });
+      
+      const totalTokenHolders = uniqueHolders.size;
+      
+      // Use ENERGY_FIELDS as canonical source for asset counting
+      const totalAssets = ENERGY_FIELDS.length;
+      
+      // Decode metadata to get country information
+      const decodedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
+      const countries = new Set<string>();
+      
+      // Only process tokens that are in ENERGY_FIELDS
+      for (const field of ENERGY_FIELDS) {
+        for (const tokenAddress of field.sftTokens) {
+          const sft = $sfts.find(s => s.id.toLowerCase() === tokenAddress.toLowerCase());
+          if (sft) {
+            const pinnedMetadata = decodedMeta.find(
+              (meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
+            );
+            if (pinnedMetadata && pinnedMetadata.asset) {
+              // Add country to set
+              const country = pinnedMetadata.asset.location?.country;
+              if (country && country.trim() !== '') {
+                countries.add(country);
+              }
+            }
+          }
+        }
+      }
+      
+      const totalRegions = countries.size;
       
       const totalInvested = $sfts.reduce(
         (acc, sft) => acc + BigInt(sft.totalShares || 0),

@@ -95,7 +95,6 @@ export namespace Core {
   export interface Token {
     contractAddress: string;
     symbol: string;
-    assetId: string;
     assetName: string;
     sharePercentage: number;
     pricePerToken: number;
@@ -173,7 +172,6 @@ export namespace Display {
   export interface Token {
     contractAddress: string;
     symbol: string;
-    assetId: string;
     assetName: string;
     sharePercentage: string; // "5%"
     pricePerToken: string; // "$100"
@@ -275,7 +273,6 @@ export class TypeTransformations {
       return {
         contractAddress: data.contractAddress,
         symbol: data.symbol,
-        assetId: data.assetId,
         assetName: data.asset.assetName,
         sharePercentage: data.sharePercentage,
         pricePerToken: 0, // TokenMetadata doesn't have pricePerToken
@@ -371,7 +368,6 @@ export class TypeTransformations {
       return {
         contractAddress: token.contractAddress,
         symbol: token.symbol,
-        assetId: token.assetId,
         assetName: token.assetName,
         sharePercentage: `${token.sharePercentage}%`,
         pricePerToken: `$${token.pricePerToken}`,
@@ -620,7 +616,6 @@ export class TypeTransformations {
       symbol: tokenData.symbol,
       decimals: tokenData.decimals,
       tokenType: "royalty", // Default type, can be enhanced later
-      assetId: tokenData.assetId,
       isActive: true,
       supply: {
         maxSupply: tokenData.supply.maxSupply,

@@ -3,130 +3,159 @@
  * Handles token-related data operations and business logic
  *
  * Responsibilities:
- * - Load and manage token data
+ * - Load and manage token data from IPFS
  * - Token-specific transformations
  * - Token-related calculations
  *
  * Dependencies:
- * - AssetService for asset data
+ * - Stores for IPFS data
  * - TransformService for data transformation
  */
 
 import type { TokenMetadata } from "$lib/types/MetaboardTypes";
 import type { Token } from "$lib/types/uiTypes";
 import { TypeTransformations } from "$lib/types/transformations";
-import type { AssetTokenMapping } from "$lib/types/sharedTypes";
 import {
   getTokenReturns,
   type TokenReturns,
 } from "$lib/utils/returnCalculations";
 import assetService from "./AssetService";
-
-// Import configuration data
-import assetTokenMapping from "$lib/data/assetTokenMapping.json";
-
-// Import all mock token metadata
-import bakHf1Metadata from "$lib/data/mockTokenMetadata/bak-hf1.json";
-import bakHf2Metadata from "$lib/data/mockTokenMetadata/bak-hf2.json";
-import eurWr1Metadata from "$lib/data/mockTokenMetadata/eur-wr1.json";
-import eurWr2Metadata from "$lib/data/mockTokenMetadata/eur-wr2.json";
-import eurWr3Metadata from "$lib/data/mockTokenMetadata/eur-wr3.json";
-import eurWrLegacyMetadata from "$lib/data/mockTokenMetadata/eur-wr-legacy.json";
-import gomDw1Metadata from "$lib/data/mockTokenMetadata/gom-dw1.json";
-import perBv1Metadata from "$lib/data/mockTokenMetadata/per-bv1.json";
+import { get } from "svelte/store";
+import { sfts, sftMetadata } from "$lib/stores";
+import { decodeSftInformation } from "$lib/decodeMetadata/helpers";
+import { generateTokenMetadataInstanceFromSft } from "$lib/decodeMetadata/addSchemaToReceipts";
+import { readContract } from "@wagmi/core";
+import { wagmiConfig } from "svelte-wagmi";
+import authorizerAbi from "$lib/abi/authorizer.json";
+import type { Hex } from "viem";
+import { ENERGY_FIELDS } from "$lib/network";
 
 interface TokenMetadataMap {
   [tokenAddress: string]: TokenMetadata;
 }
 
 class TokenService {
-  private tokenMetadataMap: TokenMetadataMap;
+  private tokenCache: Map<string, Token> = new Map();
+  private tokenMetadataCache: Map<string, TokenMetadata> = new Map();
   private allTokens: Token[] | null = null;
-  private assetTokenMapping: AssetTokenMapping;
 
   constructor() {
-    // Initialize token metadata map using contract addresses as keys
-    this.tokenMetadataMap = {};
-
-    // Map each token metadata by its contract address
-    const tokenMetadataList = [
-      bakHf1Metadata,
-      bakHf2Metadata,
-      eurWr1Metadata,
-      eurWr2Metadata,
-      eurWr3Metadata,
-      eurWrLegacyMetadata,
-      gomDw1Metadata,
-      perBv1Metadata,
-    ];
-
-    tokenMetadataList.forEach((metadata) => {
-      this.tokenMetadataMap[metadata.contractAddress] = metadata;
-    });
-
-    this.assetTokenMapping = assetTokenMapping as AssetTokenMapping;
+    // Service now loads data dynamically from stores
   }
 
   /**
-   * Get all tokens in UI format
+   * Load tokens from IPFS data in stores
    */
-  getAllTokens(): Token[] {
-    if (this.allTokens) {
-      return this.allTokens;
+  private async loadTokensFromStores(): Promise<TokenMetadata[]> {
+    const $sfts = get(sfts);
+    const $sftMetadata = get(sftMetadata);
+    
+    if (!$sfts || $sfts.length === 0 || !$sftMetadata) {
+      return [];
     }
 
-    this.allTokens = Object.values(this.tokenMetadataMap).map((tokenData) =>
-      TypeTransformations.tokenToUI(tokenData),
-    );
+    const tokens: TokenMetadata[] = [];
+    const decodedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
+    
+    for (const sft of $sfts) {
+      const pinnedMetadata = decodedMeta.find(
+        (meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
+      );
+      
+      if (pinnedMetadata) {
+        try {
+          const $wagmiConfig = get(wagmiConfig);
+          const sftMaxSharesSupply = await readContract($wagmiConfig, {
+            abi: authorizerAbi,
+            address: sft.activeAuthorizer?.address as Hex,
+            functionName: 'maxSharesSupply',
+            args: []
+          }) as bigint;
+          
+          const tokenInstance = generateTokenMetadataInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
+          tokens.push(tokenInstance);
+          
+          // Cache both the full metadata and UI token
+          this.tokenMetadataCache.set(sft.id.toLowerCase(), tokenInstance);
+          const uiToken = TypeTransformations.tokenToUI(tokenInstance);
+          this.tokenCache.set(sft.id.toLowerCase(), uiToken);
+        } catch (error) {
+          console.error(`Failed to load token ${sft.id}:`, error);
+        }
+      }
+    }
+    
+    return tokens;
+  }
 
+
+  /**
+   * Synchronous wrappers for backward compatibility
+   * These will trigger async loads but return cached data
+   */
+  getTokenByAddress(tokenAddress: string): Token | null {
+    // Trigger async load in background
+    this.getTokenByAddressAsync(tokenAddress);
+    return this.tokenCache.get(tokenAddress.toLowerCase()) || null;
+  }
+  
+  private async getTokenByAddressAsync(tokenAddress: string): Promise<Token | null> {
+    // Check cache first
+    const cached = this.tokenCache.get(tokenAddress.toLowerCase());
+    if (cached) {
+      return cached;
+    }
+    
+    // Reload and check again
+    await this.loadTokensFromStores();
+    return this.tokenCache.get(tokenAddress.toLowerCase()) || null;
+  }
+  
+  getTokensByEnergyField(energyFieldName: string): Token[] {
+    // Find the energy field
+    const field = ENERGY_FIELDS.find(f => f.name === energyFieldName);
+    if (!field) return [];
+    
+    // Return tokens that belong to this energy field
+    const tokens = Array.from(this.tokenCache.values());
+    return tokens.filter(token => 
+      field.sftTokens.some(addr => addr.toLowerCase() === token.contractAddress.toLowerCase())
+    );
+  }
+  
+  private async getTokensByEnergyFieldAsync(energyFieldName: string): Promise<Token[]> {
+    const tokens = await this.getAllTokensAsync();
+    const field = ENERGY_FIELDS.find(f => f.name === energyFieldName);
+    if (!field) return [];
+    
+    return tokens.filter(token => 
+      field.sftTokens.some(addr => addr.toLowerCase() === token.contractAddress.toLowerCase())
+    );
+  }
+  
+  getAllTokens(): Token[] {
+    // Trigger async load in background
+    this.getAllTokensAsync();
+    return Array.from(this.tokenCache.values());
+  }
+  
+  private async getAllTokensAsync(): Promise<Token[]> {
+    // Always reload from stores to get latest data
+    const tokenMetadataList = await this.loadTokensFromStores();
+    this.allTokens = tokenMetadataList.map((tokenData) =>
+      TypeTransformations.tokenToUI(tokenData)
+    );
     return this.allTokens;
   }
 
   /**
-   * Get token by address
+   * Get energy field name for a token
    */
-  getTokenByAddress(tokenAddress: string): Token | null {
-    const tokenMetadata = this.tokenMetadataMap[tokenAddress];
-    if (!tokenMetadata) {
-      return null;
-    }
-
-    return TypeTransformations.tokenToUI(tokenMetadata);
-  }
-
-  /**
-   * Get tokens by asset ID
-   */
-  getTokensByAssetId(assetId: string): Token[] {
-    const assetInfo = this.assetTokenMapping.assets[assetId];
-    if (!assetInfo) {
-      return [];
-    }
-
-    return assetInfo.tokens
-      .map((address) => this.getTokenByAddress(address))
-      .filter((token): token is Token => token !== null);
-  }
-
-  /**
-   * Get token metadata by address
-   */
-  getTokenMetadata(tokenAddress: string): TokenMetadata | null {
-    return this.tokenMetadataMap[tokenAddress] || null;
-  }
-
-  /**
-   * Get asset ID for a token
-   */
-  getAssetIdForToken(tokenAddress: string): string | null {
-    for (const [assetId, assetInfo] of Object.entries(
-      this.assetTokenMapping.assets,
-    )) {
-      if (assetInfo.tokens.includes(tokenAddress)) {
-        return assetId;
-      }
-    }
-    return null;
+  getEnergyFieldForToken(tokenAddress: string): string | null {
+    const field = ENERGY_FIELDS.find(f => 
+      f.sftTokens.some(addr => addr.toLowerCase() === tokenAddress.toLowerCase())
+    );
+    return field?.name || null;
   }
 
   /**
@@ -139,11 +168,15 @@ class TokenService {
     }
 
     // Get associated asset for calculations
-    const assetId = this.getAssetIdForToken(tokenAddress);
-    if (!assetId) {
+    const energyFieldName = this.getEnergyFieldForToken(tokenAddress);
+    if (!energyFieldName) {
       return null;
     }
 
+    const assetId = energyFieldName
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
     const asset = assetService.getAssetById(assetId);
     if (!asset) {
       return null;
@@ -171,6 +204,23 @@ class TokenService {
         token.supply &&
         BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply) > 0n,
     );
+  }
+
+  /**
+   * Get token metadata by address
+   */
+  async getTokenMetadataByAddress(tokenAddress: string): Promise<TokenMetadata | null> {
+    const normalizedAddress = tokenAddress.toLowerCase();
+    
+    // Check cache first
+    const cached = this.tokenMetadataCache.get(normalizedAddress);
+    if (cached) {
+      return cached;
+    }
+    
+    // Load if not cached
+    await this.loadTokensFromStores();
+    return this.tokenMetadataCache.get(normalizedAddress) || null;
   }
 
   /**
@@ -259,6 +309,8 @@ class TokenService {
    */
   clearCache(): void {
     this.allTokens = null;
+    this.tokenCache.clear();
+    this.tokenMetadataCache.clear();
   }
 }
 

@@ -171,7 +171,6 @@ export interface Token {
   symbol: string;
   decimals: number;
   tokenType: "royalty" | "payment";
-  assetId: string; // Links to Asset.id
   isActive: boolean;
   supply: TokenSupply;
   supplyNumbers?: {

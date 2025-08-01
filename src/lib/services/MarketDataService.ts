@@ -101,6 +101,13 @@ class MarketDataService {
       return null;
     }
 
+    // Debug logging
+    console.log(`Parsing ${data.name || 'commodity'} data:`, {
+      todayDate: new Date().toISOString().split('T')[0],
+      latestDataDate: data.data[0]?.date,
+      dataPoints: data.data.length
+    });
+
     const sortedData = data.data.sort(
       (a: CommodityData, b: CommodityData) =>
         new Date(b.date).getTime() - new Date(a.date).getTime(),
@@ -223,9 +230,6 @@ class MarketDataService {
    * Format change percentage for display
    */
   formatChange(change: number): string {
-    if (change === 0) {
-      return "N/A";
-    }
     const sign = change >= 0 ? "+" : "";
     return `${sign}${change.toFixed(2)}%`;
   }

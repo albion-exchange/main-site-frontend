@@ -1,7 +1,7 @@
 import {
   BASE_ORDERBOOK_SUBGRAPH_URL,
   BASE_SFT_SUBGRAPH_URL,
-  ENERGY_FEILDS,
+  ENERGY_FIELDS,
 } from "$lib/network";
 
 export const getTradesForClaims = async (

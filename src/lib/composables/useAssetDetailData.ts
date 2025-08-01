@@ -20,7 +20,7 @@ import type { OffchainAssetReceiptVault } from "$lib/types/offchainAssetReceiptV
 import configService from "$lib/services/ConfigService";
 import type { Asset, Token } from "$lib/types/uiTypes";
 import type { TokenMetadata } from "$lib/types/MetaboardTypes";
-import { ENERGY_FEILDS, type SftToken } from "$lib/network";
+import { ENERGY_FIELDS, type SftToken } from "$lib/network";
 
 interface AssetDetailState {
   asset: Asset | null;
@@ -63,7 +63,7 @@ export function useAssetDetailData(initialEnergyFieldId: string) {
       );
 
       // Find the energy field by ID
-      const energyField = ENERGY_FEILDS.find((field: any) => {
+      const energyField = ENERGY_FIELDS.find((field: any) => {
         const fieldId = field.name
           .toLowerCase()
           .replace(/\s+/g, "-")
@@ -100,26 +100,31 @@ export function useAssetDetailData(initialEnergyFieldId: string) {
         );
 
         if (pinnedMetadata) {
-          const sftMaxSharesSupply = (await readContract(currentWagmiConfig, {
-            abi: authorizerAbi,
-            address: sft.activeAuthorizer?.address as Hex,
-            functionName: "maxSharesSupply",
-            args: [],
-          })) as bigint;
+          try {
+            const sftMaxSharesSupply = (await readContract(currentWagmiConfig, {
+              abi: authorizerAbi,
+              address: sft.activeAuthorizer?.address as Hex,
+              functionName: "maxSharesSupply",
+              args: [],
+            })) as bigint;
 
-          const tokenInstance = generateTokenMetadataInstanceFromSft(
-            sft,
-            pinnedMetadata,
-            sftMaxSharesSupply.toString(),
-          );
-          tokens.push(tokenInstance);
-
-          // Use the first token's asset instance (they should all be the same)
-          if (!assetInstance) {
-            assetInstance = generateAssetInstanceFromSftMeta(
+            const tokenInstance = generateTokenMetadataInstanceFromSft(
               sft,
               pinnedMetadata,
+              sftMaxSharesSupply.toString(),
             );
+            tokens.push(tokenInstance);
+
+            // Use the first token's asset instance (they should all be the same)
+            if (!assetInstance) {
+              assetInstance = generateAssetInstanceFromSftMeta(
+                sft,
+                pinnedMetadata,
+              );
+            }
+          } catch (error) {
+            console.error(`Failed to load token data for SFT ${sft.id}:`, error);
+            // Continue with next token instead of breaking the entire load
           }
         }
       }
@@ -133,7 +138,7 @@ export function useAssetDetailData(initialEnergyFieldId: string) {
       }
 
       // Load future releases for this energy field
-      const futureReleases = configService.getFutureReleasesByAsset(
+      const futureReleases = await configService.getFutureReleasesByAsset(
         energyField.name,
       );
 

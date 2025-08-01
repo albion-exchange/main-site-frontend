@@ -14,51 +14,14 @@
  * - Future release schedules
  */
 
-// Import configuration data
-import platformStats from "$lib/data/platformStats.json";
-import companyInfo from "$lib/data/companyInfo.json";
-import futureReleasesData from "$lib/data/futureReleases.json";
+import { ENERGY_FIELDS } from "$lib/network";
+import tokenService from "./TokenService";
 
-export interface PlatformConfig {
-  totalAssets: number;
-  totalInvestors: number;
-  totalDistributed: number;
-  averageReturn: number;
-  minimumInvestment: number;
-  supportedCurrencies: string[];
-  supportedNetworks: string[];
-}
 
-export interface CompanyConfig {
-  name: string;
-  tagline: string;
-  website: string;
-  contact: {
-    email: string;
-    phone: string;
-    address: {
-      street: string;
-      city: string;
-      state: string;
-      country: string;
-      postalCode: string;
-    };
-  };
-  social: {
-    twitter: string;
-    linkedin: string;
-    telegram: string;
-  };
-  legal: {
-    termsOfService: string;
-    privacyPolicy: string;
-    riskDisclosure: string;
-  };
-}
 
 export interface FutureRelease {
   id: string;
-  assetId: string;
+  energyField: string; // Energy field name from ENERGY_FIELDS
   whenRelease: string;
   description: string;
   emoji?: string;
@@ -67,8 +30,6 @@ export interface FutureRelease {
 }
 
 export interface AppConfig {
-  platform: PlatformConfig;
-  company: CompanyConfig;
   futureReleases: FutureRelease[];
 }
 
@@ -77,40 +38,44 @@ class ConfigService {
 
   constructor() {
     this.config = {
-      platform: platformStats as PlatformConfig,
-      company: companyInfo as CompanyConfig,
-      futureReleases: this.transformFutureReleasesData(futureReleasesData),
+      futureReleases: [], // Will be dynamically generated
     };
   }
 
   /**
-   * Transform nested future releases data into flat array
+   * Calculate total share percentage for an energy field
    */
-  private transformFutureReleasesData(data: any): FutureRelease[] {
-    const releases: FutureRelease[] = [];
-
-    // Iterate through assets
-    for (const [assetId, tokens] of Object.entries(data)) {
-      // Iterate through tokens for each asset
-      for (const [tokenId, tokenReleases] of Object.entries(tokens as any)) {
-        // Add each release with proper structure
-        if (Array.isArray(tokenReleases)) {
-          tokenReleases.forEach((release, index) => {
-            releases.push({
-              id: `${assetId}-${tokenId}-${index}`,
-              assetId,
-              whenRelease: release.whenRelease,
-              description: release.description,
-              emoji: release.emoji,
-              estimatedTokens: release.estimatedTokens,
-              estimatedPrice: release.estimatedPrice,
-            });
-          });
-        }
-      }
+  async getTotalSharePercentage(energyFieldName: string): Promise<number> {
+    try {
+      // Get all tokens for this energy field
+      const tokens = tokenService.getTokensByEnergyField(energyFieldName);
+      if (!tokens || tokens.length === 0) return 0;
+      
+      // Get metadata for each token to access share percentage
+      const tokenMetadataPromises = tokens.map(token => 
+        tokenService.getTokenMetadataByAddress(token.contractAddress)
+      );
+      
+      const tokenMetadata = await Promise.all(tokenMetadataPromises);
+      
+      // Calculate total share percentage
+      const totalSharePercentage = tokenMetadata.reduce((sum, metadata) => {
+        return sum + (metadata?.sharePercentage || 0);
+      }, 0);
+      
+      return totalSharePercentage;
+    } catch (error) {
+      console.error(`Error calculating share percentage for ${energyFieldName}:`, error);
+      return 0;
     }
+  }
 
-    return releases;
+  /**
+   * Check if an energy field has future releases (< 100% shares allocated)
+   */
+  async hasIncompleteReleases(energyFieldName: string): Promise<boolean> {
+    const totalSharePercentage = await this.getTotalSharePercentage(energyFieldName);
+    return totalSharePercentage < 100;
   }
 
   /**
@@ -120,34 +85,57 @@ class ConfigService {
     return this.config;
   }
 
+
+
   /**
-   * Get platform configuration
+   * Get future releases (dynamically generated)
    */
-  getPlatformConfig(): PlatformConfig {
-    return this.config.platform;
+  async getFutureReleases(): Promise<FutureRelease[]> {
+    const releases: FutureRelease[] = [];
+    
+    // Check each energy field
+    for (const field of ENERGY_FIELDS) {
+      const hasIncomplete = await this.hasIncompleteReleases(field.name);
+      if (hasIncomplete) {
+        releases.push({
+          id: `${field.name}-future`,
+          energyField: field.name,
+          whenRelease: "",
+          description: "Additional token releases planned",
+          emoji: "🚀"
+        });
+      }
+    }
+    
+    return releases;
   }
 
   /**
-   * Get company information
+   * Get future releases for a specific energy field
    */
-  getCompanyConfig(): CompanyConfig {
-    return this.config.company;
-  }
-
-  /**
-   * Get future releases
-   */
-  getFutureReleases(): FutureRelease[] {
-    return this.config.futureReleases;
-  }
-
-  /**
-   * Get future releases for a specific asset
-   */
-  getFutureReleasesByAsset(assetId: string): FutureRelease[] {
-    return this.config.futureReleases.filter(
-      (release) => release.assetId === assetId,
+  async getFutureReleasesByAsset(energyFieldOrAssetId: string): Promise<FutureRelease[]> {
+    // Find the matching energy field
+    const energyField = ENERGY_FIELDS.find(field => 
+      field.name === energyFieldOrAssetId ||
+      field.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === energyFieldOrAssetId
     );
+    
+    if (!energyField) return [];
+    
+    const hasIncomplete = await this.hasIncompleteReleases(energyField.name);
+    if (hasIncomplete) {
+      const totalSharePercentage = await this.getTotalSharePercentage(energyField.name);
+      const remainingPercentage = 100 - totalSharePercentage;
+      
+      return [{
+        id: `${energyField.name}-future`,
+        energyField: energyField.name,
+        whenRelease: "",
+        description: `${remainingPercentage.toFixed(1)}% of tokens remaining for future releases`,
+        emoji: "🚀"
+      }];
+    }
+    return [];
   }
 
   /**
@@ -161,73 +149,22 @@ class ConfigService {
   }
 
   /**
-   * Get platform statistics
+   * Get market statistics (if needed for legacy support)
    */
-  getPlatformStats(): {
-    totalAssets: number;
-    totalInvestors: number;
-    totalDistributed: number;
-    averageReturn: number;
-    totalHolders: number;
-  } {
-    // Map from the actual platformStats.json structure
-    const stats = this.config.platform as any;
+  getMarketStats() {
     return {
-      totalAssets: stats.activeAssets?.value || 4,
-      totalInvestors: stats.activeInvestors?.value || 1000,
-      totalDistributed: stats.totalInvestmentVolume?.value || 127400000,
-      averageReturn: stats.averagePayout?.value || 11.3,
-      totalHolders: stats.activeInvestors?.value || 1000,
+      totalInvestedMillions: 0,
+      totalAssetsCount: 0,
+      averageROI: 0,
+      lastUpdated: new Date().toISOString(),
     };
   }
 
   /**
-   * Get minimum investment amount
+   * Check if market data needs refresh (placeholder for future API integration)
    */
-  getMinimumInvestment(): number {
-    return this.config.platform.minimumInvestment;
-  }
-
-  /**
-   * Check if currency is supported
-   */
-  isCurrencySupported(currency: string): boolean {
-    return this.config.platform.supportedCurrencies.includes(currency);
-  }
-
-  /**
-   * Check if network is supported
-   */
-  isNetworkSupported(network: string): boolean {
-    return this.config.platform.supportedNetworks.includes(network);
-  }
-
-  /**
-   * Get company contact information
-   */
-  getContactInfo(): CompanyConfig["contact"] {
-    return this.config.company.contact;
-  }
-
-  /**
-   * Get social media links
-   */
-  getSocialLinks(): CompanyConfig["social"] {
-    return this.config.company.social;
-  }
-
-  /**
-   * Get legal document links
-   */
-  getLegalLinks(): CompanyConfig["legal"] {
-    return this.config.company.legal;
-  }
-
-  /**
-   * Check if data is stale (for cache invalidation)
-   */
-  isDataStale(lastUpdated: string, maxAgeHours: number = 24): boolean {
-    const lastUpdate = new Date(lastUpdated);
+  isMarketDataStale(maxAgeHours: number = 24): boolean {
+    const lastUpdate = new Date(this.getMarketStats().lastUpdated);
     const now = new Date();
     const ageHours = (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60);
     return ageHours > maxAgeHours;
@@ -237,12 +174,9 @@ class ConfigService {
    * Reload configuration (useful for development)
    */
   reloadConfig(): void {
-    // In a real app, this might fetch from API
-    // For now, we'll just re-import the JSON files
+    // Reset config
     this.config = {
-      platform: platformStats as PlatformConfig,
-      company: companyInfo as CompanyConfig,
-      futureReleases: this.transformFutureReleasesData(futureReleasesData),
+      futureReleases: [], // Will be dynamically generated
     };
   }
 }

@@ -58,7 +58,6 @@ export function generateTokenInstanceFromSft(
     symbol: sft.symbol,
     decimals: 18, // All SFTs have default 18 decimals
     tokenType: "royalty", // SFTs are always royalty tokens, payment tokens are USDC, USDT or any other value token
-    assetId: sft.id, // SFT contract itself is unique
     isActive: true, // SFTs are always active
     supply: {
       maxSupply: sftMaxSharesSupply.toString(), // Needs to be edited.
@@ -89,22 +88,55 @@ export function generateTokenMetadataInstanceFromSft(
   pinnedMetadata: any,
   sftMaxSharesSupply: string,
 ): TokenMetadata {
+  // Validate required fields exist
+  if (!pinnedMetadata) {
+    throw new Error("Missing pinnedMetadata");
+  }
+  
+  if (!pinnedMetadata.asset || typeof pinnedMetadata.asset !== 'object') {
+    throw new Error("Missing or invalid asset data");
+  }
+  
+  // Validate critical required fields - throw if missing
+  if (!pinnedMetadata.releaseName || typeof pinnedMetadata.releaseName !== 'string') {
+    throw new Error("Missing or invalid releaseName");
+  }
+  
+  if (!pinnedMetadata.tokenType || typeof pinnedMetadata.tokenType !== 'string') {
+    throw new Error("Missing or invalid tokenType");
+  }
+  
+  if (typeof pinnedMetadata.sharePercentage !== 'number' || pinnedMetadata.sharePercentage < 0 || pinnedMetadata.sharePercentage > 100) {
+    throw new Error("Missing or invalid sharePercentage");
+  }
+  
+  if (!pinnedMetadata.firstPaymentDate || typeof pinnedMetadata.firstPaymentDate !== 'string') {
+    throw new Error("Missing or invalid firstPaymentDate");
+  }
+  
+  if (!Array.isArray(pinnedMetadata.payoutData)) {
+    throw new Error("Missing or invalid payoutData array");
+  }
+  
+  // Only create token instance if all validations pass
   const tokenInstance: TokenMetadata = {
     contractAddress: sft.id,
-    assetId: sft.id,
     symbol: sft.symbol,
     releaseName: pinnedMetadata.releaseName,
     tokenType: pinnedMetadata.tokenType,
     firstPaymentDate: pinnedMetadata.firstPaymentDate,
     sharePercentage: pinnedMetadata.sharePercentage,
-    decimals: pinnedMetadata.decimals,
+    decimals: typeof pinnedMetadata.decimals === 'number' ? pinnedMetadata.decimals : 18,
     supply: {
       maxSupply: sftMaxSharesSupply.toString(),
       mintedSupply: sft.totalShares.toString(),
     },
     payoutData: pinnedMetadata.payoutData,
     asset: pinnedMetadata.asset,
-    metadata: pinnedMetadata.metadata,
+    metadata: pinnedMetadata.metadata || {
+      createdAt: new Date(Number(sft.deployTimestamp) * 1000).toISOString(),
+      updatedAt: new Date(Number(sft.deployTimestamp) * 1000).toISOString(),
+    },
   };
 
   return tokenInstance;
@@ -114,91 +146,124 @@ export function generateAssetInstanceFromSftMeta(
   sft: OffchainAssetReceiptVault,
   pinnedMetadata: any,
 ): Asset {
+  // Validate required fields
+  if (!pinnedMetadata || !pinnedMetadata.asset) {
+    throw new Error("Missing or invalid asset data in metadata");
+  }
+  
+  const asset = pinnedMetadata.asset;
+  
+  // Validate critical asset fields
+  if (!asset.assetName || typeof asset.assetName !== 'string') {
+    throw new Error("Missing or invalid assetName");
+  }
+  
+  if (!asset.location || typeof asset.location !== 'object') {
+    throw new Error("Missing or invalid location data");
+  }
+  
+  if (!asset.operator || typeof asset.operator !== 'object') {
+    throw new Error("Missing or invalid operator data");
+  }
+  
+  if (!asset.technical || typeof asset.technical !== 'object') {
+    throw new Error("Missing or invalid technical data");
+  }
+  
+  if (!asset.production || typeof asset.production !== 'object') {
+    throw new Error("Missing or invalid production data");
+  }
+  
+  if (!asset.assetTerms || typeof asset.assetTerms !== 'object') {
+    throw new Error("Missing or invalid assetTerms data");
+  }
+  
+  // Safely access nested properties with defaults
   const assetPlannedProduction: PlannedProduction = {
-    oilPriceAssumption:
-      pinnedMetadata.asset.plannedProduction.oilPriceAssumption,
-    oilPriceAssumptionCurrency:
-      pinnedMetadata.asset.plannedProduction.oilPriceAssumptionCurrency,
-    projections: pinnedMetadata.asset.plannedProduction.projections,
+    oilPriceAssumption: asset.plannedProduction?.oilPriceAssumption || 0,
+    oilPriceAssumptionCurrency: asset.plannedProduction?.oilPriceAssumptionCurrency || "USD",
+    projections: asset.plannedProduction?.projections || [],
   };
   const assetInstance: Asset = {
-    id: pinnedMetadata.assetId,
-    name: pinnedMetadata.asset.assetName,
-    description: pinnedMetadata.asset.description,
-    coverImage: `${PINATA_GATEWAY}/${pinnedMetadata.asset.coverImage}`,
-    images: pinnedMetadata.asset.galleryImages.map((image: any) => ({
-      title: image.title,
-      url: `${PINATA_GATEWAY}/${image.url}`,
-      caption: image.caption,
-    })),
-    galleryImages: pinnedMetadata.asset.galleryImages.map((image: any) => ({
-      title: image.title,
-      url: `${PINATA_GATEWAY}/${image.url}`,
-      caption: image.caption,
-    })),
+    id: sft.id, // Use contract address as ID since we're not using assetId
+    name: asset.assetName,
+    description: asset.description || "",
+    coverImage: asset.coverImage ? `${PINATA_GATEWAY}/${asset.coverImage}` : "",
+    images: Array.isArray(asset.galleryImages) ? asset.galleryImages.map((image: any) => ({
+      title: image?.title || "",
+      url: image?.url ? `${PINATA_GATEWAY}/${image.url}` : "",
+      caption: image?.caption || "",
+    })) : [],
+    galleryImages: Array.isArray(asset.galleryImages) ? asset.galleryImages.map((image: any) => ({
+      title: image?.title || "",
+      url: image?.url ? `${PINATA_GATEWAY}/${image.url}` : "",
+      caption: image?.caption || "",
+    })) : [],
     location: {
-      state: pinnedMetadata.asset.location.state,
-      county: pinnedMetadata.asset.location.county,
-      country: pinnedMetadata.asset.location.country,
+      state: asset.location.state,
+      county: asset.location.county,
+      country: asset.location.country,
       coordinates: {
-        lat: pinnedMetadata.asset.location.coordinates.lat,
-        lng: pinnedMetadata.asset.location.coordinates.lng,
+        lat: asset.location.coordinates?.lat || 0,
+        lng: asset.location.coordinates?.lng || 0,
       },
       waterDepth: null,
     },
     operator: {
-      name: pinnedMetadata.asset.operator.name,
-      website: pinnedMetadata.asset.operator.website,
-      experience: pinnedMetadata.asset.operator.experience,
+      name: asset.operator.name,
+      website: asset.operator.website || "",
+      experience: asset.operator.experience || "",
     },
     technical: {
-      fieldType: pinnedMetadata.asset.technical.fieldType,
-      depth: pinnedMetadata.asset.technical.depth,
-      license: pinnedMetadata.asset.technical.license,
-      estimatedLife: pinnedMetadata.asset.technical.estimatedLife,
-      firstOil: pinnedMetadata.asset.technical.firstOil,
-      infrastructure: pinnedMetadata.asset.technical.infrastructure,
-      environmental: pinnedMetadata.asset.technical.environmental,
-      expectedEndDate: pinnedMetadata.asset.technical.expectedEndDate,
-      crudeBenchmark: pinnedMetadata.asset.technical.crudeBenchmark,
+      fieldType: asset.technical.fieldType,
+      depth: asset.technical.depth,
+      license: asset.technical.license,
+      estimatedLife: asset.technical.estimatedLife,
+      firstOil: asset.technical.firstOil,
+      infrastructure: asset.technical.infrastructure,
+      environmental: asset.technical.environmental,
+      expectedEndDate: asset.technical.expectedEndDate,
+      crudeBenchmark: asset.technical.crudeBenchmark,
       pricing: {
-        benchmarkPremium:
-          pinnedMetadata.asset.technical.pricing.benchmarkPremium.toString(),
-        transportCosts:
-          pinnedMetadata.asset.technical.pricing.transportCosts.toString(),
+        benchmarkPremium: (asset.technical.pricing?.benchmarkPremium || 0).toString(),
+        transportCosts: (asset.technical.pricing?.transportCosts || 0).toString(),
       },
     },
     production: {
-      current: pinnedMetadata.asset.production.current,
-      status: pinnedMetadata.asset.production.status,
+      current: asset.production.current,
+      status: asset.production.status,
       units: {
-        production: pinnedMetadata.asset.production.units.production,
-        revenue: pinnedMetadata.asset.production.units.revenue,
+        production: asset.production.units?.production || 0,
+        revenue: asset.production.units?.revenue || 0,
       },
     },
     terms: {
-      interestType: pinnedMetadata.asset.assetTerms.interestType,
-      amount: pinnedMetadata.asset.assetTerms.amount,
-      paymentFrequency: pinnedMetadata.asset.assetTerms.paymentFrequencyDays,
+      interestType: asset.assetTerms.interestType,
+      amount: asset.assetTerms.amount,
+      paymentFrequency: asset.assetTerms.paymentFrequencyDays,
     },
     assetTerms: {
-      interestType: pinnedMetadata.asset.assetTerms.interestType,
-      amount: pinnedMetadata.asset.assetTerms.amount,
-      paymentFrequency: pinnedMetadata.asset.assetTerms.paymentFrequencyDays,
+      interestType: asset.assetTerms.interestType,
+      amount: asset.assetTerms.amount,
+      paymentFrequency: asset.assetTerms.paymentFrequencyDays,
     },
     tokenContracts: [sft.id],
-    monthlyReports: pinnedMetadata.asset.receiptsData.map(
+    monthlyReports: Array.isArray(asset.receiptsData) ? asset.receiptsData.map(
       (report: any, i: number) => ({
-        month: report.month, // YYYY-MM format
-        production: report.assetData.production, // barrels
-        revenue: report.assetData.revenue, // USD
-        expenses: report.assetData.expenses, // USD
-        netIncome: report.assetData.netIncome, // USD
-        payoutPerToken: pinnedMetadata.payoutData[i].tokenPayout.payoutPerToken, // USD per token (optional for royalty assets)
+        month: report?.month || `2024-${String(i + 1).padStart(2, '0')}`, // YYYY-MM format
+        production: report?.assetData?.production || 0, // barrels
+        revenue: report?.assetData?.revenue || 0, // USD
+        expenses: report?.assetData?.expenses || 0, // USD
+        netIncome: report?.assetData?.netIncome || 0, // USD
+        payoutPerToken: pinnedMetadata.payoutData?.[i]?.tokenPayout?.payoutPerToken || 0, // USD per token (optional for royalty assets)
       }),
-    ),
+    ) : [],
     plannedProduction: assetPlannedProduction,
-    operationalMetrics: pinnedMetadata.asset.operationalMetrics,
+    operationalMetrics: asset.operationalMetrics || {
+      uptime: { percentage: 0, unit: "%", period: "unknown" },
+      dailyProduction: { current: 0, target: 0, unit: "BOE" },
+      hseMetrics: { incidentFreeDays: 0, lastIncidentDate: new Date().toISOString(), safetyRating: "Unknown" }
+    },
     metadata: {
       createdAt: new Date(
         Number(sft.deployTimestamp) * 1000,

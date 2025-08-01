@@ -45,12 +45,3 @@ export interface PricingInfo {
   transportCosts: number | string;
 }
 
-// Asset-Token mapping types
-export interface AssetInfo {
-  name: string;
-  tokens: string[];
-}
-
-export type AssetTokenMapping = {
-  assets: Record<string, AssetInfo>;
-};

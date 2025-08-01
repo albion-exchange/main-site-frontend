@@ -3,12 +3,12 @@
  * Handles asset-related data operations and business logic
  *
  * Responsibilities:
- * - Load and manage asset data
+ * - Load and manage asset data from IPFS
  * - Asset-specific transformations
  * - Asset-related calculations
  *
  * Dependencies:
- * - CacheService for data caching
+ * - Stores for IPFS data
  * - TransformService for data transformation
  */
 
@@ -17,114 +17,64 @@ import type { Asset } from "$lib/types/uiTypes";
 import { TypeTransformations } from "$lib/types/transformations";
 import type { ISODateOnlyString } from "$lib/types/sharedTypes";
 import { arrayUtils } from "$lib/utils/arrayHelpers";
-
-// Import asset metadata
-import bakHf1Metadata from "$lib/data/mockTokenMetadata/bak-hf1.json";
-import bakHf2Metadata from "$lib/data/mockTokenMetadata/bak-hf2.json";
-import eurWr1Metadata from "$lib/data/mockTokenMetadata/eur-wr1.json";
-import eurWr2Metadata from "$lib/data/mockTokenMetadata/eur-wr2.json";
-import eurWr3Metadata from "$lib/data/mockTokenMetadata/eur-wr3.json";
-import eurWrLegacyMetadata from "$lib/data/mockTokenMetadata/eur-wr-legacy.json";
-import gomDw1Metadata from "$lib/data/mockTokenMetadata/gom-dw1.json";
-import perBv1Metadata from "$lib/data/mockTokenMetadata/per-bv1.json";
+import { get } from "svelte/store";
+import { sfts, sftMetadata } from "$lib/stores";
+import { decodeSftInformation } from "$lib/decodeMetadata/helpers";
+import { generateAssetInstanceFromSftMeta } from "$lib/decodeMetadata/addSchemaToReceipts";
 
 interface AssetMetadataMap {
-  [tokenAddress: string]: AssetData;
+  [assetId: string]: Asset;
 }
 
 class AssetService {
-  private assetMetadataMap: AssetMetadataMap;
+  private assetCache: AssetMetadataMap = {};
   private allAssets: Asset[] | null = null;
-  private tokensByAsset: Map<string, any[]> = new Map();
 
   constructor() {
-    // Initialize asset metadata map - deduplicate by assetId
-    const tokenMetadataList = [
-      bakHf1Metadata,
-      bakHf2Metadata,
-      eurWr1Metadata,
-      eurWr2Metadata,
-      eurWr3Metadata,
-      eurWrLegacyMetadata,
-      gomDw1Metadata,
-      perBv1Metadata,
-    ];
-
-    this.assetMetadataMap = {};
-
-    // Group tokens by assetId to avoid duplicates
-    const assetGroups = new Map<string, any[]>();
-    tokenMetadataList.forEach((metadata: any) => {
-      const existing = assetGroups.get(metadata.assetId) || [];
-      existing.push(metadata);
-      assetGroups.set(metadata.assetId, existing);
-    });
-
-    // Create one asset per unique assetId, aggregating receiptsData from all tokens
-    assetGroups.forEach((metadataList, assetId) => {
-      // Use the first token's metadata as base
-      const baseAssetData = this.createAssetData(metadataList[0]);
-
-      // Store token metadata for this asset (including receiptsData)
-      this.tokensByAsset.set(assetId, metadataList);
-
-      this.assetMetadataMap[assetId] = baseAssetData;
-    });
+    // Service now loads data dynamically from stores
   }
 
   /**
-   * Create AssetData from TokenMetadata by combining asset and parent metadata
+   * Load assets from IPFS data in stores
    */
-  private createAssetData(tokenMetadata: any): AssetData {
-    const asset = tokenMetadata.asset;
-    return {
-      assetName: tokenMetadata.assetName || asset.assetName || "Unknown Asset",
-      description: asset.description || "",
-      location: asset.location,
-      operator: asset.operator,
-      technical: asset.technical,
-      assetTerms: asset.assetTerms,
-      production: asset.production,
-      plannedProduction: asset.plannedProduction || {
-        oilPriceAssumption: 70,
-        oilPriceAssumptionCurrency: "USD",
-        projections: [],
-      },
-      historicalProduction: tokenMetadata.asset?.historicalProduction || [],
-      receiptsData: tokenMetadata.asset?.receiptsData || [],
-      operationalMetrics: tokenMetadata.operationalMetrics ||
-        asset.operationalMetrics || {
-          uptime: { percentage: 0, unit: "percent", period: "N/A" },
-          dailyProduction: { current: 0, target: 0, unit: "boe" },
-          hseMetrics: {
-            incidentFreeDays: 0,
-            lastIncidentDate: new Date().toISOString(),
-            safetyRating: "Unknown",
-          },
-        },
-      documents: asset.documents || [],
-      coverImage: tokenMetadata.coverImage || asset.coverImage || "",
-      galleryImages: tokenMetadata.galleryImages || asset.galleryImages || [],
-    };
+  private loadAssetsFromStores(): Asset[] {
+    const $sfts = get(sfts);
+    const $sftMetadata = get(sftMetadata);
+    
+    if (!$sfts || $sfts.length === 0 || !$sftMetadata) {
+      return [];
+    }
+
+    const assets: Asset[] = [];
+    const decodedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
+    
+    for (const sft of $sfts) {
+      const pinnedMetadata = decodedMeta.find(
+        (meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
+      );
+      
+      if (pinnedMetadata && pinnedMetadata.asset) {
+        try {
+          const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
+          assets.push(assetInstance);
+          // Cache by asset ID
+          this.assetCache[assetInstance.id] = assetInstance;
+        } catch (error) {
+          console.error(`Failed to load asset for SFT ${sft.id}:`, error);
+          // Continue with next asset instead of breaking the entire load
+        }
+      }
+    }
+    
+    return assets;
   }
 
   /**
    * Get all assets in UI format
    */
   getAllAssets(): Asset[] {
-    // Always regenerate to avoid stale data during development
-    this.allAssets = Object.entries(this.assetMetadataMap).map(
-      ([assetId, assetData]) => {
-        const receiptsData = this.getReceiptsDataForAsset(assetId);
-        const uiAsset = TypeTransformations.assetToUI(
-          assetData,
-          assetId,
-          receiptsData,
-        );
-        return uiAsset;
-      },
-    );
-
+    // Always reload from stores to get latest data
+    this.allAssets = this.loadAssetsFromStores();
     return this.allAssets;
   }
 
@@ -133,60 +83,54 @@ class AssetService {
    */
   clearCache() {
     this.allAssets = null;
-  }
-
-  /**
-   * Get receiptsData for an asset by aggregating from its tokens
-   */
-  getReceiptsDataForAsset(assetId: string): any[] {
-    const tokens = this.tokensByAsset.get(assetId) || [];
-
-    // Get receiptsData from the first token's asset data (should be the same for all tokens of the same asset)
-    if (tokens.length > 0 && tokens[0].asset.receiptsData) {
-      return tokens[0].asset.receiptsData.sort((a: any, b: any) =>
-        a.month.localeCompare(b.month),
-      );
-    }
-
-    return [];
+    this.assetCache = {};
   }
 
   /**
    * Get asset by ID
    */
   getAssetById(assetId: string): Asset | null {
-    // First try direct lookup in metadata map
-    const assetData = this.assetMetadataMap[assetId];
-    if (assetData) {
-      // Get receiptsData from tokens
-      const receiptsData = this.getReceiptsDataForAsset(assetId);
-      const uiAsset = TypeTransformations.assetToUI(
-        assetData,
-        assetId,
-        receiptsData,
-      );
-      return uiAsset;
+    // First check cache
+    if (this.assetCache[assetId]) {
+      return this.assetCache[assetId];
+    }
+    
+    // Reload from stores if not in cache
+    this.loadAssetsFromStores();
+    
+    const asset = this.assetCache[assetId];
+    if (!asset) {
+      console.warn(`Asset with ID ${assetId} not found`);
+      return null;
     }
 
-    // Fallback to searching through all assets
-    const assets = this.getAllAssets();
-    const found = assets.find((asset) => asset.id === assetId);
-    return found || null;
+    return asset;
   }
 
   /**
    * Get assets by IDs
    */
   getAssetsByIds(assetIds: string[]): Asset[] {
-    const assets = this.getAllAssets();
-    return assets.filter((asset) => assetIds.includes(asset.id));
+    return assetIds
+      .map((id) => this.getAssetById(id))
+      .filter((asset): asset is Asset => asset !== null);
   }
 
   /**
-   * Get asset metadata by token address
+   * Get asset by token address
    */
-  getAssetMetadataByTokenAddress(tokenAddress: string): AssetData | null {
-    return this.assetMetadataMap[tokenAddress] || null;
+  getAssetByTokenAddress(tokenAddress: string): Asset | null {
+    if (!this.allAssets) {
+      this.getAllAssets();
+    }
+
+    const asset = this.allAssets?.find((a) =>
+      a.tokenContracts.some(
+        (addr) => addr.toLowerCase() === tokenAddress.toLowerCase(),
+      ),
+    );
+
+    return asset || null;
   }
 
   /**
@@ -252,32 +196,100 @@ class AssetService {
       return [];
     }
 
-    // Sort by date
-    return asset.monthlyReports.sort((a, b) => {
-      const dateA = new Date(a.month + "-01");
-      const dateB = new Date(b.month + "-01");
-      return dateA.getTime() - dateB.getTime();
-    });
+    return [...asset.monthlyReports].sort((a, b) =>
+      a.month.localeCompare(b.month),
+    );
   }
 
   /**
-   * Search assets by name or description
+   * Get cumulative production stats
    */
-  searchAssets(query: string): Asset[] {
-    if (!query.trim()) {
-      return this.getAllAssets();
+  getCumulativeProduction(assetId: string): {
+    totalProduction: number;
+    totalRevenue: number;
+    monthCount: number;
+  } {
+    const asset = this.getAssetById(assetId);
+    if (!asset?.monthlyReports || asset.monthlyReports.length === 0) {
+      return {
+        totalProduction: 0,
+        totalRevenue: 0,
+        monthCount: 0,
+      };
     }
 
-    const lowercaseQuery = query.toLowerCase();
+    const totalProduction = asset.monthlyReports.reduce(
+      (sum, report) => sum + (report.production ?? 0),
+      0,
+    );
+
+    const totalRevenue = asset.monthlyReports.reduce(
+      (sum, report) => sum + (report.revenue ?? 0),
+      0,
+    );
+
+    return {
+      totalProduction,
+      totalRevenue,
+      monthCount: asset.monthlyReports.length,
+    };
+  }
+
+  /**
+   * Get asset performance metrics
+   */
+  getAssetPerformance(assetId: string): {
+    averageMonthlyRevenue: number;
+    productionTrend: "up" | "down" | "stable";
+    lastMonthRevenue: number;
+  } {
+    const asset = this.getAssetById(assetId);
+    if (!asset?.monthlyReports || asset.monthlyReports.length === 0) {
+      return {
+        averageMonthlyRevenue: 0,
+        productionTrend: "stable",
+        lastMonthRevenue: 0,
+      };
+    }
+
+    const avgRevenue = this.getAverageMonthlyRevenue(assetId);
+
+    // Get last two months for trend
+    const sortedReports = [...asset.monthlyReports].sort((a, b) =>
+      b.month.localeCompare(a.month),
+    );
+
+    const lastMonth = sortedReports[0];
+    const previousMonth = sortedReports[1];
+
+    let trend: "up" | "down" | "stable" = "stable";
+    if (lastMonth && previousMonth) {
+      const lastRevenue = lastMonth.revenue ?? 0;
+      const prevRevenue = previousMonth.revenue ?? 0;
+      if (lastRevenue > prevRevenue * 1.05) trend = "up";
+      else if (lastRevenue < prevRevenue * 0.95) trend = "down";
+    }
+
+    return {
+      averageMonthlyRevenue: avgRevenue,
+      productionTrend: trend,
+      lastMonthRevenue: lastMonth?.revenue ?? 0,
+    };
+  }
+
+  /**
+   * Search assets by query
+   */
+  searchAssets(query: string): Asset[] {
     const assets = this.getAllAssets();
+    const lowerQuery = query.toLowerCase();
 
     return assets.filter(
       (asset) =>
-        asset.name?.toLowerCase().includes(lowercaseQuery) ||
-        asset.description?.toLowerCase().includes(lowercaseQuery) ||
-        asset.operator?.name?.toLowerCase().includes(lowercaseQuery) ||
-        asset.location?.state?.toLowerCase().includes(lowercaseQuery) ||
-        asset.location?.country?.toLowerCase().includes(lowercaseQuery),
+        asset.name.toLowerCase().includes(lowerQuery) ||
+        asset.location?.state?.toLowerCase().includes(lowerQuery) ||
+        asset.location?.country?.toLowerCase().includes(lowerQuery) ||
+        asset.operator?.name?.toLowerCase().includes(lowerQuery),
     );
   }
 }
