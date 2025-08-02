@@ -6,6 +6,8 @@
 	import { base } from '@wagmi/core/chains';
 	import { injected, walletConnect } from '@wagmi/connectors';
 	import { onMount } from 'svelte';
+	import { injectAnalytics } from '@vercel/analytics/sveltekit';
+	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 
 	const queryClient = new QueryClient({
 		defaultOptions: {
@@ -28,6 +30,8 @@
 
 	onMount(() => {
 		initWallet();
+		injectAnalytics();
+		injectSpeedInsights();
 		return () => {
 			document.body.style.overflow = '';
 		};
