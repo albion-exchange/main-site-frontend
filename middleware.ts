@@ -15,12 +15,22 @@ const USER = process.env.BASIC_AUTH_USER ?? '';
 const PASS = process.env.BASIC_AUTH_PASS ?? '';
 
 export const config = {
-  // Protect everything except static assets
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|images|.*\\.(?:svg|png|jpg|jpeg|gif|ico|webp|js|css|woff|woff2|ttf|otf|webmanifest)).*)',],
+  // Protect everything except static assets and favicon files
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon files (all variations)
+     * - manifest files
+     * - static assets
+     */
+    '/((?!_next/static|_next/image|favicon|apple-touch|web-app-manifest|site\\.webmanifest|assets|images|.*\\.(?:svg|png|jpg|jpeg|gif|ico|webp|js|css|woff|woff2|ttf|otf)).*)',
+  ],
 };
 
 export default function middleware(req: Request) {
-  // Short-circuit if credentials are missing so you don’t lock yourself out
+  // Short-circuit if credentials are missing so you don't lock yourself out
   if (!USER || !PASS) {
     console.warn('⚠️  BASIC_AUTH_USER/PASS not set; skipping auth!');
     return;
