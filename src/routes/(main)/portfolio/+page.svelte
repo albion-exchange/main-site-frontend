@@ -29,6 +29,7 @@
 	let claimHistory: ClaimHistory[] = [];
 	let allTradesData: any[] = [];
 	let allDepositsData: any[] = [];
+	let isLoadingData = false;
 
 	
 	// Use composables
@@ -222,6 +223,13 @@
 	}
 
 	async function loadSftData(){
+		// Prevent multiple simultaneous executions
+		if(isLoadingData) {
+			console.log('Already loading data, skipping duplicate call');
+			return;
+		}
+		
+		isLoadingData = true;
 		pageLoading = true;
 		
 		// Reset all portfolio variables to prevent accumulation across wallet switches
@@ -242,6 +250,15 @@
 			// Get deposits for this wallet
 			const deposits = await getAllDeposits($signerAddress || '');
 			console.log('All deposits for wallet:', deposits.length, deposits);
+			
+			// Log each deposit's details
+			deposits.forEach((d: any, i: number) => {
+				console.log(`Deposit ${i + 1}:`, {
+					vault: d.offchainAssetReceiptVault.id,
+					amount_raw: d.amount,
+					amount_formatted: Number(formatEther(d.amount))
+				});
+			});
 			
 			console.log('Processing SFTs:', $sfts.length, $sfts.map(s => s.id));
 			
@@ -266,8 +283,11 @@
 				}
 			}
 			
+			// Deduplicate SFTs by ID in case of duplicates
+			const uniqueSfts = Array.from(new Map($sfts.map((sft: any) => [sft.id.toLowerCase(), sft])).values());
+			
 			// Process each individual SFT token
-			for(const sft of $sfts) {
+			for(const sft of uniqueSfts) {
 				console.log('Processing SFT:', sft.id);
 				
 				// Find metadata for this SFT
@@ -280,23 +300,30 @@
 				if(pinnedMetadata) {
 					const asset = (pinnedMetadata as any).asset;
 					
-					// Get deposit amount for this specific SFT
-					const deposit = deposits.find((d: any) => 
+					// Get ALL deposits for this specific SFT and sum them
+					const sftDeposits = deposits.filter((d: any) => 
 						d.offchainAssetReceiptVault.id.toLowerCase() === sft.id.toLowerCase()
 					);
 					
-					console.log('Found deposit for SFT:', deposit ? 'yes' : 'no', deposit ? Number(formatEther(deposit.amount)) : 0);
-					
+					// Sum all deposits for this SFT
 					let totalInvested = 0;
 					let tokensOwned = 0;
+					
+					if(sftDeposits.length > 0) {
+						console.log(`Deposits for SFT ${sft.id}:`);
+						for(const deposit of sftDeposits) {
+							console.log(`  - Amount (raw): ${deposit.amount}`);
+							const depositAmount = Number(formatEther(deposit.amount));
+							console.log(`  - Amount (formatted): ${depositAmount}`);
+							totalInvested += depositAmount;
+							tokensOwned += depositAmount; // Assuming 1:1 ratio for now
+						}
+					}
+					
+					console.log('Found deposits for SFT:', sftDeposits.length, 'Total invested:', totalInvested);
+					
 					let totalEarned = 0;
 					let unclaimedAmount = 0;
-					
-					if(deposit) {
-						const depositAmount = Number(formatEther(deposit.amount));
-						totalInvested = depositAmount;
-						tokensOwned = depositAmount; // Assuming 1:1 ratio for now
-					}
 					
 					// Find claims data for this specific SFT from claimsHoldings
 					const sftClaimsGroup = claimsHoldings.find(group => group.sftAddress === sft.id);
@@ -381,8 +408,8 @@
 						tokensOwned
 					});
 					
-					// Add to holdings if we have any data (including SFTs with no deposits but with metadata)
-					if(pinnedMetadata) {
+					// Only add to holdings if user actually owns tokens (has made deposits)
+					if(pinnedMetadata && tokensOwned > 0) {
 						const capitalReturned = totalInvested > 0 
 							? (totalEarned / totalInvested) * 100 
 							: 0;
@@ -574,6 +601,7 @@
 			});
 		}	
 		pageLoading = false;
+		isLoadingData = false;
 	}
 	
 	$: if($connected && $signerAddress){
