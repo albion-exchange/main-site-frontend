@@ -3,7 +3,7 @@
 	import { fly, fade } from 'svelte/transition';
 	import { useAssetService, useTokenService, useConfigService } from '$lib/services';
 	import type { Asset, Token } from '$lib/types/uiTypes';
-	import { readContract, writeContract, waitForTransactionReceipt } from '@wagmi/core';
+	import { readContract, writeContract, waitForTransactionReceipt, simulateContract } from '@wagmi/core';
 	import { signerAddress, wagmiConfig } from 'svelte-wagmi';
 	import { formatEther, parseUnits, type Hex } from 'viem';
 	import {erc20Abi} from 'viem';
@@ -132,25 +132,32 @@
 			const requiredAmount = BigInt(parseUnits(investmentAmount.toString(), paymentTokenDecimals));
 			// Only approve if current allowance is insufficient
 			if (currentAllowance < requiredAmount) {
-				const approvalHash = await writeContract($wagmiConfig, {
+				// Simulate approval first
+				const { request: approvalRequest } = await simulateContract($wagmiConfig, {
 					abi: erc20Abi,
 					address: paymentToken as Hex,
 					functionName: 'approve',
 					args: [currentSft.activeAuthorizer?.address as Hex, requiredAmount]
 				});
+
+				const approvalHash = await writeContract($wagmiConfig, approvalRequest);
 				
 				// Wait for approval transaction to be confirmed
 				await waitForTransactionReceipt($wagmiConfig, {
 					hash: approvalHash
 				});
 			}
-			// Deposit tokens
-			await writeContract($wagmiConfig, {
+
+			// Simulate deposit transaction
+			const { request: depositRequest } = await simulateContract($wagmiConfig, {
 				abi: OffchainAssetReceiptVaultAbi,
 				address: tokenAddress as Hex,
 				functionName: 'deposit',
 				args: [BigInt(parseUnits(investmentAmount.toString(), 18)), $signerAddress as Hex, BigInt(0n), "0x"]
 			});
+
+			// Execute deposit transaction
+			await writeContract($wagmiConfig, depositRequest);
 
 			purchaseSuccess = true;
 			dispatch('purchaseSuccess', {
