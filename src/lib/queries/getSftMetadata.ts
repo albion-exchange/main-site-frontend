@@ -1,8 +1,8 @@
 import type { MetaV1S } from "$lib/types/sftMetadataTypes";
 import { BASE_METADATA_SUBGRAPH_URL, ENERGY_FIELDS } from "$lib/network";
-import { env } from '$env/dynamic/public';
+import { PUBLIC_METABOARD_ADMIN } from '$env/static/public';
 
-const METABOARD_ADMIN = env.PUBLIC_METABOARD_ADMIN || "0x0000000000000000000000000000000000000000";
+const METABOARD_ADMIN = PUBLIC_METABOARD_ADMIN || "0x0000000000000000000000000000000000000000";
 export const getSftMetadata = async (): Promise<MetaV1S[]> => {
   try {
     // Extract all SFT addresses from ENERGY_FIELDS
@@ -19,7 +19,7 @@ export const getSftMetadata = async (): Promise<MetaV1S[]> => {
     {
   metaV1S(where: {
     subject_in: [${subjects.join(",")}],
-    sender: ${METABOARD_ADMIN.toLowerCase()}
+    sender: "${METABOARD_ADMIN.toLowerCase()}"
   },
   orderBy: transaction__timestamp
   orderDirection: desc
