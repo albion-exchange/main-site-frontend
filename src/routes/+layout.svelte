@@ -9,26 +9,30 @@
 	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 
-	// const baseRpcUrls = [
-	// 	// "https://mainnet.base.org",
-	// 	"https://base-rpc.publicnode.com",
-	// 	"https://base.llamarpc.com",
-	// 	"https://0xrpc.io/base",
-	// 	"https://base.drpc.org",
-	// 	"https://base-mainnet.gateway.tatum.io"
-	// ]
-	// const baseNetworkFallbackRpcs = {
-	// ...base,
-	// rpcUrls: {
-	// 	...base.rpcUrls,
-	// 	default: {
-	// 		http: baseRpcUrls
-	// 	},
-	// 	public: {
-	// 		http: baseRpcUrls
-	// 	}
-	// }
-	// };
+	const baseRpcUrls = [
+		"https://mainnet.base.org",                    // Official Base RPC
+		"https://base-rpc.publicnode.com",             // PublicNode
+		"https://base.llamarpc.com",                   // LlamaRPC
+		"https://0xrpc.io/base",                       // 0xRPC
+		"https://base.drpc.org",                       // DRPC
+		"https://base-mainnet.gateway.tatum.io",       // Tatum
+		"https://base.blockpi.network/v1/rpc/public",  // BlockPI
+		"https://1rpc.io/base",                        // 1RPC
+		"https://base.meowrpc.com"                     // MeowRPC
+	];
+
+	const baseNetworkFallbackRpcs = {
+		...base,
+		rpcUrls: {
+			...base.rpcUrls,
+			default: {
+				http: baseRpcUrls
+			},
+			public: {
+				http: baseRpcUrls
+			}
+		}
+	};
 
 
 	const queryClient = new QueryClient({
@@ -44,7 +48,7 @@
 			autoConnect: true,
 			appName: 'base',
 			walletConnectProjectId: PUBLIC_WALLETCONNECT_ID,
-			chains: [base],
+			chains: [baseNetworkFallbackRpcs], // Use custom chain with multiple RPC URLs
 			connectors: [injected(), walletConnect({ projectId: PUBLIC_WALLETCONNECT_ID })]
 		});
 		await erckit.init();
