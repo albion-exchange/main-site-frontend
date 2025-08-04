@@ -8,28 +8,17 @@
 	import { onMount } from 'svelte';
 	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
-
-	const baseRpcUrls = [
-		"https://mainnet.base.org",                    // Official Base RPC
-		"https://base-rpc.publicnode.com",             // PublicNode
-		"https://base.llamarpc.com",                   // LlamaRPC
-		"https://0xrpc.io/base",                       // 0xRPC
-		"https://base.drpc.org",                       // DRPC
-		"https://base-mainnet.gateway.tatum.io",       // Tatum
-		"https://base.blockpi.network/v1/rpc/public",  // BlockPI
-		"https://1rpc.io/base",                        // 1RPC
-		"https://base.meowrpc.com"                     // MeowRPC
-	];
+	import { BASE_RPC_ENDPOINTS } from '$lib/config/rpcEndpoints';
 
 	const baseNetworkFallbackRpcs = {
 		...base,
 		rpcUrls: {
 			...base.rpcUrls,
 			default: {
-				http: baseRpcUrls
+				http: BASE_RPC_ENDPOINTS
 			},
 			public: {
-				http: baseRpcUrls
+				http: BASE_RPC_ENDPOINTS
 			}
 		}
 	};
