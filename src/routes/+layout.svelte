@@ -9,6 +9,28 @@
 	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 
+	const baseRpcUrls = [
+		"https://mainnet.base.org",
+		"https://base-rpc.publicnode.com",
+		"https://base.llamarpc.com",
+		"https://0xrpc.io/base",
+		"https://base.drpc.org",
+		"https://base-mainnet.gateway.tatum.io"
+	]
+	const baseNetworkFallbackRpcs = {
+	...base,
+	rpcUrls: {
+		...base.rpcUrls,
+		default: {
+			http: baseRpcUrls
+		},
+		public: {
+			http: baseRpcUrls
+		}
+	}
+	};
+
+
 	const queryClient = new QueryClient({
 		defaultOptions: {
 			queries: {
@@ -22,7 +44,7 @@
 			autoConnect: true,
 			appName: 'base',
 			walletConnectProjectId: PUBLIC_WALLETCONNECT_ID,
-			chains: [base],
+			chains: [baseNetworkFallbackRpcs],
 			connectors: [injected(), walletConnect({ projectId: PUBLIC_WALLETCONNECT_ID })]
 		});
 		await erckit.init();

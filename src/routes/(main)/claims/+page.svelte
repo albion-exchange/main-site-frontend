@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { writeContract } from '@wagmi/core';
+	import { writeContract, simulateContract } from '@wagmi/core';
 	import { web3Modal, signerAddress, wagmiConfig, connected } from 'svelte-wagmi';
 	import { Card, CardContent, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, CollapsibleSection, FormattedNumber } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
@@ -8,7 +8,7 @@
 	import { arrayUtils } from '$lib/utils/arrayHelpers';
     import { ENERGY_FIELDS, type Claim } from '$lib/network';
     import { getTradesForClaims } from '$lib/queries/getTrades';
-    import { decodeOrder, getLeaf, getMerkleTree, signContext, sortClaimsData, getProofForLeaf, type ClaimHistory, type ClaimSignedContext } from '$lib/utils/claims';
+    import { decodeOrder, getLeaf, getMerkleTree, signContext, sortClaimsData, getProofForLeaf, fetchAndValidateCSV, type ClaimHistory, type ClaimSignedContext } from '$lib/utils/claims';
     import { formatEther, parseEther, type Hex } from 'viem';
 	import orderbookAbi from '$lib/abi/orderbook.json';
     import { getOrder } from '$lib/queries/getOrder';
@@ -28,7 +28,7 @@
 	const itemsPerPage = 20;
 	
 	// CSV cache to avoid re-fetching
-	const csvCache = new Map<string, string>();
+	const csvCache = new Map<string, any[]>();
 
 	// Reset data when wallet changes
 	$: if ($signerAddress) {
@@ -49,39 +49,26 @@
 	}
 
 	function loadClaimsData(){
-		async function fetchCsvData(csvLink: string) {
+		async function fetchCsvData(csvLink: string, expectedMerkleRoot: string, expectedContentHash: string): Promise<any[] | null> {
 			// Check cache first
 			if (csvCache.has(csvLink)) {
 				return csvCache.get(csvLink)!;
 			}
 			
 			try {
-				const response = await fetch(csvLink);
-				if (!response.ok) {
-					throw new Error(`Failed to fetch CSV: ${response.status}`);
+				// Use secure CSV fetching with validation
+				const csvData = await fetchAndValidateCSV(csvLink, expectedMerkleRoot, expectedContentHash);
+				if (!csvData) {
+					throw new Error('CSV validation failed');
 				}
-				const csvText = await response.text();
-				// Cache the result
-				csvCache.set(csvLink, csvText);
-				return csvText;
+				
+				// Cache the validated result
+				csvCache.set(csvLink, csvData);
+				return csvData;
 			} catch (error) {
-				console.error('Error fetching CSV data:', error);
+				console.error('Error fetching or validating CSV data:', error);
 				return null;
 			}
-		}
-
-		async function parseCsvData(csvText: string) {
-			const lines = csvText.split('\n');
-			const headers = lines[0].split(',').map(h => h.trim());
-			const data = lines.slice(1).filter(line => line.trim()).map(line => {
-				const values = line.split(',').map(v => v.trim());
-				const row: any = {};
-				headers.forEach((header, index) => {
-					row[header] = values[index] || '';
-				});
-				return row;
-			});
-			return data;
 		}
 
 		async function loadAllClaimsData() {
@@ -94,8 +81,8 @@
 						for (const claim of token.claims) {
 							if (claim.csvLink) {
 								csvFetchPromises.push(
-									fetchCsvData(claim.csvLink).then(csvText => ({
-										csvText,
+									fetchCsvData(claim.csvLink, claim.expectedMerkleRoot, claim.expectedContentHash).then(csvData => ({
+										csvData,
 										claim,
 										field,
 										token
@@ -111,9 +98,9 @@
 			const csvResults = await Promise.all(csvFetchPromises);
 			
 			// Process results
-			for (const { csvText, claim, field, token } of csvResults) {
-				if (csvText) {
-					const parsedData = await parseCsvData(csvText);
+			for (const { csvData, claim, field, token } of csvResults) {
+				if (csvData) {
+					const parsedData = csvData; // Already parsed by fetchAndValidateCSV
 					const merkleTree = getMerkleTree(parsedData);
 					
 					const trades = await getTradesForClaims(claim.orderHash, $signerAddress || '', field.name);
@@ -214,13 +201,16 @@
 				data: "0x"
 			};
 
-			// Single writeContract call with all orders
-			await writeContract($wagmiConfig, {
+			// Simulate transaction first
+			const { request } = await simulateContract($wagmiConfig, {
 				abi: orderbookAbi,
 				address: holdings[0].holdings[0].orderBookAddress as Hex,
 				functionName: 'takeOrders2',
 				args: [takeOrdersConfig]
 			});
+
+			// Execute transaction after successful simulation
+			await writeContract($wagmiConfig, request);
 			claimSuccess = true;
 
 		} catch {
@@ -253,13 +243,16 @@
 				data: "0x"
 			};
 
-			// Single writeContract call with all orders from this group
-			await writeContract($wagmiConfig, {
+			// Simulate transaction first
+			const { request } = await simulateContract($wagmiConfig, {
 				abi: orderbookAbi,
 				address: group.holdings[0].orderBookAddress as Hex,
 				functionName: 'takeOrders2',
 				args: [takeOrdersConfig]
 			});
+
+			// Execute transaction after successful simulation
+			await writeContract($wagmiConfig, request);
 			claimSuccess = true;
 
 		} catch {
