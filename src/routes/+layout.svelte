@@ -10,7 +10,7 @@
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 
 	const baseRpcUrls = [
-		"https://mainnet.base.org",
+		// "https://mainnet.base.org",
 		"https://base-rpc.publicnode.com",
 		"https://base.llamarpc.com",
 		"https://0xrpc.io/base",
