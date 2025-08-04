@@ -7,7 +7,7 @@
 	import { formatCurrency, formatPercentage, formatNumber, formatSmartNumber } from '$lib/utils/formatters';
 	import { useTooltip, useCardFlip } from '$lib/composables';
     import { sftMetadata, sfts } from '$lib/stores';
-    import { ENERGY_FIELDS, PINATA_GATEWAY } from '$lib/network';
+    import { ENERGY_FIELDS } from '$lib/network';
     import { decodeOrder, getLeaf, getMerkleTree, getProofForLeaf, signContext, sortClaimsData, type ClaimHistory } from '$lib/utils/claims';
     import { getTradesForClaims } from '$lib/queries/getTrades';
     import { getOrder } from '$lib/queries/getOrder';
@@ -735,7 +735,7 @@
 											<div class="flex items-start gap-3 mb-4">
 												<div class="w-12 h-12 bg-light-gray rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
 													{#if holding.asset?.coverImage}
-														<img src={`${PINATA_GATEWAY}/${holding.asset.coverImage}`} alt={holding.name} class="w-full h-full object-cover" />
+														<img src={`https://gateway.pinata.cloud/ipfs/${holding.asset.coverImage}`} alt={holding.name} class="w-full h-full object-cover" />
 													{:else}
 														<div class="text-xl opacity-50">🛢️</div>
 													{/if}
@@ -939,7 +939,7 @@
 													<div class="flex items-start gap-4">
 														<div class="w-14 h-14 bg-light-gray rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
 															{#if holding.asset?.coverImage}
-																<img src={`${PINATA_GATEWAY}/${holding.asset.coverImage}`} alt={holding.name} class="w-full h-full object-cover" />
+																<img src={`https://gateway.pinata.cloud/ipfs/${holding.asset.coverImage}`} alt={holding.name} class="w-full h-full object-cover" />
 															{:else}
 																<div class="text-2xl opacity-50">🛢️</div>
 															{/if}

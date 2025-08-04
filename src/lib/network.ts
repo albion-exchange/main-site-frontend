@@ -12,8 +12,6 @@ export const ORDERBOOK_CONTRACT_ADDRESS =
 export type Claim = {
   orderHash: string;
   csvLink: string;
-  expectedMerkleRoot: string;
-  expectedContentHash: string;
 };
 
 export type SftToken = {
@@ -25,7 +23,6 @@ export type EnergyField = {
   name: string;
   sftTokens: SftToken[];
 };
-
 export const ENERGY_FIELDS: EnergyField[] = [
   {
     name: "Bakken Horizon Field",
@@ -37,17 +34,13 @@ export const ENERGY_FIELDS: EnergyField[] = [
             orderHash:
               "0x6279ea463fdbf12dbaedfe39cf2c59d56e4c078fd0d67f20b165e9d7a73e1fe2",
             csvLink:
-              `${PINATA_GATEWAY}/bafkreiceeasgwffk27kvrgfh4dihiekb7iiznqyjpbabavjrucymv2pobe`,
-            expectedMerkleRoot: "0x8f63a9d57072ae06cdf6bce272c86892ba31dc5bf2df4cf0743679748d2583d0",
-            expectedContentHash: "bafkreiceeasgwffk27kvrgfh4dihiekb7iiznqyjpbabavjrucymv2pobe"
+              "https://gateway.pinata.cloud/ipfs/bafkreiceeasgwffk27kvrgfh4dihiekb7iiznqyjpbabavjrucymv2pobe",
           },
           {
             orderHash:
               "0x14d9c48cdbaf5307a628a16532e80f4bb054bfdcf8fce383f308a5fc13abcaa5",
             csvLink:
-              `${PINATA_GATEWAY}/bafkreidtqov24bkl6ylcjqbt2pjhx5ya7glezwnnnln7hwu7cyq6jhxnzi`,
-            expectedMerkleRoot: "0xdbe4d64a9f4713de098a4fd2a9c747a907fd4256972ed0f3dc080cff3d65786d",
-            expectedContentHash: "bafkreidtqov24bkl6ylcjqbt2pjhx5ya7glezwnnnln7hwu7cyq6jhxnzi"
+              "https://gateway.pinata.cloud/ipfs/bafkreidtqov24bkl6ylcjqbt2pjhx5ya7glezwnnnln7hwu7cyq6jhxnzi",
           },
         ],
       },
@@ -58,9 +51,7 @@ export const ENERGY_FIELDS: EnergyField[] = [
             orderHash:
               "0x992364ccc51fd07cde7f1940a73740a13f27ca853250997e99147fac7f95f446",
             csvLink:
-              `${PINATA_GATEWAY}/bafkreiea3bziwveo2nhbcui4jdxx4m42b3fs3ekyu45n7hdabhadqpf3ki`,
-            expectedMerkleRoot: "0x092668a04aca58371b3d1c7fa603f62a14d63684ade4a6143094c24fb69e97f2",
-            expectedContentHash: "bafkreiea3bziwveo2nhbcui4jdxx4m42b3fs3ekyu45n7hdabhadqpf3ki"
+              "https://gateway.pinata.cloud/ipfs/bafkreiea3bziwveo2nhbcui4jdxx4m42b3fs3ekyu45n7hdabhadqpf3ki",
           },
         ],
       },
@@ -76,9 +67,7 @@ export const ENERGY_FIELDS: EnergyField[] = [
             orderHash:
               "0xa4d540c50f8409d2cafb6ae0cbff0bd8fb18c666981cf02269524215f16da4ac",
             csvLink:
-              `${PINATA_GATEWAY}/bafkreihov36lw43igwx6fcy7iguconfi4vzjnbdppoqt4zb72ydygtvfey`,
-            expectedMerkleRoot: "0x4da347e6e843edb490d901424ac7817869bf05301f70f35ef1bbe52e417dcecb",
-            expectedContentHash: "bafkreihov36lw43igwx6fcy7iguconfi4vzjnbdppoqt4zb72ydygtvfey"
+              "https://gateway.pinata.cloud/ipfs/bafkreihov36lw43igwx6fcy7iguconfi4vzjnbdppoqt4zb72ydygtvfey",
           },
         ],
       },
@@ -94,9 +83,7 @@ export const ENERGY_FIELDS: EnergyField[] = [
             orderHash:
               "0x43ec2493caed6b56cfcbcf3b9279a01aedaafbce509598dfb324513e2d199977",
             csvLink:
-              `${PINATA_GATEWAY}/bafkreicjcemmypds6d5c4lonwp56xb2ilzhkk7hty3y6fo4nvdkxnaibgu`,
-            expectedMerkleRoot: "0x9106f7da38da159feb494ee5d31ad388f9004545914ceda12e062b458ce3b3fe", // TODO: Replace with actual merkle root
-            expectedContentHash: "bafkreicjcemmypds6d5c4lonwp56xb2ilzhkk7hty3y6fo4nvdkxnaibgu"
+              "https://gateway.pinata.cloud/ipfs/bafkreicjcemmypds6d5c4lonwp56xb2ilzhkk7hty3y6fo4nvdkxnaibgu",
           },
         ],
       },

@@ -44,6 +44,7 @@ import {
       }
   
       const result = await response.json();
+      console.log('result : ', result.data?.depositWithReceipts);
   
       if (result.errors) {
         return null;
