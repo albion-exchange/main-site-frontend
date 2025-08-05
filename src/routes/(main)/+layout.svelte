@@ -3,7 +3,7 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getSftMetadata } from '$lib/queries/getSftMetadata';
 	import { getSfts } from '$lib/queries/getSfts';
-	import { sftMetadata, sfts } from '$lib/stores';
+	import { sftMetadata, sfts, sftDataLoading, sftDataError, hasInitialDataLoad } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { web3Modal, signerAddress, connected, loading, disconnectWagmi } from 'svelte-wagmi';
 	import { formatAddress } from '$lib/utils/formatters';
@@ -57,8 +57,32 @@
 		queryKey: ['getSftMetadata'],
 		queryFn: () => {
 			return getSftMetadata();
-		}
+		},
+		retry: 3,
+		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+		staleTime: 5 * 60 * 1000, // 5 minutes
+		gcTime: 10 * 60 * 1000, // 10 minutes
 	});
+	// Update stores based on query states
+	$: {
+		const bothLoading = $query?.isLoading || $vaultQuery?.isLoading;
+		const bothError = $query?.error || $vaultQuery?.error;
+		const bothSuccess = $query?.data && $vaultQuery?.data;
+		
+		sftDataLoading.set(!!bothLoading);
+		
+		if (bothError) {
+			const errorMessage = $query?.error?.message || $vaultQuery?.error?.message || 'Unknown error';
+			sftDataError.set(errorMessage);
+		} else {
+			sftDataError.set(null);
+		}
+		
+		if (bothSuccess && !$hasInitialDataLoad) {
+			hasInitialDataLoad.set(true);
+		}
+	}
+
 	$: if ($query && $query.data) {
 		sftMetadata.set($query.data);
 	}
@@ -67,7 +91,11 @@
 		queryKey: ['getSfts'],
 		queryFn: () => {
 			return getSfts();
-		}
+		},
+		retry: 3,
+		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+		staleTime: 5 * 60 * 1000, // 5 minutes
+		gcTime: 10 * 60 * 1000, // 10 minutes
 	});
 	$: if ($vaultQuery && $vaultQuery.data) {
 		sfts.set($vaultQuery.data);

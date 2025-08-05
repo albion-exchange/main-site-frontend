@@ -14,3 +14,8 @@ export const wrongNetwork = derived(
 );
 
 export const sfts = writable<OffchainAssetReceiptVault[]>([]);
+
+// Query state stores for better loading/error handling
+export const sftDataLoading = writable<boolean>(true);
+export const sftDataError = writable<string | null>(null);
+export const hasInitialDataLoad = writable<boolean>(false);
