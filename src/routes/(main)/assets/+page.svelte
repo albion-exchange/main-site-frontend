@@ -28,6 +28,8 @@
 	let featuredTokensWithAssets: Array<{ token: TokenMetadata; asset: Asset }> = [];
 	let groupedEnergyFields: GroupedEnergyField[] = [];
 	let localError: string | null = null;
+	let isProcessingAssets = false;
+	let hasEverLoaded = false;
 	
 	// Token purchase widget state
 	let showPurchaseWidget = false;
@@ -36,6 +38,7 @@
 
 	async function loadTokenAndAssets() {
 		try {
+			isProcessingAssets = true;
 			localError = null;
 			
 			// Clear previous data to prevent accumulation
@@ -100,7 +103,10 @@
 		} catch(err) {
 			console.error('Featured tokens loading error:', err);
 			localError = err instanceof Error ? err.message : 'Failed to load asset data';
-		}
+					} finally {
+				isProcessingAssets = false;
+				hasEverLoaded = true;
+			}
 	}
 	
 	// Load tokens when ANY data becomes available (partial success)
@@ -118,7 +124,7 @@
 	
 	// Filter and group assets based on availability
 	$: {
-		if (!$sftDataLoading && featuredTokensWithAssets.length > 0) {
+		if (!$sftDataLoading && !isProcessingAssets && featuredTokensWithAssets.length > 0) {
 			const filteredTokensWithAssets = showSoldOutAssets 
 				? featuredTokensWithAssets 
 				: featuredTokensWithAssets.filter(item => {
@@ -166,7 +172,7 @@
 		subtitle="Browse live energy investment opportunities with real-time production data and transparent returns"
 		showBorder={false}
 	>
-				{#if $sftDataLoading}
+				{#if $sftDataLoading || isProcessingAssets}
 		<!-- Loading State -->
 		<LoadingSpinner message="Loading assets..." />
 	{:else if $sftDataError && featuredTokensWithAssets.length === 0}
@@ -211,7 +217,7 @@
 		{/if}
 		<!-- Assets Grid -->
 		<div class="mt-12 sm:mt-16 lg:mt-24">
-			{#if groupedEnergyFields.length === 0}
+			{#if groupedEnergyFields.length === 0 && hasEverLoaded}
 				<!-- No Available Assets -->
 				<Card>
 					<CardContent>
@@ -223,7 +229,7 @@
 						</div>
 					</CardContent>
 				</Card>
-			{:else}
+			{:else if groupedEnergyFields.length > 0}
 				<!-- Grouped Assets by Energy Field -->
 				<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 items-stretch">
 					{#each groupedEnergyFields as energyField}
@@ -235,13 +241,18 @@
 						/>
 					{/each}
 				</div>
+			{:else if !hasEverLoaded}
+				<!-- Still loading initial data -->
+				<div class="text-center py-16">
+					<LoadingSpinner message="Preparing assets..." showWrapper={false} />
+				</div>
 			{/if}
 		</div>
 	{/if}
 	</HeroSection>
 
 	<!-- View Sold Out Assets Toggle -->
-	{#if !$sftDataLoading && !($sftDataError || localError) && featuredTokensWithAssets.length > 0}
+	{#if !$sftDataLoading && !isProcessingAssets && !($sftDataError || localError) && featuredTokensWithAssets.length > 0}
 		{#if soldOutCount > 0 && !showSoldOutAssets}
 			<div class="text-center mt-8 sm:mt-12">
 				<SecondaryButton on:click={() => showSoldOutAssets 	= true}>
