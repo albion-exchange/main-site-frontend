@@ -720,7 +720,10 @@
 			
 			<div class="space-y-4">
 				{#if pageLoading}
-					<div class="text-center py-8 text-black opacity-70">Loading portfolio holdings...</div>
+					<div class="text-center py-8 text-black opacity-70">
+						<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mx-auto mb-4"></div>
+						<div>Loading portfolio holdings...</div>
+					</div>
 				{:else}
 					{#each holdings as holding}
 						{@const flipped = $flippedCards.has(holding.id)}
@@ -924,7 +927,10 @@
 					
 					<div class="space-y-3">
 						{#if pageLoading}
-							<div class="text-center py-12 text-black opacity-70">Loading portfolio holdings...</div>
+							<div class="text-center py-12 text-black opacity-70">
+								<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mx-auto mb-4"></div>
+								<div>Loading portfolio holdings...</div>
+							</div>
 						{:else}
 							{#each holdings as holding}
 								{@const flipped = $flippedCards.has(holding.id)}
