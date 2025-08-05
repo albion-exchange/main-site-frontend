@@ -25,6 +25,7 @@
 
 	let currentIndex = 0;
 	let featuredTokensWithAssets: Array<{ token: TokenMetadata; asset: Asset }> = [];
+	let allTokensWithAssets: Array<{ token: TokenMetadata; asset: Asset }> = [];
 	let loading = true;
 	let error: string | null = null;
 	let autoPlayTimer: ReturnType<typeof setTimeout> | null = null;
@@ -42,6 +43,8 @@
 		try {
 			loading = true;
 			error = null;
+			allTokensWithAssets = [];
+			featuredTokensWithAssets = [];
 			if($sftMetadata && $sfts) {
 				const deocdedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
 				for(const sft of $sfts) {
@@ -57,9 +60,15 @@
 						}) as bigint;
 						const tokenInstance = generateTokenMetadataInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
 						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
-						featuredTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
+						allTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
 					}
 				}
+				// Filter tokens to only show those with available supply
+				featuredTokensWithAssets = allTokensWithAssets.filter(item => {
+					const hasAvailableSupply = BigInt(item.token.supply.maxSupply) > BigInt(item.token.supply.mintedSupply);
+					return hasAvailableSupply;
+				});
+				
 				if (autoPlay && featuredTokensWithAssets.length > 1) {
 					startAutoPlay();
 				}

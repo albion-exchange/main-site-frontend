@@ -122,11 +122,14 @@
 		subtitle="Browse live energy investment opportunities with real-time production data and transparent returns"
 		showBorder={false}
 	>
-		{#if loading}
-			<!-- Loading State -->
-			<div class="text-center mt-6 sm:mt-8">
+			{#if loading}
+		<!-- Loading State -->
+		<div class="text-center mt-6 sm:mt-8">
+			<div class="flex flex-col items-center justify-center p-8 space-y-4">
+				<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin rounded-full"></div>
 				<p class="text-sm sm:text-base text-black leading-relaxed">Loading assets...</p>
 			</div>
+		</div>
 		{:else}
 			<!-- Assets Grid -->
 			<div class="mt-12 sm:mt-16 lg:mt-24">

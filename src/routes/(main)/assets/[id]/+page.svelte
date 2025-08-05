@@ -193,7 +193,10 @@
 <PageLayout variant="constrained">
 	{#if loading}
 		<div class="text-center py-16 px-8 text-black">
-			<p>Loading asset details...</p>
+			<div class="flex flex-col items-center justify-center space-y-4">
+				<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin rounded-full"></div>
+				<p>Loading asset details...</p>
+			</div>
 		</div>
 	{:else if error}
 		<div class="text-center py-16 px-8 text-black">
