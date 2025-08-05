@@ -305,24 +305,28 @@
         		
         		<CollapsibleSection title="Revenue History" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
         			{@const monthlyReports = assetData?.monthlyReports || []}
-					{@const maxRevenue = monthlyReports.length > 0 ? Math.max(...monthlyReports.map(r => r.netIncome ?? 0)) : 1500}
+					{@const reportsWithRevenue = monthlyReports.filter(r => r.netIncome && r.netIncome > 0)}
+					{@const maxRevenue = reportsWithRevenue.length > 0 ? Math.max(...reportsWithRevenue.map(r => r.netIncome)) : 1500}
 					<div class="space-y-4">
-						{#if monthlyReports.length > 0}
+						{#if reportsWithRevenue.length > 0}
 							<div class="bg-white border border-light-gray p-4">
 								<h4 class="text-base font-bold text-black mb-4">Received Revenue</h4>
 								<div class="space-y-2">
-									{#each monthlyReports.slice(-6) as report}
+									{#each reportsWithRevenue.slice(-6) as report}
 										<div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
 											<div class="text-sm text-black">{report.month}</div>
-											<div class="text-sm font-semibold text-primary">{formatCurrency(report.netIncome || 0)}</div>
+											<div class="text-sm font-semibold text-primary">{formatCurrency(report.netIncome)}</div>
 										</div>
 									{/each}
 								</div>
 							</div>
 						{:else}
-							<div class="text-center py-8 text-black opacity-70">
-								<div class="text-4xl mb-2">💰</div>
-								<p>No revenue history available</p>
+							<div class="bg-white border border-light-gray p-4 opacity-50">
+								<h4 class="text-base font-bold text-gray-400 mb-4">Received Revenue</h4>
+								<div class="text-center py-8 text-gray-400">
+									<div class="text-4xl mb-2">N/A</div>
+									<p>No revenue received yet</p>
+								</div>
 							</div>
 						{/if}
 					</div>
@@ -357,23 +361,29 @@
         		
         		<CollapsibleSection title="Documents" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
         			<div class="space-y-3">
-						<!-- Legal Documents -->
-						{#each assetTokens[0].asset.documents || [] as document}
-							<div class="flex items-center justify-between p-4 border-b border-light-gray last:border-b-0">
-								<div class="flex items-center space-x-3">
-									<div class="w-8 h-8 bg-secondary rounded flex items-center justify-center">
-										📄
+						{#if assetTokens[0]?.asset?.documents && assetTokens[0].asset.documents.length > 0}
+							<!-- Legal Documents -->
+							{#each assetTokens[0].asset.documents as document}
+								<div class="flex items-center justify-between p-4 border-b border-light-gray last:border-b-0">
+									<div class="flex items-center space-x-3">
+										<div class="w-8 h-8 bg-secondary rounded flex items-center justify-center">
+											📄
+										</div>
+										<div>
+											<h4 class="font-semibold text-black">{document.name || 'Document'}</h4>
+											<p class="text-sm text-gray-600">{document.type.toUpperCase() || 'No description available'}</p>
+										</div>
 									</div>
-									<div>
-										<h4 class="font-semibold text-black">{document.name || 'Document'}</h4>
-										<p class="text-sm text-gray-600">{document.type.toUpperCase() || 'No description available'}</p>
-									</div>
+									<SecondaryButton
+									on:click={() => downloadDocument(document)}
+									>Download</SecondaryButton>
 								</div>
-								<SecondaryButton
-								on:click={() => downloadDocument(document)}
-								>Download</SecondaryButton>
+							{/each}
+						{:else}
+							<div class="text-center py-8 text-gray-500">
+								<p>No documents available for this asset</p>
 							</div>
-						 {/each}
+						{/if}
 					</div>
         		</CollapsibleSection>
         	</div>
@@ -500,11 +510,28 @@
 					{@const monthlyReports = assetData?.monthlyReports || []}
 					{@const maxRevenue = monthlyReports.length > 0 ? Math.max(...monthlyReports.map(r => r.netIncome ?? 0)) : 1500}
 					{@const latestReport = monthlyReports[monthlyReports.length - 1]}
-					{@const nextMonth = latestReport ? (() => {
-						const lastDate = new Date(latestReport.month + '-01');
-						return new Date(lastDate.getFullYear(), lastDate.getMonth() + 1, 1);
-					})() : new Date()}
+					{@const nextMonth = (() => {
+						// Use first payment date from primary token if no revenue yet
+						if (!latestReport || !latestReport.netIncome || latestReport.netIncome === 0) {
+							const primaryToken = assetTokens && assetTokens.length > 0 ? assetTokens[0] : null;
+							if (primaryToken?.firstPaymentDate) {
+								// Parse YYYY-MM format and set to end of month
+								const [year, month] = primaryToken.firstPaymentDate.split('-').map(Number);
+								const date = new Date(year, month - 1, 1);
+								// Get last day of the month
+								return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+							}
+						}
+						// If we have revenue, use month after last report
+						if (latestReport) {
+							const lastDate = new Date(latestReport.month + '-01');
+							return new Date(lastDate.getFullYear(), lastDate.getMonth() + 1, 1);
+						}
+						// Fallback to current date
+						return new Date();
+					})()}
 					{@const avgRevenue = monthlyReports.length > 0 ? monthlyReports.reduce((sum, r) => sum + (r.netIncome ?? 0), 0) / monthlyReports.length : 0}
+					{@const hasRevenue = monthlyReports.some(r => r.netIncome && r.netIncome > 0)}
 					<div class="flex-1 flex flex-col">
 						<div class="grid md:grid-cols-4 grid-cols-1 gap-6">
 							<div class="bg-white border border-light-gray p-6 md:col-span-3">
@@ -514,7 +541,7 @@
 										📊 Export Data
 									</SecondaryButton>
 								</div>
-								<div class="w-full">
+								<div class="w-full relative">
 									<Chart
 										data={monthlyReports.map(report => {
 											// Handle different date formats
@@ -534,6 +561,14 @@
 										animate={true}
 										showGrid={true}
 									/>
+									{#if !hasRevenue}
+										<div class="absolute inset-0 bg-gray-100 bg-opacity-90 flex items-center justify-center rounded">
+											<div class="text-center">
+												<div class="text-6xl font-bold text-gray-400 mb-2">N/A</div>
+												<p class="text-gray-500">No revenue data available yet</p>
+											</div>
+										</div>
+									{/if}
 								</div>
 							</div>
 
@@ -603,26 +638,31 @@
 						</div>
 					</div>
 				{:else if activeTab === 'documents'}
-					{#each assetTokens[0].asset.documents || [] as document}
-
-						<div class="grid md:grid-cols-2 grid-cols-1 gap-8">
-							<div class="space-y-4">
-								<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
-									<div class="flex items-center gap-3">
-										<div class="text-2xl">📄</div>
-										<div>
-											<div class="font-semibold text-black">{document.name}</div>
-											<div class="text-sm text-black opacity-70">{document.type.toUpperCase()}</div>
+					{#if assetTokens[0]?.asset?.documents && assetTokens[0].asset.documents.length > 0}
+						{#each assetTokens[0].asset.documents as document}
+							<div class="grid md:grid-cols-2 grid-cols-1 gap-8">
+								<div class="space-y-4">
+									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
+										<div class="flex items-center gap-3">
+											<div class="text-2xl">📄</div>
+											<div>
+												<div class="font-semibold text-black">{document.name}</div>
+												<div class="text-sm text-black opacity-70">{document.type.toUpperCase()}</div>
+											</div>
 										</div>
+										<SecondaryButton
+										on:click={() => downloadDocument(document)}
+										>Download</SecondaryButton>
 									</div>
-									<SecondaryButton
-									on:click={() => downloadDocument(document)}
-									>Download</SecondaryButton>
-								</div>
 
+								</div>
 							</div>
+						{/each}
+					{:else}
+						<div class="col-span-full text-center py-16">
+							<p class="text-lg text-black opacity-70">No documents available for this asset.</p>
 						</div>
-					{/each}
+					{/if}
 				{/if}
 			</div>
 			</div>
