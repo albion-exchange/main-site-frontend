@@ -3,11 +3,11 @@
 	import { useTokenService, useConfigService } from '$lib/services';
 	import { sftMetadata, sfts } from '$lib/stores';
 	import type { Asset, Token } from '$lib/types/uiTypes';
-	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart, CollapsibleSection } from '$lib/components/components';
+	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart, CollapsibleSection, LoadingSpinner } from '$lib/components/components';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
 
 	import TabButton from '$lib/components/components/TabButton.svelte';
-	import { PageLayout, ContentSection } from '$lib/components/layout';
+	import { PageLayout } from '$lib/components/layout';
 	import { getImageUrl } from '$lib/utils/imagePath';
 	import { formatCurrency, formatEndDate, formatSmartReturn } from '$lib/utils/formatters';
 	import { 
@@ -192,12 +192,7 @@
 
 <PageLayout variant="constrained">
 	{#if loading}
-		<ContentSection background="white" padding="standard" centered>
-			<div class="text-center">
-				<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mx-auto mb-4"></div>
-				<p>Loading asset details...</p>
-			</div>
-		</ContentSection>
+		<LoadingSpinner message="Loading asset details..." />
 	{:else if error}
 		<div class="text-center py-16 px-8 text-black">
 			<h1>Error</h1>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { writeContract, simulateContract } from '@wagmi/core';
 	import { web3Modal, signerAddress, wagmiConfig, connected } from 'svelte-wagmi';
-	import { Card, CardContent, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, CollapsibleSection, FormattedNumber } from '$lib/components/components';
+	import { Card, CardContent, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, CollapsibleSection, FormattedNumber, LoadingSpinner } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	import { formatCurrency } from '$lib/utils/formatters';
 	import { dateUtils } from '$lib/utils/dateHelpers';
@@ -300,12 +300,7 @@
 			</div>
 		</HeroSection>
 	{:else if pageLoading}
-		<ContentSection background="white" padding="standard" centered>
-			<div class="text-center">
-				<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mx-auto mb-4"></div>
-				<p>Loading your claims data...</p>
-			</div>
-		</ContentSection>
+		<LoadingSpinner message="Loading your claims data..." />
 	{:else}
 		<!-- Header -->
 		<HeroSection 

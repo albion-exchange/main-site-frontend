@@ -2,7 +2,7 @@
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Token, Asset } from '$lib/types/uiTypes';
-	import { PrimaryButton, SecondaryButton, FormattedNumber, FormattedReturn } from '$lib/components/components';
+	import { PrimaryButton, SecondaryButton, FormattedNumber, FormattedReturn, LoadingSpinner } from '$lib/components/components';
 	import { sftMetadata, sfts } from '$lib/stores';
 	import { formatCurrency, formatTokenSupply, formatSmartReturn, formatSmartNumber } from '$lib/utils/formatters';
 	import { meetsSupplyThreshold, formatSupplyAmount, getAvailableSupplyBigInt } from '$lib/utils/tokenSupplyUtils';
@@ -263,10 +263,7 @@
 
 <div class={containerClasses} bind:this={carouselContainer}>
 	{#if loading}
-		<div class="text-center">
-			<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mx-auto mb-4"></div>
-			<p>Loading featured tokens...</p>
-		</div>
+		<LoadingSpinner message="Loading featured tokens..." showWrapper={false} />
 	{:else if error}
 		<div class={errorStateClasses}>
 			<p>Error: {error}</p>

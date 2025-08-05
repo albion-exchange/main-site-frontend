@@ -2,7 +2,7 @@
 	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { web3Modal, signerAddress, connected, loading } from 'svelte-wagmi';
-	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, TabNavigation, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart, CollapsibleSection, FormattedNumber } from '$lib/components/components';
+	import { Card, CardContent, CardActions, PrimaryButton, SecondaryButton, StatusBadge, TabNavigation, StatsCard, SectionTitle, ActionCard, TabButton, Chart, BarChart, PieChart, CollapsibleSection, FormattedNumber, LoadingSpinner } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
 	import { formatCurrency, formatPercentage, formatNumber, formatSmartNumber } from '$lib/utils/formatters';
 	import { useTooltip, useCardFlip } from '$lib/composables';
@@ -720,12 +720,7 @@
 			
 			<div class="space-y-4">
 				{#if pageLoading}
-					<ContentSection background="white" padding="standard" centered>
-						<div class="text-center">
-							<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mx-auto mb-4"></div>
-							<p>Loading portfolio holdings...</p>
-						</div>
-					</ContentSection>
+					<LoadingSpinner message="Loading portfolio holdings..." />
 				{:else}
 					{#each holdings as holding}
 						{@const flipped = $flippedCards.has(holding.id)}
@@ -929,12 +924,7 @@
 					
 					<div class="space-y-3">
 						{#if pageLoading}
-							<ContentSection background="white" padding="standard" centered>
-								<div class="text-center">
-									<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mx-auto mb-4"></div>
-									<p>Loading portfolio holdings...</p>
-								</div>
-							</ContentSection>
+							<LoadingSpinner message="Loading portfolio holdings..." />
 						{:else}
 							{#each holdings as holding}
 								{@const flipped = $flippedCards.has(holding.id)}
