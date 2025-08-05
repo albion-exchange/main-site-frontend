@@ -114,8 +114,8 @@ export function generateTokenMetadataInstanceFromSft(
     throw new Error("Missing or invalid firstPaymentDate");
   }
   
-  if (!Array.isArray(pinnedMetadata.payoutData)) {
-    throw new Error("Missing or invalid payoutData array");
+  if (pinnedMetadata.payoutData !== undefined && !Array.isArray(pinnedMetadata.payoutData)) {
+    throw new Error("Invalid payoutData - must be an array");
   }
   
   // Only create token instance if all validations pass
@@ -131,7 +131,7 @@ export function generateTokenMetadataInstanceFromSft(
       maxSupply: sftMaxSharesSupply.toString(),
       mintedSupply: sft.totalShares.toString(),
     },
-    payoutData: pinnedMetadata.payoutData,
+    payoutData: pinnedMetadata.payoutData || [],
     asset: pinnedMetadata.asset,
     metadata: pinnedMetadata.metadata || {
       createdAt: new Date(Number(sft.deployTimestamp) * 1000).toISOString(),

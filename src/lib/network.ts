@@ -102,4 +102,14 @@ export const ENERGY_FIELDS: EnergyField[] = [
       },
     ],
   },
+  {
+    name: "Q-10A North Sea Gas Field",
+    sftTokens: [
+      {
+        address: "0x79db6526335ebb7afc122e53cc3a29f4c64e0483",
+        claims: [
+        ],
+      },
+    ],
+  },
 ];
