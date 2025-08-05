@@ -34,8 +34,8 @@
 	let touchStartX = 0;
 	let touchEndX = 0;
 
-	// Reactive statement to trigger loading when data changes
-	$: if($sfts && $sftMetadata && $sfts.length > 0 && $sftMetadata.length > 0) {
+	// Reactive statement to trigger loading when ANY data changes (partial success)
+	$: if(($sfts && $sfts.length > 0) || ($sftMetadata && $sftMetadata.length > 0)) {
 		loadFeaturedTokensFromSfts();
 	}
 
@@ -45,22 +45,50 @@
 			error = null;
 			allTokensWithAssets = [];
 			featuredTokensWithAssets = [];
-			if($sftMetadata && $sfts) {
+			// Check what data we have available
+			const hasMetadata = $sftMetadata && $sftMetadata.length > 0;
+			const hasSfts = $sfts && $sfts.length > 0;
+			
+			if (!hasMetadata && !hasSfts) {
+				error = 'No data available for carousel';
+				loading = false;
+				return;
+			}
+			
+			if (!hasMetadata) {
+				error = 'Metadata not available - carousel limited';
+				loading = false;
+				return;
+			}
+			
+			if (!hasSfts) {
+				error = 'SFT data not available - cannot load carousel';
+				loading = false;
+				return;
+			}
+			
+			// Proceed with available data
+			if (hasMetadata && hasSfts) {
 				const deocdedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
 				for(const sft of $sfts) {
 					const pinnedMetadata: any = deocdedMeta.find(
 						(meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
 					);
 					if(pinnedMetadata) {
-						const sftMaxSharesSupply = await readContract($wagmiConfig, {
-							abi: authorizerAbi,
-							address: sft.activeAuthorizer?.address as Hex,
-							functionName: 'maxSharesSupply',
-							args: []
-						}) as bigint;
-						const tokenInstance = generateTokenMetadataInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
-						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
-						allTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
+						try {
+							const sftMaxSharesSupply = await readContract($wagmiConfig, {
+								abi: authorizerAbi,
+								address: sft.activeAuthorizer?.address as Hex,
+								functionName: 'maxSharesSupply',
+								args: []
+							}) as bigint;
+							const tokenInstance = generateTokenMetadataInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
+							const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
+							allTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
+						} catch (contractError) {
+							console.warn(`Failed to load contract data for SFT ${sft.id} in carousel:`, contractError);
+							// Continue with other SFTs even if one fails
+						}
 					}
 				}
 				// Filter tokens to only show those with available supply
@@ -68,6 +96,11 @@
 					const hasAvailableSupply = BigInt(item.token.supply.maxSupply) > BigInt(item.token.supply.mintedSupply);
 					return hasAvailableSupply;
 				});
+				
+				// Clear error if we successfully loaded data
+				if (allTokensWithAssets.length > 0) {
+					error = null;
+				}
 				
 				if (autoPlay && featuredTokensWithAssets.length > 1) {
 					startAutoPlay();

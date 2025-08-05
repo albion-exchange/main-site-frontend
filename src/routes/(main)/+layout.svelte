@@ -3,7 +3,17 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { getSftMetadata } from '$lib/queries/getSftMetadata';
 	import { getSfts } from '$lib/queries/getSfts';
-	import { sftMetadata, sfts, sftDataLoading, sftDataError, hasInitialDataLoad } from '$lib/stores';
+	import { 
+		sftMetadata, 
+		sfts, 
+		sftDataLoading, 
+		sftDataError, 
+		hasInitialDataLoad,
+		sftMetadataLoading,
+		sftMetadataError,
+		sftsLoading,
+		sftsError
+	} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { web3Modal, signerAddress, connected, loading, disconnectWagmi } from 'svelte-wagmi';
 	import { formatAddress } from '$lib/utils/formatters';
@@ -63,22 +73,36 @@
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
 	});
-	// Update stores based on query states
+	// Update individual query states for granular control
 	$: {
-		const bothLoading = $query?.isLoading || $vaultQuery?.isLoading;
-		const bothError = $query?.error || $vaultQuery?.error;
-		const bothSuccess = $query?.data && $vaultQuery?.data;
+		// Metadata query state
+		sftMetadataLoading.set(!!$query?.isLoading);
+		sftMetadataError.set($query?.error?.message || null);
 		
-		sftDataLoading.set(!!bothLoading);
+		// SFTs query state  
+		sftsLoading.set(!!$vaultQuery?.isLoading);
+		sftsError.set($vaultQuery?.error?.message || null);
 		
-		if (bothError) {
-			const errorMessage = $query?.error?.message || $vaultQuery?.error?.message || 'Unknown error';
-			sftDataError.set(errorMessage);
+		// Combined loading state (true if ANY is loading)
+		const anyLoading = $query?.isLoading || $vaultQuery?.isLoading;
+		sftDataLoading.set(!!anyLoading);
+		
+		// Combined error state (only if BOTH failed)
+		const bothFailed = $query?.error && $vaultQuery?.error;
+		const anyError = $query?.error || $vaultQuery?.error;
+		
+		if (bothFailed) {
+			sftDataError.set('Failed to load both metadata and SFT data');
+		} else if (anyError && (!$query?.data && !$vaultQuery?.data)) {
+			// Only show error if no data has been loaded yet
+			sftDataError.set(anyError.message);
 		} else {
 			sftDataError.set(null);
 		}
 		
-		if (bothSuccess && !$hasInitialDataLoad) {
+		// Mark as loaded if we have ANY data (partial success allowed)
+		const anySuccess = $query?.data || $vaultQuery?.data;
+		if (anySuccess && !$hasInitialDataLoad) {
 			hasInitialDataLoad.set(true);
 		}
 	}

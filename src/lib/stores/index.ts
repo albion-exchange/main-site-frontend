@@ -19,3 +19,9 @@ export const sfts = writable<OffchainAssetReceiptVault[]>([]);
 export const sftDataLoading = writable<boolean>(true);
 export const sftDataError = writable<string | null>(null);
 export const hasInitialDataLoad = writable<boolean>(false);
+
+// Individual query states for partial success handling
+export const sftMetadataLoading = writable<boolean>(true);
+export const sftMetadataError = writable<string | null>(null);
+export const sftsLoading = writable<boolean>(true);
+export const sftsError = writable<string | null>(null);

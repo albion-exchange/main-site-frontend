@@ -244,7 +244,11 @@
 		
 		await loadAllClaimsData();
 
-		if($sftMetadata && $sfts && $sfts.length > 0 && $sftMetadata.length > 0){
+		// Check what data we have available - allow partial success
+		const hasMetadata = $sftMetadata && $sftMetadata.length > 0;
+		const hasSfts = $sfts && $sfts.length > 0;
+		
+		if(hasMetadata && hasSfts){
 			const decodedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
 			
 			// Get deposits for this wallet
@@ -593,12 +597,23 @@
 				unclaimedPayout
 			});
 		} else {
-			console.log('Stores are empty or null:', {
+			console.log('Incomplete data available:', {
 				sfts: $sfts,
 				sftMetadata: $sftMetadata,
 				sftsLength: $sfts?.length,
-				sftMetadataLength: $sftMetadata?.length
+				sftMetadataLength: $sftMetadata?.length,
+				hasMetadata,
+				hasSfts
 			});
+			
+			// Handle partial data scenarios
+			if (!hasMetadata && !hasSfts) {
+				console.warn('No portfolio data available - both metadata and SFT data missing');
+			} else if (!hasMetadata) {
+				console.warn('Portfolio metadata missing - limited functionality available');
+			} else if (!hasSfts) {
+				console.warn('SFT data missing - cannot load portfolio holdings');
+			}
 		}	
 		pageLoading = false;
 		isLoadingData = false;
@@ -606,7 +621,8 @@
 	
 	$: if($connected && $signerAddress){
 		unflipAll();
-		if($sfts && $sftMetadata){
+		// Load portfolio data when ANY data becomes available (partial success)
+		if($sfts || $sftMetadata){
 			loadSftData();
 		}
 	}	

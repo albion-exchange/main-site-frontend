@@ -1,7 +1,17 @@
 <script lang="ts">
 	import { readContract } from '@wagmi/core';
 	import { wagmiConfig } from 'svelte-wagmi';
-	import { sfts, sftMetadata, sftDataLoading, sftDataError, hasInitialDataLoad } from '$lib/stores';
+	import { 
+		sfts, 
+		sftMetadata, 
+		sftDataLoading, 
+		sftDataError, 
+		hasInitialDataLoad,
+		sftMetadataLoading,
+		sftMetadataError,
+		sftsLoading,
+		sftsError
+	} from '$lib/stores';
 	import type { Asset } from '$lib/types/uiTypes';
 	import AssetCard from '$lib/components/patterns/assets/AssetCard.svelte';
 	import TokenPurchaseWidget from '$lib/components/patterns/TokenPurchaseWidget.svelte';
@@ -31,7 +41,26 @@
 			// Clear previous data to prevent accumulation
 			featuredTokensWithAssets = [];
 			
-			if($sftMetadata && $sfts) {
+			// Check what data we have available
+			const hasMetadata = $sftMetadata && $sftMetadata.length > 0;
+			const hasSfts = $sfts && $sfts.length > 0;
+			
+			if (!hasMetadata && !hasSfts) {
+				localError = 'No asset data available';
+				return;
+			}
+			
+			if (!hasMetadata) {
+				localError = 'Metadata not available - showing limited asset information';
+			}
+			
+			if (!hasSfts) {
+				localError = 'SFT data not available - cannot load assets';
+				return;
+			}
+			
+			// Proceed with available data
+			if (hasMetadata && hasSfts) {
 				const deocdedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
 				for(const sft of $sfts) {
 					const pinnedMetadata: any = deocdedMeta.find(
@@ -54,11 +83,18 @@
 							console.warn(`Failed to load contract data for SFT ${sft.id}:`, contractError);
 							// Continue with other SFTs even if one fails
 						}
+					} else {
+						console.warn(`No metadata found for SFT ${sft.id}`);
 					}
 				}
 				
 				// Group the tokens and assets by energy field
 				groupedEnergyFields = groupSftsByEnergyField(featuredTokensWithAssets);
+				
+				// Clear error if we successfully loaded some data
+				if (featuredTokensWithAssets.length > 0) {
+					localError = null;
+				}
 			}
 
 		} catch(err) {
@@ -67,8 +103,8 @@
 		}
 	}
 	
-	// Load tokens when data becomes available
-	$: if($sfts && $sftMetadata && $hasInitialDataLoad){
+	// Load tokens when ANY data becomes available (partial success)
+	$: if(($sfts || $sftMetadata) && $hasInitialDataLoad){
 		loadTokenAndAssets();
 	}
 
@@ -133,14 +169,14 @@
 				{#if $sftDataLoading}
 		<!-- Loading State -->
 		<LoadingSpinner message="Loading assets..." />
-	{:else if $sftDataError || localError}
-		<!-- Error State -->
+	{:else if $sftDataError && featuredTokensWithAssets.length === 0}
+		<!-- Complete Failure - No Data Available -->
 		<ContentSection background="white" padding="standard" centered>
 			<div class="text-center">
 				<div class="text-4xl mb-4">⚠️</div>
 				<SectionTitle level="h3" size="card">Unable to Load Assets</SectionTitle>
 				<p class="text-sm sm:text-base text-black leading-relaxed mt-4 max-w-md mx-auto">
-					{$sftDataError || localError}
+					{$sftDataError}
 				</p>
 				<SecondaryButton on:click={() => window.location.reload()} className="mt-6">
 					Try Again
@@ -148,6 +184,31 @@
 			</div>
 		</ContentSection>
 	{:else}
+		<!-- Partial Success or Full Success -->
+		
+		<!-- Show warnings for partial failures -->
+		{#if ($sftMetadataError || $sftsError || localError) && featuredTokensWithAssets.length > 0}
+			<div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+				<div class="flex items-start">
+					<div class="text-yellow-400 mr-3 text-lg">⚠️</div>
+					<div>
+						<h4 class="text-yellow-800 font-medium mb-1">Partial Data Loading</h4>
+						<p class="text-yellow-700 text-sm">
+							{#if $sftMetadataError}
+								Metadata: {$sftMetadataError}
+							{/if}
+							{#if $sftsError}
+								SFT Data: {$sftsError}
+							{/if}
+							{#if localError}
+								{localError}
+							{/if}
+							<br>Some assets may not be displayed with complete information.
+						</p>
+					</div>
+				</div>
+			</div>
+		{/if}
 		<!-- Assets Grid -->
 		<div class="mt-12 sm:mt-16 lg:mt-24">
 			{#if groupedEnergyFields.length === 0}
