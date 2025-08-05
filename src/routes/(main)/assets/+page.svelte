@@ -24,9 +24,18 @@
 	let selectedAssetId: string | null = null;
 	let selectedTokenAddress: string | null = null;
 	
+	let hasLoadedOnce = false;
+
 	async function loadTokenAndAssets() {
 		try {
-			loading = true;
+			// Only set loading to true if we haven't loaded once yet
+			if (!hasLoadedOnce) {
+				loading = true;
+			}
+			
+			// Clear previous data to prevent accumulation
+			featuredTokensWithAssets = [];
+			
 			if($sftMetadata && $sfts) {
 				const deocdedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
 				for(const sft of $sfts) {
@@ -54,13 +63,15 @@
 				groupedEnergyFields = groupSftsByEnergyField(featuredTokensWithAssets);
 			}
 			loading = false;
+			hasLoadedOnce = true;
 
 		} catch(err) {
 			console.error('Featured tokens loading error:', err);
 			loading = false;
+			hasLoadedOnce = true;
 		}
 	}
-	$: if($sfts && $sftMetadata){
+	$: if($sfts && $sftMetadata && !hasLoadedOnce){
 		loadTokenAndAssets();
 	}
 
@@ -126,7 +137,9 @@
 		<!-- Loading State -->
 		<div class="text-center mt-6 sm:mt-8">
 			<div class="flex flex-col items-center justify-center p-8 space-y-4">
-				<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin rounded-full"></div>
+				<svg class="w-8 h-8 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+				</svg>
 				<p class="text-sm sm:text-base text-black leading-relaxed">Loading assets...</p>
 			</div>
 		</div>
