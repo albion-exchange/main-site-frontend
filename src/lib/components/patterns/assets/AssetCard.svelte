@@ -146,12 +146,10 @@
 				<span class={highlightValueClasses}>{asset.plannedProduction?.projections.reduce((acc, curr) => acc + curr.production, 0) ? formatSmartNumber(asset.plannedProduction.projections.reduce((acc, curr) => acc + curr.production, 0), { suffix: ' boe' }) : 'TBD'}</span>
 				<span class={highlightLabelClasses}>Exp. Remaining</span>
 			</div>
-			{#if latestReport}
-				<div class={highlightStatClasses}>
-					<span class={highlightValueClasses}>{formatCurrency(latestReport.netIncome ?? 0, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-					<span class={highlightLabelClasses}>Last Payment</span>
-				</div>
-			{/if}
+			<div class={highlightStatClasses}>
+				<span class={highlightValueClasses}>{latestReport ? formatCurrency(latestReport.netIncome ?? 0, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A'}</span>
+				<span class={highlightLabelClasses}>Last Payment</span>
+			</div>
 			<!-- Third stat only on larger screens -->
 			<div class="hidden lg:flex lg:flex-col lg:items-center lg:text-center">
 				<span class={highlightValueClasses}>{formatEndDate(asset.technical.expectedEndDate)}</span>
