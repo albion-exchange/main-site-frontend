@@ -192,12 +192,12 @@
 
 <PageLayout variant="constrained">
 	{#if loading}
-		<div class="text-center py-16 px-8 text-black">
-			<div class="flex flex-col items-center justify-center space-y-4">
-				<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mx-auto"></div>
+		<ContentSection background="white" padding="standard" centered>
+			<div class="text-center">
+				<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mx-auto mb-4"></div>
 				<p>Loading asset details...</p>
 			</div>
-		</div>
+		</ContentSection>
 	{:else if error}
 		<div class="text-center py-16 px-8 text-black">
 			<h1>Error</h1>

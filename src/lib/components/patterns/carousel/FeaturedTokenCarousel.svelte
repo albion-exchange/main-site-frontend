@@ -205,7 +205,6 @@
 	
 	// Enhanced Tailwind class mappings with better mobile responsiveness - FIXED
 	$: containerClasses = 'relative w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8';
-	$: loadingStateClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center p-8 lg:p-16 text-black bg-white border border-light-gray rounded-lg';
 	$: errorStateClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center p-8 lg:p-16 text-black bg-white border border-light-gray rounded-lg';
 	$: emptyStateClasses = 'max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center p-8 lg:p-16 text-black bg-white border border-light-gray rounded-lg';
 	$: retryButtonClasses = 'mt-4 px-6 py-3 bg-primary text-white border-none cursor-pointer font-semibold transition-colors duration-200 hover:bg-secondary touch-target rounded';
@@ -264,7 +263,7 @@
 
 <div class={containerClasses} bind:this={carouselContainer}>
 	{#if loading}
-		<div class={loadingStateClasses}>
+		<div class="text-center">
 			<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mx-auto mb-4"></div>
 			<p>Loading featured tokens...</p>
 		</div>

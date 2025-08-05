@@ -5,8 +5,8 @@
 	import type { Asset } from '$lib/types/uiTypes';
 	import AssetCard from '$lib/components/patterns/assets/AssetCard.svelte';
 	import TokenPurchaseWidget from '$lib/components/patterns/TokenPurchaseWidget.svelte';
-	import { SecondaryButton, SectionTitle, Card, CardContent, LoadingSpinner } from '$lib/components/components';
-	import { PageLayout, HeroSection } from '$lib/components/layout';
+	import { SecondaryButton, SectionTitle, Card, CardContent } from '$lib/components/components';
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
     import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
 	import type { Hex } from 'viem';
     import { generateAssetInstanceFromSftMeta, generateTokenMetadataInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
@@ -135,12 +135,12 @@
 	>
 			{#if loading}
 		<!-- Loading State -->
-		<div class="text-center mt-6 sm:mt-8">
-			<div class="flex flex-col items-center justify-center p-8 space-y-4">
-				<LoadingSpinner />
-				<p class="text-sm sm:text-base text-black leading-relaxed">Loading assets...</p>
+		<ContentSection background="white" padding="standard" centered>
+			<div class="text-center">
+				<div class="w-8 h-8 border-4 border-light-gray border-t-primary animate-spin mx-auto mb-4"></div>
+				<p>Loading assets...</p>
 			</div>
-		</div>
+		</ContentSection>
 		{:else}
 			<!-- Assets Grid -->
 			<div class="mt-12 sm:mt-16 lg:mt-24">
