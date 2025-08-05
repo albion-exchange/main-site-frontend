@@ -248,16 +248,35 @@ export function generateAssetInstanceFromSftMeta(
       paymentFrequency: asset.assetTerms.paymentFrequencyDays,
     },
     tokenContracts: [sft.id],
-    monthlyReports: Array.isArray(asset.receiptsData) ? asset.receiptsData.map(
-      (report: any, i: number) => ({
-        month: report?.month || `2024-${String(i + 1).padStart(2, '0')}`, // YYYY-MM format
-        production: report?.assetData?.production || 0, // barrels
-        revenue: report?.assetData?.revenue || 0, // USD
-        expenses: report?.assetData?.expenses || 0, // USD
-        netIncome: report?.assetData?.netIncome || 0, // USD
-        payoutPerToken: pinnedMetadata.payoutData?.[i]?.tokenPayout?.payoutPerToken || 0, // USD per token (optional for royalty assets)
-      }),
-    ) : [],
+    monthlyReports: (() => {
+      // Try historicalProduction first (primary source of production data)
+      if (Array.isArray(asset.historicalProduction) && asset.historicalProduction.length > 0) {
+        return asset.historicalProduction.map(
+          (record: any) => ({
+            month: record?.month || '',
+            production: record?.production || 0, // Already in BOE
+            revenue: 0, // No revenue data in historicalProduction
+            expenses: 0, // No expense data in historicalProduction
+            netIncome: 0, // No net income data in historicalProduction
+            payoutPerToken: 0, // No payout data in historicalProduction
+          }),
+        );
+      }
+      // Fall back to receiptsData (legacy format with financial data)
+      else if (Array.isArray(asset.receiptsData) && asset.receiptsData.length > 0) {
+        return asset.receiptsData.map(
+          (report: any, i: number) => ({
+            month: report?.month || `2024-${String(i + 1).padStart(2, '0')}`, // YYYY-MM format
+            production: report?.assetData?.production || 0, // barrels
+            revenue: report?.assetData?.revenue || 0, // USD
+            expenses: report?.assetData?.expenses || 0, // USD
+            netIncome: report?.assetData?.netIncome || 0, // USD
+            payoutPerToken: pinnedMetadata.payoutData?.[i]?.tokenPayout?.payoutPerToken || 0, // USD per token (optional for royalty assets)
+          }),
+        );
+      }
+      return [];
+    })(),
     plannedProduction: assetPlannedProduction,
     operationalMetrics: asset.operationalMetrics || {
       uptime: { percentage: 0, unit: "%", period: "unknown" },
