@@ -147,7 +147,7 @@
 				<span class={highlightLabelClasses}>Exp. Remaining</span>
 			</div>
 			<div class={highlightStatClasses}>
-				<span class={highlightValueClasses}>{latestReport ? formatCurrency(latestReport.netIncome ?? 0, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A'}</span>
+				<span class={highlightValueClasses}>{latestReport && latestReport.netIncome > 0 ? formatCurrency(latestReport.netIncome, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : 'N/A'}</span>
 				<span class={highlightLabelClasses}>Last Payment</span>
 			</div>
 			<!-- Third stat only on larger screens -->

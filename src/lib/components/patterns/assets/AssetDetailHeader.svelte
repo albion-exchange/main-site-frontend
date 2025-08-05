@@ -178,15 +178,15 @@
 			/>
 			<StatsCard
 				title="Last Revenue"
-				value={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.netIncome 
+				value={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.netIncome && asset.monthlyReports[asset.monthlyReports.length - 1].netIncome > 0
 					? formatCurrency(asset.monthlyReports[asset.monthlyReports.length - 1].netIncome)
-					: 'US$0'}
-				subtitle={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.month 
+					: 'N/A'}
+				subtitle={asset?.monthlyReports?.[asset.monthlyReports.length - 1]?.netIncome && asset.monthlyReports[asset.monthlyReports.length - 1].netIncome > 0
 					? (() => {
 						const date = new Date(asset.monthlyReports[asset.monthlyReports.length - 1].month + '-01');
 						return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 					})()
-					: 'No data'}
+					: ''}
 				size="small"
 			/>
 			<StatsCard
