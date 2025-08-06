@@ -28,9 +28,9 @@
 		try {
 			loading = true;
 			if($sftMetadata && $sfts) {
-				const deocdedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
+				const decodedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
 				for(const sft of $sfts) {
-					const pinnedMetadata: any = deocdedMeta.find(
+					const pinnedMetadata: any = decodedMeta.find(
 						(meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
 					);
 					if(pinnedMetadata) {

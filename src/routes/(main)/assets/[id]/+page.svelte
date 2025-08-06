@@ -102,6 +102,14 @@
 	let showTooltip = '';
 	let tooltipTimer: any = null;
 	
+	let failedImages = new Set<string>();
+	
+	function handleImageError(imageUrl: string) {
+		failedImages.add(imageUrl);
+		failedImages = new Set(failedImages); // Trigger reactivity
+	}
+
+	
 	function toggleCardFlip(tokenAddress: string) {
 		if (flippedCards.has(tokenAddress)) {
 			flippedCards.delete(tokenAddress);
@@ -343,11 +351,21 @@
 								   role="button"
 								   tabindex="0"
 								>
-									<img 
-										src={getImageUrl(image.url)} 
-										alt={image.caption || 'Asset gallery image'} 
-										class="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
-									/>
+									{#if !failedImages.has(image.url)}
+										<img 
+											src={getImageUrl(image.url)} 
+											alt={image.caption || 'Asset gallery image'} 
+											class="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+											on:error={() => handleImageError(image.url)}
+										/>
+									{:else}
+										<div class="w-full h-32 bg-light-gray flex items-center justify-center">
+											<div class="text-center">
+												<div class="text-2xl mb-1">🖼️</div>
+												<p class="text-xs text-black opacity-50">Failed to load</p>
+											</div>
+										</div>
+									{/if}
 								</div>
 							{/each}
 						{:else}
@@ -367,7 +385,7 @@
 								<div class="flex items-center justify-between p-4 border-b border-light-gray last:border-b-0">
 									<div class="flex items-center space-x-3">
 										<div class="w-8 h-8 bg-secondary rounded flex items-center justify-center">
-											📄
+												📄
 										</div>
 										<div>
 											<h4 class="font-semibold text-black">{document.name || 'Document'}</h4>
@@ -616,12 +634,22 @@
 										tabindex="0"
 										aria-label={`View ${image.caption || image.title || 'Asset image'} in new tab`}
 									>
-										<img 
-											src={getImageUrl(image.url)} 
-											alt={image.caption || image.title || 'Asset image'}
-											loading="lazy"
-											class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-										/>
+										{#if !failedImages.has(image.url)}
+											<img 
+												src={getImageUrl(image.url)} 
+												alt={image.caption || image.title || 'Asset image'}
+												loading="lazy"
+												class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+												on:error={() => handleImageError(image.url)}
+											/>
+										{:else}
+											<div class="w-full h-64 bg-light-gray flex items-center justify-center">
+												<div class="text-center">
+													<div class="text-4xl mb-2">🖼️</div>
+													<p class="text-sm text-black opacity-50">Failed to load image</p>
+												</div>
+											</div>
+										{/if}
 										{#if image.caption || image.title}
 											<div class="p-4">
 												<p class="text-sm text-black">{image.caption || image.title}</p>
@@ -644,7 +672,7 @@
 								<div class="space-y-4">
 									<div class="flex items-center justify-between p-4 bg-white border border-light-gray hover:bg-white transition-colors duration-200">
 										<div class="flex items-center gap-3">
-											<div class="text-2xl">📄</div>
+												<div class="text-2xl">📄</div>
 											<div>
 												<div class="font-semibold text-black">{document.name}</div>
 												<div class="text-sm text-black opacity-70">{document.type.toUpperCase()}</div>
