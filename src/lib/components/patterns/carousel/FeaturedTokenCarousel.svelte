@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
-	import { useAssetService, useTokenService } from '$lib/services';
+	import { allAssets } from '$lib/stores/blockchainStore';
 	import type { Token, Asset } from '$lib/types/uiTypes';
 	import { PrimaryButton, SecondaryButton, FormattedNumber, FormattedReturn } from '$lib/components/components';
 	import { sftMetadata, sfts } from '$lib/stores';
@@ -20,8 +20,6 @@
 	export let autoPlayInterval = 5000;
 	
 	const dispatch = createEventDispatcher();
-	const assetService = useAssetService();
-	const tokenService = useTokenService();
 
 	let currentIndex = 0;
 	let featuredTokensWithAssets: Array<{ token: TokenMetadata; asset: Asset }> = [];

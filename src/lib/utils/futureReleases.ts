@@ -1,5 +1,6 @@
 import { ENERGY_FIELDS } from "$lib/network";
-import tokenService from "$lib/services/TokenService";
+import { get } from 'svelte/store';
+import { assets } from '$lib/stores/blockchainStore';
 
 /**
  * Check if an energy field has incomplete releases (< 100% shares allocated)
@@ -16,20 +17,15 @@ export async function hasIncompleteReleases(assetId: string): Promise<boolean> {
   if (!energyField) return false;
   
   try {
-    // Get all tokens for this energy field
-    const tokens = tokenService.getTokensByEnergyField(energyField.name);
-    if (!tokens || tokens.length === 0) return true; // If no tokens, assume future releases
+    // Get the asset from the blockchain store
+    const assetsMap = get(assets);
+    const asset = assetsMap.get(assetId);
     
-    // Get metadata for each token to access share percentage
-    const tokenMetadataPromises = tokens.map(token => 
-      tokenService.getTokenMetadataByAddress(token.contractAddress)
-    );
+    if (!asset) return false;
     
-    const tokenMetadata = await Promise.all(tokenMetadataPromises);
-    
-    // Calculate total share percentage
-    const totalSharePercentage = tokenMetadata.reduce((sum, metadata) => {
-      return sum + (metadata?.sharePercentage || 0);
+    // Calculate total share percentage from asset's tokens
+    const totalSharePercentage = asset.tokens.reduce((sum, token) => {
+      return sum + (token.sharePercentage || 0);
     }, 0);
     
     return totalSharePercentage < 100;
