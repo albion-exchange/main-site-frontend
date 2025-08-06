@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { fly, fade } from 'svelte/transition';
-	import { useAssetService, useTokenService, useConfigService } from '$lib/services';
+	import { useAssetService, useTokenService } from '$lib/services';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { readContract, writeContract, waitForTransactionReceipt, simulateContract } from '@wagmi/core';
 	import { signerAddress, wagmiConfig } from 'svelte-wagmi';
@@ -24,7 +24,6 @@
 	const dispatch = createEventDispatcher();
 	const assetService = useAssetService();
 	const tokenService = useTokenService();
-	const configService = useConfigService();
 
 	// Purchase form state
 	let investmentAmount = 5000;

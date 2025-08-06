@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { useTokenService, useConfigService } from '$lib/services';
+	import { useTokenService } from '$lib/services';
 	import { sftMetadata, sfts } from '$lib/stores';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { Card, CardContent, PrimaryButton, SecondaryButton, Chart, CollapsibleSection } from '$lib/components/components';
@@ -10,6 +10,7 @@
 	import { PageLayout, ContentSection } from '$lib/components/layout';
 	import { getImageUrl } from '$lib/utils/imagePath';
 	import { formatCurrency, formatEndDate, formatSmartReturn } from '$lib/utils/formatters';
+	import { hasIncompleteReleases } from '$lib/utils/futureReleases';
 	import { 
 		useAssetDetailData,
 		useDataExport, 
@@ -30,11 +31,8 @@
 	let showPurchaseWidget = false;
 	let selectedTokenAddress: string | null = null;
 	
-	// Use services
-	const configService = useConfigService();
-	
 	// Future releases state
-	let futureReleases: any[] = [];
+	let hasFutureReleases = false;
 	
 	// Get asset ID from URL params
 	$: assetId = $page.params.id;
@@ -54,10 +52,10 @@
 	// Reactive data from composable
 	$: ({ asset: assetData, tokens: assetTokens, loading, error } = $assetDetailState);
 	
-	// Load future releases when asset data is available
+	// Check for future releases when asset data is available
 	$: if (assetData?.id) {
-		configService.getFutureReleasesByAsset(assetData.id).then(releases => {
-			futureReleases = releases;
+		hasIncompleteReleases(assetData.id).then(hasIncomplete => {
+			hasFutureReleases = hasIncomplete;
 		});
 	}
 	
@@ -314,7 +312,7 @@
         		<CollapsibleSection title="Revenue History" isOpenByDefault={false} alwaysOpenOnDesktop={false}>
         			{@const monthlyReports = assetData?.monthlyReports || []}
 					{@const reportsWithRevenue = monthlyReports.filter(r => r.netIncome && r.netIncome > 0)}
-					{@const maxRevenue = reportsWithRevenue.length > 0 ? Math.max(...reportsWithRevenue.map(r => r.netIncome)) : 1500}
+					{@const maxRevenue = reportsWithRevenue.length > 0 ? Math.max(...reportsWithRevenue.map(r => r.netIncome || 0)) : 1500}
 					<div class="space-y-4">
 						{#if reportsWithRevenue.length > 0}
 							<div class="bg-white border border-light-gray p-4">
@@ -323,7 +321,7 @@
 									{#each reportsWithRevenue.slice(-6) as report}
 										<div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
 											<div class="text-sm text-black">{report.month}</div>
-											<div class="text-sm font-semibold text-primary">{formatCurrency(report.netIncome)}</div>
+											<div class="text-sm font-semibold text-primary">{formatCurrency(report.netIncome || 0)}</div>
 										</div>
 									{/each}
 								</div>
@@ -892,38 +890,20 @@
 					</Card>
 				</div>
 					{/each}
-					<!-- Future Releases Cards -->
-					{#if assetData?.id}
-						{#each futureReleases as release, index}
+					<!-- Future Releases Card -->
+					{#if hasFutureReleases}
 					<Card hoverable>
 						<CardContent paddingClass="p-0">
 							<div class="flex flex-col justify-center text-center p-12" style="min-height: 650px;">
-								<div class="text-5xl mb-6">{release.emoji || '📅'}</div>
-								<h4 class="text-xl font-extrabold mb-4 text-black uppercase tracking-wider">{index === 0 ? 'Next Release' : 'Future Release'} - {release.whenRelease}</h4>
-								<p class="text-base mb-8 text-black opacity-70">{release.description || 'Token release planned'}</p>
+								<div class="text-5xl mb-6">🚀</div>
+								<h4 class="text-xl font-extrabold mb-4 text-black uppercase tracking-wider">Future Releases Available</h4>
+								<p class="text-base mb-8 text-black opacity-70">Additional token releases planned</p>
 								<SecondaryButton on:click={handleGetNotified}>
 									Get Notified
 								</SecondaryButton>
 							</div>
 						</CardContent>
 					</Card>
-						{/each}
-						
-						{#if futureReleases.length === 0}
-						<!-- Fallback Coming Soon Card -->
-						<Card hoverable>
-							<CardContent paddingClass="p-0">
-								<div class="flex flex-col justify-center text-center p-12" style="min-height: 650px;">
-									<div class="text-5xl mb-6">🚀</div>
-									<h4 class="text-xl font-extrabold mb-4 text-black uppercase tracking-wider">New Release Coming Soon</h4>
-									<p class="text-base mb-8 text-black opacity-70">Next token release planned for Q1 2025</p>
-									<SecondaryButton on:click={handleGetNotified}>
-										Get Notified
-									</SecondaryButton>
-								</div>
-							</CardContent>
-						</Card>
-						{/if}
 					{/if}
 				</div>
 				</div>
