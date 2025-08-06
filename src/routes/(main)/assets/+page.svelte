@@ -1,188 +1,123 @@
 <script lang="ts">
-	import { readContract } from '@wagmi/core';
-	import { wagmiConfig } from 'svelte-wagmi';
-	import { sfts, sftMetadata } from '$lib/stores';
-	import type { Asset } from '$lib/types/uiTypes';
-	import AssetCard from '$lib/components/patterns/assets/AssetCard.svelte';
-	import TokenPurchaseWidget from '$lib/components/patterns/TokenPurchaseWidget.svelte';
-	import { SecondaryButton, SectionTitle, Card, CardContent } from '$lib/components/components';
-	import { PageLayout, HeroSection } from '$lib/components/layout';
-    import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
-	import type { Hex } from 'viem';
-    import { generateAssetInstanceFromSftMeta, generateTokenMetadataInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
-	import authorizerAbi from '$lib/abi/authorizer.json';
-    import type { TokenMetadata } from '$lib/types/MetaboardTypes';
-	import { groupSftsByEnergyField, type GroupedEnergyField } from '$lib/utils/energyFieldGrouping';
-
-	let loading = true;
-	let showSoldOutAssets = false;
-	let featuredTokensWithAssets: Array<{ token: TokenMetadata; asset: Asset }> = [];
-	let groupedEnergyFields: GroupedEnergyField[] = [];
+	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
+	import { AssetCard } from '$lib/components/patterns';
+	import { getImageUrl } from '$lib/utils/imagePath';
+	import { allAssets, isInitialized, platformStats } from '$lib/stores/blockchainStore';
 	
-	// Token purchase widget state
-	let showPurchaseWidget = false;
-	let selectedAssetId: string | null = null;
-	let selectedTokenAddress: string | null = null;
+	// Filter state
+	let sortBy: 'name' | 'apy' | 'recent' = 'name';
+	let showFilters = false;
 	
-	async function loadTokenAndAssets() {
-		try {
-			loading = true;
-			if($sftMetadata && $sfts) {
-				const decodedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
-				for(const sft of $sfts) {
-					const pinnedMetadata: any = decodedMeta.find(
-						(meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
-					);
-					if(pinnedMetadata) {
+	// Get assets from the unified store
+	$: assets = $allAssets;
 	
-						const sftMaxSharesSupply = await readContract($wagmiConfig, {
-							abi: authorizerAbi,
-							address: sft.activeAuthorizer?.address as Hex,
-							functionName: 'maxSharesSupply',
-							args: []
-						}) as bigint;
-						
-						const tokenInstance = generateTokenMetadataInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
-						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
-	
-						featuredTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
-					
-					}
-				}
-				
-				// Group the tokens and assets by energy field
-				groupedEnergyFields = groupSftsByEnergyField(featuredTokensWithAssets);
-			}
-			loading = false;
-
-		} catch(err) {
-			console.error('Featured tokens loading error:', err);
-			loading = false;
+	// Sort assets based on selection
+	$: sortedAssets = [...assets].sort((a, b) => {
+		switch (sortBy) {
+			case 'name':
+				return a.asset.name.localeCompare(b.asset.name);
+			case 'apy':
+				// Sort by highest APY (placeholder - would need actual APY calculation)
+				return 0;
+			case 'recent':
+				// Sort by most recent release
+				return 0;
+			default:
+				return 0;
 		}
-	}
-	$: if($sfts && $sftMetadata){
-		loadTokenAndAssets();
-	}
-
-	// Check if an energy field group has available tokens
-	function hasAvailableTokens(group: GroupedEnergyField): boolean {
-		return group.tokens.some(token => {
-			const hasAvailable = BigInt(token.supply.maxSupply) > BigInt(token.supply.mintedSupply);
-			return hasAvailable;
-		});
-	}
-	
-	// Filter and group assets based on availability
-	$: {
-		if (!loading) {
-			const filteredTokensWithAssets = showSoldOutAssets 
-				? featuredTokensWithAssets 
-				: featuredTokensWithAssets.filter(item => {
-					const hasAvailable = BigInt(item.token.supply.maxSupply) > BigInt(item.token.supply.mintedSupply);
-					return hasAvailable;
-				});
-			
-			groupedEnergyFields = groupSftsByEnergyField(filteredTokensWithAssets);
-		}
-	}
-	
-	// Count sold out assets
-	$: soldOutCount = featuredTokensWithAssets.filter(item => {
-		const hasAvailable = BigInt(item.token.supply.maxSupply) > BigInt(item.token.supply.mintedSupply);
-		return !hasAvailable;
-	}).length;
-	
-	function handleBuyTokens(event: CustomEvent) {
-		selectedAssetId = event.detail.assetId;
-		selectedTokenAddress = event.detail.tokenAddress;
-		showPurchaseWidget = true;
-	}
-	
-	function handlePurchaseSuccess(event: CustomEvent) {
-		// Purchase successful - could add user notification here
-		showPurchaseWidget = false;
-	}
-	
-	function handleWidgetClose() {
-		showPurchaseWidget = false;
-		selectedAssetId = null;
-		selectedTokenAddress = null;
-	}
+	});
 </script>
 
 <svelte:head>
-	<title>Assets - Albion</title>
-	<meta name="description" content="Browse available oil field assets for investment" />
+	<title>Invest in Energy Assets - Albion</title>
+	<meta name="description" content="Browse and invest in tokenized energy assets with transparent returns and monthly distributions" />
 </svelte:head>
 
-<PageLayout variant="constrained">
-	<!-- Header Section -->
+<PageLayout variant="default">
+	<!-- Hero Section -->
 	<HeroSection 
-		title="Available Assets"
-		subtitle="Browse live energy investment opportunities with real-time production data and transparent returns"
+		title="Energy Assets" 
+		subtitle="Direct investment in producing energy infrastructure with transparent, monthly distributions"
 		showBorder={false}
-	>
-		{#if loading}
+	/>
+
+	<!-- Platform Stats -->
+	{#if $isInitialized}
+		<ContentSection background="gray" padding="compact">
+			<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+				<div class="text-center">
+					<div class="text-2xl md:text-3xl font-extrabold text-primary">
+						${$platformStats.totalInvestedMillions.toFixed(1)}M
+					</div>
+					<div class="text-sm md:text-base text-black opacity-70">Total Invested</div>
+				</div>
+				<div class="text-center">
+					<div class="text-2xl md:text-3xl font-extrabold text-primary">
+						{$platformStats.totalAssets}
+					</div>
+					<div class="text-sm md:text-base text-black opacity-70">Active Assets</div>
+				</div>
+				<div class="text-center">
+					<div class="text-2xl md:text-3xl font-extrabold text-primary">
+						{$platformStats.totalCountries}
+					</div>
+					<div class="text-sm md:text-base text-black opacity-70">Countries</div>
+				</div>
+				<div class="text-center">
+					<div class="text-2xl md:text-3xl font-extrabold text-primary">
+						{$platformStats.totalTokens}
+					</div>
+					<div class="text-sm md:text-base text-black opacity-70">Token Releases</div>
+				</div>
+			</div>
+		</ContentSection>
+	{/if}
+
+	<!-- Asset Grid -->
+	<ContentSection background="white" padding="standard">
+		<div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+			<h2 class="text-2xl font-extrabold text-black">Available Assets</h2>
+			
+			<!-- Sort Controls -->
+			<div class="flex gap-2">
+				<select 
+					bind:value={sortBy}
+					class="px-4 py-2 border border-light-gray bg-white text-black text-sm"
+				>
+					<option value="name">Sort by Name</option>
+					<option value="apy">Sort by APY</option>
+					<option value="recent">Most Recent</option>
+				</select>
+			</div>
+		</div>
+
+		{#if !$isInitialized}
 			<!-- Loading State -->
-			<div class="text-center mt-6 sm:mt-8">
-				<p class="text-sm sm:text-base text-black leading-relaxed">Loading assets...</p>
+			<div class="text-center py-16">
+				<div class="inline-flex items-center gap-3 text-black">
+					<svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+							d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+					</svg>
+					<span>Loading energy assets...</span>
+				</div>
+			</div>
+		{:else if sortedAssets.length === 0}
+			<!-- Empty State -->
+			<div class="text-center py-16">
+				<p class="text-lg text-black opacity-70">No assets available at this time.</p>
 			</div>
 		{:else}
-			<!-- Assets Grid -->
-			<div class="mt-12 sm:mt-16 lg:mt-24">
-				{#if groupedEnergyFields.length === 0}
-					<!-- No Available Assets -->
-					<Card>
-						<CardContent>
-							<div class="text-center py-8">
-								<SectionTitle level="h3" size="card">No Available Assets</SectionTitle>
-								<p class="text-sm sm:text-base text-black leading-relaxed mt-4">
-									{showSoldOutAssets ? 'No assets found.' : 'All assets are currently sold out.'}
-								</p>
-							</div>
-						</CardContent>
-					</Card>
-				{:else}
-					<!-- Grouped Assets by Energy Field -->
-					<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 items-stretch">
-						{#each groupedEnergyFields as energyField}
-							<AssetCard 
-								asset={energyField.asset} 
-								token={energyField.tokens} 
-								energyFieldId={energyField.id}
-								on:buyTokens={handleBuyTokens} 
-							/>
-						{/each}
-					</div>
-				{/if}
+			<!-- Asset Grid -->
+			<div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+				{#each sortedAssets as assetData}
+					<AssetCard 
+						asset={assetData.asset}
+						token={assetData.tokens}
+						energyFieldId={assetData.energyField}
+					/>
+				{/each}
 			</div>
 		{/if}
-	</HeroSection>
-
-	<!-- View Sold Out Assets Toggle -->
-	{#if !loading && featuredTokensWithAssets.length > 0}
-		{#if soldOutCount > 0 && !showSoldOutAssets}
-			<div class="text-center mt-8 sm:mt-12">
-				<SecondaryButton on:click={() => showSoldOutAssets 	= true}>
-					View Sold Out Assets ({soldOutCount})
-				</SecondaryButton>
-			</div>
-		{:else if showSoldOutAssets && soldOutCount > 0}
-			<div class="text-center mt-8 sm:mt-12">
-				<SecondaryButton on:click={() => showSoldOutAssets = false}>
-					Hide Sold Out Assets
-				</SecondaryButton>
-			</div>
-		{/if}
-	{/if}
+	</ContentSection>
 </PageLayout>
-
-<!-- Token Purchase Widget -->
-<TokenPurchaseWidget 
-	bind:isOpen={showPurchaseWidget}
-	tokenAddress={selectedTokenAddress}
-	assetId={selectedAssetId}
-	on:purchaseSuccess={handlePurchaseSuccess}
-	on:close={handleWidgetClose}
-/>
-

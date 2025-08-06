@@ -454,7 +454,7 @@ export class TypeTransformations {
         revenue: report.revenue,
         netIncome: report.netIncome,
         expenses: 0, // Not available in current data
-        payoutPerToken: 0, // Calculated separately by TokenService
+        payoutPerToken: 0, // Calculated separately
       })),
       operationalMetrics: {
         uptime: {
