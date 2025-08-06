@@ -7,7 +7,7 @@
 		syncUserData
 	} from '$lib/stores/blockchainStore';
 	import { 
-		Card, CardContent, CardActions, PrimaryButton, SecondaryButton, 
+		Card, CardContent, CardActions, Button, 
 		StatusBadge, TabNavigation, StatsCard, SectionTitle, ActionCard, 
 		TabButton, Chart, BarChart, PieChart, CollapsibleSection, FormattedNumber 
 	} from '$lib/components/components';
@@ -90,9 +90,9 @@
 			<div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
 				<SectionTitle level="h1" size="page" center>Wallet Connection Required</SectionTitle>
 				<p class="text-lg text-black opacity-80 mb-8 max-w-md">Please connect your wallet to view your portfolio.</p>
-				<PrimaryButton on:click={connectWallet}>
+				<Button variant="primary" on:click={connectWallet}>
 					Connect Wallet
-				</PrimaryButton>
+				</Button>
 			</div>
 		</ContentSection>
 	</PageLayout>
@@ -190,7 +190,7 @@
 				{:else if holdings.length === 0}
 					<div class="text-center py-8 text-black opacity-70">
 						<p class="mb-4">No holdings yet</p>
-						<PrimaryButton href="/assets">Browse Assets</PrimaryButton>
+						<Button variant="primary" href="/assets">Browse Assets</Button>
 					</div>
 				{:else}
 					{#each holdings as holding}
@@ -239,8 +239,8 @@
 											</div>
 											
 											<div class="flex gap-2">
-												<SecondaryButton size="small" href="/claims" fullWidth>Claims</SecondaryButton>
-												<SecondaryButton size="small" on:click={() => toggleCardFlip(holding.id)} fullWidth>History</SecondaryButton>
+												<Button variant="secondary" size="small" href="/claims" fullWidth>Claims</Button>
+												<Button variant="secondary" size="small" on:click={() => toggleCardFlip(holding.id)} fullWidth>History</Button>
 											</div>
 										</CardContent>
 									</Card>
@@ -254,7 +254,7 @@
 												<div>
 													<h4 class="font-extrabold text-black text-base">{holding.asset.name}</h4>
 												</div>
-												<SecondaryButton size="small" on:click={() => toggleCardFlip(holding.id)}>Back</SecondaryButton>
+												<Button variant="secondary" size="small" on:click={() => toggleCardFlip(holding.id)}>Back</Button>
 											</div>
 											
 											{#if payoutData && payoutData.length > 0}
@@ -384,7 +384,7 @@
 					{:else if holdings.length === 0}
 						<div class="text-center py-12 text-black opacity-70">
 							<p class="mb-4">No holdings yet</p>
-							<PrimaryButton href="/assets">Browse Assets</PrimaryButton>
+							<Button variant="primary" href="/assets">Browse Assets</Button>
 						</div>
 					{:else}
 						{#each holdings as holding}
@@ -419,8 +419,8 @@
 													</div>
 
 													<div class="flex gap-2">
-														<SecondaryButton size="small" href="/claims">Claims</SecondaryButton>
-														<SecondaryButton size="small" on:click={() => toggleCardFlip(holding.id)}>History</SecondaryButton>
+														<Button variant="secondary" size="small" href="/claims">Claims</Button>
+														<Button variant="secondary" size="small" on:click={() => toggleCardFlip(holding.id)}>History</Button>
 													</div>
 												</div>
 
@@ -506,7 +506,7 @@
 													<div>
 														<h4 class="font-extrabold text-black text-lg">{holding.asset.name}</h4>
 													</div>
-													<SecondaryButton size="small" on:click={() => toggleCardFlip(holding.id)}>Back</SecondaryButton>
+													<Button variant="secondary" size="small" on:click={() => toggleCardFlip(holding.id)}>Back</Button>
 												</div>
 												
 												<div class="flex-1 flex gap-6">

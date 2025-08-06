@@ -1,6 +1,7 @@
 import { ENERGY_FIELDS } from "$lib/network";
 import { get } from 'svelte/store';
-import { assets } from '$lib/stores/blockchainStore';
+import { getAssetById } from '$lib/stores/blockchainStore';
+import { createUrlSlug } from '$lib/utils/formatters';
 
 /**
  * Check if an energy field has incomplete releases (< 100% shares allocated)
@@ -8,23 +9,22 @@ import { assets } from '$lib/stores/blockchainStore';
  * @returns Promise<boolean> - True if there are future releases available
  */
 export async function hasIncompleteReleases(assetId: string): Promise<boolean> {
-  // Find the matching energy field
+  // Find the matching energy field by slugified name
   const energyField = ENERGY_FIELDS.find(field => 
-    field.name === assetId ||
-    field.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === assetId
+    createUrlSlug(field.name) === assetId
   );
   
   if (!energyField) return false;
   
   try {
-    // Get the asset from the blockchain store
-    const assetsMap = get(assets);
-    const asset = assetsMap.get(assetId);
+    // Get the asset from the blockchain store using getAssetById
+    const assetStore = getAssetById(assetId);
+    const asset = get(assetStore);
     
     if (!asset) return false;
     
     // Calculate total share percentage from asset's tokens
-    const totalSharePercentage = asset.tokens.reduce((sum, token) => {
+    const totalSharePercentage = asset.tokens.reduce((sum: number, token: any) => {
       return sum + (token.sharePercentage || 0);
     }, 0);
     

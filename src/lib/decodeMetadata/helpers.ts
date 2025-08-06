@@ -156,11 +156,6 @@ function getDateValues(date: Date) {
   return { day, month, year, hour, min };
 }
 
-export function formatDate(date: Date) {
-  const { year, month, day } = getDateValues(date);
-  return [year, month, day].join("-");
-}
-
 export function convertDotNotationToObject(
   input: Record<string, any>,
 ): Record<string, any> {

@@ -2,19 +2,12 @@
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import { allAssets } from '$lib/stores/blockchainStore';
 	import type { Token, Asset } from '$lib/types/uiTypes';
-	import { PrimaryButton, SecondaryButton, FormattedNumber, FormattedReturn } from '$lib/components/components';
-	import { sftMetadata, sfts } from '$lib/stores';
+	import { Button, FormattedNumber, FormattedReturn } from '$lib/components/components';
 	import { formatCurrency, formatTokenSupply, formatSmartReturn, formatSmartNumber } from '$lib/utils/formatters';
 	import { meetsSupplyThreshold, formatSupplyAmount, getAvailableSupplyBigInt } from '$lib/utils/tokenSupplyUtils';
-    import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
-	import { readContract } from '@wagmi/core';
 	import { signerAddress, wagmiConfig, chainId } from 'svelte-wagmi';
-	import type { Hex } from 'viem';
-    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft, generateTokenMetadataInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
     import { getTokenReturns } from '$lib/utils';
-	import authorizerAbi from '$lib/abi/authorizer.json';
     import type { TokenMetadata } from '$lib/types/MetaboardTypes';
-    import { getEnergyFieldId } from '$lib/utils/energyFieldGrouping';
 
 	export let autoPlay = true;
 	export let autoPlayInterval = 5000;
@@ -31,42 +24,35 @@
 	let touchStartX = 0;
 	let touchEndX = 0;
 
-	// Reactive statement to trigger loading when data changes
-	$: if($sfts && $sftMetadata && $sfts.length > 0 && $sftMetadata.length > 0) {
-		loadFeaturedTokensFromSfts();
+	// Reactive statement to load featured tokens from allAssets
+	$: if($allAssets && $allAssets.length > 0) {
+		loadFeaturedTokens();
 	}
 
-	async function loadFeaturedTokensFromSfts() {
+	function loadFeaturedTokens() {
 		try {
 			loading = true;
 			error = null;
-			if($sftMetadata && $sfts) {
-				const deocdedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
-				for(const sft of $sfts) {
-					const pinnedMetadata: any = deocdedMeta.find(
-						(meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
-					);
-					if(pinnedMetadata) {
-						const sftMaxSharesSupply = await readContract($wagmiConfig, {
-							abi: authorizerAbi,
-							address: sft.activeAuthorizer?.address as Hex,
-							functionName: 'maxSharesSupply',
-							args: []
-						}) as bigint;
-						const tokenInstance = generateTokenMetadataInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
-						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
-						
-						// Only add tokens with available supply
-						const availableSupply = getAvailableSupplyBigInt(tokenInstance);
-						if (availableSupply > 0n) {
-							featuredTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
-						}
+			featuredTokensWithAssets = [];
+			
+			// Get all tokens with available supply from all assets
+			for (const assetData of $allAssets) {
+				for (const token of assetData.tokens) {
+					// Only add tokens with available supply
+					const availableSupply = getAvailableSupplyBigInt(token);
+					if (availableSupply > 0n) {
+						featuredTokensWithAssets.push({ 
+							token: token, 
+							asset: assetData.asset 
+						});
 					}
 				}
-								if (autoPlay && featuredTokensWithAssets.length > 1) {
-					startAutoPlay();
-				}
 			}
+			
+			if (autoPlay && featuredTokensWithAssets.length > 1) {
+				startAutoPlay();
+			}
+			
 			loading = false;
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load featured tokens';
@@ -390,12 +376,12 @@
 				</div>
 
 												<div class={tokenActionsClasses + " sm:flex-col flex-row gap-2 sm:gap-4"}>
-					<PrimaryButton on:click={() => handleBuyTokens(item.token.contractAddress)}>
+					<Button variant="primary" on:click={() => handleBuyTokens(item.token.contractAddress)}>
 						Buy Tokens
-					</PrimaryButton>
-					<SecondaryButton href="/assets/{getEnergyFieldId(item.token.contractAddress)}" >
+					</Button>
+					<Button variant="secondary" href="/assets/{getEnergyFieldId(item.token.contractAddress)}" >
 						View Asset
-					</SecondaryButton>
+					</Button>
 				</div>
 							</div>
 

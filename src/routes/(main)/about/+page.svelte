@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
-	import PrimaryButton from '$lib/components/components/PrimaryButton.svelte';
-	import SecondaryButton from '$lib/components/components/SecondaryButton.svelte';
+	import Button from '$lib/components/components/Button.svelte';
 	import Card from '$lib/components/components/Card.svelte';
 	import TabNavigation from '$lib/components/components/TabNavigation.svelte';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
@@ -230,8 +229,8 @@
 			<SectionTitle level="h2" size="section" center className="mb-4">Join us in transforming energy investing</SectionTitle>
 			<p class="text-lg text-black mb-8">Be part of the next generation of energy investment infrastructure.</p>
 			<div class="flex md:flex-row flex-col gap-4 justify-center items-center">
-				<PrimaryButton href="/assets" size="large">Explore Investments</PrimaryButton>
-				<SecondaryButton href="/contact" size="large">Partner with Us</SecondaryButton>
+				<Button variant="primary" href="/assets" size="large">Explore Investments</Button>
+				<Button variant="secondary" href="/contact" size="large">Partner with Us</Button>
 		</div>
 	</ContentSection>
 </PageLayout>

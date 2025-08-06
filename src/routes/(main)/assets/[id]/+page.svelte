@@ -4,9 +4,10 @@
 	import { PageLayout, ContentSection } from '$lib/components/layout';
 	import AssetDetailHeader from '$lib/components/patterns/assets/AssetDetailHeader.svelte';
 	import AssetOverviewTab from '$lib/components/patterns/assets/AssetOverviewTab.svelte';
-	import { Card, CardContent, SecondaryButton, Chart, CollapsibleSection, TabButton } from '$lib/components/components';
+	import { Card, CardContent, Button, Chart, CollapsibleSection, TabButton } from '$lib/components/components';
 	import { formatCurrency, formatSmartReturn } from '$lib/utils/formatters';
-	import { calculateTokenReturns, getTokenPayoutHistory, getTokenSupply } from '$lib/utils/returnCalculations';
+	import { calculateTokenReturns, getTokenPayoutHistory } from '$lib/utils/returnCalculations';
+	import { calculateTokenSupply } from '$lib/utils/tokenSupplyUtils';
 	import { formatEther } from 'viem';
 	
 	// Get asset ID from URL
@@ -110,14 +111,11 @@
 						</TabButton>
 					</div>
 
-<<<<<<< HEAD
-			<!-- Tab Content -->
-			<div class="p-8 min-h-[500px] flex flex-col">
-				{#if activeTab === 'overview'}
-					{#if assetData}
-						<AssetOverviewTab asset={assetData} />
-					{/if}
-				{:else if activeTab === 'production'}
+					<!-- Tab Content -->
+					<div class="p-8 min-h-[500px]">
+						{#if activeTab === 'overview' && assetData}
+							<AssetOverviewTab asset={assetData} />
+						{:else if activeTab === 'production'}
 					{@const productionReports = assetData?.productionHistory || assetData?.monthlyReports || []}
 					{@const maxProduction = productionReports.length > 0 ? Math.max(...productionReports.map((r: any) => r.production)) : 100}
 					<div class="flex-1 flex flex-col">
@@ -593,9 +591,9 @@
 							<!-- Payments tab content -->
 							<div class="flex justify-between items-center mb-6">
 								<h4 class="text-lg font-extrabold text-black">Received Revenue</h4>
-								<SecondaryButton on:click={exportPaymentsData}>
+								<Button variant="secondary" on:click={exportPaymentsData}>
 									📊 Export Data
-								</SecondaryButton>
+								</Button>
 							</div>
 							{#if assetData?.monthlyReports && assetData.monthlyReports.some(r => r.netIncome && r.netIncome > 0)}
 								<Chart
@@ -649,9 +647,9 @@
 													<div class="text-sm text-black opacity-70">{document.type}</div>
 												</div>
 											</div>
-											<SecondaryButton on:click={() => console.log('Download', document)}>
+											<Button variant="secondary" on:click={() => console.log('Download', document)}>
 												Download
-											</SecondaryButton>
+											</Button>
 										</div>
 									{/each}
 								{:else}
@@ -708,12 +706,12 @@
 										
 										<!-- Buy button -->
 										<div class="mt-8">
-											<SecondaryButton 
+											<Button variant="secondary" 
 												fullWidth 
 												on:click={(e) => { e.stopPropagation(); handleBuyTokens(token.contractAddress); }}
 											>
 												Buy Tokens
-											</SecondaryButton>
+											</Button>
 										</div>
 									</div>
 								</div>
@@ -733,9 +731,9 @@
 									<p class="text-base mb-8 text-black opacity-70">
 										Additional token releases planned
 									</p>
-									<SecondaryButton on:click={handleGetNotified}>
+									<Button variant="secondary" on:click={handleGetNotified}>
 										Get Notified
-									</SecondaryButton>
+									</Button>
 								</div>
 							</CardContent>
 						</Card>

@@ -1,21 +1,18 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { fly, fade } from 'svelte/transition';
-	import { getAssetById, getTokenByAddress } from '$lib/stores/blockchainStore';
+	import { get } from 'svelte/store';
+	import { getAssetById, getTokenByAddress, allAssets, blockchainState } from '$lib/stores/blockchainStore';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { readContract, writeContract, waitForTransactionReceipt, simulateContract } from '@wagmi/core';
 	import { signerAddress, wagmiConfig } from 'svelte-wagmi';
 	import { formatEther, parseUnits, type Hex } from 'viem';
 	import {erc20Abi} from 'viem';
-	import { PrimaryButton, SecondaryButton, FormattedNumber } from '$lib/components/components';
+	import { Button, FormattedNumber } from '$lib/components/components';
 	import { formatCurrency, formatTokenSupply } from '$lib/utils/formatters';
-    import { sftMetadata, sfts } from '$lib/stores';
-    import { decodeSftInformation } from '$lib/decodeMetadata/helpers';
     import type { OffchainAssetReceiptVault } from '$lib/types/offchainAssetReceiptVaultTypes';
-    import { generateAssetInstanceFromSftMeta, generateTokenInstanceFromSft } from '$lib/decodeMetadata/addSchemaToReceipts';
 	import authorizerAbi from '$lib/abi/authorizer.json';
 	import OffchainAssetReceiptVaultAbi from '$lib/abi/OffchainAssetReceiptVault.json';
-    import { getEnergyFieldId } from '$lib/utils/energyFieldGrouping';
 
 	export let isOpen = false;
 	export let tokenAddress: string | null = null;
@@ -56,33 +53,81 @@
 
 	async function loadTokenData() {
 		try {
-			if (tokenAddress && $sftMetadata && $sfts) {
-				const sft = $sfts.find(sft => sft.id.toLocaleLowerCase() === tokenAddress.toLocaleLowerCase());
-				const deocdedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
-
-				const pinnedMetadata: any = deocdedMeta.find(
-					(meta) => meta?.contractAddress === `0x000000000000000000000000${sft?.id.slice(2)}`
+			if (tokenAddress) {
+				// Get token from the store
+				const tokenStore = getTokenByAddress(tokenAddress);
+				const token = get(tokenStore);
+				
+				if (!token) {
+					console.error('Token not found:', tokenAddress);
+					purchaseError = 'Token not found';
+					return;
+				}
+				
+				tokenData = token;
+				
+				// Find the asset that contains this token
+				const assets = get(allAssets);
+				for (const assetWithTokens of assets) {
+					const hasToken = assetWithTokens.tokens.some(t => 
+						t.contractAddress.toLowerCase() === tokenAddress.toLowerCase()
+					);
+					if (hasToken) {
+						assetData = assetWithTokens.asset;
+						break;
+					}
+				}
+				
+				// Get the raw SFT data for contract interactions
+				const state = get(blockchainState);
+				currentSft = state.rawSfts.find(sft => 
+					sft.id.toLowerCase() === tokenAddress.toLowerCase()
 				);
-
-				if(sft && pinnedMetadata){
-					currentSft = sft;
-
+				
+				if (currentSft) {
 					const sftMaxSharesSupply = await readContract($wagmiConfig, {
 						abi: authorizerAbi,
-						address: sft.activeAuthorizer?.address as Hex,
+						address: currentSft.activeAuthorizer?.address as Hex,
 						functionName: 'maxSharesSupply',
 						args: []
 					}) as bigint;
-
-					tokenData = generateTokenInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
-					assetData = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
-
-
+					
 					supply = {
 						maxSupply: sftMaxSharesSupply,
-						mintedSupply: BigInt(sft.totalShares),
-						availableSupply: sftMaxSharesSupply - BigInt(sft.totalShares)
+						mintedSupply: BigInt(currentSft.totalShares),
+						availableSupply: sftMaxSharesSupply - BigInt(currentSft.totalShares)
 					};
+				}
+			} else if (assetId) {
+				// Load by asset ID - get the first available token
+				const assetStore = getAssetById(assetId);
+				const assetWithTokens = get(assetStore);
+				
+				if (assetWithTokens) {
+					assetData = assetWithTokens.asset;
+					// Find first token with available supply
+					for (const token of assetWithTokens.tokens) {
+						const availableSupply = BigInt(token.supply.maxSupply) - BigInt(token.supply.mintedSupply);
+						if (availableSupply > 0n) {
+							tokenData = token;
+							tokenAddress = token.contractAddress;
+							
+							// Get the raw SFT data
+							const state = get(blockchainState);
+							currentSft = state.rawSfts.find(sft => 
+								sft.id.toLowerCase() === tokenAddress.toLowerCase()
+							);
+							
+							if (currentSft) {
+								supply = {
+									maxSupply: BigInt(token.supply.maxSupply),
+									mintedSupply: BigInt(token.supply.mintedSupply),
+									availableSupply: availableSupply
+								};
+							}
+							break;
+						}
+					}
 				}
 			}
 		} catch (error) {
@@ -290,9 +335,9 @@
 					<div class={errorStateClasses}>
 						<h3 class={errorTitleClasses}>Purchase Failed</h3>
 						<p class={errorTextClasses}>{purchaseError}</p>
-						<SecondaryButton on:click={() => purchaseError = null}>
+						<Button variant="secondary" on:click={() => purchaseError = null}>
 							Try Again
-						</SecondaryButton>
+						</Button>
 					</div>
 				{:else}
 					<!-- Purchase Form -->
@@ -372,10 +417,10 @@
 
 						<!-- Action Buttons -->
 						<div class={formActionsClasses}>
-							<SecondaryButton on:click={closeWidget}>
+							<Button variant="secondary" on:click={closeWidget}>
 								Cancel
-							</SecondaryButton>
-							<PrimaryButton 
+							</Button>
+							<Button variant="primary" 
 								on:click={handlePurchase}
 							>
 								{#if isSoldOut()}
@@ -385,7 +430,7 @@
 								{:else}
 									Buy Now
 								{/if}
-							</PrimaryButton>
+							</Button>
 						</div>
 					</div>
 				{/if}
