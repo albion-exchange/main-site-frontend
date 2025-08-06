@@ -57,10 +57,15 @@
 						}) as bigint;
 						const tokenInstance = generateTokenMetadataInstanceFromSft(sft, pinnedMetadata, sftMaxSharesSupply.toString());
 						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
-						featuredTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
+						
+						// Only add tokens with available supply
+						const availableSupply = getAvailableSupplyBigInt(tokenInstance);
+						if (availableSupply > 0n) {
+							featuredTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
+						}
 					}
 				}
-				if (autoPlay && featuredTokensWithAssets.length > 1) {
+								if (autoPlay && featuredTokensWithAssets.length > 1) {
 					startAutoPlay();
 				}
 			}

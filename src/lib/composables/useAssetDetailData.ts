@@ -17,7 +17,6 @@ import authorizerAbi from "$lib/abi/authorizer.json";
 import type { Hex } from "viem";
 import type { MetaV1S } from "$lib/types/sftMetadataTypes";
 import type { OffchainAssetReceiptVault } from "$lib/types/offchainAssetReceiptVaultTypes";
-import configService from "$lib/services/ConfigService";
 import type { Asset, Token } from "$lib/types/uiTypes";
 import type { TokenMetadata } from "$lib/types/MetaboardTypes";
 import { ENERGY_FIELDS, type SftToken } from "$lib/network";
@@ -25,7 +24,6 @@ import { ENERGY_FIELDS, type SftToken } from "$lib/network";
 interface AssetDetailState {
   asset: Asset | null;
   tokens: TokenMetadata[];
-  futureReleases: any[];
   loading: boolean;
   error: string | null;
 }
@@ -38,7 +36,6 @@ export function useAssetDetailData(initialEnergyFieldId: string) {
   const state: Writable<AssetDetailState> = writable({
     asset: null,
     tokens: [],
-    futureReleases: [],
     loading: true,
     error: null,
   });
@@ -137,16 +134,10 @@ export function useAssetDetailData(initialEnergyFieldId: string) {
         throw new Error("Asset data not found");
       }
 
-      // Load future releases for this energy field
-      const futureReleases = await configService.getFutureReleasesByAsset(
-        energyField.name,
-      );
-
       state.update((s) => ({
         ...s,
         asset: assetInstance,
         tokens,
-        futureReleases,
         loading: false,
       }));
     } catch (err) {

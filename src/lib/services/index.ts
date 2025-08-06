@@ -3,27 +3,29 @@
  * Central export for all service classes and service infrastructure
  */
 
-// Focused services
+import assetService from "./AssetService";
+import tokenService from "./TokenService";
+
+// Export services
 export { default as AssetService } from "./AssetService";
 export { default as TokenService } from "./TokenService";
-export { default as ConfigService } from "./ConfigService";
 export { marketDataService } from "./MarketDataService";
 
-// Service infrastructure
-export {
-  serviceContainer,
-  useAssetService,
-  useTokenService,
-  useConfigService,
-  type ServiceContainer,
-} from "./ServiceContainer";
+// Service container interface
+export interface ServiceContainer {
+  assetService: typeof assetService;
+  tokenService: typeof tokenService;
+}
 
-// Re-export types
-export type {
-  PlatformConfig,
-  CompanyConfig,
-  FutureRelease,
-  AppConfig,
-} from "./ConfigService";
+// Service container instance
+export const serviceContainer: ServiceContainer = {
+  assetService,
+  tokenService,
+};
 
+// Export convenience functions for direct access
+export const useAssetService = () => serviceContainer.assetService;
+export const useTokenService = () => serviceContainer.tokenService;
+
+// Export types
 export type { MarketData, MarketIndicator } from "./MarketDataService";
