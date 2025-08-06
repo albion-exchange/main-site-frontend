@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import type { Asset, Token } from '$lib/types/uiTypes';
-	import { Card, CardImage, CardContent, CardActions, PrimaryButton, SecondaryButton } from '$lib/components/components';
+	import { Card, CardImage, CardContent, CardActions, Button } from '$lib/components/components';
 	import { formatCurrency, formatEndDate, formatSmartNumber } from '$lib/utils/formatters';
     import { getTokenReturns } from '$lib/utils';
     import type { TokenMetadata } from '$lib/types/MetaboardTypes';
@@ -160,9 +160,9 @@
 		
 		<!-- View Details Button -->
 		<div class={viewDetailsSectionClasses}>
-			<PrimaryButton href="/assets/{asset.id}" fullWidth on:click={(e) => e.stopPropagation()}>
+			<Button variant="primary" href="/assets/{asset.id}" fullWidth on:click={(e) => e.stopPropagation()}>
 				{hasAvailableTokens ? 'View Details' : 'View Details'}
-			</PrimaryButton>
+			</Button>
 		</div>
 
 		<!-- Available Tokens Section - Mobile Responsive -->

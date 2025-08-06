@@ -1,6 +1,7 @@
 import type { Asset } from "$lib/types/uiTypes";
 import type { TokenMetadata } from "$lib/types/MetaboardTypes";
 import { ENERGY_FIELDS } from "$lib/network";
+import { createUrlSlug } from "$lib/utils/formatters";
 
 export interface GroupedEnergyField {
   id: string; // URL-friendly identifier derived from asset name
@@ -31,10 +32,7 @@ export function groupSftsByEnergyField(
 
     if (fieldTokens.length > 0) {
       // Create a URL-friendly ID from the field name
-      const fieldId = field.name
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-]/g, "");
+      const fieldId = createUrlSlug(field.name);
 
       grouped.push({
         id: fieldId,

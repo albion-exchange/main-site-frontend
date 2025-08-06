@@ -5,7 +5,6 @@
 
 export { useTooltip, tooltipContent } from "./useTooltip";
 export { useCardFlip } from "./useCardFlip";
-export { usePlatformStats } from "./usePlatformStats";
 
 // Re-export types
 export type { TooltipState } from "./useTooltip";

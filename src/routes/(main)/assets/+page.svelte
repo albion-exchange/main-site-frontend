@@ -114,7 +114,7 @@
 					<AssetCard 
 						asset={assetData.asset}
 						token={assetData.tokens}
-						energyFieldId={assetData.energyField}
+						energyFieldId={assetData.id}
 					/>
 				{/each}
 			</div>

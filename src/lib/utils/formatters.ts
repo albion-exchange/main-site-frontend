@@ -17,6 +17,18 @@
  */
 
 /**
+ * Creates a URL-friendly slug from a string
+ * @param text - The text to slugify
+ * @returns URL-friendly slug
+ */
+export function createUrlSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+}
+
+/**
  * Formats a number as USD currency
  * @param amount - The amount to format
  * @param options - Optional formatting options
