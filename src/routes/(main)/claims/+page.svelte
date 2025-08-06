@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { writeContract, simulateContract } from '@wagmi/core';
 	import { web3Modal, signerAddress, wagmiConfig, connected } from 'svelte-wagmi';
-	import { Card, CardContent, PrimaryButton, SecondaryButton, StatusBadge, StatsCard, SectionTitle, CollapsibleSection, FormattedNumber } from '$lib/components/components';
+	import { Card, CardContent, Button, StatusBadge, StatsCard, SectionTitle, CollapsibleSection, FormattedNumber } from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
-	import { formatCurrency } from '$lib/utils/formatters';
+	import { formatCurrency, formatDate } from '$lib/utils/formatters';
 	import { dateUtils } from '$lib/utils/dateHelpers';
 	import { arrayUtils } from '$lib/utils/arrayHelpers';
     import { ENERGY_FIELDS, type Claim } from '$lib/network';
@@ -168,13 +168,6 @@
 		loadAllClaimsData();
 	}
 
-	function formatDate(dateString: string): string {
-		return new Date(dateString).toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric'
-		});
-	}
 
 	async function connectWallet() {
 		if ($web3Modal) {
@@ -302,7 +295,7 @@
 			showBorder={false}
 		>
 			<div class="text-center mt-8">
-				<PrimaryButton on:click={connectWallet}>Connect Wallet</PrimaryButton>
+				<Button variant="primary" on:click={connectWallet}>Connect Wallet</Button>
 			</div>
 		</HeroSection>
 	{:else if pageLoading}
@@ -348,12 +341,12 @@
 			<!-- Claim Action -->
 			{#if unclaimedPayout > 0}
 				<div class="text-center mt-6 lg:mt-8">
-					<PrimaryButton 
+					<Button variant="primary" 
 						on:click={claimAllPayouts} 
 						disabled={claiming}
 					>
 						{claiming ? 'Processing...' : `Claim ${formatCurrency(unclaimedPayout)}`}
-					</PrimaryButton>
+					</Button>
 					<p class="text-sm text-gray-600 mt-2">Estimated gas fee: US${estimatedGas.toFixed(2)}</p>
 				</div>
 			{/if}
@@ -393,14 +386,14 @@
 										<div class="text-xs font-bold text-black opacity-70 uppercase tracking-wide">Available</div>
 									</div>
 									<div class="text-center">
-										<SecondaryButton 
+										<Button variant="secondary" 
 											size="small" 
 											disabled={claiming || group.totalAmount <= 0}
 											on:click={() => handleClaimSingle(group)}
 											fullWidth
 										>
 											{group.totalAmount > 0 ? 'Claim' : 'No Claims'}
-										</SecondaryButton>
+										</Button>
 									</div>
 								</div>
 							</CardContent>
@@ -454,7 +447,7 @@
 			<CollapsibleSection title="Claim History" isOpenByDefault={false} alwaysOpenOnDesktop={true}>
 				<div class="flex justify-between items-center mb-6">
 					<div class="text-sm text-gray-600">{claimHistory.length} total claims</div>
-					<SecondaryButton size="small" on:click={() => exportClaimHistory()}>📊 Export</SecondaryButton>
+					<Button variant="secondary" size="small" on:click={() => exportClaimHistory()}>📊 Export</Button>
 				</div>
 				
 				{#if claimHistory.length > 0}

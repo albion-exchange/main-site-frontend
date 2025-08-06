@@ -10,6 +10,7 @@ import { readContract } from '@wagmi/core';
 import { wagmiConfig } from 'svelte-wagmi';
 import type { Hex } from 'viem';
 import { formatEther } from 'viem';
+import { formatSmartNumber, createUrlSlug } from '$lib/utils/formatters';
 
 // Queries
 import { getSfts } from '$lib/queries/getSfts';
@@ -114,10 +115,7 @@ export async function syncBlockchainData(): Promise<void> {
 
     // Group SFTs by energy field
     for (const energyField of ENERGY_FIELDS) {
-      const fieldId = energyField.name
-        .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9-]/g, '');
+      const fieldId = createUrlSlug(energyField.name); // Slugified for clean URLs
 
       // Find all SFTs for this energy field
       const fieldSfts = sftsResult.filter((sft: OffchainAssetReceiptVault) =>
@@ -259,11 +257,14 @@ export async function syncUserData(userAddress: string): Promise<void> {
 // Derived stores for easy component access
 
 /**
- * All assets as an array
+ * All assets as an array (includes the map key as 'id' for convenience)
  */
-export const allAssets: Readable<AssetWithTokens[]> = derived(
+export const allAssets = derived(
   blockchainState,
-  $state => Array.from($state.assets.values())
+  $state => Array.from($state.assets.entries()).map(([id, data]) => ({
+    id,
+    ...data
+  }))
 );
 
 /**
@@ -300,13 +301,22 @@ export const userClaimablePayouts: Readable<Map<string, bigint>> = derived(
 );
 
 /**
- * Total platform statistics
+ * Total platform statistics with active investors
  */
 export const platformStats = derived(blockchainState, $state => {
   let totalInvested = 0;
   let totalAssets = $state.assets.size;
   let totalCountries = new Set<string>();
   let totalTokens = 0;
+  let uniqueInvestors = new Set<string>();
+
+  // Get list of valid token addresses from ENERGY_FIELDS
+  const validTokenAddresses = new Set<string>();
+  for (const field of ENERGY_FIELDS) {
+    for (const tokenInfo of field.sftTokens) {
+      validTokenAddresses.add(tokenInfo.address.toLowerCase());
+    }
+  }
 
   for (const assetData of $state.assets.values()) {
     totalTokens += assetData.tokens.length;
@@ -322,15 +332,55 @@ export const platformStats = derived(blockchainState, $state => {
     }
   }
 
+  // Count unique investors from raw SFT data (token holders)
+  $state.rawSfts.forEach(sft => {
+    // Only process SFTs that are in ENERGY_FIELDS
+    if (!validTokenAddresses.has(sft.id.toLowerCase())) {
+      return; // Skip this SFT
+    }
+    
+    if (sft.tokenHolders && Array.isArray(sft.tokenHolders)) {
+      sft.tokenHolders.forEach(holder => {
+        if (holder.address && holder.balance && Number(holder.balance) > 0) {
+          uniqueInvestors.add(holder.address.toLowerCase());
+        }
+      });
+    }
+  });
+
   return {
+    totalInvested,
     totalInvestedMillions: totalInvested / 1_000_000,
     totalAssets,
     totalCountries: totalCountries.size,
+    totalRegions: totalCountries.size, // Alias for compatibility
     totalTokens,
+    activeInvestors: uniqueInvestors.size,
+    monthlyGrowthRate: 2, // Placeholder - can be calculated from historical data later
     loading: $state.loading,
     initialized: $state.initialized
   };
 });
+
+/**
+ * Formatted platform statistics for display
+ */
+export const formattedPlatformStats = derived(platformStats, $stats => ({
+  totalInvested: formatSmartNumber($stats.totalInvested, {
+    prefix: "$",
+    threshold: 1000000,
+    forceCompact: true,
+  }),
+  totalAssets: ($stats.totalAssets || 0).toString(),
+  activeInvestors: formatSmartNumber($stats.activeInvestors || 0, {
+    threshold: 1000,
+  }),
+  regionsText: `Across ${$stats.totalRegions} ${$stats.totalRegions === 1 ? 'country' : 'countries'}`,
+  growthTrend: {
+    value: $stats.monthlyGrowthRate,
+    positive: $stats.monthlyGrowthRate >= 0,
+  },
+}));
 
 /**
  * Check if an asset has future releases
@@ -375,5 +425,5 @@ export const syncError: Readable<string | null> = derived(
   $state => $state.error
 );
 
-// Export the main store for debugging/direct access if needed
+// Export the main store for debugging/direct access if needed (TokenPurchaseWidget needs it for raw SFT data)
 export { blockchainState };

@@ -1,15 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { usePlatformStats } from '$lib/composables/usePlatformStats';
+	import { platformStats, formattedPlatformStats } from '$lib/stores/blockchainStore';
 	import FeaturedTokenCarousel from '$lib/components/patterns/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/patterns/TokenPurchaseWidget.svelte';
-	import { PrimaryButton, SecondaryButton, StatsCard } from '$lib/components/components';
+	import { Button, StatsCard } from '$lib/components/components';
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	import { marketDataService, type MarketData } from '$lib/services/MarketDataService';
-
-	// Composables
-	const { platformStats, formattedStats: sftsFormattedStats } = usePlatformStats();
 	
 	// Market data state
 	let marketData: MarketData | null = null;
@@ -70,8 +67,8 @@
 	>
 		<!-- Buttons Below Hero -->
 		<div class="flex flex-col sm:flex-row gap-4 justify-center mt-6 sm:mt-8">
-			<PrimaryButton href="/assets">Explore Investments</PrimaryButton>
-			<SecondaryButton href="/about">Learn How It Works</SecondaryButton>
+			<Button variant="primary" href="/assets">Explore Investments</Button>
+			<Button variant="secondary" href="/about">Learn How It Works</Button>
 		</div>
 	</HeroSection>
 
@@ -100,21 +97,21 @@
 		{:else}
 			<StatsCard
 				title="Total Invested"
-				value={$sftsFormattedStats.totalInvested}
+				value={$formattedPlatformStats.totalInvested}
 				subtitle="this month"
-				trend={$sftsFormattedStats.growthTrend}
+				trend={$formattedPlatformStats.growthTrend}
 				size="small"
 				valueColor="primary"
 			/>
 			<StatsCard
 				title="Assets"
-				value={$sftsFormattedStats.totalAssets}
-				subtitle={$sftsFormattedStats.regionsText}
+				value={$formattedPlatformStats.totalAssets}
+				subtitle={$formattedPlatformStats.regionsText}
 				size="small"
 			/>
 			<StatsCard
 				title="Active Investors"
-				value={$sftsFormattedStats.activeInvestors}
+				value={$formattedPlatformStats.activeInvestors}
 				subtitle="Token holders"
 				size="small"
 			/>
@@ -133,7 +130,7 @@
 		<div class="text-center">
 			<SectionTitle level="h2" size="section" className="mb-4">Ready to Start?</SectionTitle>
 			<p class="text-sm text-black mb-6">Browse available investment opportunities and start earning from energy assets.</p>
-			<PrimaryButton href="/assets" fullWidth>View All Investments</PrimaryButton>
+			<Button variant="primary" href="/assets" fullWidth>View All Investments</Button>
 		</div>
 	</ContentSection>
 
@@ -315,8 +312,8 @@
 			
 			<div class="text-center p-8 lg:p-12 bg-white/10 border border-white/20">
 				<h4 class="text-xl lg:text-2xl font-extrabold mb-3 lg:mb-4 text-white">Start Investing Today</h4>
-				<p class="mb-6 lg:mb-8 opacity-90 text-sm lg:text-base">Join {$sftsFormattedStats.activeInvestors} investors earning from real energy assets</p>
-				<SecondaryButton href="/assets">Get Started Now</SecondaryButton>
+				<p class="mb-6 lg:mb-8 opacity-90 text-sm lg:text-base">Join {$formattedPlatformStats.activeInvestors} investors earning from real energy assets</p>
+				<Button variant="secondary" href="/assets">Get Started Now</Button>
 			</div>
 		</div>
 	</ContentSection>

@@ -8,7 +8,9 @@
  * - Transform API data for UI consumption
  */
 
-const ALPHA_VANTAGE_API_KEY = "SYWN0KX7LZB9Y0JX";
+import { PUBLIC_ALPHA_VANTAGE_API_KEY } from '$env/static/public';
+
+const ALPHA_VANTAGE_API_KEY = PUBLIC_ALPHA_VANTAGE_API_KEY || "demo";
 const ALPHA_VANTAGE_BASE_URL = "https://www.alphavantage.co/query";
 
 interface CommodityData {
@@ -101,12 +103,6 @@ class MarketDataService {
       return null;
     }
 
-    // Debug logging
-    console.log(`Parsing ${data.name || 'commodity'} data:`, {
-      todayDate: new Date().toISOString().split('T')[0],
-      latestDataDate: data.data[0]?.date,
-      dataPoints: data.data.length
-    });
 
     const sortedData = data.data.sort(
       (a: CommodityData, b: CommodityData) =>
