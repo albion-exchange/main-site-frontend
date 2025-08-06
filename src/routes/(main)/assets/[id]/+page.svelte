@@ -53,8 +53,8 @@
 	$: ({ asset: assetData, tokens: assetTokens, loading, error } = $assetDetailState);
 	
 	// Check for future releases when asset data is available
-	$: if (assetData?.id) {
-		hasIncompleteReleases(assetData.id).then(hasIncomplete => {
+	$: if (assetId && assetData) {
+		hasIncompleteReleases(assetId).then(hasIncomplete => {
 			hasFutureReleases = hasIncomplete;
 		});
 	}
@@ -896,7 +896,7 @@
 						<CardContent paddingClass="p-0">
 							<div class="flex flex-col justify-center text-center p-12" style="min-height: 650px;">
 								<div class="text-5xl mb-6">🚀</div>
-								<h4 class="text-xl font-extrabold mb-4 text-black uppercase tracking-wider">Future Releases Available</h4>
+								<h4 class="text-xl font-extrabold mb-4 text-black uppercase tracking-wider">Future Releases</h4>
 								<p class="text-base mb-8 text-black opacity-70">Additional token releases planned</p>
 								<SecondaryButton on:click={handleGetNotified}>
 									Get Notified
