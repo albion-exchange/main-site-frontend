@@ -4,7 +4,6 @@
  */
 
 import type { Asset, Token } from "$lib/types/uiTypes";
-import { useAssetService } from "$lib/services";
 
 export interface PortfolioHolding {
   energyField: string; // Energy field name from ENERGY_FIELDS

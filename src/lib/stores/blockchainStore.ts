@@ -350,6 +350,14 @@ export function hasIncompleteReleases(assetId: string): Readable<boolean> {
 }
 
 /**
+ * User portfolio
+ */
+export const userPortfolio: Readable<UserPortfolio | null> = derived(
+  blockchainState,
+  $state => $state.userPortfolio
+);
+
+/**
  * Loading and error states
  */
 export const isLoading: Readable<boolean> = derived(
