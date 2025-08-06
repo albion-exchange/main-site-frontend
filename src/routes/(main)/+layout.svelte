@@ -1,9 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { createQuery } from '@tanstack/svelte-query';
-	import { getSftMetadata } from '$lib/queries/getSftMetadata';
-	import { getSfts } from '$lib/queries/getSfts';
-	import { sftMetadata, sfts } from '$lib/stores';
+	import { syncBlockchainData, syncUserData, isInitialized, syncError } from '$lib/stores/blockchainStore';
 	import { onMount } from 'svelte';
 	import { web3Modal, signerAddress, connected, loading, disconnectWagmi } from 'svelte-wagmi';
 	import { formatAddress } from '$lib/utils/formatters';
@@ -38,7 +35,15 @@
 		// The form will handle the actual submission
 	}
 	
-	onMount(() => {
+	onMount(async () => {
+		// Sync blockchain data on app load
+		await syncBlockchainData();
+		
+		// If user is connected, sync their data
+		if ($signerAddress) {
+			await syncUserData($signerAddress);
+		}
+		
 		// Add event listener to the form
 		const form = document.getElementById('mc-embedded-subscribe-form');
 		if (form) {
@@ -53,24 +58,16 @@
 		};
 	});
 
-	$: query = createQuery({
-		queryKey: ['getSftMetadata'],
-		queryFn: () => {
-			return getSftMetadata();
-		}
-	});
-	$: if ($query && $query.data) {
-		sftMetadata.set($query.data);
+	// Sync user data when wallet connects/changes
+	$: if ($signerAddress) {
+		syncUserData($signerAddress);
+	} else {
+		syncUserData(''); // Clear user data when disconnected
 	}
-
-	$: vaultQuery = createQuery({
-		queryKey: ['getSfts'],
-		queryFn: () => {
-			return getSfts();
-		}
-	});
-	$: if ($vaultQuery && $vaultQuery.data) {
-		sfts.set($vaultQuery.data);
+	
+	// Watch for sync errors
+	$: if ($syncError) {
+		console.error('Blockchain sync error:', $syncError);
 	}
 	
 
