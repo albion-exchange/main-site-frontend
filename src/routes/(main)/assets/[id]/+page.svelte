@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getAssetById, hasIncompleteReleases } from '$lib/stores/blockchainStore';
+	import { getAssetById, hasIncompleteReleases } from '$lib/stores/tokenStore';
 	import { PageLayout, ContentSection } from '$lib/components/layout';
 	import AssetDetailHeader from '$lib/components/patterns/assets/AssetDetailHeader.svelte';
 	import AssetOverviewTab from '$lib/components/patterns/assets/AssetOverviewTab.svelte';

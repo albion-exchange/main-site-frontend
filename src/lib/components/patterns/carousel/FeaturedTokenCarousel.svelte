@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
-	import { allAssets } from '$lib/stores/blockchainStore';
+	import { allAssets } from '$lib/stores/tokenStore';
 	import type { Token, Asset } from '$lib/types/uiTypes';
 	import { Button, FormattedNumber, FormattedReturn } from '$lib/components/components';
 	import { formatCurrency, formatTokenSupply, formatSmartReturn, formatSmartNumber } from '$lib/utils/formatters';

@@ -2,7 +2,7 @@
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
 	import { AssetCard } from '$lib/components/patterns';
 	import { getImageUrl } from '$lib/utils/imagePath';
-	import { allAssets, isInitialized, platformStats } from '$lib/stores/blockchainStore';
+	import { allAssets, isInitialized, platformStats } from '$lib/stores/tokenStore';
 	
 	// Filter state
 	let sortBy: 'name' | 'apy' | 'recent' = 'name';

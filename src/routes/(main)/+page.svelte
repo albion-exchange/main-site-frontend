@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { platformStats, formattedPlatformStats } from '$lib/stores/blockchainStore';
+	import { platformStats, formattedPlatformStats } from '$lib/stores/tokenStore';
 	import FeaturedTokenCarousel from '$lib/components/patterns/carousel/FeaturedTokenCarousel.svelte';
 	import TokenPurchaseWidget from '$lib/components/patterns/TokenPurchaseWidget.svelte';
 	import { Button, StatsCard } from '$lib/components/components';
