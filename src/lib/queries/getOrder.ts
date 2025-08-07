@@ -1,4 +1,5 @@
 import { BASE_ORDERBOOK_SUBGRAPH_URL } from "$lib/network";
+import { graphqlWithRetry } from "$lib/utils/fetchWithRetry";
 
 export const getOrder = async (orderHash: string): Promise<any> => {
   // Clean and validate the orderHash
@@ -26,23 +27,18 @@ export const getOrder = async (orderHash: string): Promise<any> => {
     `;
 
   try {
-    const response = await fetch(BASE_ORDERBOOK_SUBGRAPH_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query }),
-    });
+    const result = await graphqlWithRetry<{ orders: any[] }>(
+      BASE_ORDERBOOK_SUBGRAPH_URL,
+      query,
+      undefined,
+      { 
+        maxRetries: 3, 
+        onRetry: (attempt, delay) => 
+          console.log(`Retrying getOrder (attempt ${attempt}) after ${delay}ms`) 
+      }
+    );
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const result = await response.json();
-
-    if (result.errors) {
-      return null;
-    }
-
-    return result.data?.orders || [];
+    return result.orders || [];
   } catch {
     return null;
   }

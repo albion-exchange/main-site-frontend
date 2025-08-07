@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { syncBlockchainData, syncUserData, isInitialized, syncError } from '$lib/stores/blockchainStore';
+	import { syncTokenData, isInitialized, syncError } from '$lib/stores/tokenStore';
+	import { syncPortfolioData } from '$lib/stores/portfolioStore';
+	import { syncClaimsData } from '$lib/stores/claimsStore';
 	import { onMount } from 'svelte';
 	import { web3Modal, signerAddress, connected, loading, disconnectWagmi } from 'svelte-wagmi';
 	import { formatAddress } from '$lib/utils/formatters';
@@ -36,12 +38,15 @@
 	}
 	
 	onMount(async () => {
-		// Sync blockchain data on app load
-		await syncBlockchainData();
+		// Sync token data on app load
+		await syncTokenData();
 		
 		// If user is connected, sync their data
 		if ($signerAddress) {
-			await syncUserData($signerAddress);
+			await Promise.all([
+				syncPortfolioData($signerAddress),
+				syncClaimsData($signerAddress)
+			]);
 		}
 		
 		// Add event listener to the form
@@ -60,9 +65,14 @@
 
 	// Sync user data when wallet connects/changes
 	$: if ($signerAddress) {
-		syncUserData($signerAddress);
+		Promise.all([
+			syncPortfolioData($signerAddress),
+			syncClaimsData($signerAddress)
+		]);
 	} else {
-		syncUserData(''); // Clear user data when disconnected
+		// Clear user data when disconnected
+		syncPortfolioData('');
+		syncClaimsData('');
 	}
 	
 	// Watch for sync errors
