@@ -1,15 +1,21 @@
 <script lang="ts">
 	import { web3Modal, signerAddress, connected } from 'svelte-wagmi';
 	import { 
-		userPortfolio, 
-		isLoading, 
-		syncError,
-		syncUserData
-	} from '$lib/stores/blockchainStore';
+		portfolioStore,
+		isLoadingPortfolio as isLoading,
+		portfolioError as syncError,
+		syncPortfolioData as syncUserData,
+		portfolioChartData,
+		recentTransactions
+	} from '$lib/stores/portfolioStore';
+	import {
+		claimsStore,
+		syncClaimsData
+	} from '$lib/stores/claimsStore';
 	import { 
 		Card, CardContent, CardActions, Button, 
 		StatusBadge, TabNavigation, StatsCard, SectionTitle, ActionCard, 
-		TabButton, Chart, BarChart, PieChart, CollapsibleSection, FormattedNumber 
+		TabButton, Chart, PieChart, CollapsibleSection, FormattedNumber 
 	} from '$lib/components/components';
 	import { PageLayout, HeroSection, ContentSection, FullWidthSection } from '$lib/components/layout';
 	import { formatCurrency, formatPercentage, formatNumber } from '$lib/utils/formatters';
@@ -48,31 +54,26 @@
 	// Sync user data when wallet connects/changes
 	$: if ($signerAddress) {
 		syncUserData($signerAddress);
+		syncClaimsData($signerAddress);
 	}
 
 	// Update loading state
 	$: pageLoading = $isLoading;
 
 	// Portfolio metrics from store
-	$: totalInvested = $userPortfolio?.totalInvested || 0;
-	$: totalPayoutsEarned = $userPortfolio?.totalEarned || 0;
-	$: unclaimedPayout = $userPortfolio?.unclaimedAmount || 0;
-	$: holdings = $userPortfolio?.holdings || [];
+	$: totalInvested = $portfolioStore?.stats?.totalValue || 0;
+	$: totalPayoutsEarned = $claimsStore?.totalEarned || 0;
+	$: unclaimedPayout = $claimsStore?.unclaimedPayout || 0;
+	$: holdings = $portfolioStore?.holdings || [];
 	$: activeAssetsCount = holdings.length;
-	$: monthlyPayouts = $userPortfolio?.monthlyPayouts || [];
-	$: tokenAllocations = holdings.map(holding => {
-		const totalPortfolioValue = holdings.reduce((sum, h) => sum + h.invested, 0);
-		const allocationPercentage = totalPortfolioValue > 0 ? (holding.invested / totalPortfolioValue) * 100 : 0;
-		
-		return {
-			assetId: holding.id,
-			assetName: holding.asset.name,
-			tokenSymbol: holding.tokenSymbol,
-			tokensOwned: holding.tokensOwned,
-			currentValue: holding.invested,
-			percentageOfPortfolio: allocationPercentage
-		};
-	});
+	$: tokenAllocations = holdings.map(holding => ({
+		assetId: holding.token.address,
+		assetName: holding.token.name,
+		tokenSymbol: holding.token.symbol || holding.token.name,
+		tokensOwned: Number(formatEther(holding.balance)),
+		currentValue: holding.value,
+		percentageOfPortfolio: holding.percentage
+	}));
 
 	onMount(() => {
 		unflipAll();
@@ -570,21 +571,9 @@
 					<!-- Performance Charts -->
 					<div class="lg:col-span-2 bg-white border border-light-gray rounded-lg p-6">
 						<h4 class="text-lg font-extrabold text-black mb-4">Cash Flow Analysis</h4>
-						{#if monthlyPayouts.length > 0}
-							<BarChart
-								data={monthlyPayouts.map(p => ({ label: p.month, value: p.amount }))}
-								width={640}
-								height={300}
-								barColor="#08bccc"
-								valuePrefix="$"
-								animate={true}
-								showGrid={true}
-							/>
-						{:else}
-							<div class="text-center py-20 text-black opacity-70">
-								No transaction data available
-							</div>
-						{/if}
+						<div class="text-center py-20 text-black opacity-70">
+							No transaction data available
+						</div>
 					</div>
 
 					<!-- Metrics Cards -->

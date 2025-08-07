@@ -2,6 +2,7 @@ import {
     BASE_SFT_SUBGRAPH_URL,
     ENERGY_FIELDS,
   } from "$lib/network";
+import { graphqlWithRetry } from "$lib/utils/fetchWithRetry";
   
   export const getAllDeposits = async (
     ownerAddress: string,
@@ -33,23 +34,18 @@ import {
       `;
   
     try {
-      const response = await fetch(BASE_SFT_SUBGRAPH_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
-      });
+      const result = await graphqlWithRetry<{ depositWithReceipts: any[] }>(
+        BASE_SFT_SUBGRAPH_URL,
+        query,
+        undefined,
+        { 
+          maxRetries: 3, 
+          onRetry: (attempt, delay) => 
+            console.log(`Retrying getAllDeposits (attempt ${attempt}) after ${delay}ms`) 
+        }
+      );
   
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const result = await response.json();
-  
-      if (result.errors) {
-        return null;
-      }
-  
-      return result.data?.depositWithReceipts || [];
+      return result.depositWithReceipts || [];
     } catch {
       return null;
     }

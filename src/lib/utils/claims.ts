@@ -1,10 +1,10 @@
 import { ORDERBOOK_CONTRACT_ADDRESS } from "$lib/network";
 import { SimpleMerkleTree } from "@openzeppelin/merkle-tree";
 import { AbiCoder } from "ethers";
-import axios from "axios";
 import { ethers, Signature } from "ethers";
 import { Wallet, keccak256, hashMessage, getBytes, concat } from "ethers";
 import { formatEther, parseEther } from "viem";
+import { fetchJsonWithRetry, fetchWithRetry } from "$lib/utils/fetchWithRetry";
 
 const HYPERSYNC_URL = "https://8453.hypersync.xyz/query";
 const CONTEXT_EVENT_TOPIC =
@@ -173,7 +173,11 @@ export async function validateIPFSContent(
     }
 
     // Fetch and validate content is accessible
-    const response = await fetch(ipfsUrl);
+    const response = await fetchWithRetry(ipfsUrl, undefined, {
+      maxRetries: 3,
+      onRetry: (attempt, delay) => 
+        console.log(`Retrying IPFS fetch (attempt ${attempt}) after ${delay}ms`)
+    });
     if (!response.ok) {
       return {
         isValid: false,
@@ -215,7 +219,11 @@ export async function fetchAndValidateCSV(
     }
 
     // Step 2: Fetch CSV data
-    const response = await fetch(csvLink);
+    const response = await fetchWithRetry(csvLink, undefined, {
+      maxRetries: 3,
+      onRetry: (attempt, delay) => 
+        console.log(`Retrying CSV fetch (attempt ${attempt}) after ${delay}ms`)
+    });
     if (!response.ok) {
       return null;
     }
@@ -388,26 +396,33 @@ async function fetchLogs(
 
   while (currentBlock <= endBlock) {
     try {
-      const queryResponse = await axios.post(client, {
-        from_block: currentBlock,
-        logs: [
-          {
-            address: [poolContract],
-            topics: [[eventTopic]],
-          },
-        ],
-        field_selection: {
-          log: [
-            "block_number",
-            "log_index",
-            "transaction_index",
-            "transaction_hash",
-            "data",
-            "address",
-            "topic0",
+      const queryResponse = await fetchJsonWithRetry<any>(client, {
+        method: 'POST',
+        body: JSON.stringify({
+          from_block: currentBlock,
+          logs: [
+            {
+              address: [poolContract],
+              topics: [[eventTopic]],
+            },
           ],
-          block: ["number", "timestamp"],
-        },
+          field_selection: {
+            log: [
+              "block_number",
+              "log_index",
+              "transaction_index",
+              "transaction_hash",
+              "data",
+              "address",
+              "topic0",
+            ],
+            block: ["number", "timestamp"],
+          },
+        })
+      }, {
+        maxRetries: 3,
+        onRetry: (attempt, delay) => 
+          console.log(`Retrying HyperSync query (attempt ${attempt}) after ${delay}ms`)
       });
 
       // Concatenate logs if there are any

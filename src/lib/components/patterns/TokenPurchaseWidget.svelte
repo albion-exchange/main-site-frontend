@@ -2,7 +2,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { fly, fade } from 'svelte/transition';
 	import { get } from 'svelte/store';
-	import { getAssetById, getTokenByAddress, allAssets, blockchainState } from '$lib/stores/blockchainStore';
+	import { getAssetById, getTokenByAddress, allAssets, blockchainState } from '$lib/stores/tokenStore';
 	import type { Asset, Token } from '$lib/types/uiTypes';
 	import { readContract, writeContract, waitForTransactionReceipt, simulateContract } from '@wagmi/core';
 	import { signerAddress, wagmiConfig } from 'svelte-wagmi';

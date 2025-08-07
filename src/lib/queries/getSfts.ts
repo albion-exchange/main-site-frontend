@@ -1,4 +1,5 @@
 import { BASE_SFT_SUBGRAPH_URL } from "$lib/network";
+import { graphqlWithRetry } from "$lib/utils/fetchWithRetry";
 
 export const getSfts = async (): Promise<any> => {
   const query = `
@@ -209,13 +210,16 @@ export const getSfts = async (): Promise<any> => {
           }
     `;
 
-  const response = await fetch(BASE_SFT_SUBGRAPH_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
-  });
+  const result = await graphqlWithRetry<{ offchainAssetReceiptVaults: any[] }>(
+    BASE_SFT_SUBGRAPH_URL,
+    query,
+    undefined,
+    { 
+      maxRetries: 3, 
+      onRetry: (attempt, delay) => 
+        console.log(`Retrying getSfts (attempt ${attempt}) after ${delay}ms`) 
+    }
+  );
 
-  const json = await response.json();
-
-  return json.data.offchainAssetReceiptVaults;
+  return result.offchainAssetReceiptVaults;
 };
