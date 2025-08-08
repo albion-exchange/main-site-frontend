@@ -43,6 +43,10 @@ export interface TokenMetadata {
   payoutData: PayoutData[];
   asset: AssetData;
   metadata: Metadata;
+  
+  // Compatibility properties for UI components
+  address: string; // Alias for contractAddress
+  name: string; // Alias for releaseName
 }
 
 export interface PayoutData {

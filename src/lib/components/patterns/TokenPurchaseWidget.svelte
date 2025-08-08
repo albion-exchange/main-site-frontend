@@ -4,6 +4,7 @@
 	import { get } from 'svelte/store';
 	import { getAssetById, getTokenByAddress, allAssets, blockchainState } from '$lib/stores/tokenStore';
 	import type { Asset, Token } from '$lib/types/uiTypes';
+	import type { TokenMetadata } from '$lib/types/MetaboardTypes';
 	import { readContract, writeContract, waitForTransactionReceipt, simulateContract } from '@wagmi/core';
 	import { signerAddress, wagmiConfig } from 'svelte-wagmi';
 	import { formatEther, parseUnits, type Hex } from 'viem';
@@ -29,9 +30,9 @@
 
 	// Data
 	let assetData: Asset | null = null;
-	let tokenData: Token | null = null;
+	let tokenData: TokenMetadata | null = null;
 	let supply: any = null;
-	let currentSft: OffchainAssetReceiptVault;
+	let currentSft: OffchainAssetReceiptVault | null = null;
 
 	// Reactive calculations
 	$: if (isOpen && (tokenAddress || assetId)) {
@@ -70,7 +71,7 @@
 				const assets = get(allAssets);
 				for (const assetWithTokens of assets) {
 					const hasToken = assetWithTokens.tokens.some(t => 
-						t.contractAddress.toLowerCase() === tokenAddress.toLowerCase()
+						t.contractAddress.toLowerCase() === tokenAddress!.toLowerCase()
 					);
 					if (hasToken) {
 						assetData = assetWithTokens.asset;
@@ -81,8 +82,8 @@
 				// Get the raw SFT data for contract interactions
 				const state = get(blockchainState);
 				currentSft = state.rawSfts.find(sft => 
-					sft.id.toLowerCase() === tokenAddress.toLowerCase()
-				);
+					sft.id.toLowerCase() === tokenAddress!.toLowerCase()
+				) || null;
 				
 				if (currentSft) {
 					const sftMaxSharesSupply = await readContract($wagmiConfig, {
@@ -115,8 +116,8 @@
 							// Get the raw SFT data
 							const state = get(blockchainState);
 							currentSft = state.rawSfts.find(sft => 
-								sft.id.toLowerCase() === tokenAddress.toLowerCase()
-							);
+								sft.id.toLowerCase() === tokenAddress!.toLowerCase()
+							) || null;
 							
 							if (currentSft) {
 								supply = {
@@ -149,6 +150,10 @@
 
 		try {
 			// Get payment token and decimals
+			if (!currentSft) {
+				throw new Error('Token data not found');
+			}
+			
 			const paymentToken = await readContract($wagmiConfig, {
 				abi: authorizerAbi,
 				address: currentSft.activeAuthorizer?.address as Hex,
@@ -309,7 +314,7 @@
 							{/if}
 						</h2>
 						{#if tokenData && assetData}
-							<a href="/assets/{getEnergyFieldId(tokenData.contractAddress)}" class={viewDetailsClasses}>
+							<a href="/assets/{assetData.id}" class={viewDetailsClasses}>
 								View Details →
 							</a>
 						{/if}

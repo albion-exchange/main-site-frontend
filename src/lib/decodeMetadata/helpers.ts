@@ -78,7 +78,7 @@ export function encodeCBORStructure(structure: string, schemaHash: string) {
   if (typeof structure === "object") {
     structure = JSON.stringify(structure);
   }
-  const deflatedData = ethers.getBytes(deflateJson(structure)).buffer;
+  const deflatedData = ethers.getBytes(deflateJson(structure)).buffer as ArrayBuffer;
   return cborEncode(
     deflatedData,
     MAGIC_NUMBERS.OA_STRUCTURE,

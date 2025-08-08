@@ -137,6 +137,10 @@ export function generateTokenMetadataInstanceFromSft(
       createdAt: new Date(Number(sft.deployTimestamp) * 1000).toISOString(),
       updatedAt: new Date(Number(sft.deployTimestamp) * 1000).toISOString(),
     },
+    
+    // Compatibility properties for UI components
+    address: sft.id, // Alias for contractAddress
+    name: pinnedMetadata.releaseName, // Alias for releaseName
   };
 
   return tokenInstance;

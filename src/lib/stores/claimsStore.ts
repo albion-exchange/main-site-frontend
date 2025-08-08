@@ -74,22 +74,34 @@ async function fetchFieldClaims(
   walletAddress: string
 ): Promise<ClaimHistory[]> {
   const field = ENERGY_FIELDS.find(f => f.name === fieldName);
-  if (!field?.claims) return [];
+  if (!field) return [];
 
-  try {
-    // Fetch and validate CSV
-    const csvData = await fetchAndValidateCSV(field.claims);
-    if (!csvData) return [];
+  const allClaims: ClaimHistory[] = [];
+  
+  // Iterate through all SFT tokens in this field
+  for (const sftToken of field.sftTokens) {
+    for (const claim of sftToken.claims) {
+      try {
+        // Fetch and validate CSV
+        const csvData = await fetchAndValidateCSV(
+          claim.csvLink,
+          claim.expectedMerkleRoot,
+          claim.expectedContentHash
+        );
+        if (!csvData) continue;
 
-    // Sort and filter for this wallet
-    const sortedData = sortClaimsData(csvData);
-    return sortedData.filter(
-      claim => claim.Wallet.toLowerCase() === walletAddress.toLowerCase()
-    );
-  } catch (error) {
-    console.error(`Failed to fetch claims for ${fieldName}:`, error);
-    return [];
+        // Filter for this wallet (sorting will be done later with trades)
+        const walletClaims = csvData.filter(
+          (c: any) => c.Wallet?.toLowerCase() === walletAddress.toLowerCase()
+        );
+        allClaims.push(...walletClaims);
+      } catch (error) {
+        console.error(`Failed to fetch claim ${claim.orderHash}:`, error);
+      }
+    }
   }
+  
+  return allClaims;
 }
 
 /**
@@ -176,7 +188,7 @@ export async function syncClaimsData(walletAddress?: string): Promise<void> {
     
     // Process each energy field in parallel
     const fieldPromises = ENERGY_FIELDS.map(async field => {
-      if (!field.claims) return null;
+      if (!field.sftTokens || field.sftTokens.length === 0) return null;
       
       // Fetch CSV data
       const fieldClaims = await fetchFieldClaims(field.name, address);
