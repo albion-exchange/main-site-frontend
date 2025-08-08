@@ -12,11 +12,42 @@ import type { TokenMetadata } from '$lib/types/MetaboardTypes';
 import { formatEther } from 'viem';
 
 // Portfolio Types
+export interface PayoutHistoryRecord {
+  date: string; // ISO date string
+  amount: number; // USD amount
+}
+
 export interface TokenHolding {
+  id: string; // Unique identifier for this holding (used for UI state management)
   token: TokenMetadata;
   balance: bigint;
   value: number;
   percentage: number;
+  
+  // Asset information (derived from token.asset)
+  asset: {
+    name: string;
+    coverImage?: string;
+    location?: {
+      state?: string;
+      country?: string;
+    };
+  };
+  
+  // Display properties
+  tokenSymbol: string; // Token symbol for display
+  tokensOwned: number; // Formatted number of tokens owned
+  status: string; // Production status (e.g., 'producing', 'development')
+  
+  // Financial properties
+  invested: number; // Original investment amount in USD
+  earned: number; // Total payouts earned in USD
+  capitalReturned: number; // Capital returned as percentage (0-100)
+  assetDepletion: number; // Asset depletion percentage (0-100)  
+  unrecoveredCapital: number; // Capital yet to be recovered in USD
+  
+  // Historical data
+  payoutHistory: PayoutHistoryRecord[]; // Monthly payout history for charts
 }
 
 export interface PortfolioStats {
@@ -109,12 +140,41 @@ export async function syncPortfolioData(walletAddress?: string): Promise<void> {
         // Calculate current value (simplified - would need price data)
         const balance = BigInt(deposit.shares);
         const value = Number(formatEther(balance)) * 100; // Placeholder price
+        const tokensOwned = Number(formatEther(balance));
+        
+        // Extract asset information from token metadata
+        const assetInfo = {
+          name: tokenMeta.asset?.assetName || 'Unknown Asset',
+          coverImage: tokenMeta.asset?.coverImage,
+          location: {
+            state: tokenMeta.asset?.location?.state,
+            country: tokenMeta.asset?.location?.country
+          }
+        };
+        
+        // Calculate financial metrics (placeholder calculations)
+        const invested = value; // Simplified: assume current value = invested
+        const earned = 0; // Would calculate from payout history
+        const capitalReturned = 0; // Would calculate from payouts vs investment
+        const assetDepletion = 0; // Would get from asset data
+        const unrecoveredCapital = Math.max(0, invested - earned);
         
         holdings.push({
+          id: `${deposit.vault}-${deposit.id}`, // Unique ID for this holding
           token: tokenMeta,
           balance,
           value,
-          percentage: 0 // Will calculate after all holdings processed
+          percentage: 0, // Will calculate after all holdings processed
+          asset: assetInfo,
+          tokenSymbol: tokenMeta.symbol || 'UNKNOWN',
+          tokensOwned,
+          status: tokenMeta.asset?.production?.status || 'unknown',
+          invested,
+          earned,
+          capitalReturned,
+          assetDepletion,
+          unrecoveredCapital,
+          payoutHistory: [] // Would populate from tokenMeta.payoutData
         });
       }
       
