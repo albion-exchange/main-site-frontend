@@ -845,15 +845,15 @@
 									<div class="absolute inset-0 backface-hidden rotate-y-180 bg-white">
 										<div class="p-8 flex flex-col h-full">
 											<div class="flex justify-between items-center mb-6">
-											<h4 class="text-xl font-extrabold text-black uppercase tracking-wider">Distributions History</h4>
-											<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCardFlip(token.contractAddress); }} role="button" tabindex="0">
-												<SecondaryButton>
-													← Back
-												</SecondaryButton>
+												<h4 class="text-xl font-extrabold text-black uppercase tracking-wider">Distributions History</h4>
+												<div on:click|stopPropagation={() => toggleCardFlip(token.contractAddress)} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCardFlip(token.contractAddress); }} role="button" tabindex="0">
+													<SecondaryButton>
+														← Back
+													</SecondaryButton>
+												</div>
 											</div>
-										</div>
-										
-										{#if tokenPayoutData?.recentPayouts && tokenPayoutData.recentPayouts.length > 0}
+											
+											{#if tokenPayoutData?.recentPayouts && tokenPayoutData.recentPayouts.length > 0}
 											<div class="flex-1 flex flex-col">
 												<div class="grid grid-cols-3 gap-2 text-xs font-bold text-black uppercase tracking-wider border-b border-light-gray pb-2 mb-4">
 													<div class="text-left">Month</div>
@@ -880,9 +880,12 @@
 											</div>
 										{:else}
 											<div class="text-center py-8 text-black opacity-70 flex-1 flex flex-col justify-center">
-												<p class="text-base">No payment distributions made yet</p>
+												<p class="text-sm font-semibold mb-2">No distributions yet</p>
+												<p class="text-xs">No distributions have been made yet.</p>
+												<p class="text-xs">Distributions will appear here once payouts begin.</p>
 											</div>
 										{/if}
+										</div>
 									</div>
 								</div>
 						</CardContent>
