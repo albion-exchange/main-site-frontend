@@ -706,7 +706,8 @@
 						{@const hasAvailableSupply = supply && supply.availableSupply > 0}
 						{@const tokenPayoutData = getTokenPayoutHistory(token)}
 						{@const latestPayout = tokenPayoutData?.recentPayouts?.[0]}
-						{@const calculatedReturns = calculateTokenReturns(assetData!, token)}
+						{@const sft = $sfts?.find(s => s.id.toLowerCase() === token.contractAddress.toLowerCase())}
+						{@const calculatedReturns = calculateTokenReturns(assetData!, token, sft?.totalShares)}
 						{@const isFlipped = flippedCards.has(token.contractAddress)}
 						<div id="token-{token.contractAddress}">
 							<Card hoverable clickable paddingClass="p-0" on:click={() => handleCardClick(token.contractAddress)}>

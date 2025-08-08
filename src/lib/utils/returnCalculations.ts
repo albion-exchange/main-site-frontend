@@ -54,11 +54,13 @@ function calculateIRR(cashFlows: number[]): number {
  * Using IRR methodology as specified
  * @param asset Asset data containing planned production
  * @param token Token data containing supply and share percentage
+ * @param onChainMintedSupply Optional on-chain minted supply (in wei) to use for bonus calculation
  * @returns Calculated returns and metrics
  */
 export function calculateTokenReturns(
   asset: Asset,
   token: TokenMetadata,
+  onChainMintedSupply?: string,
 ): TokenReturns {
   if (!asset.plannedProduction || !token.sharePercentage) {
     return {
@@ -89,10 +91,24 @@ export function calculateTokenReturns(
     typeof token.supply?.maxSupply === "string"
       ? Number(BigInt(token.supply.maxSupply) / BigInt(10 ** token.decimals))
       : Number(token.supply?.maxSupply || 0);
-  const mintedSupply =
-    typeof token.supply?.mintedSupply === "string"
-      ? Number(BigInt(token.supply.mintedSupply) / BigInt(10 ** token.decimals))
-      : Number(token.supply?.mintedSupply || 0);
+  
+  // ALWAYS use on-chain minted supply for accurate bonus calculation
+  // Never trust IPFS metadata for minted supply as it's not updated in real-time
+  let mintedSupply: number;
+  if (onChainMintedSupply) {
+    // On-chain value is in wei, convert to token units
+    // If it's "0" or any falsy value, this will correctly evaluate to 0
+    try {
+      mintedSupply = Number(BigInt(onChainMintedSupply) / BigInt(10 ** token.decimals));
+    } catch {
+      // If BigInt conversion fails, default to 0
+      mintedSupply = 0;
+    }
+  } else {
+    // No on-chain data provided, default to 0
+    // This ensures we never use stale IPFS data
+    mintedSupply = 0;
+  }
 
   // Build cash flows for IRR calculation
   // Start with initial investment of -$1 at month 0
@@ -119,15 +135,25 @@ export function calculateTokenReturns(
     totalProduction += projection.production;
   }
 
-  // Calculate monthly IRR
+  // Calculate returns
+  let baseReturn: number;
+  let bonusReturn: number;
+  
+  // Calculate base return (using max supply)
   const monthlyIRRBase = calculateIRR(baseCashFlows);
-  const monthlyIRRMinted = mintedSupply > 0 ? calculateIRR(mintedCashFlows) : 0;
-
-  // Convert monthly IRR to annual: (1 + monthly_rate)^12 - 1
-  const baseReturn = (Math.pow(1 + monthlyIRRBase, 12) - 1) * 100;
-  const mintedReturn = (Math.pow(1 + monthlyIRRMinted, 12) - 1) * 100;
-
-  const bonusReturn = mintedReturn - baseReturn;
+  baseReturn = (Math.pow(1 + monthlyIRRBase, 12) - 1) * 100;
+  
+  // Calculate bonus return
+  if (mintedSupply === 0) {
+    // When no tokens are minted, the return is effectively infinite
+    // Use a very large number that will be displayed as ">10x" in the UI
+    bonusReturn = 99999999999;
+  } else {
+    // Normal calculation for non-zero minted supply
+    const monthlyIRRMinted = calculateIRR(mintedCashFlows);
+    const totalReturn = (Math.pow(1 + monthlyIRRMinted, 12) - 1) * 100;
+    bonusReturn = totalReturn - baseReturn;
+  }
 
   // Calculate implied barrels per $1 token
   // This represents how many barrels of oil each $1 investment in the token represents
@@ -160,14 +186,15 @@ const returnCache = new Map<string, TokenReturns>();
 export function getTokenReturns(
   asset: Asset,
   token: TokenMetadata,
+  onChainMintedSupply?: string,
 ): TokenReturns {
-  const cacheKey = `${asset.id}-${token.contractAddress}`;
+  const cacheKey = `${asset.id}-${token.contractAddress}-${onChainMintedSupply || 'ipfs'}`;
 
   if (returnCache.has(cacheKey)) {
     return returnCache.get(cacheKey)!;
   }
 
-  const returns = calculateTokenReturns(asset, token);
+  const returns = calculateTokenReturns(asset, token, onChainMintedSupply);
   returnCache.set(cacheKey, returns);
 
   return returns;
