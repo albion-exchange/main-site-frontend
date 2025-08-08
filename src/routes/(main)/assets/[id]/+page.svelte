@@ -854,40 +854,39 @@
 											</div>
 											
 											{#if tokenPayoutData?.recentPayouts && tokenPayoutData.recentPayouts.length > 0}
-											<div class="flex-1 flex flex-col">
-												<div class="grid grid-cols-3 gap-2 text-xs font-bold text-black uppercase tracking-wider border-b border-light-gray pb-2 mb-4">
-													<div class="text-left">Month</div>
-													<div class="text-center">Total Payments</div>
-													<div class="text-right">Per Token</div>
-												</div>
-												<div class="space-y-2 flex-1">
-													{#each tokenPayoutData.recentPayouts.slice(-6) as payout}
-														<div class="grid grid-cols-3 gap-2 text-sm">
-															<div class="text-left font-medium text-black">{payout.month}</div>
-															<div class="text-center font-semibold text-black">US${payout.totalPayout.toLocaleString()}</div>
-															<div class="text-right font-semibold text-black">US${payout.payoutPerToken.toFixed(5)}</div>
+												<div class="flex-1 flex flex-col">
+													<div class="grid grid-cols-3 gap-2 text-xs font-bold text-black uppercase tracking-wider border-b border-light-gray pb-2 mb-4">
+														<div class="text-left">Month</div>
+														<div class="text-center">Total Payments</div>
+														<div class="text-right">Per Token</div>
+													</div>
+													<div class="space-y-2 flex-1">
+														{#each tokenPayoutData.recentPayouts.slice(-6) as payout}
+															<div class="grid grid-cols-3 gap-2 text-sm">
+																<div class="text-left font-medium text-black">{payout.month}</div>
+																<div class="text-center font-semibold text-black">US${payout.totalPayout.toLocaleString()}</div>
+																<div class="text-right font-semibold text-black">US${payout.payoutPerToken.toFixed(5)}</div>
+															</div>
+														{/each}
+													</div>
+													<div class="border-t border-light-gray my-4"></div>
+													<div class="mt-auto">
+														<div class="grid grid-cols-3 gap-2 text-sm font-extrabold">
+															<div class="text-left text-black">Total</div>
+															<div class="text-center text-black">US${tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.totalPayout, 0).toLocaleString()}</div>
+															<div class="text-right text-black">US${(tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.payoutPerToken, 0)).toFixed(5)}</div>
 														</div>
-													{/each}
-												</div>
-												<div class="border-t border-light-gray my-4"></div>
-												<div class="mt-auto">
-													<div class="grid grid-cols-3 gap-2 text-sm font-extrabold">
-														<div class="text-left text-black">Total</div>
-														<div class="text-center text-black">US${tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.totalPayout, 0).toLocaleString()}</div>
-														<div class="text-right text-black">US${(tokenPayoutData.recentPayouts.reduce((sum, p) => sum + p.payoutPerToken, 0)).toFixed(5)}</div>
 													</div>
 												</div>
-											</div>
-										{:else}
-											<div class="text-center py-8 text-black opacity-70 flex-1 flex flex-col justify-center">
-												<p class="text-sm font-semibold mb-2">No distributions yet</p>
-												<p class="text-xs">No distributions have been made yet.</p>
-												<p class="text-xs">Distributions will appear here once payouts begin.</p>
-											</div>
-										{/if}
+											{:else}
+												<div class="text-center py-8 text-black opacity-70 flex-1 flex flex-col justify-center">
+													<p class="text-sm font-semibold mb-2">No distributions yet</p>
+													<p class="text-xs">No distributions have been made yet.</p>
+													<p class="text-xs">Distributions will appear here once payouts begin.</p>
+												</div>
+											{/if}
 										</div>
 									</div>
-								</div>
 						</CardContent>
 					</Card>
 				</div>
