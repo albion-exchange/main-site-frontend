@@ -566,11 +566,14 @@ export class TypeTransformations {
       uiAsset.production.expectedRemainingProduction = totalPlannedProduction ? formatSmartNumber(totalPlannedProduction, { suffix: ' boe' }) : 'TBD';
     }
 
-    // Set current production from latest monthly report
-    if (uiAsset.monthlyReports && uiAsset.monthlyReports.length > 0) {
-      const latestReport =
-        uiAsset.monthlyReports[uiAsset.monthlyReports.length - 1];
-      uiAsset.production.current = `${latestReport.production.toFixed(0)} BOE/month`;
+    // Set current production from most recent historical production data
+    if (assetData.historicalProduction && assetData.historicalProduction.length > 0) {
+      // Sort by month (YYYY-MM format) and get the most recent
+      const sortedProduction = [...assetData.historicalProduction].sort((a, b) => 
+        b.month.localeCompare(a.month)
+      );
+      const mostRecentProduction = sortedProduction[0];
+      uiAsset.production.current = `${mostRecentProduction.production.toFixed(0)} BOE/month`;
     }
 
     // Set planned production data
