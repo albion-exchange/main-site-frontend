@@ -27,5 +27,14 @@ export type EnergyField = {
 };
 
 export const ENERGY_FIELDS: EnergyField[] = [
-  
+  {
+    name: "Wressle-1 4.5% Royalty Stream",
+    sftTokens: [
+      {
+        address: "0xf836a500910453A397084ADe41321ee20a5AAde1",
+        claims: [
+        ],
+      },
+    ],
+  },
 ];
