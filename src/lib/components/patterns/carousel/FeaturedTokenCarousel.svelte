@@ -252,7 +252,7 @@
 	{:else if error}
 		<div class={errorStateClasses}>
 			<p>Error: {error}</p>
-			<button on:click={loadFeaturedTokensFromSfts} class={retryButtonClasses}>Retry</button>
+			<button on:click={loadFeaturedTokens} class={retryButtonClasses}>Retry</button>
 		</div>
 	{:else if featuredTokensWithAssets.length === 0}
 		<div class={emptyStateClasses}>
@@ -379,7 +379,7 @@
 					<Button variant="primary" on:click={() => handleBuyTokens(item.token.contractAddress)}>
 						Buy Tokens
 					</Button>
-					<Button variant="secondary" href="/assets/{getEnergyFieldId(item.token.contractAddress)}" >
+					<Button variant="secondary" href="/assets/{item.asset.id}" >
 						View Asset
 					</Button>
 				</div>

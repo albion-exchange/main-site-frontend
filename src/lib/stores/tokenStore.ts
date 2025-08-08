@@ -129,14 +129,14 @@ export async function syncTokenData(): Promise<void> {
 
             // Generate asset instance (only once per field)
             if (!assetInstance) {
-              assetInstance = generateAssetInstanceFromSftMeta(pinnedMetadata);
+              assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
             }
 
             // Generate token metadata with enriched data
             const tokenMetadata = generateTokenMetadataInstanceFromSft(
               sft,
               pinnedMetadata,
-              BigInt(sftMaxSharesSupply as string)
+              String(sftMaxSharesSupply)
             );
 
             tokens.push(tokenMetadata);
@@ -152,9 +152,8 @@ export async function syncTokenData(): Promise<void> {
         assets.set(fieldId, {
           asset: assetInstance,
           tokens: tokens.sort((a, b) => {
-            const dateA = new Date(a.updatedAt || 0).getTime();
-            const dateB = new Date(b.updatedAt || 0).getTime();
-            return dateB - dateA;
+            // Sort by contract address as fallback since updatedAt might not exist
+            return a.contractAddress.localeCompare(b.contractAddress);
           })
         });
       }
@@ -220,6 +219,8 @@ export const platformStats = derived(tokenStore, $store => {
   let totalShares = 0;
   let activeInvestors = new Set<string>();
   let totalTokens = 0;
+  let totalAssets = 0;
+  let countries = new Set<string>();
 
   // Calculate stats from raw SFT data
   $store.rawSfts.forEach(sft => {
@@ -235,11 +236,22 @@ export const platformStats = derived(tokenStore, $store => {
     });
   });
 
+  // Count unique assets and countries
+  $store.assets.forEach((assetData) => {
+    totalAssets++;
+    if (assetData.asset.location?.country) {
+      countries.add(assetData.asset.location.country);
+    }
+  });
+
   return {
     totalValueLocked,
     totalShares,
     activeInvestors: activeInvestors.size,
     totalTokens,
+    totalAssets,
+    totalCountries: countries.size,
+    totalInvestedMillions: totalValueLocked / 1000000, // Convert to millions
     monthlyGrowthRate: 2 // TODO: Calculate from historical data
   };
 });

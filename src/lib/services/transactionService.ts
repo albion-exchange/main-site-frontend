@@ -134,7 +134,7 @@ export async function purchaseToken({
       args: [userAddress as Hex]
     });
 
-    if (BigInt(userBalance as string) < amountInWei) {
+    if (userBalance < amountInWei) {
       throw new Error('Insufficient balance');
     }
 
@@ -147,7 +147,7 @@ export async function purchaseToken({
     });
 
     // Approve if needed
-    if (BigInt(currentAllowance as string) < amountInWei) {
+    if (currentAllowance < amountInWei) {
       updateStatus({ 
         status: 'approving', 
         message: 'Requesting token approval...' 
