@@ -230,7 +230,18 @@ export function generateAssetInstanceFromSftMeta(
       },
     },
     production: {
-      current: asset.production.current,
+      current: (() => {
+        // Calculate current production from most recent historical production
+        if (asset.historicalProduction && asset.historicalProduction.length > 0) {
+          const sortedProduction = [...asset.historicalProduction].sort((a: any, b: any) => 
+            b.month.localeCompare(a.month)
+          );
+          const mostRecentProduction = sortedProduction[0];
+          return `${mostRecentProduction.production.toFixed(0)} BOE/month`;
+        }
+        // Fallback to the original value
+        return asset.production.current;
+      })(),
       status: asset.production.status,
       units: {
         production: asset.production.units?.production || 0,

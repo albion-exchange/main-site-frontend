@@ -12,7 +12,13 @@ import type {
   ISODateOnlyString,
   ISOYearMonthString,
 } from "./sharedTypes";
-import type { Display } from "./transformations";
+
+// Asset Terms for display
+export interface AssetTerms {
+  interestType: string;
+  amount: string; // "3.2% of gross"
+  paymentFrequency: string; // "Monthly within 30 days"
+}
 
 // AssetLocation extends the shared Location type with optional waterDepth
 export interface AssetLocation extends Omit<Location, "waterDepth"> {
@@ -112,8 +118,8 @@ export interface Asset {
   operator: AssetOperator;
   technical: AssetTechnical;
   production: AssetProduction;
-  assetTerms?: Display.AssetTerms;
-  terms?: Display.AssetTerms; // Alias for assetTerms
+  assetTerms?: AssetTerms;
+  terms?: AssetTerms; // Alias for assetTerms
   pricing?: {
     benchmarkPremium: string;
     transportCosts: string;
@@ -307,7 +313,7 @@ export interface AssetTemplate {
       transportCosts: string;
     };
   };
-  assetTerms: Display.AssetTerms;
+  assetTerms: AssetTerms;
   production: {
     current: string;
     status: "funding" | "producing" | "completed";

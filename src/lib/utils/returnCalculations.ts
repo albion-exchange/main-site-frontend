@@ -18,8 +18,40 @@ export interface TokenReturns {
 }
 
 /**
+ * Calculate IRR (Internal Rate of Return) using Newton's method
+ * @param cashFlows Array of cash flows where index 0 is the initial investment (negative)
+ * @returns IRR as a decimal (e.g., 0.12 for 12%)
+ */
+function calculateIRR(cashFlows: number[]): number {
+  const maxIterations = 100;
+  const tolerance = 1e-7;
+  let rate = 0.1; // Initial guess of 10%
+  
+  for (let i = 0; i < maxIterations; i++) {
+    let npv = 0;
+    let dnpv = 0;
+    
+    for (let j = 0; j < cashFlows.length; j++) {
+      const factor = Math.pow(1 + rate, j);
+      npv += cashFlows[j] / factor;
+      dnpv -= j * cashFlows[j] / Math.pow(1 + rate, j + 1);
+    }
+    
+    const newRate = rate - npv / dnpv;
+    
+    if (Math.abs(newRate - rate) < tolerance) {
+      return newRate;
+    }
+    
+    rate = newRate;
+  }
+  
+  return rate;
+}
+
+/**
  * Calculate token returns based on planned production and token metrics
- * Using total return approach instead of IRR for simplicity and accuracy
+ * Using IRR methodology as specified
  * @param asset Asset data containing planned production
  * @param token Token data containing supply and share percentage
  * @returns Calculated returns and metrics
@@ -41,6 +73,17 @@ export function calculateTokenReturns(
   const { projections, oilPriceAssumption } = plannedProduction;
   const sharePercentage = token.sharePercentage / 100; // Convert to decimal
 
+  // Get pricing adjustments from asset technical data
+  const benchmarkPremium = asset.technical?.pricing?.benchmarkPremium 
+    ? parseFloat(asset.technical.pricing.benchmarkPremium.replace(/[^-\d.]/g, ''))
+    : (token.asset?.technical?.pricing?.benchmarkPremium || 0);
+  const transportCosts = asset.technical?.pricing?.transportCosts
+    ? parseFloat(asset.technical.pricing.transportCosts.replace(/[^-\d.]/g, ''))
+    : (token.asset?.technical?.pricing?.transportCosts || 0);
+
+  // Calculate adjusted oil price
+  const adjustedOilPrice = oilPriceAssumption + benchmarkPremium - transportCosts;
+
   // Convert supply to numbers
   const maxSupply =
     typeof token.supply?.maxSupply === "string"
@@ -51,46 +94,38 @@ export function calculateTokenReturns(
       ? Number(BigInt(token.supply.mintedSupply) / BigInt(10 ** token.decimals))
       : Number(token.supply?.mintedSupply || 0);
 
-  // Calculate total production and revenue over the asset life
+  // Build cash flows for IRR calculation
+  // Start with initial investment of -$1 at month 0
+  const baseCashFlows = [-1]; // Month 0: pay $1 per token
+  const mintedCashFlows = [-1]; // Month 0: pay $1 per token
+  
   let totalProduction = 0;
-  let totalRevenueBase = 0; // Using max supply
-  let totalRevenueMinted = 0; // Using minted supply
 
   for (const projection of projections) {
-    // Step 1 & 2: Production * oil price
-    const monthlyRevenue = projection.production * oilPriceAssumption;
+    // Step 1 & 2: Production * adjusted oil price (with benchmark premium and transport costs)
+    const monthlyRevenue = projection.production * adjustedOilPrice;
 
     // Step 3: Apply token's share of asset
     const tokenShareRevenue = monthlyRevenue * sharePercentage;
 
     // Step 4a: Revenue per token using max supply (base case)
     const revenuePerTokenBase = tokenShareRevenue / maxSupply;
-    totalRevenueBase += revenuePerTokenBase;
+    baseCashFlows.push(revenuePerTokenBase);
 
     // Step 4b: Revenue per token using minted supply (bonus case)
-    const revenuePerTokenMinted = tokenShareRevenue / mintedSupply;
-    totalRevenueMinted += revenuePerTokenMinted;
+    const revenuePerTokenMinted = mintedSupply > 0 ? tokenShareRevenue / mintedSupply : 0;
+    mintedCashFlows.push(revenuePerTokenMinted);
 
     totalProduction += projection.production;
   }
 
-  // Calculate time period for annualization
-  const monthsInProjection = projections.length;
-  const yearsInProjection = monthsInProjection / 12;
+  // Calculate monthly IRR
+  const monthlyIRRBase = calculateIRR(baseCashFlows);
+  const monthlyIRRMinted = mintedSupply > 0 ? calculateIRR(mintedCashFlows) : 0;
 
-  // Calculate returns as total return percentage, then annualize
-  const totalBaseReturn = (totalRevenueBase / 1) * 100; // Total % return on $1 investment
-  const totalMintedReturn = (totalRevenueMinted / 1) * 100; // Total % return on minted basis
-
-  // Annualize the returns: (Total Return)^(1/years) - 1
-  const baseReturn =
-    yearsInProjection > 0
-      ? (Math.pow(1 + totalBaseReturn / 100, 1 / yearsInProjection) - 1) * 100
-      : 0;
-  const mintedReturn =
-    yearsInProjection > 0
-      ? (Math.pow(1 + totalMintedReturn / 100, 1 / yearsInProjection) - 1) * 100
-      : 0;
+  // Convert monthly IRR to annual: (1 + monthly_rate)^12 - 1
+  const baseReturn = (Math.pow(1 + monthlyIRRBase, 12) - 1) * 100;
+  const mintedReturn = (Math.pow(1 + monthlyIRRMinted, 12) - 1) * 100;
 
   const bonusReturn = mintedReturn - baseReturn;
 
@@ -98,13 +133,16 @@ export function calculateTokenReturns(
   // This represents how many barrels of oil each $1 investment in the token represents
   // Formula: (Total barrels * share percentage) / (minted supply * $1 token price)
   // Since tokens are priced at $1, this simplifies to total barrels share / minted supply
-  const impliedBarrelsPerToken =
-    (totalProduction * sharePercentage) / mintedSupply;
+  const impliedBarrelsPerToken = mintedSupply > 0
+    ? (totalProduction * sharePercentage) / mintedSupply
+    : 0;
 
   // Calculate breakeven oil price (price needed to recover $1 per token)
   // This is the oil price where total revenue equals total token investment
   // Formula: (minted supply * $1) / (total barrels * share percentage)
-  const breakEvenOilPrice = mintedSupply / (totalProduction * sharePercentage);
+  const breakEvenOilPrice = totalProduction * sharePercentage > 0
+    ? mintedSupply / (totalProduction * sharePercentage)
+    : 0;
 
   return {
     baseReturn: Math.max(0, baseReturn),
