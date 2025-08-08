@@ -157,11 +157,11 @@ export function calculateTokenReturns(
 
   // Calculate implied barrels per $1 token
   // This represents how many barrels of oil each $1 investment in the token represents
-  // Formula: (Total barrels * share percentage) / (minted supply * $1 token price)
-  // Since tokens are priced at $1, this simplifies to total barrels share / minted supply
+  // ONLY uses on-chain minted supply - no fallbacks
+  // When no tokens are minted, the implied barrels is infinite
   const impliedBarrelsPerToken = mintedSupply > 0
     ? (totalProduction * sharePercentage) / mintedSupply
-    : 0;
+    : Infinity;
 
   // Calculate breakeven oil price (price needed to recover $1 per token)
   // This is the oil price where total revenue equals total token investment

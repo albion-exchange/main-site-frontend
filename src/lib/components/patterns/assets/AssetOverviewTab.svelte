@@ -10,14 +10,31 @@
 
 
 
-	function formatPricing(benchmarkPremium: string): string {
-		if (benchmarkPremium.startsWith('-')) {
-			return `${benchmarkPremium.substring(1)} discount`;
-		} else if (benchmarkPremium.startsWith('+')) {
-			return `${benchmarkPremium.substring(1)} premium`;
-		} else {
-			return `${benchmarkPremium} premium`;
+	function formatPricing(benchmarkPremium: string, transportCosts: string): string {
+		let pricingText = '';
+		
+		// Format benchmark premium/discount
+		if (benchmarkPremium) {
+			const value = benchmarkPremium.replace(/[^-+\d.]/g, '');
+			if (value.startsWith('-')) {
+				pricingText = `US$${value.substring(1)} discount to benchmark`;
+			} else if (value.startsWith('+')) {
+				pricingText = `US$${value.substring(1)} premium to benchmark`;
+			} else if (value !== '0') {
+				pricingText = `US$${value} premium to benchmark`;
+			}
 		}
+		
+		// Format transport costs (always show, even if zero)
+		if (transportCosts !== undefined && transportCosts !== null) {
+			const costValue = transportCosts.replace(/[^-+\d.]/g, '') || '0';
+			if (pricingText) {
+				pricingText += '\n';
+			}
+			pricingText += `US$${costValue} transport costs`;
+		}
+		
+		return pricingText || 'At benchmark';
 	}
 </script>
 
@@ -36,7 +53,7 @@
 				</div>
 				<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 					<span class="font-semibold text-black">Pricing</span>
-					<span class="text-black">{formatPricing(asset?.technical?.pricing?.benchmarkPremium || '')}, {asset?.technical?.pricing?.transportCosts}</span>
+					<span class="text-black whitespace-pre-line text-right">{formatPricing(asset?.technical?.pricing?.benchmarkPremium || '', asset?.technical?.pricing?.transportCosts || '')}</span>
 				</div>
 				<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 					<span class="font-semibold text-black">First Oil</span>
@@ -75,23 +92,23 @@
 							</div>
 						{/if}
 					</span>
-					<span class="text-black">{asset?.terms?.amount}</span>
+					<span class="text-black">{asset?.terms?.amount}%</span>
 				</div>
 				<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 					<span class="font-semibold text-black">Payment Frequency</span>
-					<span class="text-black">{asset?.terms?.paymentFrequency}</span>
+					<span class="text-black">{asset?.terms?.paymentFrequency} days</span>
 				</div>
 				<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 					<span class="font-semibold text-black">Water Depth</span>
 					<span class="text-black">{asset?.location?.waterDepth || 'Onshore'}</span>
 				</div>
-				<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
+				<div class="flex justify-between gap-4 pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 					<span class="font-semibold text-black">Infrastructure</span>
-					<span class="text-black">{asset?.technical?.infrastructure}</span>
+					<span class="text-black text-right flex-1">{asset?.technical?.infrastructure}</span>
 				</div>
-				<div class="flex justify-between pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
+				<div class="flex justify-between gap-4 pb-3 border-b border-light-gray text-base last:border-b-0 last:pb-0">
 					<span class="font-semibold text-black">Environmental</span>
-					<span class="text-black">{asset?.technical?.environmental}</span>
+					<span class="text-black text-right flex-1">{asset?.technical?.environmental}</span>
 				</div>
 			</div>
 		</div>

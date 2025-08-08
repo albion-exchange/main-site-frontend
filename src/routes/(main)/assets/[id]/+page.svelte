@@ -750,7 +750,7 @@
 															role="button"
 															tabindex="0">ⓘ</span>
 													</span>
-													<span class="text-base font-extrabold text-black text-right">{calculatedReturns?.impliedBarrelsPerToken?.toFixed(6) || '0.000000'}</span>
+													<span class="text-base font-extrabold text-black text-right">{calculatedReturns?.impliedBarrelsPerToken === Infinity ? '∞' : calculatedReturns?.impliedBarrelsPerToken?.toFixed(6) || '0.000000'}</span>
 													{#if showTooltip === 'barrels'}
 														<div class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white p-2 rounded text-xs whitespace-nowrap z-[1000] mb-[5px] max-w-[200px] whitespace-normal text-left">
 															Estimated barrels of oil equivalent per token based on reserves and token supply
@@ -880,9 +880,7 @@
 											</div>
 										{:else}
 											<div class="text-center py-8 text-black opacity-70 flex-1 flex flex-col justify-center">
-												<p class="text-sm font-semibold mb-2">No distributions yet</p>
-												<p class="text-xs">No distributions have been made yet.</p>
-												<p class="text-xs">Distributions will appear here once payouts begin.</p>
+												<p class="text-base">No payment distributions made yet</p>
 											</div>
 										{/if}
 									</div>
