@@ -36,6 +36,12 @@ export default function middleware(req: Request) {
     return;
   }
 
+  // Allow /thank-you page to bypass authentication
+  const url = new URL(req.url);
+  if (url.pathname === '/thank-you') {
+    return;
+  }
+
   // ↳ Parse the Authorization header
   const authHeader = req.headers.get('authorization') ?? '';
   const [scheme, encoded] = authHeader.split(' ');
