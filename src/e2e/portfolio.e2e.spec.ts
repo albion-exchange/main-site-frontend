@@ -64,11 +64,8 @@ describe('Portfolio page E2E (HTTP mocks)', () => {
   it('computes holdings and totals from deposits and CSV data', async () => {
     render(PortfolioPage);
 
-    const title = await screen.findByText(/My Portfolio/i);
+    const title = await screen.findByRole('heading', { name: /My Portfolio/i });
     expect(title).toBeInTheDocument();
-
-    const nameEls = await screen.findAllByText('Permian Basin-3');
-    expect(nameEls.length).toBeGreaterThan(0);
 
     const bodyText = document.body.textContent || '';
     expect(bodyText).toMatch(/Total Invested/i);

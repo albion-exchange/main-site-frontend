@@ -59,7 +59,10 @@ describe('Home page E2E (integration) with HTTP mocks', () => {
 
   it('renders hero and featured sections', async () => {
     render(HomePage);
-    expect(await screen.findByText(/Invest/i)).toBeInTheDocument();
-    expect(await screen.findByText(/Portfolio/i)).toBeInTheDocument();
+    // Check unique heading
+    expect(await screen.findByRole('heading', { name: /Institutional Grade Energy DeFi/i })).toBeInTheDocument();
+    // Check CTA buttons by role and accessible name
+    expect(await screen.findByRole('link', { name: /Explore Investments/i })).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: /Learn How It Works/i })).toBeInTheDocument();
   }, 30000);
 });

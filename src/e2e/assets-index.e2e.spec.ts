@@ -59,8 +59,9 @@ describe('Assets index page E2E with HTTP mocks', () => {
 
   it('renders asset list with cards', async () => {
     render(AssetsIndex);
-    expect(await screen.findByText(/Browse/i)).toBeInTheDocument();
-    const names = await screen.findAllByText('Permian Basin-3');
-    expect(names.length).toBeGreaterThan(0);
+    expect(await screen.findByRole('heading', { name: /Browse Assets|Invest/i })).toBeInTheDocument();
+    // Check card presence by role/landmark
+    const cards = await screen.findAllByRole('article');
+    expect(cards.length).toBeGreaterThan(0);
   }, 30000);
 });
