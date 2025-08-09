@@ -1,5 +1,7 @@
 // Reusable HTTP-level fetch mock for subgraph and IPFS endpoints
 
+import axios from 'axios';
+
 export type HttpMockConfig = {
   sftSubgraphUrl: string;
   metadataSubgraphUrl: string;
@@ -9,10 +11,12 @@ export type HttpMockConfig = {
   address: string;
   orderHash: string;
   csvCid: string;
+  hypersyncUrl?: string;
 };
 
 export function installHttpMocks(cfg: HttpMockConfig) {
   const originalFetch = globalThis.fetch;
+  const originalAxiosPost = axios.post;
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input.toString();
@@ -133,8 +137,40 @@ export function installHttpMocks(cfg: HttpMockConfig) {
     return originalFetch(input, init);
   }) as any;
 
+  if (cfg.hypersyncUrl) {
+    axios.post = (async (url: string, payload?: any) => {
+      if (url === cfg.hypersyncUrl) {
+        return {
+          data: {
+            data: [
+              {
+                blocks: [
+                  { number: 100, timestamp: '0x65f5e100' },
+                ],
+                logs: [
+                  {
+                    block_number: 100,
+                    log_index: 0,
+                    transaction_index: 0,
+                    transaction_hash: '0xtrx',
+                    data: '0x',
+                    address: '0x0000000000000000000000000000000000000000',
+                    topic0: '',
+                  },
+                ],
+              },
+            ],
+            next_block: 101,
+          },
+        } as any;
+      }
+      return originalAxiosPost(url as any, payload);
+    }) as any;
+  }
+
   return () => {
     globalThis.fetch = originalFetch;
+    axios.post = originalAxiosPost;
   };
 }
 
