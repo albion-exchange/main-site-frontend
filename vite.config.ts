@@ -6,7 +6,8 @@ export default defineConfig({
   resolve: {
     conditions: ['browser'],
     alias: {
-      ws: '/workspace/src/e2e/shims/ws.ts'
+      ws: '/workspace/src/e2e/shims/ws.ts',
+      ethers: '/workspace/src/e2e/shims/ethers.ts'
     }
   },
   test: {
