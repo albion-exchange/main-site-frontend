@@ -3,9 +3,17 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [sveltekit()],
+  resolve: {
+    conditions: ['browser'],
+    alias: {
+      ws: '/workspace/src/e2e/shims/ws.ts',
+      ethers: '/workspace/src/e2e/shims/ethers.ts'
+    }
+  },
   test: {
-    include: ["src/**/*.{test,spec}.{js,ts,jsx,tsx}"],
+    include: ["src/**/*.{test,spec}.{js,ts,jsx,tsx}", "src/e2e/**/*.{test,spec}.{js,ts}"],
     globals: true,
     environment: "jsdom",
+    setupFiles: ["./src/e2e/setup.ts"],
   },
 });
