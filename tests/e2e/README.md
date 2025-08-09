@@ -1,32 +1,55 @@
 # E2E Testing Framework
 
-This directory contains End-to-End (E2E) tests that verify the complete data flow from API calls to frontend display. The tests use the actual smart contract addresses and IPFS hashes provided to ensure realistic testing scenarios.
+This directory contains End-to-End (E2E) tests that verify the complete data flow from **actual HTTP API calls** to frontend display. The tests mock the real production endpoints, not service layers, ensuring that refactoring services won't break the tests.
 
 ## Overview
 
 The E2E tests verify that:
-1. **API calls work correctly** - IPFS metadata, blockchain data, CSV claims
-2. **Data transformation is accurate** - Services process raw data correctly  
-3. **Frontend calculations are correct** - Portfolio totals, claims, payouts
-4. **Data integrity is maintained** - Merkle roots, content hashes, validations
+1. **HTTP API endpoints work correctly** - IPFS gateway, subgraph APIs, blockchain APIs
+2. **Data fetching functions get expected responses** - Raw API responses match expected format
+3. **Frontend data processing is correct** - CSV validation, merkle trees, calculations
+4. **End-to-end flow is preserved** - From HTTP call to final display values
+
+## Key Design Decision: HTTP Endpoint Mocking
+
+**✅ What we mock**: Actual production HTTP endpoints
+- `https://gateway.pinata.cloud/ipfs/*` (IPFS Gateway)
+- `https://api.goldsky.com/...` (Subgraph APIs)
+- `https://8453.hypersync.xyz/query` (HyperSync API)
+- `https://www.alphavantage.co/query` (Market data API)
+
+**❌ What we DON'T mock**: Service layers, utilities, transforms
+- AssetService, TokenService (you can refactor these freely)
+- Data transformation functions 
+- Business logic calculations
+
+This means you can completely rewrite your services and the tests will still pass as long as the final results are correct.
 
 ## Test Structure
 
 ### Test Files
-- `portfolio.test.ts` - Tests complete portfolio data flow
-- `claims.test.ts` - Tests claims processing and CSV validation
-- `assets.test.ts` - Tests asset detail data and calculations
+- `portfolio.test.ts` - Tests complete portfolio data flow from HTTP → display
+- `claims.test.ts` - Tests claims processing and CSV validation from HTTP → calculations
+- `assets.test.ts` - Tests asset metadata fetching from IPFS → data structure
 
-### Mock Infrastructure
-- `mocks/fetch.ts` - Unified fetch mock routing all API calls
-- `mocks/ipfs.ts` - Mock IPFS gateway serving CSV and metadata
-- `mocks/subgraph.ts` - Mock GraphQL API for SFT and metadata queries
-- `mocks/blockchain.ts` - Mock smart contract calls and wallet operations
-
-### Test Data
+### Mock Infrastructure  
+- `mocks/fetch.ts` - **HTTP Endpoint Mock** that intercepts actual production URLs
+- `mocks/blockchain.ts` - Mock smart contract calls (since these don't use fetch)
 - `data/testData.ts` - Comprehensive test data based on real contract addresses
-- Uses actual IPFS hashes: `bafkreiceeasgwffk27kvrgfh4dihiekb7iiznqyjpbabavjrucymv2pobe`, etc.
-- Uses actual contract addresses: `0xd5316ca888491575befc0273a00de2186c53f760`, etc.
+
+### Real Production Endpoints Mocked
+
+```typescript
+// These exact URLs are intercepted and mocked:
+const endpoints = {
+  SFT_SUBGRAPH: "https://api.goldsky.com/api/public/project_cm153vmqi5gke01vy66p4ftzf/subgraphs/sft-offchainassetvaulttest-base/1.0.4/gn",
+  METADATA_SUBGRAPH: "https://api.goldsky.com/api/public/project_clv14x04y9kzi01saerx7bxpg/subgraphs/metadata-base/2025-07-06-594f/gn",
+  ORDERBOOK_SUBGRAPH: "https://api.goldsky.com/api/public/project_clv14x04y9kzi01saerx7bxpg/subgraphs/ob4-base/2024-12-13-9c39/gn",
+  PINATA_GATEWAY: "https://gateway.pinata.cloud/ipfs",
+  HYPERSYNC_API: "https://8453.hypersync.xyz/query",
+  ALPHA_VANTAGE: "https://www.alphavantage.co/query"
+};
+```
 
 ## Smart Contracts and Data Sources
 
@@ -63,96 +86,94 @@ npx vitest tests/e2e/portfolio.test.ts --reporter=verbose
 
 ## Test Scenarios
 
-### 1. Data Fetching Pipeline
-- ✅ Fetch SFT data from subgraph
-- ✅ Fetch metadata from subgraph  
-- ✅ Fetch and validate CSV data from IPFS
-- ✅ Verify data structure and content
+### 1. HTTP Endpoint Integration
+- ✅ Direct IPFS metadata requests to Pinata Gateway
+- ✅ GraphQL queries to Goldsky subgraph APIs
+- ✅ HyperSync blockchain log queries
+- ✅ Alpha Vantage market data requests
 
-### 2. Service Layer Integration
-- ✅ Load assets through AssetService
-- ✅ Load tokens through TokenService
-- ✅ Calculate token supply information
-- ✅ Process IPFS metadata correctly
+### 2. Data Pipeline Verification
+- ✅ `getSfts()` → subgraph query → SFT data structure
+- ✅ `getSftMetadata()` → subgraph query → metadata array
+- ✅ `fetchAndValidateCSV()` → IPFS fetch → CSV validation → merkle tree
+- ✅ Raw data → transformed data → frontend calculations
 
-### 3. Portfolio Calculations
-- ✅ Calculate total invested amount from deposits
-- ✅ Calculate total earned from CSV claims
-- ✅ Calculate unclaimed payouts
-- ✅ Verify arithmetic consistency
+### 3. Security Validations
+- ✅ CSV merkle root validation against expected on-chain values
+- ✅ IPFS content-addressed hash verification
+- ✅ Data structure validation and error handling
+- ✅ Invalid endpoint responses (404, malformed data)
 
-### 4. Claims Processing
-- ✅ Validate CSV integrity with merkle roots
-- ✅ Validate IPFS content addressing
-- ✅ Generate consistent merkle trees
-- ✅ Sort claims data by wallet address
-- ✅ Calculate payout amounts correctly
+### 4. Calculation Verification
+- ✅ Portfolio totals (invested, earned, unclaimed amounts)
+- ✅ Claims processing with wallet filtering
+- ✅ Asset performance metrics from production data
+- ✅ Arithmetic consistency across all calculations
 
-### 5. Security Validations
-- ✅ Reject invalid merkle roots
-- ✅ Reject invalid IPFS hashes
-- ✅ Validate CSV data structure
-- ✅ Verify address formats and amounts
+## Benefits for Service Refactoring
 
-### 6. Data Consistency
-- ✅ Maintain consistency between SFT data and metadata
-- ✅ Validate merkle roots match expected values
-- ✅ Verify IPFS content hashes
-- ✅ Handle missing data gracefully
+### ✅ Safe to Refactor
+- **Service classes** (AssetService, TokenService) - completely rewrite them
+- **Data transformation logic** - change how raw data becomes UI data  
+- **Store management** - change from stores to contexts to state machines
+- **Utility functions** - reorganize, rename, restructure
+- **Business logic** - improve calculations and data processing
+
+### ✅ Tests Will Still Pass If
+- HTTP endpoints return the same data structure
+- Final calculated values remain mathematically correct
+- Data validation logic preserves security checks
+- Frontend receives properly formatted display data
+
+### ❌ Tests Will Fail If  
+- You change the expected calculation results
+- You break CSV merkle tree validation
+- You modify IPFS content hash verification
+- You alter the final data structure expected by the frontend
 
 ## Mock Behavior
 
-The mock infrastructure simulates:
+The HTTP endpoint mock:
 
-1. **IPFS Gateway** - Serves CSV files and metadata for test contract addresses
-2. **Subgraph APIs** - Returns SFT and metadata for test contracts
-3. **HyperSync API** - Returns blockchain logs for claims processing
-4. **Smart Contracts** - Returns max supply, balances, and handles claim transactions
-5. **Wallet Connection** - Simulates MetaMask wallet connection
+1. **Logs unmocked calls** - Any HTTP call not in the endpoint list gets logged as a warning
+2. **Returns realistic data** - Uses actual contract addresses and IPFS hashes
+3. **Validates request format** - Ensures GraphQL queries and API calls are well-formed
+4. **Maintains data relationships** - SFT data connects properly to metadata and CSV files
 
-## Validation Logic
+## Example: Safe Service Refactoring
 
-The tests verify the same validation logic used in production:
+```typescript
+// BEFORE: Current messy service
+class TokenService {
+  // Current implementation with messy logic
+}
 
-1. **CSV Integrity** - Merkle tree validation against on-chain roots
-2. **IPFS Content** - Content-addressed verification using CIDs
-3. **Data Structure** - Required fields, formats, and ranges
-4. **Arithmetic** - Mathematical consistency across calculations
-5. **Security** - Input validation and error handling
+// AFTER: Clean refactored service  
+class TokenService {
+  // Completely new implementation
+  // As long as it calls the same HTTP endpoints
+  // and produces the same final calculations,
+  // tests will pass!
+}
+```
 
-## Test Data Consistency
+## Debugging
 
-All test data is generated to be:
-- **Realistic** - Uses actual contract addresses and IPFS hashes
-- **Consistent** - Maintains relationships between SFTs, metadata, and CSV data
-- **Deterministic** - Same test runs produce same results
-- **Comprehensive** - Covers all major data scenarios
+If tests fail during refactoring:
 
-## Debugging Tests
-
-To debug failing tests:
-
-1. Check console output for mock service logs
-2. Verify test data generation in `testData.ts`
-3. Add logging to specific test scenarios
-4. Use VS Code debugger with breakpoints
-5. Check that mock responses match expected formats
+1. **Check console logs** - See which HTTP endpoints are being called
+2. **Verify calculation results** - Ensure mathematical consistency
+3. **Test data transformations** - Check that raw → UI transformations work
+4. **Validate security logic** - Ensure merkle trees and hashes still validate
+5. **Compare final output** - Make sure frontend gets expected data structure
 
 ## Adding New Tests
 
-To add new test scenarios:
+When adding new test scenarios:
 
-1. Create test file in appropriate category
-2. Import required mock services from `setup.ts`
-3. Use `testDataProvider` for consistent test data
-4. Follow existing patterns for assertions
-5. Update this README with new test coverage
+1. **Use existing HTTP endpoints** - Don't mock new URLs unless absolutely necessary
+2. **Focus on end-to-end flows** - Test from HTTP call to final calculation
+3. **Use testDataProvider** - Leverage existing realistic test data
+4. **Test error scenarios** - Invalid responses, network failures, bad data
 
-## CI/CD Integration
-
-The E2E tests are designed to run in CI environments:
-- No external dependencies required
-- All data mocked locally
-- Fast execution (< 30 seconds total)
-- Detailed error reporting
-- Coverage reporting integration
+This design ensures your tests provide real protection against regressions while giving you complete freedom to improve the underlying code architecture.

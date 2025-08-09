@@ -1,5 +1,5 @@
 import { beforeAll, afterAll, beforeEach } from "vitest";
-import { fetchMock } from "./mocks/fetch";
+import { httpEndpointMock } from "./mocks/fetch";
 import { MockBlockchainAPI } from "./mocks/blockchain";
 import { testDataProvider } from "./data/testData";
 
@@ -10,19 +10,19 @@ beforeAll(async () => {
   // Initialize test data first
   await testDataProvider.initialize();
 
-  // Install unified fetch mock
-  fetchMock.install();
+  // Install HTTP endpoint mock (intercepts actual API calls)
+  httpEndpointMock.install();
 
-  // Initialize blockchain mocks
+  // Initialize blockchain mocks (for smart contract calls)
   mockBlockchain = new MockBlockchainAPI();
   await mockBlockchain.start();
 
-  console.log("E2E Test infrastructure started");
+  console.log("E2E Test infrastructure started - mocking actual HTTP endpoints");
 });
 
 afterAll(async () => {
   // Clean up mock services
-  fetchMock.uninstall();
+  httpEndpointMock.uninstall();
   await mockBlockchain.stop();
 
   console.log("E2E Test infrastructure stopped");

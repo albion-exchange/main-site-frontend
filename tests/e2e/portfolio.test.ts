@@ -1,6 +1,7 @@
 /**
  * E2E Tests for Portfolio Data Flow
- * Tests the complete data pipeline from API calls to frontend display
+ * Tests the complete data pipeline from HTTP API calls to frontend display
+ * Mocks actual production endpoints, not service layers
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
@@ -9,19 +10,13 @@ import { testDataProvider } from "./data/testData";
 import { getSfts } from "$lib/queries/getSfts";
 import { getSftMetadata } from "$lib/queries/getSftMetadata";
 import { fetchAndValidateCSV } from "$lib/utils/claims";
-import AssetService from "$lib/services/AssetService";
-import TokenService from "$lib/services/TokenService";
 
 describe("Portfolio E2E Data Flow", () => {
   const testWallet = testDataProvider.getTestWallets()[0];
 
   beforeEach(() => {
-    // Connect test wallet
+    // Connect test wallet for blockchain interactions
     mockBlockchain.connectWallet(testWallet);
-    
-    // Clear service caches
-    AssetService.clearCache();
-    TokenService.clearCache();
   });
 
   describe("Data Fetching Pipeline", () => {
@@ -86,55 +81,70 @@ describe("Portfolio E2E Data Flow", () => {
     });
   });
 
-  describe("Service Layer Integration", () => {
-    it("should load assets through AssetService", async () => {
-      const assets = AssetService.getAllAssets();
+  describe("HTTP Endpoint Integration", () => {
+    it("should handle IPFS metadata requests", async () => {
+      // Test direct IPFS calls that the app makes
+      const testHash = "QmTestMetadata53f760";
+      const response = await fetch(`https://gateway.pinata.cloud/ipfs/${testHash}`);
       
-      expect(assets).toBeDefined();
-      expect(Array.isArray(assets)).toBe(true);
-      expect(assets.length).toBeGreaterThan(0);
-
-      // Verify asset structure
-      for (const asset of assets) {
-        expect(asset).toHaveProperty('id');
-        expect(asset).toHaveProperty('name');
-        expect(asset).toHaveProperty('location');
-        expect(asset).toHaveProperty('production');
-        expect(asset).toHaveProperty('monthlyReports');
-      }
+      expect(response.ok).toBe(true);
+      const metadata = await response.json();
+      
+      expect(metadata).toHaveProperty('name');
+      expect(metadata).toHaveProperty('contractAddress');
+      expect(metadata).toHaveProperty('asset');
     });
 
-    it("should load tokens through TokenService", async () => {
-      const tokens = TokenService.getAllTokens();
-      
-      expect(tokens).toBeDefined();
-      expect(Array.isArray(tokens)).toBe(true);
-      expect(tokens.length).toBeGreaterThan(0);
+    it("should handle subgraph GraphQL requests", async () => {
+      // Test that the SFT subgraph endpoint is properly mocked
+      const graphqlQuery = {
+        query: `{
+          offchainAssetReceiptVaults {
+            id
+            address
+            name
+            symbol
+          }
+        }`
+      };
 
-      // Verify token structure  
-      for (const token of tokens) {
-        expect(token).toHaveProperty('contractAddress');
-        expect(token).toHaveProperty('name');
-        expect(token).toHaveProperty('supply');
-      }
+      const response = await fetch("https://api.goldsky.com/api/public/project_cm153vmqi5gke01vy66p4ftzf/subgraphs/sft-offchainassetvaulttest-base/1.0.4/gn", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(graphqlQuery)
+      });
+
+      expect(response.ok).toBe(true);
+      const data = await response.json();
+      
+      expect(data).toHaveProperty('data');
+      expect(data.data).toHaveProperty('offchainAssetReceiptVaults');
+      expect(Array.isArray(data.data.offchainAssetReceiptVaults)).toBe(true);
     });
 
-    it("should calculate token supply information correctly", async () => {
-      const tokens = TokenService.getAllTokens();
+    it("should handle HyperSync blockchain log requests", async () => {
+      // Test the HyperSync endpoint for blockchain logs
+      const hyperSyncQuery = {
+        from_block: 12000000,
+        logs: [
+          {
+            address: ["0xd2938E7c9fe3597F78832CE780Feb61945c377d7"],
+            topics: [["0x17a5c0f3785132a57703932032f6863e7920434150aa1dc940e567b440fdce1f"]]
+          }
+        ]
+      };
+
+      const response = await fetch("https://8453.hypersync.xyz/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(hyperSyncQuery)
+      });
+
+      expect(response.ok).toBe(true);
+      const data = await response.json();
       
-      for (const token of tokens) {
-        const supplyInfo = TokenService.getTokenSupply(token.contractAddress);
-        
-        expect(supplyInfo).toBeDefined();
-        expect(supplyInfo).toHaveProperty('total');
-        expect(supplyInfo).toHaveProperty('available');
-        expect(supplyInfo).toHaveProperty('sold');
-        expect(supplyInfo).toHaveProperty('percentageSold');
-        
-        expect(supplyInfo.total).toBeGreaterThan(0);
-        expect(supplyInfo.percentageSold).toBeGreaterThanOrEqual(0);
-        expect(supplyInfo.percentageSold).toBeLessThanOrEqual(100);
-      }
+      expect(data).toHaveProperty('data');
+      expect(Array.isArray(data.data)).toBe(true);
     });
   });
 
@@ -286,30 +296,41 @@ describe("Portfolio E2E Data Flow", () => {
       expect(csvData).toBeNull();
     });
 
-    it("should handle wallet with no holdings", () => {
+    it("should handle wallet with no holdings", async () => {
       const emptyWallet = "0x0000000000000000000000000000000000000000";
       mockBlockchain.connectWallet(emptyWallet);
 
-      const tokens = TokenService.getAllTokens();
+      // Test that API calls still work but return no wallet-specific data
+      const energyFields = testDataProvider.getEnergyFields();
       
-      for (const token of tokens) {
-        const supplyInfo = TokenService.getTokenSupply(token.contractAddress);
-        expect(supplyInfo).toBeDefined();
-        
-        // Wallet should have no holdings
-        // This would be tested in the actual portfolio calculations
+      for (const field of energyFields) {
+        for (const token of field.sftTokens) {
+          for (const claim of token.claims) {
+            const csvData = await fetchAndValidateCSV(
+              claim.csvLink,
+              claim.expectedMerkleRoot,
+              claim.expectedContentHash
+            );
+
+            if (csvData) {
+              // Should have no data for empty wallet
+              const walletRows = csvData.filter(row => row.address === emptyWallet);
+              expect(walletRows.length).toBe(0);
+            }
+          }
+        }
       }
     });
 
-    it("should handle network disconnection gracefully", () => {
+    it("should handle network disconnection gracefully", async () => {
       mockBlockchain.disconnectWallet();
       
-      // Services should still return data, but no wallet-specific calculations
-      const assets = AssetService.getAllAssets();
-      const tokens = TokenService.getAllTokens();
+      // HTTP endpoints should still return data
+      const sftData = await getSfts();
+      const metadata = await getSftMetadata();
       
-      expect(assets).toBeDefined();
-      expect(tokens).toBeDefined();
+      expect(sftData).toBeDefined();
+      expect(metadata).toBeDefined();
     });
   });
 });
