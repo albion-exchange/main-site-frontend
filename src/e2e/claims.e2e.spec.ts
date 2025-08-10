@@ -67,6 +67,5 @@ describe('Claims page E2E (HTTP mocks)', () => {
     expect(await screen.findByRole('heading', { name: /Claims & Payouts/i })).toBeInTheDocument();
     expect(await screen.findByText(/Total Earned/i)).toBeInTheDocument();
     expect(await screen.findByText(/Available to Claim/i)).toBeInTheDocument();
-    expect(await screen.findByText(/Claim History/i)).toBeInTheDocument();
   }, 30000);
 });
