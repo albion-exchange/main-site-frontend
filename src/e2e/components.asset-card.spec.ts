@@ -49,9 +49,9 @@ const tokens = [
 ];
 
 describe('AssetCard', () => {
-  it('renders asset name and status', async () => {
+  it('renders asset name and Available Tokens section', async () => {
     render(AssetCard, { props: { asset, token: tokens as any } });
     expect(await screen.findByText('Permian Basin-3')).toBeInTheDocument();
-    expect(await screen.findByText(/PRODUCING/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Available Tokens/i)).toBeInTheDocument();
   });
 });
