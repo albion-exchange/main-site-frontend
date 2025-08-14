@@ -2,7 +2,6 @@
 	import SectionTitle from '$lib/components/components/SectionTitle.svelte';
 	import TabButton from '$lib/components/components/TabButton.svelte';
 	import { PageLayout, HeroSection, ContentSection } from '$lib/components/layout';
-	import PrimaryButton from '$lib/components/components/PrimaryButton.svelte';
 	
 	let activeSection = 'terms';
 </script>
@@ -185,8 +184,7 @@
 	<!-- Contact Section -->
 	<ContentSection background="secondary" padding="standard" centered>
 			<h2 class="text-[1.75rem] font-extrabold mb-4 text-white">Legal Questions?</h2>
-			<p class="text-lg mb-6 opacity-90">If you have questions about our legal documents or compliance procedures, contact our legal team at</p>
-			<PrimaryButton size="medium" href="mailto:legal@albion.org">Email legal@albion.org</PrimaryButton>
+			<p class="text-lg mb-6 opacity-90">If you have questions about our legal documents or compliance procedures, contact our legal team at <a href="mailto:legal@albion.org" class="text-white underline hover:no-underline">legal@albion.org</a></p>
 	</ContentSection>
 </PageLayout>
 
