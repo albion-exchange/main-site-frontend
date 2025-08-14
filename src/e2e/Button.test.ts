@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { render, fireEvent } from "@testing-library/svelte/svelte5";
 import { describe, it, expect, vi } from "vitest";
 
-import Button from "./Button.svelte";
+import Button from "$lib/components/components/Button.svelte";
 
 // Basic interaction tests for the Button component (Svelte 5)
 

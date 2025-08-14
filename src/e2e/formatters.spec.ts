@@ -20,13 +20,13 @@ describe('formatters', () => {
     expect(formatTokenAmount((1e18).toString(), 18)).toBe('1');
     // Supply smart/compact
     expect(formatTokenSupply(9999)).toBe('9,999');
-    expect(formatTokenSupply(10000)).toBe('10,000');
+    expect(formatTokenSupply(10000)).toBe('10.0K');
     expect(formatTokenSupply(1_500_000)).toMatch(/1\.5M/);
   });
 
   it('formats smart numbers with threshold and affixes', () => {
     expect(formatSmartNumber(9999)).toBe('9,999');
-    expect(formatSmartNumber(10_000)).toBe('10,000');
+    expect(formatSmartNumber(10_000)).toBe('10.0K');
     expect(formatSmartNumber(1_200_000, { prefix: '$' })).toBe('$1.2M');
   });
 

@@ -1,18 +1,10 @@
 import type { MetaV1S } from "$lib/types/sftMetadataTypes";
 import { BASE_METADATA_SUBGRAPH_URL, ENERGY_FIELDS } from "$lib/network";
+import { PUBLIC_METABOARD_ADMIN } from '$env/static/public';
 
+const METABOARD_ADMIN = PUBLIC_METABOARD_ADMIN || "0x0000000000000000000000000000000000000000";
 export const getSftMetadata = async (): Promise<MetaV1S[]> => {
   try {
-    // Resolve admin from env at runtime (no top-level await)
-    let METABOARD_ADMIN = "0x0000000000000000000000000000000000000000";
-    try {
-      // @ts-ignore
-      const mod = await import('$env/static/public');
-      METABOARD_ADMIN = (mod as any).PUBLIC_METABOARD_ADMIN || METABOARD_ADMIN;
-    } catch {
-      METABOARD_ADMIN = "0x0000000000000000000000000000000000000000";
-    }
-
     // Extract all SFT addresses from ENERGY_FIELDS
     const sftAddresses = ENERGY_FIELDS.flatMap((field) =>
       field.sftTokens.map((token) => token.address),
