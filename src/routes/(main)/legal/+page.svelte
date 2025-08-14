@@ -185,17 +185,11 @@
 	<ContentSection background="secondary" padding="standard" centered>
 			<h2 class="text-[1.75rem] font-extrabold mb-4 text-white">Legal Questions?</h2>
 			<p class="text-lg mb-8 opacity-90">If you have questions about our legal documents or compliance procedures, please contact our legal team.</p>
-			<div class="flex flex-col gap-3 md:text-center text-left">
-				<div class="text-sm px-3 py-3 bg-white/10 border border-white/20">
-					<strong class="text-white font-extrabold">Email:</strong> contact@albionlabs.org
-				</div>
-				<div class="text-sm px-3 py-3 bg-white/10 border border-white/20">
-					<strong class="text-white font-extrabold">Phone:</strong> +1 (555) 123-4567
-				</div>
-				<div class="text-sm px-3 py-3 bg-white/10 border border-white/20">
-					<strong class="text-white font-extrabold">Address:</strong> 123 Energy Plaza, Houston, TX 77002
-				</div>
+					<div class="flex flex-col gap-3 md:text-center text-left">
+			<div class="text-sm px-3 py-3 bg-white/10 border border-white/20">
+				<strong class="text-white font-extrabold">Email:</strong> legal@albion.org
 			</div>
+		</div>
 	</ContentSection>
 </PageLayout>
 
