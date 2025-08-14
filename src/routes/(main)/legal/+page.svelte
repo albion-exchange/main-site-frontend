@@ -184,7 +184,7 @@
 	<!-- Contact Section -->
 	<ContentSection background="secondary" padding="standard" centered>
 			<h2 class="text-[1.75rem] font-extrabold mb-4 text-white">Legal Questions?</h2>
-			<p class="text-lg mb-6 opacity-90">If you have questions about our legal documents or compliance procedures, contact our legal team at <a href="mailto:legal@albion.org" class="text-white underline hover:no-underline">legal@albion.org</a></p>
+			<p class="text-lg mb-6 opacity-90">If you have questions about our legal documents or compliance procedures, contact our legal team at <a href="mailto:legal@albion.org" class="text-white underline hover:no-underline">legal@albionlabs.org</a></p>
 	</ContentSection>
 </PageLayout>
 
