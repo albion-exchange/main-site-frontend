@@ -261,9 +261,9 @@ vi.mock('$lib/decodeMetadata/helpers', () => ({
 
 // Mock grouping utility
 vi.mock('$lib/utils/energyFieldGrouping', () => ({
-  groupSftsByEnergyField: vi.fn((tokensWithAssets) => {
+  groupSftsByEnergyField: vi.fn((tokensWithAssets: any[]) => {
     // Group tokens by their energy field
-    const grouped = [];
+    const grouped: any[] = [];
     
     // Group Wressle tokens together
     const wressleTokens = tokensWithAssets.filter(item => 
