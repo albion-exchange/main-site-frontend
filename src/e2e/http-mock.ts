@@ -22,10 +22,80 @@ export function installHttpMocks(cfg: HttpMockConfig) {
     const url = typeof input === 'string' ? input : input.toString();
     const method = init?.method || 'GET';
 
-    // CSV file from IPFS
+    // CSV file from IPFS - Using Wressle production values
     if (url.startsWith(`${cfg.ipfsGateway}/`) && url.includes(cfg.csvCid)) {
-      const csv = `index,address,amount\n0,${cfg.wallet},1000000000000000000\n1,${cfg.wallet},2000000000000000000\n2,0x2222222222222222222222222222222222222222,3000000000000000000`;
+      // May: $347.76, June: $330.885 from Wressle projections
+      const csv = `index,address,amount\n0,${cfg.wallet},347760000000000000\n1,${cfg.wallet},330885000000000000\n2,0x2222222222222222222222222222222222222222,336240000000000000`;
       return new Response(csv, { status: 200 });
+    }
+
+    // Token metadata from IPFS with planned production for ~12% base return
+    if (url.startsWith(`${cfg.ipfsGateway}/`) && url.includes('QmWressleMetadata')) {
+      const metadata = {
+        contractAddress: cfg.address,
+        symbol: 'ALB-WR1-R1',
+        releaseName: 'Wressle-1 4.5% Royalty Stream',
+        tokenType: 'royalty',
+        firstPaymentDate: '2024-01',
+        sharePercentage: 2.5, // 2.5% royalty from actual Wressle data
+        decimals: 18,
+        supply: {
+          maxSupply: '12000000000000000000000', // 12,000 tokens
+          mintedSupply: '1500000000000000000000'  // 1,500 tokens
+        },
+        asset: {
+          assetName: 'Wressle-1',
+          technical: {
+            pricing: {
+              benchmarkPremium: -1.3,  // Actual Wressle benchmark discount
+              transportCosts: 0
+            }
+          },
+          plannedProduction: {
+            oilPriceAssumption: 65, // Exact value from Wressle data
+            oilPriceAssumptionCurrency: 'USD',
+            projections: [
+              // Exact production data from wressle-r1.json
+              { month: '2025-05', production: 347.76, revenue: 0 },
+              { month: '2025-06', production: 330.885, revenue: 0 },
+              { month: '2025-07', production: 336.24, revenue: 0 },
+              { month: '2025-08', production: 330.615, revenue: 0 },
+              { month: '2025-09', production: 314.64, revenue: 0 },
+              { month: '2025-10', production: 319.725, revenue: 0 },
+              { month: '2025-11', production: 304.245, revenue: 0 },
+              { month: '2025-12', production: 302.85, revenue: 0 },
+              { month: '2026-01', production: 297.72, revenue: 0 },
+              { month: '2026-02', production: 252.675, revenue: 0 },
+              { month: '2026-03', production: 280.08, revenue: 0 },
+              { month: '2026-04', production: 136.26, revenue: 0 },
+              { month: '2026-05', production: 397.125, revenue: 0 },
+              { month: '2026-06', production: 339.75, revenue: 0 },
+              { month: '2026-07', production: 328.095, revenue: 0 },
+              { month: '2026-08', production: 305.1, revenue: 0 },
+              { month: '2026-09', production: 301.32, revenue: 0 },
+              { month: '2026-10', production: 317.025, revenue: 0 },
+              { month: '2026-11', production: 307.665, revenue: 0 },
+              { month: '2026-12', production: 311.355, revenue: 0 },
+              { month: '2027-01', production: 273.96, revenue: 0 },
+              { month: '2027-02', production: 221.58, revenue: 0 },
+              { month: '2027-03', production: 229.14, revenue: 0 },
+              { month: '2027-04', production: 219.375, revenue: 0 },
+              { month: '2027-05', production: 227.655, revenue: 0 },
+              { month: '2027-06', production: 217.08, revenue: 0 },
+              { month: '2027-07', production: 217.755, revenue: 0 },
+              { month: '2027-08', production: 203.85, revenue: 0 },
+              { month: '2027-09', production: 184.455, revenue: 0 },
+              { month: '2027-10', production: 177.885, revenue: 0 },
+              { month: '2027-11', production: 159.84, revenue: 0 },
+              { month: '2027-12', production: 151.02, revenue: 0 }
+            ]
+          }
+        }
+      };
+      return new Response(JSON.stringify(metadata), { 
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     // Subgraph POST endpoints
@@ -42,9 +112,13 @@ export function installHttpMocks(cfg: HttpMockConfig) {
                 depositWithReceipts: [
                   {
                     id: 'dep1',
-                    amount: '1000000000000000000',
+                    amount: '1500000000000000000', // 1.5 tokens
                     caller: { address: cfg.wallet },
-                    offchainAssetReceiptVault: { id: cfg.address },
+                    offchainAssetReceiptVault: { 
+                      id: cfg.address,
+                      name: 'Wressle-1 4.5% Royalty Stream',
+                      symbol: 'ALB-WR1-R1'
+                    },
                   },
                 ],
               },
@@ -57,12 +131,12 @@ export function installHttpMocks(cfg: HttpMockConfig) {
                 offchainAssetReceiptVaults: [
                   {
                     id: cfg.address,
-                    totalShares: '0',
+                    totalShares: '12000', // From Wressle data
                     address: cfg.address,
                     deployer: cfg.wallet,
                     admin: cfg.wallet,
-                    name: 'Permian Basin-3',
-                    symbol: 'PBR1',
+                    name: 'Wressle-1 4.5% Royalty Stream', // From Wressle data
+                    symbol: 'ALB-WR1-R1', // From Wressle data
                     deployTimestamp: `${Math.floor(Date.now() / 1000)}`,
                     receiptContractAddress: cfg.address,
                     tokenHolders: [],
@@ -85,14 +159,18 @@ export function installHttpMocks(cfg: HttpMockConfig) {
         // Metadata subgraph
         if (url === cfg.metadataSubgraphUrl) {
           if (query.includes('metaV1S')) {
+            // Encode the IPFS URL as hex for the meta field
+            const ipfsUrl = `${cfg.ipfsGateway}/QmWressleMetadata`;
+            const metaHex = '0x' + Buffer.from(ipfsUrl).toString('hex');
+            
             const data = {
               data: {
                 metaV1S: [
                   {
                     id: 'meta-1',
-                    meta: '0x',
+                    meta: metaHex, // Hex-encoded IPFS URL
                     subject: `0x000000000000000000000000${cfg.address.slice(2)}`,
-                    metaHash: '0x',
+                    metaHash: '0x1234', // Some hash
                     sender: cfg.wallet,
                   },
                 ],
