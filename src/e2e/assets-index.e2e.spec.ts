@@ -152,8 +152,9 @@ vi.mock('$lib/decodeMetadata/addSchemaToReceipts', () => ({
         id: 'wressle-1',
         name: 'Wressle-1',
         description: 'Wressle oil field in Lincolnshire',
-        location: 'Lincolnshire, United Kingdom',
-        operator: 'Egdon Resources',
+        coverImage: '',
+        location: { state: 'Lincolnshire', country: 'United Kingdom' },
+        operator: { name: 'Egdon Resources', experience: '' },
         status: 'Producing',
         commodity: 'Oil',
         benchmark: 'Brent',
@@ -162,27 +163,46 @@ vi.mock('$lib/decodeMetadata/addSchemaToReceipts', () => ({
         monthlyReports: [
           { month: '2024-11', netIncome: 50000, production: 350 }
         ],
-        technicalData: {
-          expectedEndDate: '2027-12-31'
+        technical: {
+          fieldType: '',
+          depth: '',
+          license: '',
+          estimatedLife: '',
+          firstOil: '',
+          infrastructure: '',
+          environmental: '',
+          expectedEndDate: '2027-12-31',
+          crudeBenchmark: 'Brent',
+          pricing: { benchmarkPremium: '-1.3', transportCosts: '0' }
         }
-      };
+      } as any;
     } else {
       return {
         id: 'gulf-deep-water',
         name: 'Gulf Deep Water',
         description: 'Deep water oil field in Gulf of Mexico',
-        location: 'Gulf of Mexico, USA',
-        operator: 'Offshore Energy Corp',
+        coverImage: '',
+        location: { state: 'Gulf of Mexico', country: 'USA' },
+        operator: { name: 'Offshore Energy Corp', experience: '' },
         status: 'Developing',
         commodity: 'Oil',
         benchmark: 'WTI',
         oilPriceAssumption: 70,
         benchmarkPremium: 0,
         monthlyReports: [],
-        technicalData: {
-          expectedEndDate: '2030-06-30'
+        technical: {
+          fieldType: '',
+          depth: '',
+          license: '',
+          estimatedLife: '',
+          firstOil: '',
+          infrastructure: '',
+          environmental: '',
+          expectedEndDate: '2030-06-30',
+          crudeBenchmark: 'WTI',
+          pricing: { benchmarkPremium: '0', transportCosts: '0' }
         }
-      };
+      } as any;
     }
   }),
   generateTokenMetadataInstanceFromSft: vi.fn((sft, metadata, maxSupply) => {

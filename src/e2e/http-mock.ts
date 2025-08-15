@@ -25,7 +25,10 @@ export function installHttpMocks(cfg: HttpMockConfig) {
     // CSV file from IPFS - Using Wressle production values
     if (url.startsWith(`${cfg.ipfsGateway}/`) && url.includes(cfg.csvCid)) {
       // May: $347.76, June: $330.885 from Wressle projections
-      const csv = `index,address,amount\n0,${cfg.wallet},347760000000000000\n1,${cfg.wallet},330885000000000000\n2,0x2222222222222222222222222222222222222222,336240000000000000`;
+      const csv = `index,address,amount
+0,${cfg.wallet},347760000000000000000
+1,${cfg.wallet},330885000000000000000
+2,0x2222222222222222222222222222222222222222,336240000000000000000`;
       return new Response(csv, { status: 200 });
     }
 

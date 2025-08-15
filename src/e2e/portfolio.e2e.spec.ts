@@ -142,24 +142,14 @@ vi.mock('$lib/stores', async () => {
 vi.mock('$lib/queries/getAllDeposits', () => ({
   getAllDeposits: vi.fn().mockResolvedValue([
     {
-      vault: { id: '0xvault1' },
-      sft: { id: '0xf836a500910453a397084ade41321ee20a5aade1' },
-      sender: '0x1111111111111111111111111111111111111111',
-      sharesMinted: '150000000000000000000', // 150 tokens owned by user
-      timestamp: 1700000000,
-      depositEvent: {
-        transaction: { blockNumber: 100 }
-      }
+      amount: '150000000000000000000', // 150 tokens owned by user in wei
+      offchainAssetReceiptVault: { id: '0xf836a500910453a397084ade41321ee20a5aade1' },
+      caller: { address: '0x1111111111111111111111111111111111111111' },
     },
     {
-      vault: { id: '0xvault2' },
-      sft: { id: '0xa111111111111111111111111111111111111111' },
-      sender: '0x1111111111111111111111111111111111111111',
-      sharesMinted: '250000000000000000000', // 250 tokens owned by user
-      timestamp: 1700100000,
-      depositEvent: {
-        transaction: { blockNumber: 200 }
-      }
+      amount: '250000000000000000000', // 250 tokens owned by user in wei
+      offchainAssetReceiptVault: { id: '0xa111111111111111111111111111111111111111' },
+      caller: { address: '0x1111111111111111111111111111111111111111' },
     }
   ])
 }));
@@ -205,28 +195,71 @@ vi.mock('$lib/utils/claims', () => ({
     signedData: '0xsigned'
   })),
   sortClaimsData: vi.fn(async (parsedData, trades, address, fieldName) => {
-    const holdings = parsedData
-      .filter((row: any) => row.amount > 0 && row.address === address && !row.claimed)
-      .map((row: any) => ({
-        id: row.claimId || '1',
-        unclaimedAmount: row.amount,
-        fieldName: fieldName,
-        date: row.timestamp || Date.now()
-      }));
-    
-    const claims = parsedData
-      .filter((row: any) => row.claimed && row.address === address)
-      .map((row: any) => ({
-        id: row.claimId || '1',
-        amount: row.amount,
-        timestamp: row.timestamp || Date.now(),
-        txHash: row.txHash || '0xtx',
-        fieldName: fieldName,
-        asset: fieldName,
-        date: new Date(row.timestamp || Date.now())
-      }));
-    
-    return { holdings, claims };
+    const filtered = parsedData.filter((row: any) => row.address === address);
+    const toWeiString = (val: any) => {
+      if (typeof val === 'number') return BigInt(Math.round(val * 1e18)).toString();
+      if (typeof val === 'string') {
+        const num = Number(val);
+        if (!Number.isNaN(num)) return BigInt(Math.round(num * 1e18)).toString();
+        return '0';
+      }
+      return '0';
+    };
+
+    const claimedCsv = filtered.filter((r: any) => r.claimed).map((r: any, idx: number) => ({
+      index: String(r.claimId || idx),
+      address: r.address,
+      amount: toWeiString(r.amount),
+      claimed: true,
+      decodedLog: { timestamp: r.timestamp || Date.now() }
+    }));
+
+    const unclaimedCsv = filtered.filter((r: any) => !r.claimed).map((r: any, idx: number) => ({
+      index: String(r.claimId || idx),
+      address: r.address,
+      amount: toWeiString(r.amount),
+      claimed: false
+    }));
+
+    const totalClaimedAmount = claimedCsv.reduce((sum: bigint, c: any) => sum + BigInt(c.amount), 0n);
+    const totalUnclaimedAmount = unclaimedCsv.reduce((sum: bigint, c: any) => sum + BigInt(c.amount), 0n);
+    const totalEarned = totalClaimedAmount + totalUnclaimedAmount;
+
+    const claims = claimedCsv.map((c: any) => ({
+      id: c.index,
+      amount: (Number(c.amount) / 1e18).toString(),
+      timestamp: c.decodedLog?.timestamp || Date.now(),
+      txHash: '0xtx',
+      fieldName: fieldName,
+      asset: fieldName,
+      date: new Date(c.decodedLog?.timestamp || Date.now())
+    }));
+
+    const holdings = unclaimedCsv.map((u: any) => ({
+      id: u.index,
+      unclaimedAmount: (Number(u.amount) / 1e18).toString(),
+      fieldName: fieldName,
+      name: fieldName,
+      location: '',
+      totalEarned: (Number(totalEarned) / 1e18).toString(),
+      lastPayout: new Date().toISOString(),
+      lastClaimDate: '',
+      status: 'producing'
+    }));
+
+    return {
+      claimedCsv,
+      unclaimedCsv,
+      claims,
+      holdings,
+      totalClaims: filtered.length,
+      claimedCount: claimedCsv.length,
+      unclaimedCount: unclaimedCsv.length,
+      totalClaimedAmount: totalClaimedAmount.toString(),
+      totalUnclaimedAmount: totalUnclaimedAmount.toString(),
+      totalEarned: totalEarned.toString(),
+      ownerAddress: address || 'all'
+    };
   }),
   getProofForLeaf: vi.fn(() => ({
     proof: ['0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890']
@@ -252,6 +285,11 @@ vi.mock('$lib/decodeMetadata/helpers', () => ({
           oilPriceAssumption: 65,
           impliedBarrelsPerToken: 0.144,
           baseReturn: 12.04
+        },
+        asset: {
+          assetName: 'Wressle-1',
+          location: { state: 'Lincolnshire', country: 'United Kingdom' },
+          operator: { name: 'Egdon Resources' }
         }
       };
     } else {
@@ -270,6 +308,11 @@ vi.mock('$lib/decodeMetadata/helpers', () => ({
           oilPriceAssumption: 70,
           impliedBarrelsPerToken: 0.200,
           baseReturn: 15.0
+        },
+        asset: {
+          assetName: 'Gulf Deep Water',
+          location: { state: 'Gulf of Mexico', country: 'USA' },
+          operator: { name: 'Offshore Energy Corp' }
         }
       };
     }

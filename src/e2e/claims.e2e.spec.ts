@@ -118,26 +118,70 @@ vi.mock('$lib/utils/claims', () => ({
     signedData: '0xsigned'
   })),
   sortClaimsData: vi.fn(async (parsedData, trades, address, fieldName) => {
-    // Return holdings and claims based on the CSV data
-    const holdings = parsedData
-      .filter((row: any) => row.amount > 0 && row.address === address)
-      .map((row: any) => ({
-        id: row.claimId || '1',
-        unclaimedAmount: row.amount,
-        fieldName: fieldName
-      }));
-    
-    const claims = parsedData
-      .filter((row: any) => row.claimed && row.address === address)
-      .map((row: any) => ({
-        id: row.claimId || '1',
-        amount: row.amount,
-        timestamp: row.timestamp || Date.now(),
-        txHash: row.txHash || '0xtx',
-        fieldName: fieldName
-      }));
-    
-    return { holdings, claims };
+    // Build claimed/unclaimed lists and totals similar to production util
+    const filtered = parsedData.filter((row: any) => row.address === address);
+    const toWeiString = (val: any) => {
+      if (typeof val === 'number') return BigInt(Math.round(val * 1e18)).toString();
+      if (typeof val === 'string') {
+        const num = Number(val);
+        if (!Number.isNaN(num)) return BigInt(Math.round(num * 1e18)).toString();
+        return '0';
+      }
+      return '0';
+    };
+    const claimedCsv = filtered.filter((r: any) => r.claimed).map((r: any, idx: number) => ({
+      index: String(r.claimId || idx),
+      address: r.address,
+      amount: toWeiString(r.amount),
+      claimed: true,
+      decodedLog: { timestamp: r.timestamp || Date.now() }
+    }));
+    const unclaimedCsv = filtered.filter((r: any) => !r.claimed).map((r: any, idx: number) => ({
+      index: String(r.claimId || idx),
+      address: r.address,
+      amount: toWeiString(r.amount),
+      claimed: false
+    }));
+
+    const totalClaimedAmount = claimedCsv.reduce((sum: bigint, c: any) => sum + BigInt(c.amount), 0n);
+    const totalUnclaimedAmount = unclaimedCsv.reduce((sum: bigint, c: any) => sum + BigInt(c.amount), 0n);
+    const totalEarned = totalClaimedAmount + totalUnclaimedAmount;
+
+    const claims = claimedCsv.map((c: any) => ({
+      id: c.index,
+      amount: (Number(c.amount) / 1e18).toString(),
+      timestamp: c.decodedLog?.timestamp || Date.now(),
+      txHash: '0xtx',
+      fieldName: fieldName,
+      asset: fieldName,
+      date: new Date(c.decodedLog?.timestamp || Date.now())
+    }));
+
+    const holdings = unclaimedCsv.map((u: any) => ({
+      id: u.index,
+      unclaimedAmount: (Number(u.amount) / 1e18).toString(),
+      fieldName: fieldName,
+      name: fieldName,
+      location: '',
+      totalEarned: (Number(totalEarned) / 1e18).toString(),
+      lastPayout: new Date().toISOString(),
+      lastClaimDate: '',
+      status: 'producing'
+    }));
+
+    return {
+      claimedCsv,
+      unclaimedCsv,
+      claims,
+      holdings,
+      totalClaims: filtered.length,
+      claimedCount: claimedCsv.length,
+      unclaimedCount: unclaimedCsv.length,
+      totalClaimedAmount: totalClaimedAmount.toString(),
+      totalUnclaimedAmount: totalUnclaimedAmount.toString(),
+      totalEarned: totalEarned.toString(),
+      ownerAddress: address || 'all'
+    };
   }),
   getProofForLeaf: vi.fn(() => ({
     proof: ['0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890']
