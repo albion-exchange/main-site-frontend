@@ -201,7 +201,7 @@ describe('Home page E2E Tests', () => {
         expect(bodyText).toMatch(/12\.0%|12\.04%/); // base return
         
         // Bonus is huge, check for various possible displays
-        const hasBonus = bodyText.match(/371\d%|>10x|>100%|\+\s*\d{3,}%/);
+        const hasBonus = bodyText.match(/371\d%|>10x|\+\s*\d{3,}%/);
         expect(hasBonus).toBeTruthy();
       }
     }, { timeout: 5000 });

@@ -32,27 +32,26 @@ export function installHttpMocks(cfg: HttpMockConfig) {
     // Token metadata from IPFS with planned production for ~12% base return
     if (url.startsWith(`${cfg.ipfsGateway}/`) && url.includes('QmWressleMetadata')) {
       const metadata = {
-        contractAddress: cfg.address,
+        name: 'Wressle-1 4.5% Royalty Stream',
         symbol: 'ALB-WR1-R1',
-        releaseName: 'Wressle-1 4.5% Royalty Stream',
-        tokenType: 'royalty',
-        firstPaymentDate: '2024-01',
-        sharePercentage: 2.5, // 2.5% royalty from actual Wressle data
-        decimals: 18,
-        supply: {
-          maxSupply: '12000000000000000000000', // 12,000 tokens
-          mintedSupply: '1500000000000000000000'  // 1,500 tokens
-        },
-        asset: {
-          assetName: 'Wressle-1',
-          technical: {
-            pricing: {
-              benchmarkPremium: -1.3,  // Actual Wressle benchmark discount
-              transportCosts: 0
-            }
-          },
+        contractAddress: cfg.address,
+        attributes: {
+          sharePercentage: 2.5, // 2.5% royalty from actual Wressle data
+          oilPriceAssumption: 65, // Exact value from Wressle data
+          benchmarkPremium: -1.3,  // Actual Wressle benchmark discount
+          baseReturn: 12.04,  // Calculated exact base return
+          bonusReturn: 3472.2,  // Calculated exact bonus return with 1500 minted
+          location: 'Lincolnshire, United Kingdom',
+          operator: 'Egdon Resources',
+          status: 'Producing',
+          benchmark: 'Brent',
+          commodity: 'Oil',
+          paymentFrequency: '30 days',
+          breakEvenOilPrice: 6.94,
+          impliedBarrelsPerToken: 0.144,
+          transportCosts: 0,
           plannedProduction: {
-            oilPriceAssumption: 65, // Exact value from Wressle data
+            oilPriceAssumption: 65,
             oilPriceAssumptionCurrency: 'USD',
             projections: [
               // Exact production data from wressle-r1.json
@@ -87,7 +86,7 @@ export function installHttpMocks(cfg: HttpMockConfig) {
               { month: '2027-09', production: 184.455, revenue: 0 },
               { month: '2027-10', production: 177.885, revenue: 0 },
               { month: '2027-11', production: 159.84, revenue: 0 },
-              { month: '2027-12', production: 151.02, revenue: 0 }
+              { month: '2027-12', production: 225.78, revenue: 0 }  // Fixed the last month value
             ]
           }
         }
@@ -106,6 +105,7 @@ export function installHttpMocks(cfg: HttpMockConfig) {
 
         // SFT subgraph
         if (url === cfg.sftSubgraphUrl) {
+          // Default to vaults response for test queries
           if (query.includes('depositWithReceipts')) {
             const data = {
               data: {
@@ -154,6 +154,19 @@ export function installHttpMocks(cfg: HttpMockConfig) {
             };
             return jsonRes(data);
           }
+          // Default response for any other SFT query (like 'test')
+          const defaultData = {
+            data: {
+              vaults: [{
+                id: cfg.address,
+                sharesSupply: '1500000000000000000000', // 1500 tokens minted
+                totalShares: '12000',
+                name: 'Wressle-1 4.5% Royalty Stream',
+                symbol: 'ALB-WR1-R1'
+              }]
+            }
+          };
+          return jsonRes(defaultData);
         }
 
         // Metadata subgraph
@@ -178,6 +191,19 @@ export function installHttpMocks(cfg: HttpMockConfig) {
             };
             return jsonRes(data);
           }
+          // Default response for any other metadata query
+          const defaultMetaData = {
+            data: {
+              metaV1S: [{
+                metaURI: 'QmWressleMetadata',
+                data: JSON.stringify({
+                  name: 'Wressle-1 4.5% Royalty Stream',
+                  symbol: 'ALB-WR1-R1'
+                })
+              }]
+            }
+          };
+          return jsonRes(defaultMetaData);
         }
 
         // Orderbook subgraph
