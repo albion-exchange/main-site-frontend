@@ -142,24 +142,16 @@ vi.mock('$lib/stores', async () => {
 vi.mock('$lib/queries/getAllDeposits', () => ({
   getAllDeposits: vi.fn().mockResolvedValue([
     {
-      vault: { id: '0xvault1' },
-      sft: { id: '0xf836a500910453a397084ade41321ee20a5aade1' },
-      sender: '0x1111111111111111111111111111111111111111',
-      sharesMinted: '150000000000000000000', // 150 tokens owned by user
-      timestamp: 1700000000,
-      depositEvent: {
-        transaction: { blockNumber: 100 }
-      }
+      offchainAssetReceiptVault: { id: '0xf836a500910453a397084ade41321ee20a5aade1' },
+      caller: { address: '0x1111111111111111111111111111111111111111' },
+      amount: '150000000000000000000', // 150 tokens owned by user
+      id: 'deposit1'
     },
     {
-      vault: { id: '0xvault2' },
-      sft: { id: '0xa111111111111111111111111111111111111111' },
-      sender: '0x1111111111111111111111111111111111111111',
-      sharesMinted: '250000000000000000000', // 250 tokens owned by user
-      timestamp: 1700100000,
-      depositEvent: {
-        transaction: { blockNumber: 200 }
-      }
+      offchainAssetReceiptVault: { id: '0xa111111111111111111111111111111111111111' },
+      caller: { address: '0x1111111111111111111111111111111111111111' },
+      amount: '250000000000000000000', // 250 tokens owned by user
+      id: 'deposit2'
     }
   ])
 }));
@@ -230,7 +222,29 @@ vi.mock('$lib/utils/claims', () => ({
   }),
   getProofForLeaf: vi.fn(() => ({
     proof: ['0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890']
-  }))
+  })),
+  fetchAndValidateCSV: vi.fn(async (csvLink) => {
+    // Return mock CSV data for portfolio test
+    // This matches the structure expected by the claims store
+    return [
+      { 
+        Wallet: '0x1111111111111111111111111111111111111111',
+        index: '0',
+        address: '0x1111111111111111111111111111111111111111',
+        amount: '347760000000000000',
+        claimId: '1',
+        claimed: false
+      },
+      {
+        Wallet: '0x1111111111111111111111111111111111111111',
+        index: '1', 
+        address: '0x1111111111111111111111111111111111111111',
+        amount: '330885000000000000',
+        claimId: '2',
+        claimed: true
+      }
+    ];
+  })
 }));
 
 // Mock decodeMetadata
