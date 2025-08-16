@@ -132,13 +132,15 @@ export async function syncPortfolioData(walletAddress?: string): Promise<void> {
     // Process each deposit
     deposits?.forEach((deposit: any) => {
       // Get token metadata
+      const vaultAddress = deposit.offchainAssetReceiptVault?.id || deposit.vault;
       const tokenMeta = tokenState.tokensByAddress.get(
-        deposit.vault.toLowerCase()
+        vaultAddress.toLowerCase()
       );
       
-      if (tokenMeta && deposit.shares > 0) {
+      const depositAmount = deposit.amount || deposit.shares;
+      if (tokenMeta && depositAmount && Number(depositAmount) > 0) {
         // Calculate current value (simplified - would need price data)
-        const balance = BigInt(deposit.shares);
+        const balance = BigInt(depositAmount);
         const value = Number(formatEther(balance)) * 100; // Placeholder price
         const tokensOwned = Number(formatEther(balance));
         
@@ -160,7 +162,7 @@ export async function syncPortfolioData(walletAddress?: string): Promise<void> {
         const unrecoveredCapital = Math.max(0, invested - earned);
         
         holdings.push({
-          id: `${deposit.vault}-${deposit.id}`, // Unique ID for this holding
+          id: `${vaultAddress}-${deposit.id}`, // Unique ID for this holding
           token: tokenMeta,
           balance,
           value,
