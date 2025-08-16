@@ -218,7 +218,12 @@
 		}
 
 		const deposits = await getAllDeposits($signerAddress || '')
-		const totalDeposits = deposits.reduce((sum: bigint, deposit: any) => sum + BigInt(deposit.amount), BigInt(0))
+		const totalDeposits = deposits ? deposits.reduce((sum: bigint, deposit: any) => {
+			if (deposit?.amount) {
+				return sum + BigInt(deposit.amount);
+			}
+			return sum;
+		}, BigInt(0)) : BigInt(0)
 		
 	}
 
@@ -249,37 +254,41 @@
 			
 			// Get deposits for this wallet
 			const deposits = await getAllDeposits($signerAddress || '');
-			console.log('All deposits for wallet:', deposits.length, deposits);
+			console.log('All deposits for wallet:', deposits?.length || 0, deposits);
 			
 			// Log each deposit's details
-			deposits.forEach((d: any, i: number) => {
-				console.log(`Deposit ${i + 1}:`, {
-					vault: d.offchainAssetReceiptVault.id,
-					amount_raw: d.amount,
-					amount_formatted: Number(formatEther(d.amount))
+			if (deposits && deposits.length > 0) {
+				deposits.forEach((d: any, i: number) => {
+					console.log(`Deposit ${i + 1}:`, {
+						vault: d.offchainAssetReceiptVault?.id || 'N/A',
+						amount_raw: d.amount,
+						amount_formatted: d.amount ? Number(formatEther(d.amount)) : 0
+					});
 				});
-			});
+			}
 			
 			console.log('Processing SFTs:', $sfts.length, $sfts.map(s => s.id));
 			
 			// Collect deposit data with timestamps from SFT data
 			allDepositsData = [];
-			for(const sft of $sfts) {
-				// Find deposits for this SFT
-				const sftDeposits = deposits.filter((d: any) => 
-					d.offchainAssetReceiptVault.id.toLowerCase() === sft.id.toLowerCase()
-				);
-				
-				// Add deposit data with SFT info
-				for(const deposit of sftDeposits) {
-					allDepositsData.push({
-						...deposit,
-						sftAddress: sft.id,
-						sftName: sft.name || sft.id,
-						// For now, use a default timestamp since getAllDeposits doesn't return timestamps
-						// TODO: Get real deposit timestamps from SFT subgraph
-						timestamp: new Date().toISOString() // Placeholder
-					});
+			if (deposits && deposits.length > 0) {
+				for(const sft of $sfts) {
+					// Find deposits for this SFT
+					const sftDeposits = deposits.filter((d: any) => 
+						d.offchainAssetReceiptVault?.id?.toLowerCase() === sft.id.toLowerCase()
+					);
+					
+					// Add deposit data with SFT info
+					for(const deposit of sftDeposits) {
+						allDepositsData.push({
+							...deposit,
+							sftAddress: sft.id,
+							sftName: sft.name || sft.id,
+							// For now, use a default timestamp since getAllDeposits doesn't return timestamps
+							// TODO: Get real deposit timestamps from SFT subgraph
+							timestamp: new Date().toISOString() // Placeholder
+						});
+					}
 				}
 			}
 			
@@ -301,9 +310,9 @@
 					const asset = (pinnedMetadata as any).asset;
 					
 					// Get ALL deposits for this specific SFT and sum them
-					const sftDeposits = deposits.filter((d: any) => 
-						d.offchainAssetReceiptVault.id.toLowerCase() === sft.id.toLowerCase()
-					);
+					const sftDeposits = deposits ? deposits.filter((d: any) => 
+						d.offchainAssetReceiptVault?.id?.toLowerCase() === sft.id.toLowerCase()
+					) : [];
 					
 					// Sum all deposits for this SFT
 					let totalInvested = 0;
@@ -378,12 +387,18 @@
 													const sortedClaimsData = await sortClaimsData(parsedData, trades, $signerAddress || '', field.name);
 													
 													// Add the total earned amount from CSV data
-													const csvTotalEarned = Number(formatEther(sortedClaimsData.totalEarned));
-													totalEarned += csvTotalEarned;
+													let csvTotalEarned = 0;
+													if (sortedClaimsData?.totalEarned) {
+														csvTotalEarned = Number(formatEther(BigInt(sortedClaimsData.totalEarned)));
+														totalEarned += csvTotalEarned;
+													}
 													
 													// Add unclaimed amount from CSV data
-													const csvUnclaimedAmount = Number(formatEther(sortedClaimsData.totalUnclaimedAmount));
-													unclaimedAmount += csvUnclaimedAmount;
+													let csvUnclaimedAmount = 0;
+													if (sortedClaimsData?.totalUnclaimedAmount) {
+														csvUnclaimedAmount = Number(formatEther(BigInt(sortedClaimsData.totalUnclaimedAmount)));
+														unclaimedAmount += csvUnclaimedAmount;
+													}
 													
 													console.log('CSV data processed - totalEarned:', csvTotalEarned, 'unclaimedAmount:', csvUnclaimedAmount);
 												} else {
@@ -478,10 +493,12 @@
 												
 												// Calculate the payout amount for this trade
 												// We'll distribute the total earned amount across all trades for this SFT
-												const totalEarnedForSft = Number(formatEther(sortedClaimsData.totalEarned));
-												const payoutPerTrade = totalEarnedForSft / trades.length;
-												
-												monthlyPayoutsMap.set(monthKey, (monthlyPayoutsMap.get(monthKey) || 0) + payoutPerTrade);
+												if (sortedClaimsData?.totalEarned) {
+													const totalEarnedForSft = Number(formatEther(BigInt(sortedClaimsData.totalEarned)));
+													const payoutPerTrade = totalEarnedForSft / trades.length;
+													
+													monthlyPayoutsMap.set(monthKey, (monthlyPayoutsMap.get(monthKey) || 0) + payoutPerTrade);
+												}
 											}
 										}
 									}

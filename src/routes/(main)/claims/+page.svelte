@@ -149,9 +149,15 @@
 								holdings: holdingsWithProofs 
 							}];
 						}
-						totalClaimed += Number(formatEther(sortedClaimsData.totalClaimedAmount));
-						totalEarned += Number(formatEther(sortedClaimsData.totalEarned));
-						unclaimedPayout += Number(formatEther(sortedClaimsData.totalUnclaimedAmount));
+						if (sortedClaimsData?.totalClaimedAmount) {
+							totalClaimed += Number(formatEther(BigInt(sortedClaimsData.totalClaimedAmount)));
+						}
+						if (sortedClaimsData?.totalEarned) {
+							totalEarned += Number(formatEther(BigInt(sortedClaimsData.totalEarned)));
+						}
+						if (sortedClaimsData?.totalUnclaimedAmount) {
+							unclaimedPayout += Number(formatEther(BigInt(sortedClaimsData.totalUnclaimedAmount)));
+						}
 					}
 				}
 			}

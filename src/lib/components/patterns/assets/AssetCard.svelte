@@ -152,7 +152,7 @@
 			</div>
 			<!-- Third stat only on larger screens -->
 			<div class="hidden lg:flex lg:flex-col lg:items-center lg:text-center">
-				<span class={highlightValueClasses}>{formatEndDate(asset.technical.expectedEndDate)}</span>
+				<span class={highlightValueClasses}>{formatEndDate(asset.technical?.expectedEndDate)}</span>
 				<span class={highlightLabelClasses}>End Date</span>
 			</div>
 		</div>
