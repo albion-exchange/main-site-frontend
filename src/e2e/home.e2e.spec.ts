@@ -13,13 +13,13 @@ vi.mock('$app/stores', async () => {
 });
 
 vi.mock('svelte-wagmi', async () => {
-  const { writable } = await import('svelte/store');
+  const { writable, readable } = await import('svelte/store');
   return {
     web3Modal: writable({ open: () => {} }),
     signerAddress: writable('0x1111111111111111111111111111111111111111'),
     connected: writable(true),
     loading: writable(false),
-    wagmiConfig: {},
+    wagmiConfig: readable({ chains: [], transports: {} }),
     chainId: writable(8453),
     disconnectWagmi: async () => {},
   } as any;
@@ -46,23 +46,8 @@ vi.mock('@tanstack/svelte-query', () => ({
   createQuery: vi.fn(() => ({ subscribe: () => () => {} }))
 }));
 
-// Mock lib/stores
-vi.mock('$lib/stores', async () => {
-  const { writable } = await import('svelte/store');
-  return {
-    sftMetadata: writable([]),
-    sfts: writable([])
-  };
-});
-
-// Mock queries
-vi.mock('$lib/queries/getSftMetadata', () => ({
-  getSftMetadata: vi.fn(async () => [])
-}));
-
-vi.mock('$lib/queries/getSfts', () => ({
-  getSfts: vi.fn(async () => [])
-}));
+// Note: $lib/stores no longer exists in refactor - tokenStore is used instead
+// The tokenStore will fetch data via HTTP mocks which provide the test data
 
 const ADDRESS = '0xc699575fe18f00104d926f0167cd858ce6d8b32e';
 const ORDER = '0x43ec2493caed6b56cfcbcf3b9279a01aedaafbce509598dfb324513e2d199977';
