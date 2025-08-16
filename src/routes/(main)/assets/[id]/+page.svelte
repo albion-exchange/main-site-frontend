@@ -371,7 +371,7 @@
 					<h3 class="text-3xl md:text-2xl font-extrabold text-black uppercase tracking-wider mb-8">Token Information</h3>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 					{#each assetTokens as token}
-						{@const supply = getTokenSupply(token)}
+						{@const supply = calculateTokenSupply(token)}
 						{@const hasAvailableSupply = supply && supply.availableSupply > 0}
 						{@const tokenPayoutData = getTokenPayoutHistory(token)}
 						{@const latestPayout = tokenPayoutData?.recentPayouts?.[0]}

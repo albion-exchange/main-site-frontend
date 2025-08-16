@@ -207,7 +207,6 @@ export function clearReturnsCache(): void {
   returnCache.clear();
 }
 
-
 export function getTokenPayoutHistory(
   token: TokenMetadata,
 ): { recentPayouts: any[] } | null {
