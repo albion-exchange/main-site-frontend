@@ -25,8 +25,9 @@ export function installHttpMocks(cfg: HttpMockConfig) {
     // CSV file from IPFS - Using Wressle production values
     if (url.startsWith(`${cfg.ipfsGateway}/`) && url.includes(cfg.csvCid)) {
       // May: $347.76, June: $330.885 from Wressle projections
-      const csv = `index,address,amount\n0,${cfg.wallet},347760000000000000\n1,${cfg.wallet},330885000000000000\n2,0x2222222222222222222222222222222222222222,336240000000000000`;
-      return new Response(csv, { status: 200 });
+      // Note: amounts are in wei (18 decimals)
+      const csv = `index,address,amount\n0,${cfg.wallet.toLowerCase()},347760000000000000000\n1,${cfg.wallet.toLowerCase()},330885000000000000000\n2,0x2222222222222222222222222222222222222222,336240000000000000000`;
+      return new Response(csv, { status: 200, headers: { 'Content-Type': 'text/csv' } });
     }
 
     // Token metadata from IPFS with planned production for ~12% base return

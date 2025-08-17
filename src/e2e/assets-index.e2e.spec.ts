@@ -27,7 +27,7 @@ vi.mock('svelte-wagmi', async () => {
   } as any;
 });
 
-// Mock network config with ENERGY_FIELDS
+// Mock network config - only mock URLs, not data
 vi.mock('$lib/network', async () => {
   const actual = await vi.importActual<any>('$lib/network');
   return {
@@ -39,34 +39,20 @@ vi.mock('$lib/network', async () => {
     ENERGY_FIELDS: [
       {
         name: 'Wressle-1',
-        description: 'Wressle oil field',
-        location: 'Lincolnshire, United Kingdom',
-        operator: 'Egdon Resources',
-        status: 'Producing',
         sftTokens: [
           {
-            address: '0xf836a500910453a397084ade41321ee20a5aade1',
-            symbol: 'ALB-WR1-R1',
-            name: 'Wressle-1 4.5% Royalty Stream'
+            address: '0xf836a500910453a397084ade41321ee20a5aade1'
           },
           {
-            address: '0xf836a500910453a397084ade41321ee20a5aade2',
-            symbol: 'ALB-WR1-R2',
-            name: 'Wressle-1 5% Royalty Stream'
+            address: '0xf836a500910453a397084ade41321ee20a5aade2'
           }
         ]
       },
       {
         name: 'Gulf Deep Water',
-        description: 'Gulf of Mexico deep water field',
-        location: 'Gulf of Mexico, USA',
-        operator: 'Offshore Energy Corp',
-        status: 'Developing',
         sftTokens: [
           {
-            address: '0xa111111111111111111111111111111111111111',
-            symbol: 'ALB-GDW-R1',
-            name: 'Gulf Deep Water 3% Royalty Stream'
+            address: '0xa111111111111111111111111111111111111111'
           }
         ]
       }
@@ -76,231 +62,16 @@ vi.mock('$lib/network', async () => {
 
 // Mock wagmi core
 vi.mock('@wagmi/core', () => ({
-  readContract: vi.fn()
-    .mockResolvedValueOnce(BigInt('12000000000000000000000')) // Wressle-1 R1 max supply
-    .mockResolvedValueOnce(BigInt('8000000000000000000000'))  // Wressle-1 R2 max supply
-    .mockResolvedValueOnce(BigInt('20000000000000000000000')) // Gulf Deep Water max supply
-    .mockResolvedValue(BigInt('10000000000000000000000'))     // Default max supply
+  readContract: vi.fn().mockResolvedValue(BigInt('10000000000000000000000')) // Default max supply
 }));
 
-// Mock stores with initial data for multiple assets
-vi.mock('$lib/stores', async () => {
-  const { writable } = await import('svelte/store');
-  
-  // Mock metadata for multiple tokens
-  const mockMetadata = [
-    {
-      id: '0xf836a500910453a397084ade41321ee20a5aade1',
-      metaURI: 'https://gateway.pinata.cloud/ipfs/QmWressleMetadata1',
-      data: JSON.stringify({
-        name: 'Wressle-1 4.5% Royalty Stream',
-        symbol: 'ALB-WR1-R1'
-      })
-    },
-    {
-      id: '0xf836a500910453a397084ade41321ee20a5aade2',
-      metaURI: 'https://gateway.pinata.cloud/ipfs/QmWressleMetadata2',
-      data: JSON.stringify({
-        name: 'Wressle-1 5% Royalty Stream',
-        symbol: 'ALB-WR1-R2'
-      })
-    },
-    {
-      id: '0xa111111111111111111111111111111111111111',
-      metaURI: 'https://gateway.pinata.cloud/ipfs/QmGulfMetadata',
-      data: JSON.stringify({
-        name: 'Gulf Deep Water 3% Royalty Stream',
-        symbol: 'ALB-GDW-R1'
-      })
-    }
-  ];
-  
-  // Mock SFT data for multiple tokens
-  const mockSfts = [
-    {
-      id: '0xf836a500910453a397084ade41321ee20a5aade1',
-      sharesSupply: '1500000000000000000000', // 1500 tokens minted
-      totalShares: '12000000000000000000000', // 12000 max supply
-      activeAuthorizer: { address: '0xauthorizer1' }
-    },
-    {
-      id: '0xf836a500910453a397084ade41321ee20a5aade2',
-      sharesSupply: '8000000000000000000000', // 8000 tokens minted (sold out)
-      totalShares: '8000000000000000000000', // 8000 max supply
-      activeAuthorizer: { address: '0xauthorizer2' }
-    },
-    {
-      id: '0xa111111111111111111111111111111111111111',
-      sharesSupply: '5000000000000000000000', // 5000 tokens minted
-      totalShares: '20000000000000000000000', // 20000 max supply
-      activeAuthorizer: { address: '0xauthorizer3' }
-    }
-  ];
-  
-  return {
-    sftMetadata: writable(mockMetadata),
-    sfts: writable(mockSfts)
-  };
-});
-
-// Mock decodeMetadata functions
-vi.mock('$lib/decodeMetadata/addSchemaToReceipts', () => ({
-  generateAssetInstanceFromSftMeta: vi.fn((sft, metadata) => {
-    // Return different assets based on the SFT ID
-    if (sft.id.includes('f836')) {
-      return {
-        id: 'wressle-1',
-        name: 'Wressle-1',
-        description: 'Wressle oil field in Lincolnshire',
-        location: 'Lincolnshire, United Kingdom',
-        operator: 'Egdon Resources',
-        status: 'Producing',
-        commodity: 'Oil',
-        benchmark: 'Brent',
-        oilPriceAssumption: 65,
-        benchmarkPremium: -1.3,
-        monthlyReports: [
-          { month: '2024-11', netIncome: 50000, production: 350 }
-        ],
-        technicalData: {
-          expectedEndDate: '2027-12-31'
-        }
-      };
-    } else {
-      return {
-        id: 'gulf-deep-water',
-        name: 'Gulf Deep Water',
-        description: 'Deep water oil field in Gulf of Mexico',
-        location: 'Gulf of Mexico, USA',
-        operator: 'Offshore Energy Corp',
-        status: 'Developing',
-        commodity: 'Oil',
-        benchmark: 'WTI',
-        oilPriceAssumption: 70,
-        benchmarkPremium: 0,
-        monthlyReports: [],
-        technicalData: {
-          expectedEndDate: '2030-06-30'
-        }
-      };
-    }
-  }),
-  generateTokenMetadataInstanceFromSft: vi.fn((sft, metadata, maxSupply) => {
-    // Return different tokens based on the SFT ID
-    if (sft.id === '0xf836a500910453a397084ade41321ee20a5aade1') {
-      return {
-        contractAddress: '0xf836a500910453a397084ade41321ee20a5aade1',
-        releaseName: 'Wressle-1 4.5% Royalty Stream',
-        symbol: 'ALB-WR1-R1',
-        sharePercentage: 4.5,
-        supply: {
-          mintedSupply: '1500000000000000000000',
-          maxSupply: maxSupply
-        },
-        impliedBarrelsPerToken: 0.144,
-        baseReturn: 12.04,
-        bonusReturn: 3472.2
-      };
-    } else if (sft.id === '0xf836a500910453a397084ade41321ee20a5aade2') {
-      return {
-        contractAddress: '0xf836a500910453a397084ade41321ee20a5aade2',
-        releaseName: 'Wressle-1 5% Royalty Stream',
-        symbol: 'ALB-WR1-R2',
-        sharePercentage: 5,
-        supply: {
-          mintedSupply: '8000000000000000000000',
-          maxSupply: maxSupply
-        },
-        impliedBarrelsPerToken: 0.160,
-        baseReturn: 13.5,
-        bonusReturn: 4000
-      };
-    } else {
-      return {
-        contractAddress: '0xa111111111111111111111111111111111111111',
-        releaseName: 'Gulf Deep Water 3% Royalty Stream',
-        symbol: 'ALB-GDW-R1',
-        sharePercentage: 3,
-        supply: {
-          mintedSupply: '5000000000000000000000',
-          maxSupply: maxSupply
-        },
-        impliedBarrelsPerToken: 0.200,
-        baseReturn: 15.0,
-        bonusReturn: 5000
-      };
-    }
-  })
-}));
-
-// Mock the decode function
-vi.mock('$lib/decodeMetadata/helpers', () => ({
-  decodeSftInformation: vi.fn((metaV1) => {
-    // Return decoded metadata based on the ID
-    if (metaV1.id === '0xf836a500910453a397084ade41321ee20a5aade1') {
-      return {
-        contractAddress: '0x000000000000000000000000f836a500910453a397084ade41321ee20a5aade1',
-        name: 'Wressle-1 4.5% Royalty Stream',
-        symbol: 'ALB-WR1-R1'
-      };
-    } else if (metaV1.id === '0xf836a500910453a397084ade41321ee20a5aade2') {
-      return {
-        contractAddress: '0x000000000000000000000000f836a500910453a397084ade41321ee20a5aade2',
-        name: 'Wressle-1 5% Royalty Stream',
-        symbol: 'ALB-WR1-R2'
-      };
-    } else {
-      return {
-        contractAddress: '0x000000000000000000000000a111111111111111111111111111111111111111',
-        name: 'Gulf Deep Water 3% Royalty Stream',
-        symbol: 'ALB-GDW-R1'
-      };
-    }
-  })
-}));
-
-// Mock grouping utility
-vi.mock('$lib/utils/energyFieldGrouping', () => ({
-  groupSftsByEnergyField: vi.fn((tokensWithAssets: any[]) => {
-    // Group tokens by their energy field
-    const grouped: any[] = [];
-    
-    // Group Wressle tokens together
-    const wressleTokens = tokensWithAssets.filter(item => 
-      item.asset.name.includes('Wressle')
-    );
-    if (wressleTokens.length > 0) {
-      grouped.push({
-        asset: wressleTokens[0].asset,
-        tokens: wressleTokens.map(item => item.token),
-        energyFieldId: 'wressle-1'
-      });
-    }
-    
-    // Group Gulf tokens
-    const gulfTokens = tokensWithAssets.filter(item => 
-      item.asset.name.includes('Gulf')
-    );
-    if (gulfTokens.length > 0) {
-      grouped.push({
-        asset: gulfTokens[0].asset,
-        tokens: gulfTokens.map(item => item.token),
-        energyFieldId: 'gulf-deep-water'
-      });
-    }
-    
-    return grouped;
-  })
-}));
-
-// Mock queries
-vi.mock('$lib/queries/getSftMetadata', () => ({
-  getSftMetadata: vi.fn(async () => [])
-}));
-
-vi.mock('$lib/queries/getSfts', () => ({
-  getSfts: vi.fn(async () => [])
-}));
+// DO NOT MOCK THESE - Let them use production code that fetches from HTTP mocks:
+// - $lib/stores
+// - $lib/decodeMetadata/addSchemaToReceipts
+// - $lib/decodeMetadata/helpers
+// - $lib/utils/energyFieldGrouping
+// - $lib/queries/getSftMetadata
+// - $lib/queries/getSfts
 
 const ADDRESS = '0xc699575fe18f00104d926f0167cd858ce6d8b32e';
 const ORDER = '0x43ec2493caed6b56cfcbcf3b9279a01aedaafbce509598dfb324513e2d199977';
