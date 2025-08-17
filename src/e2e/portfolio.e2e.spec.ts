@@ -27,7 +27,7 @@ vi.mock('svelte-wagmi', async () => {
   } as any;
 });
 
-// Mock network config - only mock configuration, not data
+// Mock network config - only mock URLs, not data
 vi.mock('$lib/network', async () => {
   const actual = await vi.importActual<any>('$lib/network');
   return {
@@ -39,15 +39,9 @@ vi.mock('$lib/network', async () => {
     ENERGY_FIELDS: [
       {
         name: 'Wressle-1',
-        description: 'Wressle oil field',
-        location: 'Lincolnshire, United Kingdom',
-        operator: 'Egdon Resources',
-        status: 'Producing',
         sftTokens: [
           {
             address: '0xf836a500910453a397084ade41321ee20a5aade1',
-            symbol: 'ALB-WR1-R1',
-            name: 'Wressle-1 4.5% Royalty Stream',
             claims: [
               {
                 csvLink: 'https://gateway.pinata.cloud/ipfs/bafkreicjcemmypds6d5c4lonwp56xb2ilzhkk7hty3y6fo4nvdkxnaibgu',
@@ -61,15 +55,9 @@ vi.mock('$lib/network', async () => {
       },
       {
         name: 'Gulf Deep Water',
-        description: 'Gulf of Mexico deep water field',
-        location: 'Gulf of Mexico, USA',
-        operator: 'Offshore Energy Corp',
-        status: 'Developing',
         sftTokens: [
           {
             address: '0xa111111111111111111111111111111111111111',
-            symbol: 'ALB-GDW-R1',
-            name: 'Gulf Deep Water 3% Royalty Stream',
             claims: []
           }
         ]

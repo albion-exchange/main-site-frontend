@@ -35,7 +35,7 @@ vi.mock('@wagmi/core', () => ({
   })
 }));
 
-// Mock network config - only mock configuration, not data
+// Mock network config - only mock URLs, not data
 vi.mock('$lib/network', async () => {
   const actual = await vi.importActual<any>('$lib/network');
   return {
@@ -47,15 +47,9 @@ vi.mock('$lib/network', async () => {
     ENERGY_FIELDS: [
       {
         name: 'Wressle-1',
-        description: 'Wressle oil field',
-        location: 'Lincolnshire, United Kingdom',
-        operator: 'Egdon Resources',
-        status: 'Producing',
         sftTokens: [
           {
             address: '0xf836a500910453a397084ade41321ee20a5aade1',
-            symbol: 'ALB-WR1-R1',
-            name: 'Wressle-1 4.5% Royalty Stream',
             claims: [
               {
                 csvLink: 'https://gateway.pinata.cloud/ipfs/bafkreicjcemmypds6d5c4lonwp56xb2ilzhkk7hty3y6fo4nvdkxnaibgu',
