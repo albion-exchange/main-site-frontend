@@ -46,8 +46,8 @@ vi.mock('$lib/network', async () => {
               {
                 csvLink: 'https://gateway.pinata.cloud/ipfs/bafkreicjcemmypds6d5c4lonwp56xb2ilzhkk7hty3y6fo4nvdkxnaibgu',
                 orderHash: '0x43ec2493caed6b56cfcbcf3b9279a01aedaafbce509598dfb324513e2d199977',
-                expectedMerkleRoot: '0xmerkleroot1',
-                expectedContentHash: '0xcontenthash1'
+                expectedMerkleRoot: '0x0000000000000000000000000000000000000000000000000000000000000000',
+                expectedContentHash: 'bafkreicjcemmypds6d5c4lonwp56xb2ilzhkk7hty3y6fo4nvdkxnaibgu'
               }
             ]
           }
