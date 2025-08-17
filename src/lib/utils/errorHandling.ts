@@ -1,6 +1,6 @@
 /**
- * @fileoverview Centralized Error Handling System
- * Provides consistent error types, reporting, and handling patterns
+ * @fileoverview Simplified Error Handling Utilities
+ * Provides basic error types and network error detection
  */
 
 export enum ErrorCode {
@@ -68,92 +68,6 @@ export class AppError extends Error {
   }
 }
 
-export interface ErrorReporter {
-  report(error: AppError): void;
-  handle(error: AppError): void;
-}
-
-class ErrorReporterImpl implements ErrorReporter {
-  report(error: AppError): void {
-    // Log to console in development
-    if (import.meta.env.DEV) {
-      console.error("AppError:", error.toJSON());
-    }
-
-    // In production, send to telemetry service
-    if (import.meta.env.PROD && error.severity === ErrorSeverity.CRITICAL) {
-      // TODO: Implement telemetry reporting
-      console.error("Critical error:", error.toJSON());
-    }
-  }
-
-  handle(error: AppError): void {
-    this.report(error);
-
-    // Show user-friendly notifications based on severity
-    switch (error.severity) {
-      case ErrorSeverity.LOW:
-        // Silent handling, maybe log only
-        break;
-      case ErrorSeverity.MEDIUM:
-        // Show non-blocking notification
-        console.warn(error.message);
-        break;
-      case ErrorSeverity.HIGH:
-      case ErrorSeverity.CRITICAL:
-        // Show blocking notification or redirect
-        console.error(error.message);
-        // TODO: Implement user notification system
-        break;
-    }
-  }
-}
-
-export const errorReporter: ErrorReporter = new ErrorReporterImpl();
-
-// Utility functions for common error patterns
-export const createDataError = (
-  message: string,
-  context?: Record<string, any>,
-  cause?: Error,
-) =>
-  new AppError(
-    message,
-    ErrorCode.DATA_LOAD_FAILED,
-    ErrorSeverity.MEDIUM,
-    context,
-    cause,
-  );
-
-export const createNotFoundError = (resource: string, id: string) =>
-  new AppError(
-    `${resource} not found`,
-    resource.toLowerCase().includes("asset")
-      ? ErrorCode.ASSET_NOT_FOUND
-      : ErrorCode.TOKEN_NOT_FOUND,
-    ErrorSeverity.LOW,
-    { resource, id },
-  );
-
-export const createValidationError = (
-  message: string,
-  context?: Record<string, any>,
-) =>
-  new AppError(message, ErrorCode.INVALID_INPUT, ErrorSeverity.MEDIUM, context);
-
-export const createServiceError = (
-  service: string,
-  operation: string,
-  cause?: Error,
-) =>
-  new AppError(
-    `${service} service error during ${operation}`,
-    ErrorCode.SERVICE_UNAVAILABLE,
-    ErrorSeverity.HIGH,
-    { service, operation },
-    cause,
-  );
-
 // Error boundary helpers for async operations
 export async function withErrorHandling<T>(
   operation: () => Promise<T>,
@@ -162,29 +76,7 @@ export async function withErrorHandling<T>(
   try {
     return await operation();
   } catch (error) {
-    const appError = createServiceError(
-      errorContext.service,
-      errorContext.operation,
-      error instanceof Error ? error : new Error(String(error)),
-    );
-    errorReporter.handle(appError);
-    return null;
-  }
-}
-
-export function withSyncErrorHandling<T>(
-  operation: () => T,
-  errorContext: { service: string; operation: string },
-): T | null {
-  try {
-    return operation();
-  } catch (error) {
-    const appError = createServiceError(
-      errorContext.service,
-      errorContext.operation,
-      error instanceof Error ? error : new Error(String(error)),
-    );
-    errorReporter.handle(appError);
+    console.error(`${errorContext.service} error during ${errorContext.operation}:`, error);
     return null;
   }
 }

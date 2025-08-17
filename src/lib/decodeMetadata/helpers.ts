@@ -78,7 +78,7 @@ export function encodeCBORStructure(structure: string, schemaHash: string) {
   if (typeof structure === "object") {
     structure = JSON.stringify(structure);
   }
-  const deflatedData = ethers.getBytes(deflateJson(structure)).buffer;
+  const deflatedData = ethers.getBytes(deflateJson(structure)).buffer as ArrayBuffer;
   return cborEncode(
     deflatedData,
     MAGIC_NUMBERS.OA_STRUCTURE,
@@ -154,11 +154,6 @@ function getDateValues(date: Date) {
   if (hour.length < 2) hour = "0" + hour;
 
   return { day, month, year, hour, min };
-}
-
-export function formatDate(date: Date) {
-  const { year, month, day } = getDateValues(date);
-  return [year, month, day].join("-");
 }
 
 export function convertDotNotationToObject(

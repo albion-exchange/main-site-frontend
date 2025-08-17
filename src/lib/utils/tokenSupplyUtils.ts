@@ -8,35 +8,35 @@ import type { TokenMetadata } from "$lib/types/MetaboardTypes";
 import type { Token } from "$lib/types/uiTypes";
 
 export interface FormattedTokenSupply {
-  total: number;
-  available: number;
-  sold: number;
-  availableSupply: bigint;
-  totalPercentageAvailable: number;
+  maxSupply: number;
+  availableSupply: number;
+  mintedSupply: number;
+  availableSupplyBigInt: bigint;
+  supplyUtilization: number;
 }
 
 /**
  * Calculate and format token supply information
  */
 export function calculateTokenSupply(token: Token): FormattedTokenSupply {
-  const maxSupply = BigInt(token.supply.maxSupply);
-  const mintedSupply = BigInt(token.supply.mintedSupply);
-  const availableSupply = maxSupply - mintedSupply;
+  const maxSupplyBigInt = BigInt(token.supply.maxSupply);
+  const mintedSupplyBigInt = BigInt(token.supply.mintedSupply);
+  const availableSupplyBigInt = maxSupplyBigInt - mintedSupplyBigInt;
 
   const decimals = token.decimals;
   const divisor = Math.pow(10, decimals);
 
-  const total = Number(maxSupply) / divisor;
-  const available = Number(availableSupply) / divisor;
-  const sold = Number(mintedSupply) / divisor;
-  const totalPercentageAvailable = total > 0 ? (available / total) * 100 : 0;
+  const maxSupply = Number(maxSupplyBigInt) / divisor;
+  const availableSupply = Number(availableSupplyBigInt) / divisor;
+  const mintedSupply = Number(mintedSupplyBigInt) / divisor;
+  const supplyUtilization = maxSupply > 0 ? (mintedSupply / maxSupply) * 100 : 0;
 
   return {
-    total,
-    available,
-    sold,
+    maxSupply,
     availableSupply,
-    totalPercentageAvailable,
+    mintedSupply,
+    availableSupplyBigInt,
+    supplyUtilization,
   };
 }
 
@@ -48,7 +48,7 @@ export function hasAvailableSupply(
   minimumAmount: number = 0,
 ): boolean {
   const supply = calculateTokenSupply(token);
-  return supply.available > minimumAmount;
+  return supply.availableSupply > minimumAmount;
 }
 
 /**
@@ -83,5 +83,5 @@ export function meetsSupplyThreshold(
   thresholdAmount: number,
 ): boolean {
   const supply = calculateTokenSupply(token);
-  return supply.available >= thresholdAmount;
+  return supply.availableSupply >= thresholdAmount;
 }

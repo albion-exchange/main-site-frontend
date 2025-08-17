@@ -207,23 +207,6 @@ export function clearReturnsCache(): void {
   returnCache.clear();
 }
 
-export function getTokenSupply(token: TokenMetadata) {
-  if (!token) return null;
-
-  const maxSupply =
-    parseFloat(token.supply.maxSupply) / Math.pow(10, token.decimals);
-  const mintedSupply =
-    parseFloat(token.supply.mintedSupply) / Math.pow(10, token.decimals);
-  const supplyUtilization = (mintedSupply / maxSupply) * 100;
-
-  return {
-    maxSupply,
-    mintedSupply,
-    supplyUtilization,
-    availableSupply: maxSupply - mintedSupply,
-  };
-}
-
 export function getTokenPayoutHistory(
   token: TokenMetadata,
 ): { recentPayouts: any[] } | null {

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { calculateTokenReturns, getTokenSupply, getTokenPayoutHistory } from '$lib/utils/returnCalculations';
+import { calculateTokenReturns, getTokenPayoutHistory } from '$lib/utils/returnCalculations';
+import { calculateTokenSupply } from '$lib/utils/tokenSupplyUtils';
 import type { Asset } from '$lib/types/uiTypes';
 import type { TokenMetadata } from '$lib/types/MetaboardTypes';
 
@@ -101,9 +102,9 @@ describe('returnCalculations', () => {
     expect(res.baseReturn).toBeGreaterThan(0);
   });
 
-  it('getTokenSupply computes utilization and available supply', () => {
+  it('calculateTokenSupply computes utilization and available supply', () => {
     const token = makeToken();
-    const supply = getTokenSupply(token as any)!;
+    const supply = calculateTokenSupply(token as any);
     expect(supply.maxSupply).toBe(1000);
     expect(supply.mintedSupply).toBe(500);
     expect(supply.availableSupply).toBe(500);

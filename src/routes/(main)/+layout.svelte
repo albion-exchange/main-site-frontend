@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { createQuery } from '@tanstack/svelte-query';
-	import { getSftMetadata } from '$lib/queries/getSftMetadata';
-	import { getSfts } from '$lib/queries/getSfts';
-	import { sftMetadata, sfts } from '$lib/stores';
+	import { syncTokenData, isInitialized, syncError } from '$lib/stores/tokenStore';
+	import { syncPortfolioData } from '$lib/stores/portfolioStore';
+	import { syncClaimsData } from '$lib/stores/claimsStore';
 	import { onMount } from 'svelte';
 	import { web3Modal, signerAddress, connected, loading, disconnectWagmi } from 'svelte-wagmi';
 	import { formatAddress } from '$lib/utils/formatters';
@@ -38,7 +37,18 @@
 		// The form will handle the actual submission
 	}
 	
-	onMount(() => {
+	onMount(async () => {
+		// Sync token data on app load
+		await syncTokenData();
+		
+		// If user is connected, sync their data
+		if ($signerAddress) {
+			await Promise.all([
+				syncPortfolioData($signerAddress),
+				syncClaimsData($signerAddress)
+			]);
+		}
+		
 		// Add event listener to the form
 		const form = document.getElementById('mc-embedded-subscribe-form');
 		if (form) {
@@ -53,24 +63,21 @@
 		};
 	});
 
-	$: query = createQuery({
-		queryKey: ['getSftMetadata'],
-		queryFn: () => {
-			return getSftMetadata();
-		}
-	});
-	$: if ($query && $query.data) {
-		sftMetadata.set($query.data);
+	// Sync user data when wallet connects/changes
+	$: if ($signerAddress) {
+		Promise.all([
+			syncPortfolioData($signerAddress),
+			syncClaimsData($signerAddress)
+		]);
+	} else {
+		// Clear user data when disconnected
+		syncPortfolioData('');
+		syncClaimsData('');
 	}
-
-	$: vaultQuery = createQuery({
-		queryKey: ['getSfts'],
-		queryFn: () => {
-			return getSfts();
-		}
-	});
-	$: if ($vaultQuery && $vaultQuery.data) {
-		sfts.set($vaultQuery.data);
+	
+	// Watch for sync errors
+	$: if ($syncError) {
+		console.error('Blockchain sync error:', $syncError);
 	}
 	
 
