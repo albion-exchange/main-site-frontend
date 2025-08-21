@@ -39,6 +39,12 @@ export function installHttpMocks(cfg: HttpMockConfig) {
       const csv = `index,address,amount\n0,${cfg.wallet.toLowerCase()},347760000000000000000\n1,${cfg.wallet.toLowerCase()},330885000000000000000\n2,0x2222222222222222222222222222222222222222,336240000000000000000`;
       return new Response(csv, { status: 200, headers: { 'Content-Type': 'text/csv' } });
     }
+    
+    // Second CSV file from IPFS - for other claims
+    if (url.startsWith(`${cfg.ipfsGateway}/`) && url.includes('bafkreiothercsvfile')) {
+      const csv = `index,address,amount\n0,${cfg.wallet.toLowerCase()},250000000000000000000\n1,${cfg.wallet.toLowerCase()},180000000000000000000\n2,0x3333333333333333333333333333333333333333,150000000000000000000`;
+      return new Response(csv, { status: 200, headers: { 'Content-Type': 'text/csv' } });
+    }
 
     // Token metadata from IPFS with planned production for ~12% base return
     if (url.startsWith(`${cfg.ipfsGateway}/`) && url.includes('QmWressleMetadata')) {
@@ -296,6 +302,8 @@ export function installHttpMocks(cfg: HttpMockConfig) {
   if (cfg.hypersyncUrl) {
     axios.post = (async (url: string, payload?: any) => {
       if (url === cfg.hypersyncUrl) {
+        // Return empty logs array to simulate no claimed payouts
+        // This matches what would happen if there are no Context events on-chain
         return {
           data: {
             data: [
@@ -303,17 +311,7 @@ export function installHttpMocks(cfg: HttpMockConfig) {
                 blocks: [
                   { number: 100, timestamp: '0x65f5e100' },
                 ],
-                logs: [
-                  {
-                    block_number: 100,
-                    log_index: 0,
-                    transaction_index: 0,
-                    transaction_hash: '0xtrx',
-                    data: '0x',
-                    address: '0x0000000000000000000000000000000000000000',
-                    topic0: '',
-                  },
-                ],
+                logs: [], // Empty array - no claimed payouts yet
               },
             ],
             next_block: 101,

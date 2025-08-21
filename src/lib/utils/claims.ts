@@ -2,7 +2,7 @@ import { ORDERBOOK_CONTRACT_ADDRESS } from "$lib/network";
 import { SimpleMerkleTree } from "@openzeppelin/merkle-tree";
 import { AbiCoder } from "ethers";
 import axios from "axios";
-import { ethers, Signature } from "ethers";
+import { ethers } from "ethers";
 import { Wallet, keccak256, hashMessage, getBytes, concat } from "ethers";
 import { formatEther, parseEther } from "viem";
 
@@ -492,7 +492,11 @@ function decodeLogData(data: string): any {
   }
   try {
     const logBytes = ethers.getBytes(data);
-    const decodedData = ethers.AbiCoder.defaultAbiCoder().decode(
+    // Use AbiCoder.defaultAbiCoder() with proper handling for test environment
+    const abiCoder = typeof AbiCoder.defaultAbiCoder === 'function' 
+      ? AbiCoder.defaultAbiCoder() 
+      : AbiCoder.defaultAbiCoder;
+    const decodedData = abiCoder.decode(
       ["address", "uint256[][]"],
       logBytes,
     );
@@ -623,7 +627,11 @@ export function getProofForLeaf(tree: SimpleMerkleTree, leafValue: string) {
 }
 
 export function decodeOrder(orderBytes: string): OrderV3Type {
-  const [order] = AbiCoder.defaultAbiCoder().decode([OrderV3], orderBytes);
+  // Use AbiCoder.defaultAbiCoder() with proper handling for test environment
+  const abiCoder = typeof AbiCoder.defaultAbiCoder === 'function' 
+    ? AbiCoder.defaultAbiCoder() 
+    : AbiCoder.defaultAbiCoder;
+  const [order] = abiCoder.decode([OrderV3], orderBytes);
   return order;
 }
 
@@ -659,8 +667,8 @@ export function signContext(
   const digest = hashMessage(getBytes(contextHash));
 
   // 5. Sign the digest
-  const signatureHex = wallet.signingKey.sign(digest);
-  const signature = Signature.from(signatureHex);
+  const signature = wallet.signingKey.sign(digest);
+  // In ethers v6, sign() already returns a Signature object
   const signatureBytes = concat([
     getBytes(signature.r),
     getBytes(signature.s),
