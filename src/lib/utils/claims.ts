@@ -6,6 +6,12 @@ import { ethers } from "ethers";
 import { Wallet, keccak256, hashMessage, getBytes, concat } from "ethers";
 import { formatEther, parseEther } from "viem";
 
+// Create a singleton AbiCoder instance for reuse
+// This works in both production and test environments
+const abiCoder = typeof AbiCoder.defaultAbiCoder === 'function'
+  ? AbiCoder.defaultAbiCoder()
+  : AbiCoder.defaultAbiCoder;
+
 const HYPERSYNC_URL = "https://8453.hypersync.xyz/query";
 const CONTEXT_EVENT_TOPIC =
   "0x17a5c0f3785132a57703932032f6863e7920434150aa1dc940e567b440fdce1f";
@@ -492,10 +498,6 @@ function decodeLogData(data: string): any {
   }
   try {
     const logBytes = ethers.getBytes(data);
-    // Use AbiCoder.defaultAbiCoder() with proper handling for test environment
-    const abiCoder = typeof AbiCoder.defaultAbiCoder === 'function' 
-      ? AbiCoder.defaultAbiCoder() 
-      : AbiCoder.defaultAbiCoder;
     const decodedData = abiCoder.decode(
       ["address", "uint256[][]"],
       logBytes,
@@ -627,10 +629,6 @@ export function getProofForLeaf(tree: SimpleMerkleTree, leafValue: string) {
 }
 
 export function decodeOrder(orderBytes: string): OrderV3Type {
-  // Use AbiCoder.defaultAbiCoder() with proper handling for test environment
-  const abiCoder = typeof AbiCoder.defaultAbiCoder === 'function' 
-    ? AbiCoder.defaultAbiCoder() 
-    : AbiCoder.defaultAbiCoder;
   const [order] = abiCoder.decode([OrderV3], orderBytes);
   return order;
 }
