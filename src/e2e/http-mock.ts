@@ -1,6 +1,15 @@
 // Reusable HTTP-level fetch mock for subgraph and IPFS endpoints
 
 import axios from 'axios';
+import { createEncodedMetadata, wressleMetadata } from './cbor-test-helper';
+
+export type SftMockData = {
+  address: string;
+  name: string;
+  symbol: string;
+  totalShares: string;
+  metadata?: any;
+};
 
 export type HttpMockConfig = {
   sftSubgraphUrl: string;
@@ -8,10 +17,11 @@ export type HttpMockConfig = {
   orderbookSubgraphUrl: string;
   ipfsGateway: string;
   wallet: string;
-  address: string;
+  address: string; // Keep for backward compatibility
   orderHash: string;
   csvCid: string;
   hypersyncUrl?: string;
+  sfts?: SftMockData[]; // Optional array of SFT data
 };
 
 export function installHttpMocks(cfg: HttpMockConfig) {
@@ -127,30 +137,65 @@ export function installHttpMocks(cfg: HttpMockConfig) {
             return jsonRes(data);
           }
           if (query.includes('offchainAssetReceiptVaults')) {
+            // Use provided SFTs array or default to single SFT for backward compatibility
+            const sftVaults = cfg.sfts ? cfg.sfts.map(sft => ({
+              id: sft.address,
+              totalShares: sft.totalShares,
+              sharesSupply: sft.totalShares,
+              address: sft.address,
+              deployer: cfg.wallet,
+              admin: cfg.wallet,
+              name: sft.name,
+              symbol: sft.symbol,
+              deployTimestamp: `${Math.floor(Date.now() / 1000)}`,
+              receiptContractAddress: sft.address,
+              tokenHolders: [
+                {
+                  address: cfg.wallet,
+                  balance: '1500000000000000000' // 1.5 tokens
+                }
+              ],
+              shareHolders: [],
+              shareTransfers: [],
+              receiptBalances: [],
+              certifications: [],
+              receiptVaultInformations: [],
+              deposits: [],
+              withdraws: [],
+              activeAuthorizer: { address: cfg.wallet, rolesGranted: [], roleHolders: [], roles: [], roleRevokes: [] },
+            })) : [
+              // Default single SFT for backward compatibility
+              {
+                id: cfg.address,
+                totalShares: '1500000000000000000000',
+                sharesSupply: '1500000000000000000000',
+                address: cfg.address,
+                deployer: cfg.wallet,
+                admin: cfg.wallet,
+                name: 'Wressle-1 4.5% Royalty Stream',
+                symbol: 'ALB-WR1-R1',
+                deployTimestamp: `${Math.floor(Date.now() / 1000)}`,
+                receiptContractAddress: cfg.address,
+                tokenHolders: [
+                  {
+                    address: cfg.wallet,
+                    balance: '1500000000000000000' // 1.5 tokens
+                  }
+                ],
+                shareHolders: [],
+                shareTransfers: [],
+                receiptBalances: [],
+                certifications: [],
+                receiptVaultInformations: [],
+                deposits: [],
+                withdraws: [],
+                activeAuthorizer: { address: cfg.wallet, rolesGranted: [], roleHolders: [], roles: [], roleRevokes: [] },
+              }
+            ];
+            
             const data = {
               data: {
-                offchainAssetReceiptVaults: [
-                  {
-                    id: cfg.address,
-                    totalShares: '12000', // From Wressle data
-                    address: cfg.address,
-                    deployer: cfg.wallet,
-                    admin: cfg.wallet,
-                    name: 'Wressle-1 4.5% Royalty Stream', // From Wressle data
-                    symbol: 'ALB-WR1-R1', // From Wressle data
-                    deployTimestamp: `${Math.floor(Date.now() / 1000)}`,
-                    receiptContractAddress: cfg.address,
-                    tokenHolders: [],
-                    shareHolders: [],
-                    shareTransfers: [],
-                    receiptBalances: [],
-                    certifications: [],
-                    receiptVaultInformations: [],
-                    deposits: [],
-                    withdraws: [],
-                    activeAuthorizer: { address: cfg.wallet, rolesGranted: [], roleHolders: [], roles: [], roleRevokes: [] },
-                  },
-                ],
+                offchainAssetReceiptVaults: sftVaults,
               },
             };
             return jsonRes(data);
@@ -161,7 +206,7 @@ export function installHttpMocks(cfg: HttpMockConfig) {
               vaults: [{
                 id: cfg.address,
                 sharesSupply: '1500000000000000000000', // 1500 tokens minted
-                totalShares: '12000',
+                totalShares: '1500000000000000000000', // 1500 tokens in wei
                 name: 'Wressle-1 4.5% Royalty Stream',
                 symbol: 'ALB-WR1-R1'
               }]
@@ -173,21 +218,27 @@ export function installHttpMocks(cfg: HttpMockConfig) {
         // Metadata subgraph
         if (url === cfg.metadataSubgraphUrl) {
           if (query.includes('metaV1S')) {
-            // Encode the IPFS URL as hex for the meta field
-            const ipfsUrl = `${cfg.ipfsGateway}/QmWressleMetadata`;
-            const metaHex = '0x' + Buffer.from(ipfsUrl).toString('hex');
+            // Create metadata for all SFTs
+            const metadataEntries = cfg.sfts ? cfg.sfts.map((sft, index) => ({
+              id: `meta-${index + 1}`,
+              meta: createEncodedMetadata(sft.metadata || wressleMetadata),
+              subject: `0x000000000000000000000000${sft.address.slice(2)}`,
+              metaHash: `0x${(1234 + index).toString(16)}`,
+              sender: cfg.wallet,
+            })) : [
+              // Default single metadata for backward compatibility
+              {
+                id: 'meta-1',
+                meta: createEncodedMetadata(wressleMetadata),
+                subject: `0x000000000000000000000000${cfg.address.slice(2)}`,
+                metaHash: '0x1234',
+                sender: cfg.wallet,
+              }
+            ];
             
             const data = {
               data: {
-                metaV1S: [
-                  {
-                    id: 'meta-1',
-                    meta: metaHex, // Hex-encoded IPFS URL
-                    subject: `0x000000000000000000000000${cfg.address.slice(2)}`,
-                    metaHash: '0x1234', // Some hash
-                    sender: cfg.wallet,
-                  },
-                ],
+                metaV1S: metadataEntries,
               },
             };
             return jsonRes(data);

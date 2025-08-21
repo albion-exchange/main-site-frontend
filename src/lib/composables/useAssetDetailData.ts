@@ -55,9 +55,10 @@ export function useAssetDetailData(initialEnergyFieldId: string) {
         throw new Error("SFT data not available");
       }
 
-      const decodedMeta = currentSftMetadata.map((metaV1: MetaV1S) =>
-        decodeSftInformation(metaV1),
-      );
+      const decodedMeta = currentSftMetadata.map((metaV1: MetaV1S) => {
+        const decoded = decodeSftInformation(metaV1);
+        return decoded;
+      });
 
       // Find the energy field by ID
       const energyField = ENERGY_FIELDS.find((field: any) => {
