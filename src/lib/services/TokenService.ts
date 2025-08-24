@@ -59,7 +59,7 @@ class TokenService {
     
     for (const sft of $sfts) {
       const pinnedMetadata = decodedMeta.find(
-        (meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
+        (meta) => meta?.contractAddress?.toLowerCase() === `0x000000000000000000000000${sft.id.slice(2).toLowerCase()}`
       );
       
       if (pinnedMetadata) {

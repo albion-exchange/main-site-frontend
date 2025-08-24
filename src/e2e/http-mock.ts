@@ -228,17 +228,17 @@ export function installHttpMocks(cfg: HttpMockConfig) {
             const metadataEntries = cfg.sfts ? cfg.sfts.map((sft, index) => ({
               id: `meta-${index + 1}`,
               meta: createEncodedMetadata(sft.metadata || wressleMetadata),
-              subject: `0x000000000000000000000000${sft.address.slice(2)}`,
+              subject: `0x000000000000000000000000${sft.address.slice(2).toLowerCase()}`,
               metaHash: `0x${(1234 + index).toString(16)}`,
-              sender: cfg.wallet,
+              sender: cfg.wallet.toLowerCase(),
             })) : [
               // Default single metadata for backward compatibility
               {
                 id: 'meta-1',
                 meta: createEncodedMetadata(wressleMetadata),
-                subject: `0x000000000000000000000000${cfg.address.slice(2)}`,
+                subject: `0x000000000000000000000000${cfg.address.slice(2).toLowerCase()}`,
                 metaHash: '0x1234',
-                sender: cfg.wallet,
+                sender: cfg.wallet.toLowerCase(),
               }
             ];
             

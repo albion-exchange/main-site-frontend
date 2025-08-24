@@ -118,9 +118,8 @@ export function mapOrder<T extends Record<string, any>>(
 }
 
 export function bytesToMeta(bytes: any, type: any) {
-  // Check if bytes is Uint8Array or similar
-  if (bytes instanceof Uint8Array || (ethers.isBytesLike && ethers.isBytesLike(bytes))) {
-    const _bytesArr = bytes instanceof Uint8Array ? bytes : ethers.getBytes(bytes);
+  if (ethers.isBytesLike(bytes)) {
+    const _bytesArr = ethers.getBytes(bytes);
     let _meta;
     if (type === "json") {
       _meta = pako.inflate(_bytesArr, { to: "string" });
@@ -134,7 +133,9 @@ export function bytesToMeta(bytes: any, type: any) {
       res = _meta;
     }
     return res;
-  } else throw new Error("invalid meta");
+  } else {
+    throw new Error("Not a valid Bytes string");
+  }
 }
 
 export function cborDecode(dataEncoded_: any) {
@@ -197,22 +198,7 @@ export function convertDotNotationToObject(
 export function decodeSftInformation(metaV1: MetaV1S) {
   try {
     // Decode the metadata using the same process as ReceiptMetadata
-    if (!metaV1.meta) return null;
-    
-    // Convert hex string to bytes if needed
-    let metaBytes;
-    if (typeof metaV1.meta === 'string' && metaV1.meta.startsWith('0x')) {
-      // Remove 0x prefix and convert hex to bytes
-      const hexString = metaV1.meta.slice(2); // Remove 0x
-      const hexBytes = hexString.match(/.{1,2}/g) || [];
-      metaBytes = new Uint8Array(hexBytes.map(byte => parseInt(byte, 16)));
-    } else {
-      metaBytes = metaV1.meta;
-    }
-    
-    // Skip first 18 bytes and decode CBOR
-    const cborBytes = metaBytes.slice(18);
-    const information = cborDecode(cborBytes);
+    const information = metaV1.meta ? cborDecode(metaV1.meta.slice(18)) : null;
     if (!information) {
       return null;
     }
@@ -225,7 +211,7 @@ export function decodeSftInformation(metaV1: MetaV1S) {
       ...convertedStructure,
       contractAddress: metaV1.subject || metaV1.id,
     };
-  } catch (e) {
+  } catch {
     return null;
   }
 }

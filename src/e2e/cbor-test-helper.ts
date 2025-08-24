@@ -30,13 +30,21 @@ export function createEncodedMetadata(metadata: any): string {
   // Convert to hex string (matching cborEncode output)
   const hexString = cborData.toString('hex').toLowerCase();
   
-  // Add a proper 18-byte (36 hex chars) prefix that won't interfere with CBOR decoding
-  // Using random bytes that won't be valid CBOR
-  // Avoiding 0xff (BREAK), major types, and other CBOR markers
-  const prefix = '1234567890abcdef1234567890abcdef1234';
+  // Create the proper Rain meta document prefix
+  // This matches RAIN_META_DOCUMENT magic number: 0xff0a89c674ee7874
+  const rainMetaPrefix = 'ff0a89c674ee7874';
+  
+  // Add content encoding byte (e.g., 0xa5 for map with 5 elements)
+  // and content type identifier
+  const contentPrefix = 'a500';
+  
+  // Pad to make 18 bytes total (36 hex chars)
+  const paddingBytes = '590672789ca5565b73';
+  
+  const fullPrefix = rainMetaPrefix + contentPrefix + paddingBytes;
   
   // Return as hex string with 0x prefix
-  return '0x' + prefix + hexString;
+  return '0x' + fullPrefix + hexString;
 }
 
 // Test metadata structures

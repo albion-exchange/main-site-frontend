@@ -12,7 +12,7 @@ export const getSftMetadata = async (): Promise<MetaV1S[]> => {
 
     // Create the subjects array for the GraphQL query
     const subjects = sftAddresses.map(
-      (address) => `"0x000000000000000000000000${address.slice(2)}"`,
+      (address) => `"0x000000000000000000000000${address.slice(2).toLowerCase()}"`,
     );
 
     const query = `
@@ -41,6 +41,11 @@ export const getSftMetadata = async (): Promise<MetaV1S[]> => {
     });
 
     const json = await response.json();
+
+    if (!json.data || !json.data.metaV1S) {
+      console.error("No metadata found in response:", json);
+      return [];
+    }
 
     return json.data.metaV1S as MetaV1S[];
   } catch (error) {

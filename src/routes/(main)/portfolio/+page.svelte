@@ -230,7 +230,6 @@
 	async function loadSftData(){
 		// Prevent multiple simultaneous executions
 		if(isLoadingData) {
-			console.log('Already loading data, skipping duplicate call');
 			return;
 		}
 		
@@ -254,20 +253,8 @@
 			
 			// Get deposits for this wallet
 			const deposits = await getAllDeposits($signerAddress || '');
-			console.log('All deposits for wallet:', deposits?.length || 0, deposits);
 			
-			// Log each deposit's details
-			if (deposits && deposits.length > 0) {
-				deposits.forEach((d: any, i: number) => {
-					console.log(`Deposit ${i + 1}:`, {
-						vault: d.offchainAssetReceiptVault?.id || 'N/A',
-						amount_raw: d.amount,
-						amount_formatted: d.amount ? Number(formatEther(d.amount)) : 0
-					});
-				});
-			}
 			
-			console.log('Processing SFTs:', $sfts.length, $sfts.map(s => s.id));
 			
 			// Collect deposit data with timestamps from SFT data
 			allDepositsData = [];
@@ -297,14 +284,10 @@
 			
 			// Process each individual SFT token
 			for(const sft of uniqueSfts) {
-				console.log('Processing SFT:', sft.id);
-				
 				// Find metadata for this SFT
 				const pinnedMetadata = decodedMeta.find(
-					(meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
+					(meta) => meta?.contractAddress?.toLowerCase() === `0x000000000000000000000000${sft.id.slice(2).toLowerCase()}`
 				);
-				
-				console.log('Found metadata:', pinnedMetadata ? 'yes' : 'no');
 				
 				if(pinnedMetadata) {
 					const asset = (pinnedMetadata as any).asset;
@@ -319,17 +302,13 @@
 					let tokensOwned = 0;
 					
 					if(sftDeposits.length > 0) {
-						console.log(`Deposits for SFT ${sft.id}:`);
 						for(const deposit of sftDeposits) {
-							console.log(`  - Amount (raw): ${deposit.amount}`);
 							const depositAmount = Number(formatEther(deposit.amount));
-							console.log(`  - Amount (formatted): ${depositAmount}`);
 							totalInvested += depositAmount;
 							tokensOwned += depositAmount; // Assuming 1:1 ratio for now
 						}
 					}
 					
-					console.log('Found deposits for SFT:', sftDeposits.length, 'Total invested:', totalInvested);
 					
 					let totalEarned = 0;
 					let unclaimedAmount = 0;
@@ -372,9 +351,7 @@
 					for (const field of ENERGY_FIELDS) {
 						for (const token of field.sftTokens) {
 							if (token.address.toLowerCase() === sft.id.toLowerCase()) {
-								console.log('Found matching token in ENERGY_FIELDS:', token.address);
 								if (token.claims && token.claims.length > 0) {
-									console.log('Token has claims:', token.claims.length);
 									for (const claim of token.claims) {
 										if (claim.csvLink) {
 											const csvText = await fetchCsvData(claim.csvLink);
@@ -400,23 +377,18 @@
 														unclaimedAmount += csvUnclaimedAmount;
 													}
 													
-													console.log('CSV data processed - totalEarned:', csvTotalEarned, 'unclaimedAmount:', csvUnclaimedAmount);
 												} else {
-													console.log('No trades found for claim');
 												}
 											} else {
-												console.log('Failed to fetch CSV data');
 											}
 										}
 									}
 								} else {
-									console.log('Token has no claims');
 								}
 							}
 						}
 					}
 					
-					console.log('Final values for SFT:', {
 						totalInvested,
 						totalEarned,
 						unclaimedAmount,
@@ -569,7 +541,6 @@
 				};
 			});
 			
-			console.log('Final holdings created:', holdings.length, holdings.map(h => ({
 				name: h.name,
 				totalInvested: h.totalInvested,
 				totalPayoutsEarned: h.totalPayoutsEarned,
@@ -603,14 +574,12 @@
 				unclaimedPayout = 0;
 			}
 			
-			console.log('Portfolio stats calculated:', {
 				totalInvested,
 				totalPayoutsEarned,
 				activeAssetsCount,
 				unclaimedPayout
 			});
 		} else {
-			console.log('Stores are empty or null:', {
 				sfts: $sfts,
 				sftMetadata: $sftMetadata,
 				sftsLength: $sfts?.length,
@@ -742,7 +711,6 @@
 					{#each holdings as holding}
 						{@const flipped = $flippedCards.has(holding.id)}
 						{@const payoutData = flipped ? getPayoutChartData(holding) : []}
-						{console.log('Card flip state for', holding.id, ':', flipped)}
 						<div class="mb-4" style="perspective: 1000px;">
 							<div class="relative w-full transition-transform duration-500" style="transform-style: preserve-3d; transform: rotateY({flipped ? 180 : 0}deg); height: 320px;">
 								<!-- Front of card -->
@@ -788,7 +756,6 @@
 											<div class="flex gap-2">
 												<SecondaryButton size="small" href="/claims" fullWidth>Claims</SecondaryButton>
 												<SecondaryButton size="small" on:click={() => {
-													console.log('History button clicked for holding:', holding.id);
 													toggleCardFlip(holding.id);
 												}} fullWidth>History</SecondaryButton>
 											</div>

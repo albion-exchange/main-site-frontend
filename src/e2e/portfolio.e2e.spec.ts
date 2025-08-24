@@ -98,7 +98,8 @@ vi.mock('$lib/stores', async () => {
   const metadataData = [{
     id: 'meta-1',
     meta: createEncodedMetadata(wressleMetadata),
-    subject: '0x000000000000000000000000f836a500910453a397084ade41321ee20a5aade1'
+    subject: '0x000000000000000000000000f836a500910453a397084ade41321ee20a5aade1',
+    sender: '0xd2843d9e7738d46d90cb6dff8d6c83db58b9c165'
   }];
   
   return {

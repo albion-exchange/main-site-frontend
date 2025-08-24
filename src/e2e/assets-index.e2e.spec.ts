@@ -28,6 +28,11 @@ vi.mock('svelte-wagmi', async () => {
   } as any;
 });
 
+// Mock the environment variable for metadata admin
+vi.mock('$env/static/public', () => ({
+  PUBLIC_METABOARD_ADMIN: '0x1111111111111111111111111111111111111111'
+}));
+
 // Mock network config - only mock URLs, not data
 vi.mock('$lib/network', async () => {
   const actual = await vi.importActual<any>('$lib/network');

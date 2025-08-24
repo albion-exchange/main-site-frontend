@@ -104,7 +104,7 @@ export function usePlatformStats() {
           const sft = $sfts.find(s => s.id.toLowerCase() === tokenAddress);
           if (sft) {
             const pinnedMetadata = decodedMeta.find(
-              (meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
+              (meta) => meta?.contractAddress?.toLowerCase() === `0x000000000000000000000000${sft.id.slice(2).toLowerCase()}`
             );
             if (pinnedMetadata && pinnedMetadata.asset) {
               // Add country to set

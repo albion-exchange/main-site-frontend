@@ -93,8 +93,8 @@ export function useAssetDetailData(initialEnergyFieldId: string) {
       for (const sft of energyFieldSfts) {
         const pinnedMetadata: any = decodedMeta.find(
           (meta: any) =>
-            meta?.contractAddress ===
-            `0x000000000000000000000000${sft.id.slice(2)}`,
+            meta?.contractAddress?.toLowerCase() ===
+            `0x000000000000000000000000${sft.id.slice(2).toLowerCase()}`,
         );
 
         if (pinnedMetadata) {
