@@ -60,7 +60,7 @@ export function generateTokenInstanceFromSft(
     tokenType: "royalty", // SFTs are always royalty tokens, payment tokens are USDC, USDT or any other value token
     isActive: true, // SFTs are always active
     supply: {
-      maxSupply: sftMaxSharesSupply.toString(), // Needs to be edited.
+      maxSupply: sftMaxSharesSupply.toString(),
       mintedSupply: sft.totalShares.toString(),
     },
     holders: sft.tokenHolders.map((holder) => ({

@@ -46,7 +46,7 @@
 				const deocdedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
 				for(const sft of $sfts) {
 					const pinnedMetadata: any = deocdedMeta.find(
-						(meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
+						(meta) => meta?.contractAddress?.toLowerCase() === `0x000000000000000000000000${sft.id.slice(2).toLowerCase()}`
 					);
 					if(pinnedMetadata) {
 						const sftMaxSharesSupply = await readContract($wagmiConfig, {
@@ -311,7 +311,7 @@
 				style="transform: translateX(-{currentIndex * 100}%)"
 			>
 				{#each featuredTokensWithAssets as item, index}
-					{@const calculatedReturns = getTokenReturns(item.asset, item.token)}
+					{@const calculatedReturns = getTokenReturns(item.asset, item.token, item.token.supply.mintedSupply)}
 					<div class="{carouselSlideClasses} {index === currentIndex ? activeSlideClasses : inactiveSlideClasses}">
 						<div class={bannerCardClasses}>
 							<!-- Token Section -->

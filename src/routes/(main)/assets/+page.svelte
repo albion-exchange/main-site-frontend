@@ -30,8 +30,9 @@
 			if($sftMetadata && $sfts) {
 				const decodedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
 				for(const sft of $sfts) {
+					const targetAddress = `0x000000000000000000000000${sft.id.slice(2).toLowerCase()}`;
 					const pinnedMetadata: any = decodedMeta.find(
-						(meta) => meta?.contractAddress === `0x000000000000000000000000${sft.id.slice(2)}`
+						(meta) => meta?.contractAddress?.toLowerCase() === targetAddress
 					);
 					if(pinnedMetadata) {
 	
@@ -46,7 +47,6 @@
 						const assetInstance = generateAssetInstanceFromSftMeta(sft, pinnedMetadata);
 	
 						featuredTokensWithAssets.push({ token: tokenInstance, asset: assetInstance });
-					
 					}
 				}
 				

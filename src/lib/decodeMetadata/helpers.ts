@@ -78,7 +78,7 @@ export function encodeCBORStructure(structure: string, schemaHash: string) {
   if (typeof structure === "object") {
     structure = JSON.stringify(structure);
   }
-  const deflatedData = ethers.getBytes(deflateJson(structure)).buffer;
+  const deflatedData = ethers.getBytes(deflateJson(structure)).buffer as ArrayBuffer;
   return cborEncode(
     deflatedData,
     MAGIC_NUMBERS.OA_STRUCTURE,
@@ -133,7 +133,9 @@ export function bytesToMeta(bytes: any, type: any) {
       res = _meta;
     }
     return res;
-  } else throw new Error("invalid meta");
+  } else {
+    throw new Error("Not a valid Bytes string");
+  }
 }
 
 export function cborDecode(dataEncoded_: any) {
