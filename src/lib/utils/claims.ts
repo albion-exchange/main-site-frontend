@@ -2,7 +2,7 @@ import { ORDERBOOK_CONTRACT_ADDRESS } from "$lib/network";
 import { SimpleMerkleTree } from "@openzeppelin/merkle-tree";
 import { AbiCoder } from "ethers";
 import axios from "axios";
-import { ethers, Signature } from "ethers";
+import { ethers } from "ethers";
 import { Wallet, keccak256, hashMessage, getBytes, concat } from "ethers";
 import { formatEther, parseEther } from "viem";
 
@@ -283,13 +283,14 @@ export async function sortClaimsData(
   const decodedLogs = logs
     .map((log) => {
       const decodedData = decodeLogData(log.data);
-      return {
-        ...decodedData,
-      };
+      return decodedData;
     })
-    .filter(
-      (log) => log.address !== "0x0000000000000000000000000000000000000000",
-    );
+    .filter((log) => {
+      // Filter out null results and zero addresses
+      return log && 
+             log.address && 
+             log.address !== "0x0000000000000000000000000000000000000000";
+    });
 
   // Filter by owner address (required parameter)
   const normalizedOwnerAddress = ownerAddress.toLowerCase();
@@ -301,7 +302,7 @@ export async function sortClaimsData(
 
   // Filter decoded logs by owner address
   const filteredDecodedLogs = decodedLogs.filter(
-    (log) => log.address.toLowerCase() === normalizedOwnerAddress,
+    (log) => log?.address && log.address.toLowerCase() === normalizedOwnerAddress,
   );
 
   // Filter into claimed and unclaimed arrays
@@ -659,8 +660,8 @@ export function signContext(
   const digest = hashMessage(getBytes(contextHash));
 
   // 5. Sign the digest
-  const signatureHex = wallet.signingKey.sign(digest);
-  const signature = Signature.from(signatureHex);
+  const signature = wallet.signingKey.sign(digest);
+  // In ethers v6, sign returns a Signature object directly
   const signatureBytes = concat([
     getBytes(signature.r),
     getBytes(signature.s),
