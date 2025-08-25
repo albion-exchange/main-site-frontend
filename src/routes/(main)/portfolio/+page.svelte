@@ -376,24 +376,14 @@
 														csvUnclaimedAmount = Number(formatEther(BigInt(sortedClaimsData.totalUnclaimedAmount)));
 														unclaimedAmount += csvUnclaimedAmount;
 													}
-													
-												} else {
 												}
-											} else {
 											}
 										}
 									}
-								} else {
 								}
 							}
 						}
 					}
-					
-						totalInvested,
-						totalEarned,
-						unclaimedAmount,
-						tokensOwned
-					});
 					
 					// Only add to holdings if user actually owns tokens (has made deposits)
 					if(pinnedMetadata && tokensOwned > 0) {
@@ -541,12 +531,6 @@
 				};
 			});
 			
-				name: h.name,
-				totalInvested: h.totalInvested,
-				totalPayoutsEarned: h.totalPayoutsEarned,
-				sftAddress: h.sftAddress
-			})));
-			
 			// Calculate portfolio stats
 			// Total Invested: Sum of all deposits for all SFTs
 			if (allDepositsData.length > 0) {
@@ -573,18 +557,6 @@
 			} else {
 				unclaimedPayout = 0;
 			}
-			
-				totalInvested,
-				totalPayoutsEarned,
-				activeAssetsCount,
-				unclaimedPayout
-			});
-		} else {
-				sfts: $sfts,
-				sftMetadata: $sftMetadata,
-				sftsLength: $sfts?.length,
-				sftMetadataLength: $sftMetadata?.length
-			});
 		}	
 		pageLoading = false;
 		isLoadingData = false;

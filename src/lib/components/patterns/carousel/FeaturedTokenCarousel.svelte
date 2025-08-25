@@ -311,7 +311,7 @@
 				style="transform: translateX(-{currentIndex * 100}%)"
 			>
 				{#each featuredTokensWithAssets as item, index}
-					{@const calculatedReturns = getTokenReturns(item.asset, item.token)}
+					{@const calculatedReturns = getTokenReturns(item.asset, item.token, item.token.supply.mintedSupply)}
 					<div class="{carouselSlideClasses} {index === currentIndex ? activeSlideClasses : inactiveSlideClasses}">
 						<div class={bannerCardClasses}>
 							<!-- Token Section -->
