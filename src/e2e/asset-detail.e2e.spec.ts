@@ -1,5 +1,11 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/svelte/svelte5';
 import { vi, describe, it, beforeEach, expect, afterEach } from 'vitest';
+
+// Mock the environment variable before imports
+vi.mock('$env/static/public', () => ({
+  PUBLIC_METABOARD_ADMIN: '0x1111111111111111111111111111111111111111'
+}));
+
 import AssetDetailPage from '../routes/(main)/assets/[id]/+page.svelte';
 import { installHttpMocks } from './http-mock';
 
@@ -34,10 +40,6 @@ vi.mock('svelte-wagmi', async () => {
   } as any;
 });
 
-// Mock the environment variable for metadata admin
-vi.mock('$env/static/public', () => ({
-  PUBLIC_METABOARD_ADMIN: '0x1111111111111111111111111111111111111111'
-}));
 
 // Mock network config with proper ENERGY_FIELDS
 vi.mock('$lib/network', async () => {
@@ -67,6 +69,9 @@ vi.mock('@tanstack/svelte-query', () => ({
   createQuery: vi.fn(() => ({ subscribe: () => () => {} }))
 }));
 
+// Import wressle metadata for the mock
+// No longer need CBOR helper - HTTP mock handles it directly
+
 // DO NOT MOCK THESE - Let them use production code:
 // - $lib/stores
 // - $lib/queries/getSftMetadata
@@ -93,6 +98,13 @@ describe('Asset Detail Page E2E Tests', () => {
       address: ADDRESS,
       orderHash: ORDER,
       csvCid: CSV,
+      sfts: [{
+        address: ADDRESS,
+        name: 'Wressle-1 4.5% Royalty Stream',
+        symbol: 'ALB-WR1-R1',
+        totalShares: '1500000000000000000000', // 1500 tokens minted
+        // metadata removed - HTTP mock returns real CBOR
+      }]
     });
     
     // Import and populate stores with data from HTTP mocks

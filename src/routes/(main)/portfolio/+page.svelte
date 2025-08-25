@@ -249,10 +249,17 @@
 		await loadAllClaimsData();
 
 		if($sftMetadata && $sfts && $sfts.length > 0 && $sftMetadata.length > 0){
+			// Debug logging
+			if (import.meta.env.MODE === 'test') {
+				console.log('Portfolio loadSftData - sfts count:', $sfts.length, 'metadata count:', $sftMetadata.length, 'signerAddress:', $signerAddress);
+			}
 			const decodedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
 			
 			// Get deposits for this wallet
 			const deposits = await getAllDeposits($signerAddress || '');
+			if (import.meta.env.MODE === 'test') {
+				console.log('Portfolio loadSftData - deposits:', deposits?.length || 0);
+			}
 			
 			
 			
@@ -285,6 +292,10 @@
 			// Process each individual SFT token
 			for(const sft of uniqueSfts) {
 				// Find metadata for this SFT
+				if (import.meta.env.MODE === 'test') {
+					console.log('Looking for metadata for sft:', sft.id);
+					console.log('Available metadata addresses:', decodedMeta.map(m => m?.contractAddress));
+				}
 				const pinnedMetadata = decodedMeta.find(
 					(meta) => meta?.contractAddress?.toLowerCase() === `0x000000000000000000000000${sft.id.slice(2).toLowerCase()}`
 				);
@@ -382,6 +393,14 @@
 									}
 								}
 							}
+						}
+					}
+					
+					// Debug logging in test mode
+					if (import.meta.env.MODE === 'test') {
+						console.log('Portfolio debug - pinnedMetadata:', !!pinnedMetadata, 'tokensOwned:', tokensOwned, 'sft.id:', sft.id);
+						if (pinnedMetadata) {
+							console.log('Portfolio debug - asset:', (pinnedMetadata as any).asset);
 						}
 					}
 					

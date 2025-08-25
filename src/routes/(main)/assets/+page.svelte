@@ -28,12 +28,31 @@
 		try {
 			loading = true;
 			if($sftMetadata && $sfts) {
+				if ((import.meta as any).env?.MODE === 'test') {
+					console.log('Loading tokens - sfts:', $sfts.length, 'metadata:', $sftMetadata.length);
+				}
 				const decodedMeta = $sftMetadata.map((metaV1) => decodeSftInformation(metaV1));
+				if ((import.meta as any).env?.MODE === 'test') {
+					console.log('Decoded metadata:', decodedMeta.map(m => ({ 
+						contractAddress: m?.contractAddress,
+						hasData: !!m
+					})));
+				}
 				for(const sft of $sfts) {
+					const targetAddress = `0x000000000000000000000000${sft.id.slice(2).toLowerCase()}`;
 					const pinnedMetadata: any = decodedMeta.find(
-						(meta) => meta?.contractAddress?.toLowerCase() === `0x000000000000000000000000${sft.id.slice(2).toLowerCase()}`
+						(meta) => {
+							const match = meta?.contractAddress?.toLowerCase() === targetAddress;
+							if ((import.meta as any).env?.MODE === 'test' && !match && meta?.contractAddress) {
+								console.log('Address mismatch:', meta.contractAddress.toLowerCase(), 'vs', targetAddress);
+							}
+							return match;
+						}
 					);
 					if(pinnedMetadata) {
+						if ((import.meta as any).env?.MODE === 'test') {
+							console.log('Found metadata for SFT:', sft.id, 'activeAuthorizer:', sft.activeAuthorizer?.address);
+						}
 	
 						const sftMaxSharesSupply = await readContract($wagmiConfig, {
 							abi: authorizerAbi,
@@ -57,6 +76,9 @@
 
 		} catch(err) {
 			console.error('Featured tokens loading error:', err);
+			if (import.meta.env.MODE === 'test') {
+				console.error('Error details:', err);
+			}
 			loading = false;
 		}
 	}
