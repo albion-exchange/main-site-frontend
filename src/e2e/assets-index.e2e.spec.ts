@@ -149,7 +149,7 @@ describe('Assets Index Page E2E Tests', () => {
   });
 
   describe('Asset Cards Count', () => {
-    it('displays correct number of asset cards (2 energy fields)', async () => {
+    it('displays correct number of asset cards (1 energy field)', async () => {
       render(AssetsIndex);
       
       // Wait for content to load
@@ -195,19 +195,7 @@ describe('Assets Index Page E2E Tests', () => {
         expect(bodyText).toMatch(/Wressle oil field|Lincolnshire/);
     });
 
-    it('displays Gulf Deep Water asset card with correct details', async () => {
-      render(AssetsIndex);
-      
-      // Don't wait for loading - just check content after a short delay
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const bodyText = document.body.textContent || '';
-      // Gulf Deep Water won't display without metadata
-      // Just verify the page loads with some content
-      expect(bodyText.length).toBeGreaterThan(0);
-      // Should at least show Wressle assets or Available Assets
-      expect(bodyText).toMatch(/Wressle|Assets|Available/i);
-    });
+    // Removed Gulf Deep Water test - no longer have Gulf mock data
 
     it('shows asset financial metrics', async () => {
       render(AssetsIndex);
@@ -216,19 +204,16 @@ describe('Assets Index Page E2E Tests', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
       
       const bodyText = document.body.textContent || '';
-      // Test that sharePercentage from metadata is displayed (2.5%, 5%, 3%)
+      // Test that sharePercentage from metadata is displayed
       expect(bodyText).toMatch(/2\.5%/); // Wressle R1 sharePercentage from CBOR
-      expect(bodyText).toMatch(/5%/); // Wressle R2 sharePercentage from CBOR
-      expect(bodyText).toMatch(/3%/); // Gulf sharePercentage from CBOR
       
-      // Test that first payment dates from metadata are shown
-      expect(bodyText).toMatch(/2025-05-01/); // From CBOR decoded firstPaymentDate
-      expect(bodyText).toMatch(/2025-06-01/); // From CBOR decoded firstPaymentDate
+      // Test that first payment date from metadata is shown (format: "2025-05" from CBOR)
+      expect(bodyText).toMatch(/2025-05/); // From CBOR decoded firstPaymentDate
     });
   });
 
   describe('Token Information', () => {
-    it('displays correct number of tokens for Wressle (2 tokens)', async () => {
+    it('displays correct number of tokens for Wressle (1 token)', async () => {
       render(AssetsIndex);
       
       // Don't wait for loading - just check content after a short delay
@@ -241,18 +226,7 @@ describe('Assets Index Page E2E Tests', () => {
       expect(bodyText).toMatch(/4\.5%|2\.5%/); // Royalty percentage
     });
 
-    it('displays correct number of tokens for Gulf Deep Water (1 token)', async () => {
-      render(AssetsIndex);
-      
-      // Don't wait for loading - just check content after a short delay
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const bodyText = document.body.textContent || '';
-              // Should show Gulf token
-        expect(bodyText).toMatch(/ALB-GDW-R1/);
-        // Should show token percentage
-        expect(bodyText).toMatch(/3%/);
-    });
+    // Removed Gulf Deep Water test - no longer have Gulf mock data
 
     it('shows token availability status', async () => {
       render(AssetsIndex);
